@@ -4,7 +4,7 @@ Honest, phase-by-phase record. A phase is only marked done when every check ran 
 
 - [x] Phase 0 — Scaffold (see below)
 - [x] Phase 1 — Core engine
-- [ ] Phase 2 — Full story content
+- [x] Phase 2 — Full story content
 - [ ] Phase 3 — Shell and platform
 - [ ] Phase 4 — Mobile presenter
 - [ ] Phase 5 — Audio
@@ -61,3 +61,35 @@ Done:
 
 Verified: `npm run check` fully green (lint, format, typecheck, 99 tests, validate:story,
 build, budget 66.6 KB gz mobile).
+
+## Phase 2 — Full story content
+
+Done:
+
+- 77 story nodes: night 1 "Koʻchib kelish" (18), night 2 "Devor" (16), night 3 "Takror" (16),
+  night 4 "48" (20), night 5 "3:17" + endings (15, incl. endA/endB/endC). Validator green
+  (structure, reachability, all 3 endings reachable, 7 unique diary pages, no empty text,
+  conditional-fallback rules, placeholder whitelist).
+- Profile variants in use: fear (4-way voice lines n2), livesAlone (n1/n2), doorAtNight
+  (n1/n5), name (n4 passport line). n1_reaction (javob/sukut/urdi) echoed by the voice in
+  n2/n5. knows_48/knows_sardor gate n4 choice "Sardormisan?".
+- Hidden ending C gate at n5_final_choice: 7 diary pages + sanity ≥ 40 + never answered on
+  night 3 (flag answered_n3; expressed as {not:{flag:'answered_n3'}} — see DECISIONS 9).
+- Diary pages: n2 wardrobe + bathroom, n3 kitchen + carpet (after corridor loop), n4 flat-48
+  chair + night-4 carpet, n5 under the stopped clock.
+- Sanity budget verified end to end: a careful run reaches the C gate at ~50/100; the
+  "reduce" path (tea, avoid optional scares, never answer n3) is the intended one.
+- Text presenter (`?presenter=text`) with real-click e2e playthroughs to A (4.9s), B (4.6s),
+  C (6.5s) — all passing, zero console errors.
+- Apostrophe audit script run over all story strings: only U+02BB (ʻ) and U+2019 (’) in Uzbek
+  text; U+2018 eliminated.
+- Narrative proofread pass: fixed broken/weak lines (corridor "Dahdahiz" spellings, tv noise
+  line, knock-back line, wardrobe diary intro, landlord-note phrasing).
+
+Verified: `npm run check` green (99 tests, validator OK 77 nodes, budget green); Playwright
+A/B/C text-presenter playthroughs green against the production build.
+
+Notes:
+
+- The two validator warnings (flags `late_night`, `return_comment` never set by effects) are
+  intentional: they are shell-injected meta-horror flags set at boot / on resume (Phase 3+).

@@ -45,6 +45,11 @@ function pickVariant(line: Line, state: GameState) {
 
 export class StaticNarrationProvider implements NarrationProvider {
   async resolveLine(line: Line, state: GameState): Promise<string> {
+    return this.resolveLineSync(line, state)
+  }
+
+  /** Synchronous fast path for presenters that render immediately (text UI). */
+  resolveLineSync(line: Line, state: GameState): string {
     const variant = pickVariant(line, state)
     return resolvePlaceholders(variant.text, state.profile, state.flags)
   }

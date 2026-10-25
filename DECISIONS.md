@@ -25,3 +25,18 @@ Android phones"), recorded here.
    is Vercel; pushing is a user decision).
 8. **`tsx` runs `scripts/validate-story.ts`** so validation is plain TypeScript sharing the
    same types as the engine, without a build step.
+9. **`never_answered_n3` is expressed as `{not:{flag:'answered_n3'}}`.** Effects cannot
+   compute negations, so instead of a derived flag the Ending C gate condition reads
+   `answered_n3` (set only by night-3 answer choices) and inverts it. Equivalent semantics,
+   one less flag, no conditional effect machinery needed.
+10. **Meta-horror flags `late_night` and `return_comment` are shell-injected.** They appear in
+    story line conditions but are set by the platform shell at boot (local time 00:00–05:00)
+    and on resume-after-abandon. The validator's "never set" warnings for them are expected
+    and accepted.
+11. **StaticNarrationProvider has a sync fast path (`resolveLineSync`).** The
+    NarrationProvider interface stays async (the future AI provider needs it), but the static
+    implementation is pure computation; the text presenter uses the sync method so rendering
+    needs no waterfalls.
+12. **Sanity economy tuned for the Ending C gate.** Night 4's forced drops were reduced after
+    a full-path trace showed the C gate (sanity ≥ 40) unreachable; verified end-to-end that a
+    careful run arrives at ~50.

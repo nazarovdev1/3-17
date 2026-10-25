@@ -1,6 +1,15 @@
-import { GAME_TITLE } from '@/core/constants'
+import { TextPresenter } from '@/presenters/text/TextPresenter'
 
+/**
+ * Root switch. Phase 3 replaces the placeholder with the full shell
+ * (boot → warning → title → game); `?presenter=text` stays for story
+ * proofreading and fast e2e runs.
+ */
 export default function App() {
+  const params = new URLSearchParams(window.location.search)
+  if (params.get('presenter') === 'text') {
+    return <TextPresenter />
+  }
   return (
     <main
       style={{
@@ -14,7 +23,7 @@ export default function App() {
         fontFamily: 'monospace',
       }}
     >
-      <h1>{GAME_TITLE}</h1>
+      <h1>3:17</h1>
     </main>
   )
 }
