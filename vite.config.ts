@@ -38,5 +38,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['tests/setup.ts'],
     include: ['tests/unit/**/*.spec.{ts,tsx}'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/core/**'],
+      exclude: ['src/core/**/index.ts'],
+    },
   },
 })

@@ -49,6 +49,10 @@ export default tseslint.config(
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       '@typescript-eslint/consistent-type-imports': 'error',
+      // NarrationProvider and CloudStorageAdapter are async by contract (the AI
+      // provider and Telegram CloudStorage are async); implementations that are
+      // currently synchronous must keep the async signature.
+      '@typescript-eslint/require-await': 'off',
     },
   },
   {
