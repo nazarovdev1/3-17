@@ -530,3 +530,120 @@ input[type='range'] {
   font-size: 13px;
   z-index: 200;
 }
+
+/* Loading screen (F2): key ring + real progress line. */
+.loading-screen {
+  gap: 18px;
+}
+
+.keyring {
+  width: 136px;
+  height: 170px;
+  overflow: visible;
+}
+
+.keyring .key {
+  transform-box: view-box;
+  transform-origin: 60px 30px;
+  animation: key-sway 5.2s ease-in-out infinite;
+}
+
+.keyring .key-brass {
+  animation-duration: 4.1s;
+  animation-delay: -1.3s;
+}
+
+@keyframes key-sway {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .keyring .key {
+    animation: none;
+  }
+}
+
+.loading-place {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+  text-align: center;
+}
+
+.loading-line {
+  width: min(260px, 70vw);
+  height: 2px;
+  background: #2a2a2d;
+  overflow: hidden;
+}
+
+.loading-fill {
+  height: 100%;
+  background: var(--paper);
+  transform-origin: left center;
+  transition: transform 0.25s linear;
+}
+
+.loading-note {
+  margin: 0;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.55;
+  text-align: center;
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+.loading-retry {
+  width: auto;
+  min-height: 48px;
+  text-align: center;
+}
+
+/* Credits list inside Settings. */
+.credits {
+  max-height: 40vh;
+  overflow-y: auto;
+  border-top: 1px solid #2a2a2d;
+  padding-top: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.credits h3,
+.credits h4 {
+  margin: 8px 0 4px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+
+.credits h4 {
+  opacity: 0.7;
+}
+
+.credits-intro {
+  margin: 0 0 6px;
+  opacity: 0.7;
+}
+
+.credits ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.credits li {
+  opacity: 0.8;
+}
+
+.credits li span {
+  color: var(--paper);
+  opacity: 1;
+}

@@ -16,6 +16,8 @@ import { detectMode, type GameMode } from '@/platform/device/mode'
 import { checkGpu } from '@/platform/device/gpu'
 import { AudioController } from '@/audio/AudioController'
 import { HorrorEffects } from './HorrorEffects'
+import { LoadingScreen } from './LoadingScreen'
+import { useAssetLoad } from './assetLoadStore'
 import './shell.css'
 
 const DesktopPresenter = lazy(() => import('@/presenters/desktop/DesktopPresenter'))
@@ -125,6 +127,13 @@ export function GameShell() {
     return new TelegramAdapter().onBack(() => useGame.getState().setScreen(target))
   }, [screen])
 
+  // Desktop assets start loading as soon as the mode is known (during warning/title), so
+  // the loading screen is usually short or skipped.
+  const assetStatus = useAssetLoad((s) => s.status)
+  useEffect(() => {
+    if (bootDone && mode === 'desktop') useAssetLoad.getState().start()
+  }, [bootDone, mode])
+
   const realClock317Visible = useGame((s) => s.realClock317Visible)
   const dismissRealClock = useGame((s) => s.dismissRealClock317)
 
@@ -151,9 +160,13 @@ export function GameShell() {
             <MobilePresenter paused={screen === 'paused'} />
           ) : (
             <ErrorBoundary label="desktop" onError={fallBack}>
-              <Suspense fallback={<p className="subtitle">{ui('shell.preparing')}</p>}>
-                <DesktopPresenter paused={screen === 'paused'} onFallback={fallBack} />
-              </Suspense>
+              {assetStatus === 'done' ? (
+                <Suspense fallback={<LoadingScreen />}>
+                  <DesktopPresenter paused={screen === 'paused'} onFallback={fallBack} />
+                </Suspense>
+              ) : (
+                <LoadingScreen />
+              )}
             </ErrorBoundary>
           ))}
         {screen === 'settings' && (

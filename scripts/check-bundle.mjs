@@ -2,8 +2,8 @@
 // Mobile initial JS <= 250 KB gzipped; desktop 3D chunk subtree <= 700 KB gzipped.
 // Reads dist/.vite/manifest.json produced by `vite build` (manifest: true).
 import { gzipSync } from 'node:zlib'
-import { readFileSync, existsSync, statSync } from 'node:fs'
-import { join } from 'node:path'
+import { readFileSync, existsSync, statSync, readdirSync } from 'node:fs'
+import { join, relative } from 'node:path'
 
 const MOBILE_BUDGET_BYTES = 250 * 1024
 const DESKTOP_BUDGET_BYTES = 700 * 1024
@@ -101,4 +101,75 @@ if (leaked.length > 0) {
 } else {
   console.log('debug API: absent from production JS')
 }
+
+// FIX_PROMPT §3 asset budgets: desktop total ≤ 60 MB, flat 47 playable ≤ 25 MB (everything
+// the loading screen waits for, plus code and fonts), mobile stills ≤ 10 MB.
+const MB = 1024 * 1024
+const DESKTOP_TOTAL_BYTES = 60 * MB
+const PLAYABLE_BYTES = 25 * MB
+const STILLS_BYTES = 10 * MB
+const rootDir = join(distDir, '..')
+const assetManifest = JSON.parse(
+  readFileSync(join(rootDir, 'src', 'assets', 'manifest.gen.json'), 'utf8'),
+)
+const listed = new Set()
+let assetTotal = 0
+let flat47 = 0
+for (const a of assetManifest.assets) {
+  for (const file of Object.values(a.files)) {
+    listed.add(file.path)
+    const built = join(distDir, file.path)
+    if (!existsSync(built) || statSync(built).size !== file.bytes) {
+      console.error(`budget: ${file.path} missing from dist or size differs from the manifest`)
+      failed = true
+    }
+    assetTotal += file.bytes
+    if (a.group === 'flat47') flat47 += file.bytes
+  }
+}
+const walk = (dir) =>
+  existsSync(dir)
+    ? readdirSync(dir, { withFileTypes: true }).flatMap((d) =>
+        d.isDirectory() ? walk(join(dir, d.name)) : [join(dir, d.name)],
+      )
+    : []
+const publicDir = join(rootDir, 'public')
+const stillsDir = join(publicDir, 'assets', 'stills')
+const orphans = walk(join(publicDir, 'assets'))
+  .map((f) => relative(publicDir, f).split('\\').join('/'))
+  .filter((f) => !listed.has(f) && !f.startsWith('assets/stills/'))
+if (orphans.length > 0) {
+  console.error(`budget: files in public/assets not in the manifest: ${orphans.join(', ')}`)
+  failed = true
+}
+const stillsBytes = walk(stillsDir).reduce((sum, f) => sum + statSync(f).size, 0)
+const codeBytes = mobileBytes + desktopBytes + assetBytes
+const desktopTotal = assetTotal + codeBytes
+const playable = flat47 + codeBytes
+const mb = (n) => (n / MB).toFixed(1)
+console.log('--- asset budget report ---')
+console.log(`desktop total:       ${mb(desktopTotal)} MB / ${DESKTOP_TOTAL_BYTES / MB} MB`)
+console.log(`flat 47 playable:    ${mb(playable)} MB / ${PLAYABLE_BYTES / MB} MB`)
+console.log(`mobile stills:       ${mb(stillsBytes)} MB / ${STILLS_BYTES / MB} MB`)
+if (desktopTotal > DESKTOP_TOTAL_BYTES) {
+  console.error('budget: DESKTOP TOTAL asset budget exceeded')
+  failed = true
+}
+if (playable > PLAYABLE_BYTES) {
+  console.error('budget: flat 47 PLAYABLE budget exceeded')
+  failed = true
+}
+if (stillsBytes > STILLS_BYTES) {
+  console.error('budget: MOBILE STILLS budget exceeded')
+  failed = true
+}
+// The asset QA bench is dev/test only.
+const benchLeak = walk(join(distDir, 'assets'))
+  .filter((f) => f.endsWith('.js'))
+  .filter((f) => readFileSync(f, 'utf8').includes('data-assetview'))
+if (benchLeak.length > 0) {
+  console.error(`budget: asset bench found in production JS: ${benchLeak.join(', ')}`)
+  failed = true
+}
+
 process.exit(failed ? 1 : 0)

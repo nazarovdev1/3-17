@@ -280,3 +280,38 @@ test('WebGL 1 alone falls back to a playable mobile scene', async ({ page }) => 
   await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
   await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n1_hub')
 })
+
+test('flat 47 assets load behind the key-ring screen with real progress', async ({ page }) => {
+  const released: (() => void)[] = []
+  let hold = true
+  await page.route(/\/assets\/(models|textures|hdri)\//, async (route) => {
+    if (hold) await new Promise<void>((resolve) => released.push(resolve))
+    await route.continue()
+  })
+  await page.goto('/?debug=1')
+  await startNamedRun(page, 'Dilnoza')
+  const bar = page.getByRole('progressbar', { name: ui('loading.label') })
+  await expect(bar).toBeVisible()
+  await expect(page.getByText(ui('loading.place'))).toBeVisible()
+  const before = Number(await bar.getAttribute('aria-valuenow'))
+  expect(before).toBeLessThan(100)
+  hold = false
+  released.splice(0).forEach((release) => release())
+  await expect(page.locator('.desktop-view canvas')).toBeVisible()
+  await expect(bar).toHaveCount(0)
+})
+
+test('a failed asset download offers a retry that recovers', async ({ page }) => {
+  let fail = true
+  await page.route(/\/assets\/models\/sofa_03\.glb/, (route) =>
+    fail ? route.abort('failed') : route.continue(),
+  )
+  // The aborted request is expected; only the shell's own error UI matters here.
+  ;(page as unknown as { errors: string[] }).errors = []
+  await page.goto('/?debug=1')
+  await startNamedRun(page, 'Dilnoza')
+  await expect(page.getByRole('alert')).toHaveText(ui('loading.error'), { timeout: 20_000 })
+  fail = false
+  await page.getByRole('button', { name: ui('loading.retry') }).click()
+  await expect(page.locator('.desktop-view canvas')).toBeVisible()
+})

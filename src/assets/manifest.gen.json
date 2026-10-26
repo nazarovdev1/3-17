@@ -1,0 +1,693 @@
+{
+  "assets": [
+    {
+      "id": "sofa_03",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "hero",
+      "purpose": "room: the sofa-bed the player sleeps on",
+      "title": "Sofa 03",
+      "author": "Fran Calvente",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/sofa_03",
+      "license": "CC0-1.0",
+      "dimensionsM": [2.731, 0.925, 1.118],
+      "files": {
+        "model": {
+          "path": "assets/models/sofa_03.glb",
+          "bytes": 901088,
+          "sha256": "0ab669f64d1c1f4c"
+        }
+      },
+      "bytes": 901088
+    },
+    {
+      "id": "Television_01",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "hero",
+      "purpose": "room: old CRT TV (static, the room on screen)",
+      "title": "Television 01",
+      "author": "Gabriel Radić",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/Television_01",
+      "license": "CC0-1.0",
+      "dimensionsM": [0.6, 0.471, 0.457],
+      "files": {
+        "model": {
+          "path": "assets/models/Television_01.glb",
+          "bytes": 707100,
+          "sha256": "4c98dcbb950684d3"
+        }
+      },
+      "bytes": 707100
+    },
+    {
+      "id": "painted_wooden_nightstand",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "room: TV stand",
+      "title": "Painted Wooden Nightstand",
+      "author": "Kirill Sannikov",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/painted_wooden_nightstand",
+      "license": "CC0-1.0",
+      "dimensionsM": [0.505, 0.509, 0.616],
+      "files": {
+        "model": {
+          "path": "assets/models/painted_wooden_nightstand.glb",
+          "bytes": 311668,
+          "sha256": "be2f9804d5b43b3b"
+        }
+      },
+      "bytes": 311668
+    },
+    {
+      "id": "vintage_cabinet_01",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "room: glass-front sideboard (\"servant\")",
+      "title": "Vintage Cabinet 01",
+      "author": "Rico Cilliers",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/vintage_cabinet_01",
+      "license": "CC0-1.0",
+      "dimensionsM": [2.022, 0.67, 2.235],
+      "files": {
+        "model": {
+          "path": "assets/models/vintage_cabinet_01.glb",
+          "bytes": 945060,
+          "sha256": "650e9de4d1c7de54"
+        }
+      },
+      "bytes": 945060
+    },
+    {
+      "id": "book_encyclopedia_set_01",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "room: books in the sideboard",
+      "title": "Book Encyclopedia Set 01",
+      "author": "John Malcolm",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/book_encyclopedia_set_01",
+      "license": "CC0-1.0",
+      "dimensionsM": [0.551, 0.163, 0.237],
+      "files": {
+        "model": {
+          "path": "assets/models/book_encyclopedia_set_01.glb",
+          "bytes": 781512,
+          "sha256": "2942f3852fa8ac9a"
+        }
+      },
+      "bytes": 781512
+    },
+    {
+      "id": "wall_clock",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "hero",
+      "purpose": "room: the clock stopped at 3:17",
+      "title": "Wall Clock",
+      "author": "PierreB3D",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/wall_clock",
+      "license": "CC0-1.0",
+      "dimensionsM": [0.32, 0.047, 0.32],
+      "files": {
+        "model": {
+          "path": "assets/models/wall_clock.glb",
+          "bytes": 458284,
+          "sha256": "68dfc69bc9407eec"
+        }
+      },
+      "bytes": 458284
+    },
+    {
+      "id": "lightbulb_01",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "room/kitchen: bare ceiling bulb",
+      "title": "Lightbulb 01",
+      "author": "Josh Dean",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/lightbulb_01",
+      "license": "CC0-1.0",
+      "dimensionsM": [0.06, 0.06, 0.1],
+      "files": {
+        "model": {
+          "path": "assets/models/lightbulb_01.glb",
+          "bytes": 90016,
+          "sha256": "a9ee6548ac0341a8"
+        }
+      },
+      "bytes": 90016
+    },
+    {
+      "id": "electric_stove",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "kitchen: white enamel stove",
+      "title": "Electric Stove",
+      "author": "Kuutti Siitonen",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/electric_stove",
+      "license": "CC0-1.0",
+      "dimensionsM": [0.503, 0.648, 0.859],
+      "files": {
+        "model": {
+          "path": "assets/models/electric_stove.glb",
+          "bytes": 357460,
+          "sha256": "4bc04f09262d99a9"
+        }
+      },
+      "bytes": 357460
+    },
+    {
+      "id": "painted_wooden_table",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "kitchen: table",
+      "title": "Painted Wooden Table",
+      "author": "Kirill Sannikov",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/painted_wooden_table",
+      "license": "CC0-1.0",
+      "dimensionsM": [2.406, 1.137, 0.959],
+      "files": {
+        "model": {
+          "path": "assets/models/painted_wooden_table.glb",
+          "bytes": 164004,
+          "sha256": "ce3f20e8cf8810ba"
+        }
+      },
+      "bytes": 164004
+    },
+    {
+      "id": "painted_wooden_chair_02",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "kitchen: chair (x2, one moves)",
+      "title": "Painted Wooden Chair 02",
+      "author": "Kirill Sannikov",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/painted_wooden_chair_02",
+      "license": "CC0-1.0",
+      "dimensionsM": [0.639, 0.662, 1.264],
+      "files": {
+        "model": {
+          "path": "assets/models/painted_wooden_chair_02.glb",
+          "bytes": 449440,
+          "sha256": "ae58fec396610f7b"
+        }
+      },
+      "bytes": 449440
+    },
+    {
+      "id": "painted_wooden_stool",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "kitchen: stool",
+      "title": "Painted Wooden Stool",
+      "author": "Kirill Sannikov",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/painted_wooden_stool",
+      "license": "CC0-1.0",
+      "dimensionsM": [0.385, 0.406, 0.579],
+      "files": {
+        "model": {
+          "path": "assets/models/painted_wooden_stool.glb",
+          "bytes": 99824,
+          "sha256": "0d16534df2c55199"
+        }
+      },
+      "bytes": 99824
+    },
+    {
+      "id": "painted_wooden_cabinet",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "kitchen: cupboard, bread box",
+      "title": "Painted Wooden Cabinet",
+      "author": "Kirill Sannikov",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/painted_wooden_cabinet",
+      "license": "CC0-1.0",
+      "dimensionsM": [1.195, 0.617, 1.182],
+      "files": {
+        "model": {
+          "path": "assets/models/painted_wooden_cabinet.glb",
+          "bytes": 264680,
+          "sha256": "b96578676dbef303"
+        }
+      },
+      "bytes": 264680
+    },
+    {
+      "id": "vintage_electric_kettle",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "kitchen: kettle (tea beats)",
+      "title": "Vintage Electric Kettle",
+      "author": "SV Garip",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/vintage_electric_kettle",
+      "license": "CC0-1.0",
+      "dimensionsM": [0.321, 0.249, 0.305],
+      "files": {
+        "model": {
+          "path": "assets/models/vintage_electric_kettle.glb",
+          "bytes": 498172,
+          "sha256": "a16546d8206f5a14"
+        }
+      },
+      "bytes": 498172
+    },
+    {
+      "id": "pot_enamel_01",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "kitchen: enamel pot on the stove",
+      "title": "Pot Enamel 01",
+      "author": "Kuutti Siitonen",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/pot_enamel_01",
+      "license": "CC0-1.0",
+      "dimensionsM": [0.263, 0.18, 0.178],
+      "files": {
+        "model": {
+          "path": "assets/models/pot_enamel_01.glb",
+          "bytes": 149264,
+          "sha256": "f6db90b9484bb832"
+        }
+      },
+      "bytes": 149264
+    },
+    {
+      "id": "tea_set_01",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "kitchen: cups (piyola beats)",
+      "title": "Tea Set 01",
+      "author": "James Ray Cock, Rico Cilliers, Jurita Burger",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/tea_set_01",
+      "license": "CC0-1.0",
+      "dimensionsM": [0.918, 0.484, 0.165],
+      "files": {
+        "model": {
+          "path": "assets/models/tea_set_01.glb",
+          "bytes": 355652,
+          "sha256": "3e370d6eb02c8f75"
+        }
+      },
+      "bytes": 355652
+    },
+    {
+      "id": "cardboard_box_01",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "corridor: unpacked moving box",
+      "title": "Cardboard Box 01",
+      "author": "Rahul Chaudhary",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/cardboard_box_01",
+      "license": "CC0-1.0",
+      "dimensionsM": [0.387, 0.516, 0.342],
+      "files": {
+        "model": {
+          "path": "assets/models/cardboard_box_01.glb",
+          "bytes": 213320,
+          "sha256": "669b75a44bb39a48"
+        }
+      },
+      "bytes": 213320
+    },
+    {
+      "id": "trashbag",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "kitchen: rubbish by the door",
+      "title": "Trashbag",
+      "author": "Benny Weimer",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/trashbag",
+      "license": "CC0-1.0",
+      "dimensionsM": [0.528, 0.463, 0.575],
+      "files": {
+        "model": {
+          "path": "assets/models/trashbag.glb",
+          "bytes": 141924,
+          "sha256": "f601b1e83b6b3d34"
+        }
+      },
+      "bytes": 141924
+    },
+    {
+      "id": "bleach_bottle",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "bathroom: bleach under the sink",
+      "title": "Bleach Bottle",
+      "author": "James Ray Cock",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/bleach_bottle",
+      "license": "CC0-1.0",
+      "dimensionsM": [0.088, 0.061, 0.294],
+      "files": {
+        "model": {
+          "path": "assets/models/bleach_bottle.glb",
+          "bytes": 78112,
+          "sha256": "46b0e6ac8521b3b5"
+        }
+      },
+      "bytes": 78112
+    },
+    {
+      "id": "ornate_mirror_01",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "corridor: mirror by the door",
+      "title": "Ornate Mirror 01",
+      "author": "James Ray Cock",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/ornate_mirror_01",
+      "license": "CC0-1.0",
+      "dimensionsM": [0.486, 0.026, 0.744],
+      "files": {
+        "model": {
+          "path": "assets/models/ornate_mirror_01.glb",
+          "bytes": 276040,
+          "sha256": "5cec7a62c32c0fc7"
+        }
+      },
+      "bytes": 276040
+    },
+    {
+      "id": "WoodFloor014",
+      "kind": "texture",
+      "group": "flat47",
+      "tier": "hero",
+      "purpose": "room floor: herringbone parquet",
+      "title": "Wood Floor 014",
+      "author": "ambientCG (Lennart Demes)",
+      "source": "ambientcg",
+      "sourceUrl": "https://ambientcg.com/view?id=WoodFloor014",
+      "license": "CC0-1.0",
+      "files": {
+        "color": {
+          "path": "assets/textures/WoodFloor014/color.webp",
+          "bytes": 340030,
+          "sha256": "1e8841d404b1dde8"
+        },
+        "normal": {
+          "path": "assets/textures/WoodFloor014/normal.webp",
+          "bytes": 476978,
+          "sha256": "738ab5dcd949bba5"
+        },
+        "orm": {
+          "path": "assets/textures/WoodFloor014/orm.webp",
+          "bytes": 124428,
+          "sha256": "4de9281837dd6845"
+        }
+      },
+      "bytes": 941436
+    },
+    {
+      "id": "Wallpaper001C",
+      "kind": "texture",
+      "group": "flat47",
+      "tier": "hero",
+      "purpose": "flat 47 walls: cracked pale wallpaper",
+      "title": "Wallpaper 001 C",
+      "author": "ambientCG (Lennart Demes)",
+      "source": "ambientcg",
+      "sourceUrl": "https://ambientcg.com/view?id=Wallpaper001C",
+      "license": "CC0-1.0",
+      "files": {
+        "color": {
+          "path": "assets/textures/Wallpaper001C/color.webp",
+          "bytes": 83432,
+          "sha256": "8571712d03e80378"
+        },
+        "normal": {
+          "path": "assets/textures/Wallpaper001C/normal.webp",
+          "bytes": 588202,
+          "sha256": "be46800cf0c5e3d5"
+        },
+        "orm": {
+          "path": "assets/textures/Wallpaper001C/orm.webp",
+          "bytes": 353718,
+          "sha256": "0e9f717078f82d8c"
+        }
+      },
+      "bytes": 1025352
+    },
+    {
+      "id": "PaintedPlaster017",
+      "kind": "texture",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "ceilings: whitewashed plaster",
+      "title": "Painted Plaster 017",
+      "author": "ambientCG (Lennart Demes)",
+      "source": "ambientcg",
+      "sourceUrl": "https://ambientcg.com/view?id=PaintedPlaster017",
+      "license": "CC0-1.0",
+      "files": {
+        "color": {
+          "path": "assets/textures/PaintedPlaster017/color.webp",
+          "bytes": 30984,
+          "sha256": "fde29fc6a3437afb"
+        },
+        "normal": {
+          "path": "assets/textures/PaintedPlaster017/normal.webp",
+          "bytes": 237890,
+          "sha256": "e7e4997d7b4414d0"
+        },
+        "orm": {
+          "path": "assets/textures/PaintedPlaster017/orm.webp",
+          "bytes": 20538,
+          "sha256": "f3e6278a966cca59"
+        }
+      },
+      "bytes": 289412
+    },
+    {
+      "id": "PaintedWood005",
+      "kind": "texture",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "kitchen floor: dark painted boards",
+      "title": "Painted Wood 005",
+      "author": "ambientCG (Lennart Demes)",
+      "source": "ambientcg",
+      "sourceUrl": "https://ambientcg.com/view?id=PaintedWood005",
+      "license": "CC0-1.0",
+      "files": {
+        "color": {
+          "path": "assets/textures/PaintedWood005/color.webp",
+          "bytes": 238674,
+          "sha256": "4c6369fc86c38e14"
+        },
+        "normal": {
+          "path": "assets/textures/PaintedWood005/normal.webp",
+          "bytes": 195518,
+          "sha256": "3de715b685ff0196"
+        },
+        "orm": {
+          "path": "assets/textures/PaintedWood005/orm.webp",
+          "bytes": 187772,
+          "sha256": "3588d9d248f3b7a3"
+        }
+      },
+      "bytes": 621964
+    },
+    {
+      "id": "Tiles107",
+      "kind": "texture",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "bathroom walls: white square tiles",
+      "title": "Tiles 107",
+      "author": "ambientCG (Lennart Demes)",
+      "source": "ambientcg",
+      "sourceUrl": "https://ambientcg.com/view?id=Tiles107",
+      "license": "CC0-1.0",
+      "files": {
+        "color": {
+          "path": "assets/textures/Tiles107/color.webp",
+          "bytes": 12666,
+          "sha256": "6c6ae6f1083557f8"
+        },
+        "normal": {
+          "path": "assets/textures/Tiles107/normal.webp",
+          "bytes": 25462,
+          "sha256": "705a25291473a888"
+        },
+        "orm": {
+          "path": "assets/textures/Tiles107/orm.webp",
+          "bytes": 36606,
+          "sha256": "466bc21b0aa4646f"
+        }
+      },
+      "bytes": 74734
+    },
+    {
+      "id": "PaintedWood007C",
+      "kind": "texture",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "interior and entrance doors",
+      "title": "Painted Wood 007 C",
+      "author": "ambientCG (Lennart Demes)",
+      "source": "ambientcg",
+      "sourceUrl": "https://ambientcg.com/view?id=PaintedWood007C",
+      "license": "CC0-1.0",
+      "files": {
+        "color": {
+          "path": "assets/textures/PaintedWood007C/color.webp",
+          "bytes": 142948,
+          "sha256": "4026560e44920d2c"
+        },
+        "normal": {
+          "path": "assets/textures/PaintedWood007C/normal.webp",
+          "bytes": 134466,
+          "sha256": "2aaac7c81866d408"
+        },
+        "orm": {
+          "path": "assets/textures/PaintedWood007C/orm.webp",
+          "bytes": 165980,
+          "sha256": "ab33d56ee39a7802"
+        }
+      },
+      "bytes": 443394
+    },
+    {
+      "id": "PaintedPlaster010",
+      "kind": "texture",
+      "group": "stairwell",
+      "tier": "hero",
+      "purpose": "stairwell and flat 48 walls: two-tone flaking",
+      "title": "Painted Plaster 010",
+      "author": "ambientCG (Lennart Demes)",
+      "source": "ambientcg",
+      "sourceUrl": "https://ambientcg.com/view?id=PaintedPlaster010",
+      "license": "CC0-1.0",
+      "files": {
+        "color": {
+          "path": "assets/textures/PaintedPlaster010/color.webp",
+          "bytes": 495976,
+          "sha256": "ec654e505a7fe0b2"
+        },
+        "normal": {
+          "path": "assets/textures/PaintedPlaster010/normal.webp",
+          "bytes": 1683132,
+          "sha256": "333629971297b0ef"
+        },
+        "orm": {
+          "path": "assets/textures/PaintedPlaster010/orm.webp",
+          "bytes": 1509064,
+          "sha256": "e4110858a806f613"
+        }
+      },
+      "bytes": 3688172
+    },
+    {
+      "id": "Concrete034",
+      "kind": "texture",
+      "group": "stairwell",
+      "tier": "normal",
+      "purpose": "stairwell: steps and landing",
+      "title": "Concrete 034",
+      "author": "ambientCG (Lennart Demes)",
+      "source": "ambientcg",
+      "sourceUrl": "https://ambientcg.com/view?id=Concrete034",
+      "license": "CC0-1.0",
+      "files": {
+        "color": {
+          "path": "assets/textures/Concrete034/color.webp",
+          "bytes": 37444,
+          "sha256": "f514f6699ab46845"
+        },
+        "normal": {
+          "path": "assets/textures/Concrete034/normal.webp",
+          "bytes": 79698,
+          "sha256": "e07d84d80ffd9bb5"
+        },
+        "orm": {
+          "path": "assets/textures/Concrete034/orm.webp",
+          "bytes": 48564,
+          "sha256": "83a9b075b643b01f"
+        }
+      },
+      "bytes": 165706
+    },
+    {
+      "id": "Wallpaper002C",
+      "kind": "texture",
+      "group": "flat48",
+      "tier": "normal",
+      "purpose": "flat 48 walls: stained wallpaper",
+      "title": "Wallpaper 002 C",
+      "author": "ambientCG (Lennart Demes)",
+      "source": "ambientcg",
+      "sourceUrl": "https://ambientcg.com/view?id=Wallpaper002C",
+      "license": "CC0-1.0",
+      "files": {
+        "color": {
+          "path": "assets/textures/Wallpaper002C/color.webp",
+          "bytes": 127106,
+          "sha256": "680ea21c18a9964d"
+        },
+        "normal": {
+          "path": "assets/textures/Wallpaper002C/normal.webp",
+          "bytes": 168664,
+          "sha256": "7d32e07622942c65"
+        },
+        "orm": {
+          "path": "assets/textures/Wallpaper002C/orm.webp",
+          "bytes": 104152,
+          "sha256": "7083d04d67a9570b"
+        }
+      },
+      "bytes": 399922
+    },
+    {
+      "id": "dikhololo_night",
+      "kind": "hdri",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "night sky for window light and reflections",
+      "title": "Dikhololo Night",
+      "author": "Greg Zaal",
+      "source": "polyhaven",
+      "sourceUrl": "https://polyhaven.com/a/dikhololo_night",
+      "license": "CC0-1.0",
+      "files": {
+        "hdr": {
+          "path": "assets/hdri/dikhololo_night.hdr",
+          "bytes": 1745132,
+          "sha256": "6861489f983cdc0c"
+        }
+      },
+      "bytes": 1745132
+    }
+  ]
+}

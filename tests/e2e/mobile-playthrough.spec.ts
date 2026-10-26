@@ -85,8 +85,10 @@ for (const ending of ['A', 'B', 'C'] as const) {
       await page.locator('.ending-narration').hover()
       await page.mouse.wheel(0, 1600)
       await expect(page.locator('.ending-narration .line').last()).toBeVisible()
-      if (ending === 'A')
-        await expect(page.locator('.ending-narration .line').last()).toContainText('Dilnoza')
+      // The last line of each ending is reachable by scrolling on a 360×640 screen.
+      await expect(page.locator('.ending-narration .line').last()).toContainText(
+        story.nodes[`end${ending}`]!.lines.at(-1)!.variants.at(-1)!.text,
+      )
       await page.screenshot({ path: `tests/screenshots/phase7-ending-${ending}-mobile-bottom.png` })
     }
   })

@@ -8,3 +8,4 @@ coverage
 .DS_Store
 audit/screenshots/
 .impeccable/hook.cache.json
+.asset-cache/

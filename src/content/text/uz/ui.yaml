@@ -57,6 +57,11 @@ settings:
   head_bob: Yurganda kamera chayqalishi
   language: Til
   language_value: Oʻzbekcha
+  credits: Mualliflar va litsenziyalar
+  credits_title: MUALLIFLAR
+  credits_intro: Oʻyindagi modellar, teksturalar va shriftlar ochiq litsenziya ostida. Ularni yaratganlarga rahmat.
+  credits_fonts: Shriftlar
+  credits_assets: Modellar va teksturalar
 
 pause:
   title: PAUZA
@@ -123,8 +128,14 @@ mobile:
   reveal: Hammasini koʻrsatish
   ending_label: Yakun manzarasi
 
+loading:
+  place: Chilonzor · toʻrtinchi qavat · 47-xonadon
+  label: Xonadon yuklanmoqda
+  percent: '{percent} %'
+  error: Fayllar yuklanmadi. Internetni tekshirib, qayta urinib koʻring.
+  retry: Qayta urinish
+
 shell:
-  preparing: Xonadon tayyorlanmoqda…
   fallback_notice: Tasvir yengil rejimga oʻtdi. Oʻyin davom etadi.
   real_317: Telefoningizdagi soatga qarang. U ham 3:17.
   audio_unlock: Davom etish uchun ekranga bosing

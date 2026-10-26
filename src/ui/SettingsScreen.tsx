@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { ui } from '@/content/text'
+import { CreditsList } from './CreditsList'
 import { useSettings, type TextSize } from './settingsStore'
 import type { GameMode } from '@/platform/device/mode'
 
-/** Settings screen (spec 8): mode, volumes, text size, flashing, head bob. */
+/** Settings screen (spec 8): mode, volumes, text size, flashing, head bob, credits. */
 export function SettingsScreen({
   onBack,
   mode,
@@ -14,6 +16,7 @@ export function SettingsScreen({
 }) {
   const settings = useSettings((s) => s.settings)
   const update = useSettings((s) => s.update)
+  const [creditsOpen, setCreditsOpen] = useState(false)
 
   return (
     <div className="screen">
@@ -100,6 +103,11 @@ export function SettingsScreen({
           <span>{ui('settings.language')}</span>
           <span style={{ opacity: 0.6 }}>{ui('settings.language_value')}</span>
         </div>
+
+        <button aria-expanded={creditsOpen} onClick={() => setCreditsOpen((open) => !open)}>
+          {ui('settings.credits')}
+        </button>
+        {creditsOpen && <CreditsList />}
 
         <button onClick={onBack}>{ui('common.back')}</button>
       </div>

@@ -16,14 +16,48 @@ Honest, phase-by-phase record. A phase is only marked done when every check ran 
 Fix phases (FIX_PROMPT.md):
 
 - [x] F0 — Audit and plan (`AUDIT.md`), approved by the owner
-- [x] F1 — Story and language (waiting for the owner's review of `SCRIPT_UZ.md`)
-- [ ] F2 — Asset pipeline
+- [x] F1 — Story and language, reviewed by the owner (8 fixes applied in `9c4dbb7`)
+- [x] F2 — Asset pipeline (waiting for the owner's look)
 - [ ] F3 — Desktop flat rebuild
 - [ ] F4 — Desktop horror
 - [ ] F5 — Audio
 - [ ] F6 — Mobile
 - [ ] F7 — Fear pass
 - [ ] F8 — Full QA
+
+## F2 — Asset pipeline
+
+Done:
+
+- `scripts/assets/sources.ts`: 29 pinned CC0 assets with purpose, tier and load group —
+  19 Poly Haven models (sofa, CRT TV, sideboard, stove, kitchen table/chairs/stool,
+  cupboard, kettle, enamel pot, tea set, bulb, wall clock, mirror, clutter), 9 ambientCG
+  PBR surfaces (herringbone parquet, two wallpapers, whitewash, painted boards, tiles, door
+  paint, flaking stairwell plaster, concrete) and one night HDRI.
+- `npm run assets` = `assets:fetch` (download into `.asset-cache/`, md5/size-checked,
+  forbidden-pack guard) + `assets:build` (gltf-transform: dedup, prune, weld, WebP textures
+  at 2K/1K/512 by tier, meshopt; surfaces → color/normal/ORM WebP; writes
+  `src/assets/manifest.gen.json` and `CREDITS.md`).
+- Runtime: `src/assets/loader.ts` (same-origin, hash-versioned URLs, streamed byte
+  progress, 3 attempts, dedupe, in-memory cache) and `src/presenters/desktop/assets.ts`
+  (`loadModel`, `loadPbr`, `loadHdri` from the preloaded bytes).
+- Key-ring loading screen with real progress and a retry on failure; loading begins at
+  boot in desktop mode; stairwell and flat 48 stream in the background.
+- Credits in Settings ("Mualliflar va litsenziyalar"): fonts + every asset from the manifest.
+- `npm run budget` now also checks: desktop total ≤ 60 MB (now 16.2 MB), flat 47 playable
+  ≤ 25 MB (now 12.2 MB), mobile stills ≤ 10 MB (none yet), every manifest file present
+  with the right size, no orphan files in `public/assets/`, asset bench absent from prod.
+- Asset bench `?assetview=1&view=models|surfaces` (dev/test only) to check the pipeline
+  output by eye; evidence in `audit/screenshots/f2/`.
+- Tests: manifest ↔ sources, licenses, credits, file sizes and hashes, meshopt GLBs;
+  loader progress, retries, give-up, dedupe, same-origin URLs; loading screen and credits
+  UI; E2E: key-ring screen before the flat, failed download → retry → recovers.
+
+Not in F2 (later phases): the assets are not placed in the flat yet (F3 builds the floor
+plan and furnishes it); fridge, sink, bathtub, washing machine, radiators, wardrobe, wall
+carpet, doors and coat hooks have no CC0 model in Poly Haven — F3 will look on Sketchfab
+(CC0/CC-BY) or build them as real-proportioned meshes with these PBR surfaces. Sounds wait
+for the Freesound key (F5). Mobile stills come in F6.
 
 ## F1 — Story and language
 

@@ -79,3 +79,20 @@ Android phones"), recorded here.
 20. **Fonts: Literata (narration) and Inter (UI)**, owner's choice. Both latin subsets carry
     ʻ U+02BB and ’ U+2019 (`scripts/verify-fonts.mjs` reads the cmap). IBM Plex Mono and
     Oswald were removed. Narration is 17/18/21 px for text size S/M/L.
+21. **Optimised assets are committed; raw downloads are not.** `npm run assets` downloads
+    into `.asset-cache/` (git-ignored, md5-checked against Poly Haven's API) and writes the
+    optimised copies to `public/assets/` plus `src/assets/manifest.gen.json` and
+    `CREDITS.md`. The optimised set (~16 MB) is in git so `npm run check`, CI and a fresh
+    clone build without network access. Re-run `npm run assets` only when `sources.ts` changes.
+22. **WebP, not KTX2.** KTX2/Basis needs the native `toktx` binary, which is not in this
+    toolchain; FIX_PROMPT §3 allows WebP as the fallback. Models use meshopt geometry
+    compression (decoder ships with three.js, no external request).
+23. **ORM packing.** Each surface ships three WebPs: color (sRGB), normal (OpenGL), and ORM
+    (R = AO, G = roughness, B = metalness), which three.js reads from one texture.
+24. **Loading starts at boot, not at "Yangi oʻyin".** In desktop mode the shell begins
+    loading flat 47 and the 3D chunk while the player reads the warning and title, so the
+    key-ring screen is short or skipped. Progress is real bytes for assets; the 3D chunk
+    (fetched by the browser, not by us) counts as one fixed block of its gzipped size.
+    Stairwell and flat 48 load in the background after flat 47.
+25. **Asset bench (`?assetview=1`)** exists in dev and test builds only; `npm run budget`
+    fails if it reaches production JS.

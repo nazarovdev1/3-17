@@ -1,10 +1,14 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { GameShell } from '@/ui/GameShell'
 import { ErrorBoundary } from '@/ui/ErrorBoundary'
 import { configureSaveService, useGame } from '@/ui/gameStore'
 import { LocalStorageAdapter } from '@/platform/storage/local'
 import { TelegramAdapter } from '@/platform/telegram/adapter'
 import { TextPresenter } from '@/presenters/text/TextPresenter'
+
+// Asset QA bench: dev and test builds only, compiled out of production.
+const ASSET_VIEW_ENABLED = import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1'
+const AssetViewer = ASSET_VIEW_ENABLED ? lazy(() => import('@/debug/AssetViewer')) : null
 
 /**
  * Root switch: ?presenter=text keeps the proofreading presenter; everything
@@ -13,6 +17,13 @@ import { TextPresenter } from '@/presenters/text/TextPresenter'
 export default function App() {
   const presenter = new URLSearchParams(window.location.search).get('presenter')
   if (presenter === 'text') return <TextPresenter />
+  if (AssetViewer && new URLSearchParams(window.location.search).get('assetview') === '1') {
+    return (
+      <Suspense fallback={null}>
+        <AssetViewer />
+      </Suspense>
+    )
+  }
 
   return (
     <ErrorBoundary label="root">

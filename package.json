@@ -24,7 +24,10 @@
     "text:build": "tsx scripts/text-build.ts",
     "lint:text": "tsx scripts/lint-text.ts",
     "predev": "npm run text:build",
-    "prebuild": "npm run text:build"
+    "prebuild": "npm run text:build",
+    "assets:fetch": "tsx scripts/assets/fetch.ts",
+    "assets:build": "tsx scripts/assets/build.ts",
+    "assets": "npm run assets:fetch && npm run assets:build"
   },
   "dependencies": {
     "@fontsource/inter": "5.3.0",
@@ -40,6 +43,9 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@gltf-transform/core": "4.5.1",
+    "@gltf-transform/extensions": "4.5.1",
+    "@gltf-transform/functions": "4.5.1",
     "@playwright/test": "1.64.1",
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/react": "16.3.3",
@@ -53,8 +59,11 @@
     "eslint": "10.13.0",
     "eslint-plugin-react-hooks": "7.1.1",
     "eslint-plugin-react-refresh": "0.5.7",
+    "fflate": "0.8.3",
     "jsdom": "30.1.3",
+    "meshoptimizer": "1.3.0",
     "prettier": "3.9.10",
+    "sharp": "0.35.5",
     "tsx": "4.23.15",
     "typescript": "5.9.3",
     "typescript-eslint": "8.72.0",
