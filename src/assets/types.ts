@@ -18,11 +18,15 @@ export interface ManifestAsset {
   purpose: string
   title: string
   author: string
-  source: 'polyhaven' | 'ambientcg'
+  source: 'polyhaven' | 'ambientcg' | 'sketchfab'
   sourceUrl: string
   license: 'CC0-1.0' | 'CC-BY-4.0'
   /** Real-world size in metres (width, height, depth) when the source publishes it. */
   dimensionsM?: [number, number, number]
+  /** Model only: bounding-box size of the shipped file in its own units (x, y, z). */
+  boundsM?: [number, number, number]
+  /** Model only: names of nodes with meshes (for packs placed piece by piece). */
+  nodes?: string[]
   /** model: { model }, texture: { color, normal, orm }, hdri: { hdr }. */
   files: Record<string, ManifestFile>
   bytes: number

@@ -96,3 +96,26 @@ Android phones"), recorded here.
     Stairwell and flat 48 load in the background after flat 47.
 25. **Asset bench (`?assetview=1`)** exists in dev and test builds only; `npm run budget`
     fails if it reaches production JS.
+26. **One world file.** `src/content/world/layout.ts` is the only place that knows where
+    anything is: rooms, walls with openings, doors, lights and every object (room, position,
+    rotation, real size, support, purpose). The desktop renderer, walking/collision,
+    `validate:world` and `docs/floorplan.svg` all read it. Flat 48 is generated from 47 as
+    a mirror image about the shared wall, minus most furniture, tinted for decay.
+27. **Plan.** Room 16.5 m² (5.0 × 3.3), kitchen 6.4 m², combined bathroom 3.5 m²,
+    corridor 1.2 m wide, built-in wardrobe; flat 47 ≈ 36 m² including the closet. The
+    corridor runs room → entrance with the kitchen on the left and the bathroom on the
+    right, as the story says. Flat 48 is behind the wall the sofa stands against.
+28. **Sketchfab (CC-BY) fills Poly Haven's gaps**: fridge, gas stove, sink run, bathtub,
+    pedestal sink, toilet, washing machine, cast-iron radiator, wall carpet, two ceiling
+    lamps, window frames, coat hooks, shoe rack. The token lives in `.env.local` only.
+    Packs are trimmed at build (`keep`), heavy meshes simplified (`simplify`). A model whose
+    title says "low-poly" is refused by the pipeline even when it looks fine.
+29. **Scale rule.** Every model is scaled uniformly to its declared real size; validate:world
+    fails if any axis then differs by more than 10 % (or 1 cm for thin items).
+30. **Rendering.** AgX tone mapping in the composer, N8AO and bloom on the high tier,
+    PCF soft shadows from one moving point light (the current room's bulb), the moon and
+    the torch (with a projected cookie); DPR up to 2 on real GPUs. SwiftShader (tests only)
+    renders at the old small size without shadows; `?quality=ultra` forces full quality.
+31. **Primitive figures removed.** The box-and-sphere neighbour and peephole figure are gone;
+    F4 builds the figure. The torch now follows the power (off while bulbs burn, on after
+    3:17) unless toggled with F.

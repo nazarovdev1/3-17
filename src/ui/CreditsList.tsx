@@ -7,7 +7,7 @@ export const FONT_CREDITS = [
   { title: 'Inter', author: 'Rasmus Andersson', license: 'OFL-1.1' },
 ]
 
-const SOURCE = { polyhaven: 'Poly Haven', ambientcg: 'ambientCG' } as const
+const SOURCE = { polyhaven: 'Poly Haven', ambientcg: 'ambientCG', sketchfab: 'Sketchfab' } as const
 
 /** Credits for every bundled third-party asset (FIX_PROMPT §3), shown in Settings. */
 export function CreditsList() {

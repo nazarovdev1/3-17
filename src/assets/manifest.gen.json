@@ -11,7 +11,19 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/sofa_03",
       "license": "CC0-1.0",
-      "dimensionsM": [2.731, 0.925, 1.118],
+      "dimensionsM": [
+        2.731,
+        0.925,
+        1.118
+      ],
+      "boundsM": [
+        2.731,
+        1.118,
+        0.925
+      ],
+      "nodes": [
+        "sofa_03"
+      ],
       "files": {
         "model": {
           "path": "assets/models/sofa_03.glb",
@@ -32,7 +44,19 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/Television_01",
       "license": "CC0-1.0",
-      "dimensionsM": [0.6, 0.471, 0.457],
+      "dimensionsM": [
+        0.6,
+        0.471,
+        0.457
+      ],
+      "boundsM": [
+        0.6,
+        0.457,
+        0.471
+      ],
+      "nodes": [
+        "Television_01"
+      ],
       "files": {
         "model": {
           "path": "assets/models/Television_01.glb",
@@ -53,7 +77,20 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/painted_wooden_nightstand",
       "license": "CC0-1.0",
-      "dimensionsM": [0.505, 0.509, 0.616],
+      "dimensionsM": [
+        0.505,
+        0.509,
+        0.616
+      ],
+      "boundsM": [
+        0.505,
+        0.616,
+        0.509
+      ],
+      "nodes": [
+        "painted_wooden_nightstand",
+        "painted_wooden_nightstand_drawer"
+      ],
       "files": {
         "model": {
           "path": "assets/models/painted_wooden_nightstand.glb",
@@ -74,7 +111,26 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/vintage_cabinet_01",
       "license": "CC0-1.0",
-      "dimensionsM": [2.022, 0.67, 2.235],
+      "dimensionsM": [
+        2.022,
+        0.67,
+        2.235
+      ],
+      "boundsM": [
+        2.022,
+        2.235,
+        0.67
+      ],
+      "nodes": [
+        "vintage_cabinet_01_body",
+        "vintage_cabinet_01_door_02",
+        "vintage_cabinet_01_door_01",
+        "vintage_cabinet_01_door_03",
+        "vintage_cabinet_01_door_04",
+        "vintage_cabinet_01_door_05",
+        "vintage_cabinet_01_door_06",
+        "vintage_cabinet_01_door_07"
+      ],
       "files": {
         "model": {
           "path": "assets/models/vintage_cabinet_01.glb",
@@ -95,7 +151,38 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/book_encyclopedia_set_01",
       "license": "CC0-1.0",
-      "dimensionsM": [0.551, 0.163, 0.237],
+      "dimensionsM": [
+        0.551,
+        0.163,
+        0.237
+      ],
+      "boundsM": [
+        0.551,
+        0.237,
+        0.163
+      ],
+      "nodes": [
+        "book_encyclopedia_set_01_book01",
+        "book_encyclopedia_set_01_book02",
+        "book_encyclopedia_set_01_book03",
+        "book_encyclopedia_set_01_book04",
+        "book_encyclopedia_set_01_book05",
+        "book_encyclopedia_set_01_book06",
+        "book_encyclopedia_set_01_book07",
+        "book_encyclopedia_set_01_book08",
+        "book_encyclopedia_set_01_book09",
+        "book_encyclopedia_set_01_book10",
+        "book_encyclopedia_set_01_book11",
+        "book_encyclopedia_set_01_book12",
+        "book_encyclopedia_set_01_book13",
+        "book_encyclopedia_set_01_book14",
+        "book_encyclopedia_set_01_book15",
+        "book_encyclopedia_set_01_book16",
+        "book_encyclopedia_set_01_book17",
+        "book_encyclopedia_set_01_book18",
+        "book_encyclopedia_set_01_book19",
+        "book_encyclopedia_set_01_book20"
+      ],
       "files": {
         "model": {
           "path": "assets/models/book_encyclopedia_set_01.glb",
@@ -116,7 +203,22 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/wall_clock",
       "license": "CC0-1.0",
-      "dimensionsM": [0.32, 0.047, 0.32],
+      "dimensionsM": [
+        0.32,
+        0.047,
+        0.32
+      ],
+      "boundsM": [
+        0.32,
+        0.32,
+        0.047
+      ],
+      "nodes": [
+        "wall_clock_minute_hand",
+        "wall_clock_second_hand",
+        "wall_clock_hours_hand",
+        "wall_clock"
+      ],
       "files": {
         "model": {
           "path": "assets/models/wall_clock.glb",
@@ -137,7 +239,19 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/lightbulb_01",
       "license": "CC0-1.0",
-      "dimensionsM": [0.06, 0.06, 0.1],
+      "dimensionsM": [
+        0.06,
+        0.06,
+        0.1
+      ],
+      "boundsM": [
+        0.06,
+        0.1,
+        0.06
+      ],
+      "nodes": [
+        "lightbulb_01"
+      ],
       "files": {
         "model": {
           "path": "assets/models/lightbulb_01.glb",
@@ -148,46 +262,37 @@
       "bytes": 90016
     },
     {
-      "id": "electric_stove",
-      "kind": "model",
-      "group": "flat47",
-      "tier": "normal",
-      "purpose": "kitchen: white enamel stove",
-      "title": "Electric Stove",
-      "author": "Kuutti Siitonen",
-      "source": "polyhaven",
-      "sourceUrl": "https://polyhaven.com/a/electric_stove",
-      "license": "CC0-1.0",
-      "dimensionsM": [0.503, 0.648, 0.859],
-      "files": {
-        "model": {
-          "path": "assets/models/electric_stove.glb",
-          "bytes": 357460,
-          "sha256": "4bc04f09262d99a9"
-        }
-      },
-      "bytes": 357460
-    },
-    {
-      "id": "painted_wooden_table",
+      "id": "wooden_table_02",
       "kind": "model",
       "group": "flat47",
       "tier": "normal",
       "purpose": "kitchen: table",
-      "title": "Painted Wooden Table",
-      "author": "Kirill Sannikov",
+      "title": "Wooden Table 02",
+      "author": "Serhii Khromov",
       "source": "polyhaven",
-      "sourceUrl": "https://polyhaven.com/a/painted_wooden_table",
+      "sourceUrl": "https://polyhaven.com/a/wooden_table_02",
       "license": "CC0-1.0",
-      "dimensionsM": [2.406, 1.137, 0.959],
+      "dimensionsM": [
+        1.134,
+        0.706,
+        0.8
+      ],
+      "boundsM": [
+        1.134,
+        0.8,
+        0.706
+      ],
+      "nodes": [
+        "wooden_table_02"
+      ],
       "files": {
         "model": {
-          "path": "assets/models/painted_wooden_table.glb",
-          "bytes": 164004,
-          "sha256": "ce3f20e8cf8810ba"
+          "path": "assets/models/wooden_table_02.glb",
+          "bytes": 234692,
+          "sha256": "549e35145257007a"
         }
       },
-      "bytes": 164004
+      "bytes": 234692
     },
     {
       "id": "painted_wooden_chair_02",
@@ -200,7 +305,19 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/painted_wooden_chair_02",
       "license": "CC0-1.0",
-      "dimensionsM": [0.639, 0.662, 1.264],
+      "dimensionsM": [
+        0.639,
+        0.662,
+        1.264
+      ],
+      "boundsM": [
+        0.639,
+        1.264,
+        0.662
+      ],
+      "nodes": [
+        "painted_wooden_chair_02"
+      ],
       "files": {
         "model": {
           "path": "assets/models/painted_wooden_chair_02.glb",
@@ -221,7 +338,19 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/painted_wooden_stool",
       "license": "CC0-1.0",
-      "dimensionsM": [0.385, 0.406, 0.579],
+      "dimensionsM": [
+        0.385,
+        0.406,
+        0.579
+      ],
+      "boundsM": [
+        0.385,
+        0.579,
+        0.406
+      ],
+      "nodes": [
+        "painted_wooden_stool"
+      ],
       "files": {
         "model": {
           "path": "assets/models/painted_wooden_stool.glb",
@@ -242,7 +371,23 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/painted_wooden_cabinet",
       "license": "CC0-1.0",
-      "dimensionsM": [1.195, 0.617, 1.182],
+      "dimensionsM": [
+        1.195,
+        0.617,
+        1.182
+      ],
+      "boundsM": [
+        1.195,
+        1.182,
+        0.617
+      ],
+      "nodes": [
+        "painted_wooden_cabinet",
+        "painted_wooden_cabinet_door_02",
+        "painted_wooden_cabinet_door_01",
+        "painted_wooden_cabinet_drawer_02",
+        "painted_wooden_cabinet_drawer_01"
+      ],
       "files": {
         "model": {
           "path": "assets/models/painted_wooden_cabinet.glb",
@@ -263,7 +408,19 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/vintage_electric_kettle",
       "license": "CC0-1.0",
-      "dimensionsM": [0.321, 0.249, 0.305],
+      "dimensionsM": [
+        0.321,
+        0.249,
+        0.305
+      ],
+      "boundsM": [
+        0.321,
+        0.305,
+        0.249
+      ],
+      "nodes": [
+        "vintage_electric_kettle"
+      ],
       "files": {
         "model": {
           "path": "assets/models/vintage_electric_kettle.glb",
@@ -284,7 +441,20 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/pot_enamel_01",
       "license": "CC0-1.0",
-      "dimensionsM": [0.263, 0.18, 0.178],
+      "dimensionsM": [
+        0.263,
+        0.18,
+        0.178
+      ],
+      "boundsM": [
+        0.263,
+        0.178,
+        0.18
+      ],
+      "nodes": [
+        "pot_enamel_01_lid",
+        "pot_enamel_01_base"
+      ],
       "files": {
         "model": {
           "path": "assets/models/pot_enamel_01.glb",
@@ -305,7 +475,28 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/tea_set_01",
       "license": "CC0-1.0",
-      "dimensionsM": [0.918, 0.484, 0.165],
+      "dimensionsM": [
+        0.918,
+        0.484,
+        0.165
+      ],
+      "boundsM": [
+        0.918,
+        0.165,
+        0.484
+      ],
+      "nodes": [
+        "tea_set_01_plate_large_square_01",
+        "tea_set_01_cup_small_01",
+        "tea_set_01_saucer_circular_03",
+        "tea_set_01_plate_large_circular_03",
+        "tea_set_01_sugar_cup_01",
+        "tea_set_01_teapot_01",
+        "tea_set_01_cup_small_02",
+        "tea_set_01_saucer_circular_04",
+        "tea_set_01_sugar_cup_01_lid",
+        "tea_set_01_teapot_01_lid"
+      ],
       "files": {
         "model": {
           "path": "assets/models/tea_set_01.glb",
@@ -326,7 +517,19 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/cardboard_box_01",
       "license": "CC0-1.0",
-      "dimensionsM": [0.387, 0.516, 0.342],
+      "dimensionsM": [
+        0.387,
+        0.516,
+        0.342
+      ],
+      "boundsM": [
+        0.387,
+        0.342,
+        0.516
+      ],
+      "nodes": [
+        "cardboard_box_01"
+      ],
       "files": {
         "model": {
           "path": "assets/models/cardboard_box_01.glb",
@@ -347,7 +550,19 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/trashbag",
       "license": "CC0-1.0",
-      "dimensionsM": [0.528, 0.463, 0.575],
+      "dimensionsM": [
+        0.528,
+        0.463,
+        0.575
+      ],
+      "boundsM": [
+        0.528,
+        0.575,
+        0.463
+      ],
+      "nodes": [
+        "trashbag"
+      ],
       "files": {
         "model": {
           "path": "assets/models/trashbag.glb",
@@ -368,7 +583,19 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/bleach_bottle",
       "license": "CC0-1.0",
-      "dimensionsM": [0.088, 0.061, 0.294],
+      "dimensionsM": [
+        0.088,
+        0.061,
+        0.294
+      ],
+      "boundsM": [
+        0.088,
+        0.294,
+        0.061
+      ],
+      "nodes": [
+        "bleach_bottle"
+      ],
       "files": {
         "model": {
           "path": "assets/models/bleach_bottle.glb",
@@ -389,7 +616,19 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/ornate_mirror_01",
       "license": "CC0-1.0",
-      "dimensionsM": [0.486, 0.026, 0.744],
+      "dimensionsM": [
+        0.486,
+        0.026,
+        0.744
+      ],
+      "boundsM": [
+        0.486,
+        0.744,
+        0.026
+      ],
+      "nodes": [
+        "ornate_mirror_01"
+      ],
       "files": {
         "model": {
           "path": "assets/models/ornate_mirror_01.glb",
@@ -398,6 +637,465 @@
         }
       },
       "bytes": 276040
+    },
+    {
+      "id": "fridge",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "kitchen: old white fridge",
+      "title": "Old Fridge",
+      "author": "dylanheyes",
+      "source": "sketchfab",
+      "sourceUrl": "https://sketchfab.com/3d-models/68d173f205344455933f861042b99fe3",
+      "license": "CC-BY-4.0",
+      "boundsM": [
+        5.503,
+        11.875,
+        5.6
+      ],
+      "nodes": [
+        "OldFridge.fbx_Shell_0",
+        "OldFridge.fbx_Element_0",
+        "OldFridge.fbx_Chrome_0",
+        "Fridge_BottomDoor_Shell_0",
+        "Fridge_BottomDoor_DoorTrim_0",
+        "Fridge_BottomDoor_Chrome_0",
+        "Fridge_TopDoor_Shell_0",
+        "Fridge_TopDoor_DoorTrim_0",
+        "Fridge_TopDoor_Chrome_0"
+      ],
+      "files": {
+        "model": {
+          "path": "assets/models/fridge.glb",
+          "bytes": 741116,
+          "sha256": "07bc1cf9477c2517"
+        }
+      },
+      "bytes": 741116
+    },
+    {
+      "id": "gas_stove",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "kitchen: gas stove",
+      "title": "Old Soviet Gas Stove",
+      "author": "shaqsh",
+      "source": "sketchfab",
+      "sourceUrl": "https://sketchfab.com/3d-models/0958b0ab4e2344cc847e14355f196512",
+      "license": "CC-BY-4.0",
+      "boundsM": [
+        0.523,
+        0.756,
+        0.38
+      ],
+      "nodes": [
+        "Object_6"
+      ],
+      "files": {
+        "model": {
+          "path": "assets/models/gas_stove.glb",
+          "bytes": 362352,
+          "sha256": "049b48227b5adb0f"
+        }
+      },
+      "bytes": 362352
+    },
+    {
+      "id": "kitchen_units",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "kitchen: sink run",
+      "title": "Modular kitchen cabinets",
+      "author": "sauti",
+      "source": "sketchfab",
+      "sourceUrl": "https://sketchfab.com/3d-models/4b765920f7c34676acda91c0bfd87abd",
+      "license": "CC-BY-4.0",
+      "boundsM": [
+        2.25,
+        1.371,
+        0.65
+      ],
+      "nodes": [
+        "CabinetTable_A.004_Material_0",
+        "Sink.001_Sink_0",
+        "Faucet.001_Sink_0",
+        "Cabinet_Back_B.003_Material_0",
+        "Cabinet_Back_B.004_Material_0",
+        "Cabinet_Side_B.007_Material_0",
+        "Cabinet_Side_B.008_Material_0",
+        "Cabinet_Side_B.009_Material_0",
+        "Cabinet_FrontA.006_Material_0",
+        "Cabinet_Handle.011_Material_0",
+        "Cabinet_Handle.012_Material_0",
+        "Cabinet_Shelf_A.007_Material_0",
+        "Cabinet_Shelf_A.006_Material_0",
+        "Cabinet_Shelf_A.008_Material_0"
+      ],
+      "files": {
+        "model": {
+          "path": "assets/models/kitchen_units.glb",
+          "bytes": 318944,
+          "sha256": "d7482eba0b207cc0"
+        }
+      },
+      "bytes": 318944
+    },
+    {
+      "id": "bathtub",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "bathroom: tub, curtain",
+      "title": "Bathtub with Shower",
+      "author": "HippoStance",
+      "source": "sketchfab",
+      "sourceUrl": "https://sketchfab.com/3d-models/22e187363dd14bc3a3e1b4611830236a",
+      "license": "CC-BY-4.0",
+      "boundsM": [
+        0.949,
+        2.122,
+        1.523
+      ],
+      "nodes": [
+        "ShowerCurtain_ShowerCurtain_0",
+        "BathTub_BathTub_0",
+        "BathTubHandleRight_BathTub_0",
+        "BathTubShowerHead_BathTub_0",
+        "BathTubHandleMiddle_BathTub_0",
+        "BathTubHandleLeft_BathTub_0"
+      ],
+      "files": {
+        "model": {
+          "path": "assets/models/bathtub.glb",
+          "bytes": 401432,
+          "sha256": "34e942d614ac3a45"
+        }
+      },
+      "bytes": 401432
+    },
+    {
+      "id": "bath_sink",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "bathroom: pedestal sink",
+      "title": "Sink",
+      "author": "lagesnpiet",
+      "source": "sketchfab",
+      "sourceUrl": "https://sketchfab.com/3d-models/a278d63585494921906ab3500c421ff7",
+      "license": "CC-BY-4.0",
+      "boundsM": [
+        0.471,
+        1.187,
+        0.62
+      ],
+      "nodes": [
+        "Cube__0"
+      ],
+      "files": {
+        "model": {
+          "path": "assets/models/bath_sink.glb",
+          "bytes": 86748,
+          "sha256": "e1a92634682d2f1d"
+        }
+      },
+      "bytes": 86748
+    },
+    {
+      "id": "toilet",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "bathroom: toilet",
+      "title": "Toilet",
+      "author": "HippoStance",
+      "source": "sketchfab",
+      "sourceUrl": "https://sketchfab.com/3d-models/132a8ee2af3a40d39d270fbed3d3666c",
+      "license": "CC-BY-4.0",
+      "boundsM": [
+        0.478,
+        0.744,
+        0.607
+      ],
+      "nodes": [
+        "Toilet_Toilet_0",
+        "ToiletSeatCover_Toilet_0",
+        "ToiletSeat_Toilet_0",
+        "ToiletSeatMount_Toilet_0",
+        "ToiletFlushHandle_Toilet_0"
+      ],
+      "files": {
+        "model": {
+          "path": "assets/models/toilet.glb",
+          "bytes": 204920,
+          "sha256": "08f0f2b5c8ab93e0"
+        }
+      },
+      "bytes": 204920
+    },
+    {
+      "id": "washing_machine",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "bathroom: old washer",
+      "title": "Washing Machine | Damages [XYZ School Homework]",
+      "author": "Maria Savelyeva",
+      "source": "sketchfab",
+      "sourceUrl": "https://sketchfab.com/3d-models/681661800df842c5bf3086e8888714b7",
+      "license": "CC-BY-4.0",
+      "boundsM": [
+        0.59,
+        0.877,
+        0.614
+      ],
+      "nodes": [
+        "01_Washing-machine_Machine_01_0",
+        "01_Washing-machine_Material #31_0",
+        "01_Washing-machine_Material #30_0",
+        "01_Washing-machine_Material #33_0",
+        "01_Washing-machine_Material #29_0",
+        "01_Washing-machine_Material #35_0",
+        "01_Washing-machine_Material #36_0",
+        "01_Washing-machine_Material #32_0",
+        "01_Washing-machine_Material #1754_0",
+        "01_Washing-machine_Material #34_0",
+        "01_Door_Material #30_0",
+        "01_Door_Material #38_0",
+        "01_Door_Material #29_0",
+        "01_Drum_Material #35_0",
+        "01_Drum_Material #29_0"
+      ],
+      "files": {
+        "model": {
+          "path": "assets/models/washing_machine.glb",
+          "bytes": 109480,
+          "sha256": "1458d4afc1356141"
+        }
+      },
+      "bytes": 109480
+    },
+    {
+      "id": "radiator",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "cast-iron radiator under windows",
+      "title": "Radiator",
+      "author": "Egor-pcp",
+      "source": "sketchfab",
+      "sourceUrl": "https://sketchfab.com/3d-models/657795450eb54753ba59826d67b6ad2d",
+      "license": "CC-BY-4.0",
+      "boundsM": [
+        3.079,
+        2.575,
+        0.784
+      ],
+      "nodes": [
+        "Object_4",
+        "Object_5"
+      ],
+      "files": {
+        "model": {
+          "path": "assets/models/radiator.glb",
+          "bytes": 138984,
+          "sha256": "6be76e754782aeda"
+        }
+      },
+      "bytes": 138984
+    },
+    {
+      "id": "wall_carpet",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "hero",
+      "purpose": "room: carpet on the shared wall",
+      "title": "Persian Rug",
+      "author": "Nicholas Record",
+      "source": "sketchfab",
+      "sourceUrl": "https://sketchfab.com/3d-models/fe13eecfc9b8405dab1fe76c5dd28a4c",
+      "license": "CC-BY-4.0",
+      "boundsM": [
+        300,
+        2.147,
+        521.393
+      ],
+      "nodes": [
+        "rug01_MDL_nar_blinn2_0"
+      ],
+      "files": {
+        "model": {
+          "path": "assets/models/wall_carpet.glb",
+          "bytes": 517328,
+          "sha256": "873cc0fa4f925590"
+        }
+      },
+      "bytes": 517328
+    },
+    {
+      "id": "chandelier",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "room: three-arm lamp",
+      "title": "lamp_low  an old Soviet ceiling lamp",
+      "author": "3dkot_space",
+      "source": "sketchfab",
+      "sourceUrl": "https://sketchfab.com/3d-models/ba27e3421b264d6d8d93ed3cdd8654ad",
+      "license": "CC-BY-4.0",
+      "boundsM": [
+        2.292,
+        2.022,
+        2.291
+      ],
+      "nodes": [
+        "_low_lamp med_0",
+        "_low_lemp glass emishen_0",
+        "_low_lamp ceramic_0",
+        "_low_lamp plastic_0",
+        "_low_lamp glass_0",
+        "_low_lamp med.2_0",
+        "_low_lamp med.3_0",
+        "_low_lamp med 4_0"
+      ],
+      "files": {
+        "model": {
+          "path": "assets/models/chandelier.glb",
+          "bytes": 572536,
+          "sha256": "968b5e0415c35516"
+        }
+      },
+      "bytes": 572536
+    },
+    {
+      "id": "pendant_bulb",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "corridor/kitchen/bath: bare bulb pendant",
+      "title": "Old Glass Ceilling Lamp",
+      "author": "TomasKiniulis",
+      "source": "sketchfab",
+      "sourceUrl": "https://sketchfab.com/3d-models/5747a012d6df466ca0e93665d67f5ac3",
+      "license": "CC-BY-4.0",
+      "boundsM": [
+        10.482,
+        50.468,
+        10.482
+      ],
+      "nodes": [
+        "defaultMaterial",
+        "defaultMaterial",
+        "defaultMaterial",
+        "defaultMaterial",
+        "defaultMaterial",
+        "defaultMaterial",
+        "defaultMaterial",
+        "defaultMaterial",
+        "defaultMaterial"
+      ],
+      "files": {
+        "model": {
+          "path": "assets/models/pendant_bulb.glb",
+          "bytes": 219664,
+          "sha256": "41542bc0ecb0728f"
+        }
+      },
+      "bytes": 219664
+    },
+    {
+      "id": "window",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "normal",
+      "purpose": "old painted window frame",
+      "title": "OLD PAINTED WOODEN WINDOWS",
+      "author": "Colin.Greenall",
+      "source": "sketchfab",
+      "sourceUrl": "https://sketchfab.com/3d-models/c60a6fe181e1482d96f9412a20c4a390",
+      "license": "CC-BY-4.0",
+      "boundsM": [
+        1.276,
+        1.248,
+        0.063
+      ],
+      "nodes": [
+        "WINDOW3_standardSurface6_0"
+      ],
+      "files": {
+        "model": {
+          "path": "assets/models/window.glb",
+          "bytes": 226428,
+          "sha256": "d0079021813639a6"
+        }
+      },
+      "bytes": 226428
+    },
+    {
+      "id": "coat_hooks",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "corridor: coat hooks",
+      "title": "Wall Mounted Coat Rack",
+      "author": "Logan S.",
+      "source": "sketchfab",
+      "sourceUrl": "https://sketchfab.com/3d-models/a8bdbea2931841b0b1a8163e7abdae53",
+      "license": "CC-BY-4.0",
+      "boundsM": [
+        0.49,
+        0.692,
+        2.936
+      ],
+      "nodes": [
+        "Cube_Material_0"
+      ],
+      "files": {
+        "model": {
+          "path": "assets/models/coat_hooks.glb",
+          "bytes": 53860,
+          "sha256": "1a45e19f09d6a990"
+        }
+      },
+      "bytes": 53860
+    },
+    {
+      "id": "shoe_rack",
+      "kind": "model",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "corridor: shoe rack",
+      "title": "Wooden shoe rack",
+      "author": "paolodl",
+      "source": "sketchfab",
+      "sourceUrl": "https://sketchfab.com/3d-models/6f13df8908214ad69675300e83289ebf",
+      "license": "CC-BY-4.0",
+      "boundsM": [
+        0.975,
+        3.677,
+        2.114
+      ],
+      "nodes": [
+        "Object_4",
+        "Object_5",
+        "Object_7",
+        "Object_8",
+        "Object_10",
+        "Object_11",
+        "Object_13",
+        "Object_14"
+      ],
+      "files": {
+        "model": {
+          "path": "assets/models/shoe_rack.glb",
+          "bytes": 38344,
+          "sha256": "1e8f12372ce82d1c"
+        }
+      },
+      "bytes": 38344
     },
     {
       "id": "WoodFloor014",

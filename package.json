@@ -17,7 +17,7 @@
     "test": "vitest run",
     "validate:story": "tsx scripts/validate-story.ts",
     "budget": "node scripts/check-bundle.mjs",
-    "check": "npm run text:build && npm run lint && npm run format:check && npm run typecheck && npm run lint:text && npm run test && npm run validate:story && npm run build && npm run budget",
+    "check": "npm run text:build && npm run lint && npm run format:check && npm run typecheck && npm run lint:text && npm run test && npm run validate:story && npm run validate:world && npm run build && npm run budget",
     "build:e2e": "vite build --mode e2e --outDir dist-e2e",
     "preview:e2e": "vite preview --outDir dist-e2e --port 4174 --strictPort",
     "e2e": "playwright test",
@@ -27,7 +27,8 @@
     "prebuild": "npm run text:build",
     "assets:fetch": "tsx scripts/assets/fetch.ts",
     "assets:build": "tsx scripts/assets/build.ts",
-    "assets": "npm run assets:fetch && npm run assets:build"
+    "assets": "npm run assets:fetch && npm run assets:build",
+    "validate:world": "tsx scripts/validate-world.ts"
   },
   "dependencies": {
     "@fontsource/inter": "5.3.0",

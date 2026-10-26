@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/immutability -- R3F scene handles are mutable Three.js objects, synchronized imperatively. */
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import {
   Box3,
@@ -9,6 +9,8 @@ import {
   Vector3,
   type PerspectiveCamera,
   type SpotLight,
+  CanvasTexture,
+  SRGBColorSpace,
 } from 'three'
 import { audio } from '@/audio/engine'
 import { useGame } from '@/ui/gameStore'
@@ -28,6 +30,8 @@ export interface RigProps {
   onSwitch: (index: number) => void
   onExtend: () => void
   extension: number
+  /** The torch casts shadows (and projects its cookie) where the GPU allows. */
+  shadows: boolean
 }
 export function CameraRig({
   step,
@@ -40,7 +44,10 @@ export function CameraRig({
   onSwitch,
   onExtend,
   extension,
+  shadows,
 }: RigProps) {
+  const cookie = useMemo(() => makeCookie(), [])
+  useEffect(() => () => cookie.dispose(), [cookie])
   const { camera, gl } = useThree()
   const angles = useRef({ yaw: 0, pitch: 0 })
   const keys = useRef(new Set<string>())
@@ -64,7 +71,7 @@ export function CameraRig({
   const turnedBack = step.node.id === 'n3_corridor_stop'
   useLayoutEffect(() => {
     const view = VIEWS[viewpoint]
-    const spawn: Point = peephole ? [0, 1.7, 7.12] : view.position
+    const spawn: Point = peephole ? [0, 1.62, 4.42] : view.position
     camera.position.set(...spawn)
     mirrorHistory.current = []
     angles.current = { yaw: peephole ? Math.PI : turnedBack ? 0 : view.yaw, pitch: 0 }
@@ -241,7 +248,7 @@ export function CameraRig({
       let best: Choice | null = null
       let bestDistance = 3.2
       for (const choice of choices) {
-        const point = interactionPoint(choice, extension, desktopRuntime.clockShifted ? 0.9 : 0)
+        const point = interactionPoint(choice, extension, desktopRuntime.clockShifted)
         if (!point) continue
         const vector = new Vector3(...point).sub(camera.position)
         const length = vector.length()
@@ -293,12 +300,49 @@ export function CameraRig({
   return (
     <spotLight
       ref={lamp}
-      color="#d3d9bf"
-      intensity={flashlight ? 20 : 0}
-      angle={0.28}
-      penumbra={0.6}
-      distance={10}
+      color="#e6e9dc"
+      intensity={flashlight ? 160 : 0}
+      angle={0.42}
+      penumbra={0.55}
+      distance={14}
       decay={2}
+      castShadow={shadows}
+      shadow-mapSize={[1024, 1024]}
+      shadow-bias={-0.0004}
+      map={shadows ? cookie : null}
     />
   )
+}
+
+/**
+ * Torch cookie (FIX_PROMPT §2): a hot centre, a darker ring from the reflector and faint
+ * smudges, projected through the spotlight. three.js only projects `map` with shadows on.
+ */
+function makeCookie(): CanvasTexture {
+  const size = 256
+  const canvas = document.createElement('canvas')
+  canvas.width = canvas.height = size
+  const ctx = canvas.getContext('2d')!
+  const c = size / 2
+  const g = ctx.createRadialGradient(c, c, 0, c, c, c)
+  g.addColorStop(0, '#ffffff')
+  g.addColorStop(0.18, '#f4f4f0')
+  g.addColorStop(0.3, '#b9b9b4')
+  g.addColorStop(0.38, '#d8d8d2')
+  g.addColorStop(0.75, '#5a5a57')
+  g.addColorStop(1, '#000000')
+  ctx.fillStyle = g
+  ctx.fillRect(0, 0, size, size)
+  ctx.globalAlpha = 0.08
+  for (let i = 0; i < 40; i++) {
+    const a = (i * 2.399) % (Math.PI * 2)
+    const r = (((i * 37) % 100) / 100) * c * 0.7
+    ctx.fillStyle = '#000000'
+    ctx.beginPath()
+    ctx.arc(c + Math.cos(a) * r, c + Math.sin(a) * r, 3 + (i % 5) * 2, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  const texture = new CanvasTexture(canvas)
+  texture.colorSpace = SRGBColorSpace
+  return texture
 }

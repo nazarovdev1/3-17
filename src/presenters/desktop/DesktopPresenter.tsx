@@ -2,8 +2,17 @@ import { ui } from '@/content/text'
 /* eslint-disable react-hooks/immutability -- Renderer diagnostics configure a mutable Three.js renderer, not React state. */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { EffectComposer, ChromaticAberration } from '@react-three/postprocessing'
-import { NoToneMapping, type Mesh } from 'three'
+import {
+  Bloom,
+  ChromaticAberration,
+  EffectComposer,
+  N8AO,
+  Noise,
+  ToneMapping,
+  Vignette,
+} from '@react-three/postprocessing'
+import { BlendFunction, ToneMappingMode } from 'postprocessing'
+import { NoToneMapping, PCFSoftShadowMap, type Mesh } from 'three'
 import { visibleChoices } from '@/core/engine'
 import { useGame } from '@/ui/gameStore'
 import { useSettings } from '@/ui/settingsStore'
@@ -12,10 +21,10 @@ import { NarrationText } from '@/ui/NarrationText'
 import { resolveAllLines } from '@/ui/NarrationText'
 import { sanityBand } from '@/core/state/sanity'
 import { PauseMenu } from '@/ui/GameScreen'
-import { QUALITY_HEIGHT, type QualityTier } from '@/platform/device/mode'
+import { type QualityTier } from '@/platform/device/mode'
 import { QualityGovernor } from '@/platform/device/quality'
 import { desktopRuntime } from '@/platform/device/desktopRuntime'
-import { createResources } from './textures'
+import { renderDpr, renderProfile } from './quality'
 import { World } from './World'
 import { CameraRig } from './CameraRig'
 import { interactionPoint } from './layout'
@@ -41,15 +50,16 @@ function Runtime({
   onLost: (lost: boolean) => void
 }) {
   const { gl, size, setDpr } = useThree()
+  const profile = useMemo(() => renderProfile(gl), [gl])
   const governor = useRef(new QualityGovernor())
   const elapsed = useRef(0)
   const last = useRef(0)
   const frames = useRef(0)
   useEffect(() => {
-    setDpr(Math.min(1, QUALITY_HEIGHT[tier] / Math.max(1, size.height)))
+    setDpr(renderDpr(tier, profile, size.height))
     governor.current.tier = tier
     governor.current.resetWindow()
-  }, [tier, size.height, setDpr])
+  }, [tier, size.height, setDpr, profile])
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout> | null = null
     const lost = (event: Event) => {
@@ -90,7 +100,8 @@ function Runtime({
       last.current = elapsed.current
       return
     }
-    const warmedUp = elapsed.current > 2
+    // ?quality=ultra (stills, QA captures) holds full quality whatever the frame rate.
+    const warmedUp = elapsed.current > 2 && !profile.ultra
     elapsed.current += delta
     if (warmedUp) {
       const action = governor.current.sample(delta)
@@ -123,23 +134,36 @@ function PostEffects({
   sanity: number
   reduced: boolean
 }) {
-  const size = useThree((s) => s.size)
+  const { size, gl } = useThree()
+  const profile = useMemo(() => renderProfile(gl), [gl])
   const aperture = useMemo(
     () => new PeepholeEffect(size.width / size.height),
     [size.width, size.height],
   )
   useEffect(() => () => aperture.dispose(), [aperture])
-  if (!peephole && (tier === 'low' || reduced || sanity >= 70)) return null
+  // Ambient occlusion and bloom only where the GPU can afford them (FIX_PROMPT §2).
+  const rich = tier === 'high' && !profile.software
+  const aberration = !reduced && sanity < 70 ? (100 - sanity) * 0.000012 : 0
   return (
-    <EffectComposer multisampling={0} enableNormalPass={false}>
-      {!reduced && sanity < 70 ? (
-        <ChromaticAberration
-          offset={reduced ? [0, 0] : [(100 - sanity) * 0.000012, 0]}
-          radialModulation={false}
-        />
+    <EffectComposer multisampling={rich ? 4 : 0} enableNormalPass={false}>
+      {rich ? (
+        <N8AO aoRadius={0.6} distanceFalloff={0.6} intensity={2.2} quality="medium" halfRes />
       ) : (
         <></>
       )}
+      {rich ? (
+        <Bloom intensity={0.4} luminanceThreshold={0.92} luminanceSmoothing={0.15} mipmapBlur />
+      ) : (
+        <></>
+      )}
+      {aberration > 0 ? (
+        <ChromaticAberration offset={[aberration, 0]} radialModulation={false} />
+      ) : (
+        <></>
+      )}
+      <ToneMapping mode={ToneMappingMode.AGX} />
+      <Vignette offset={0.3} darkness={0.6} />
+      <Noise premultiply blendFunction={BlendFunction.SCREEN} opacity={0.18} />
       {peephole ? <primitive object={aperture} /> : <></>}
     </EffectComposer>
   )
@@ -157,7 +181,7 @@ function Interactor({
   const point = interactionPoint(choice, extension)
   useFrame(({ clock }) => {
     if (mesh.current) mesh.current.scale.setScalar(0.8 + Math.sin(clock.elapsedTime * 2) * 0.15)
-    const target = interactionPoint(choice, extension, desktopRuntime.clockShifted ? 0.9 : 0)
+    const target = interactionPoint(choice, extension, desktopRuntime.clockShifted)
     if (mesh.current && target) mesh.current.position.set(...target)
   })
   if (!point) return null
@@ -192,7 +216,14 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
   const settings = useSettings((s) => s.settings)
   const [tier, setTier] = useState<QualityTier>('high')
   const [lost, setLost] = useState(false)
-  const [flashlight, setFlashlight] = useState(true)
+  // The torch follows the power: off while the bulbs burn, on after 3:17, unless the
+  // player has switched it by hand (F).
+  const [torchOverride, setTorchOverride] = useState<boolean | null>(null)
+  const outage =
+    !!step &&
+    (step.state.visitedNodes.includes(`n${step.state.night}_317`) ||
+      step.node.mobile?.vignette === 'room_dark')
+  const flashlight = torchOverride ?? outage
   const [lightsOff, setLightsOff] = useState<Set<number>>(() => new Set())
   const [near, setNear] = useState<Choice | null>(null)
   const [control, setControl] = useState<'lock' | 'drag'>('drag')
@@ -204,10 +235,12 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
       return true
     }
   })
-  const resources = useMemo(() => createResources(), [])
-  useEffect(() => () => resources.dispose(), [resources])
+  const [profile] = useState(() => renderProfile())
   const choices = useMemo(() => (step ? visibleChoices(step.node, step.state) : []), [step])
-  const toggleFlashlight = useCallback(() => setFlashlight((value) => !value), [])
+  const toggleFlashlight = useCallback(
+    () => setTorchOverride((value) => !(value ?? outage)),
+    [outage],
+  )
   const toggleSwitch = useCallback((index: number) => {
     setLightsOff((previous) => {
       const next = new Set(previous)
@@ -239,9 +272,6 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
   if (!step || !supported) return null
   const corridorExtension = step.node.id === 'n3_corridor_loop' ? extension : 0
   const peephole = step.node.mobile?.vignette === 'peephole'
-  const outage =
-    step.state.visitedNodes.includes(`n${step.state.night}_317`) ||
-    step.node.mobile?.vignette === 'room_dark'
   return (
     <div
       className={`game-area desktop-game sanity-${sanityBand(step.state.sanity)} ${settings.reduceFlashing ? 'reduce-flashing' : ''}`}
@@ -250,13 +280,15 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
     >
       <div className="desktop-view" aria-label={ui('desktop.scene_label')}>
         <Canvas
-          dpr={Math.min(1, QUALITY_HEIGHT[tier] / window.innerHeight)}
+          dpr={renderDpr(tier, profile, window.innerHeight)}
+          shadows={profile.shadows ? { type: PCFSoftShadowMap } : false}
           frameloop={paused || lost ? 'never' : 'always'}
-          camera={{ position: [0, 1.6, 0.2], fov: 66, near: 0.05, far: 45 }}
+          camera={{ position: [0.6, 1.6, -0.6], fov: 66, near: 0.05, far: 80 }}
           gl={{
             antialias: false,
             alpha: false,
-            powerPreference: 'low-power',
+            powerPreference: 'high-performance',
+            // Tone mapping (AgX) runs in the effect composer, on HDR input.
             toneMapping: NoToneMapping,
           }}
           fallback={<div className="desktop-loading">{ui('desktop.fallback_loading')}</div>}
@@ -269,15 +301,13 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
             onLost={setLost}
           />
           <World
-            resources={resources}
             outage={outage}
             doorAjar={step.state.night >= 4}
             corridorLength={corridorExtension + 1}
-            peephole={peephole}
             windowsDark={outage || step.node.id.endsWith('_316')}
             lightsOff={lightsOff}
-            neighbor={step.state.night === 2 && step.node.location === 'stairwell'}
             clockRequested={!!step.state.flags['clock_shifted']}
+            shadows={profile.shadows}
           />
           <CameraRig
             step={step}
@@ -290,6 +320,7 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
             onSwitch={toggleSwitch}
             onExtend={extend}
             extension={corridorExtension}
+            shadows={profile.shadows}
           />
           {choices.map((choice) => (
             <Interactor
@@ -306,8 +337,6 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
             reduced={settings.reduceFlashing}
           />
         </Canvas>
-        <div className="desktop-film" />
-        <div className="desktop-grain" style={{ backgroundImage: `url(${resources.grain})` }} />
         <span className="crosshair" aria-hidden="true">
           ·
         </span>

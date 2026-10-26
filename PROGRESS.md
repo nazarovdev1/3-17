@@ -17,13 +17,37 @@ Fix phases (FIX_PROMPT.md):
 
 - [x] F0 — Audit and plan (`AUDIT.md`), approved by the owner
 - [x] F1 — Story and language, reviewed by the owner (8 fixes applied in `9c4dbb7`)
-- [x] F2 — Asset pipeline (waiting for the owner's look)
-- [ ] F3 — Desktop flat rebuild
+- [x] F2 — Asset pipeline
+- [ ] F3 — Desktop flat rebuild (IN PROGRESS — see HANDOFF.md)
 - [ ] F4 — Desktop horror
 - [ ] F5 — Audio
 - [ ] F6 — Mobile
 - [ ] F7 — Fear pass
 - [ ] F8 — Full QA
+
+## F3 — Desktop flat rebuild
+
+Done:
+
+- `src/content/world/layout.ts`: the plan in metres (flat 47, 4th-floor landing with doors
+  46–49, lift and stairs, flat 48 mirrored and decayed): 24 walls with openings, 14 doors,
+  71 objects each with room, transform, real size, support and story purpose.
+- `docs/floorplan.svg` generated from it (`npm run validate:world` rewrites it).
+- `npm run validate:world` (in `check`): intersections (objects, walls minus openings),
+  floating, outside room, ±10 % scale, doorways clear, every room reachable on foot from the
+  entrance (10 cm grid on the same walk function the camera uses). Unit tests prove each
+  rule fires.
+- 15 Sketchfab CC-BY models added (credited); 42 assets, 19.4 MB.
+- Desktop renderer rebuilt (`src/presenters/desktop/World.tsx`, `world/*`): PBR walls with
+  per-room finishes and metric UVs, stairwell dado, doors on hinges, real fixtures, a live
+  bathroom mirror, the block opposite with windows that go dark, snow, the yard below.
+  Light: dim bulbs on 4 switch circuits, moon, sodium lamp, torch with cookie; AgX, N8AO,
+  bloom, grain, vignette.
+- Movement and story anchors now come from the plan (`src/content/world/walk.ts`,
+  `src/presenters/desktop/layout.ts`).
+
+Open / next (F4): the figure, the TV glow and on-screen picture, the phone as an object,
+interaction prompt only within 1.5 m, inspection in hand, the mirror's lagging reflection.
 
 ## F2 — Asset pipeline
 

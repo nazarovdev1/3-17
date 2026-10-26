@@ -151,6 +151,62 @@ async function fetchAmbientCg(entry: AssetSourceEntry, dir: string): Promise<Cac
   }
 }
 
+/** SKETCHFAB_TOKEN from the environment or .env.local (git-ignored); never committed. */
+function sketchfabToken(): string {
+  if (process.env.SKETCHFAB_TOKEN) return process.env.SKETCHFAB_TOKEN
+  const envFile = join(import.meta.dirname, '..', '..', '.env.local')
+  const match = existsSync(envFile)
+    ? /^SKETCHFAB_TOKEN=(\S+)$/m.exec(readFileSync(envFile, 'utf8'))
+    : null
+  if (!match) throw new Error('SKETCHFAB_TOKEN is not set (env or .env.local)')
+  return match[1]!
+}
+
+interface SfModel {
+  name: string
+  user: { displayName: string; username: string }
+  license: { slug: string }
+  faceCount: number
+}
+
+async function fetchSketchfab(entry: AssetSourceEntry, dir: string): Promise<CacheMeta> {
+  const auth = { Authorization: `Token ${sketchfabToken()}`, ...UA }
+  const api = `https://api.sketchfab.com/v3/models/${entry.remoteId}`
+  const model = (await (await fetch(api, { headers: auth })).json()) as SfModel
+  // The API's license slug must match what sources.ts declares.
+  const slug = { 'CC0-1.0': 'cc0', 'CC-BY-4.0': 'by' }[entry.license]
+  if (model.license?.slug !== slug) {
+    throw new Error(`${entry.id}: license is ${model.license?.slug}, expected ${slug}`)
+  }
+  if (FORBIDDEN_PATTERNS.some((p) => p.test(model.name))) {
+    throw new Error(`forbidden asset: ${entry.id} (${model.name})`)
+  }
+  const res = await fetch(`${api}/download`, { headers: auth })
+  if (!res.ok) throw new Error(`${entry.id}: download link ${res.status}`)
+  const links = (await res.json()) as Record<string, { url: string; size: number } | undefined>
+  const written: string[] = []
+  if (links.glb) {
+    const data = await get(links.glb.url)
+    if (data.length !== links.glb.size) throw new Error(`size mismatch for ${entry.id} glb`)
+    writeInside(dir, `${entry.id}.glb`, data)
+    written.push(`${entry.id}.glb`)
+  } else if (links.gltf) {
+    const zip = await get(links.gltf.url)
+    for (const [name, data] of Object.entries(unzipSync(new Uint8Array(zip)))) {
+      if (name.endsWith('/')) continue
+      writeInside(dir, name.replace(/^scene\.gltf$/, `${entry.id}.gltf`), data)
+      written.push(name)
+    }
+  } else throw new Error(`${entry.id}: no glTF download`)
+  return {
+    id: entry.id,
+    title: model.name,
+    author: model.user.displayName || model.user.username,
+    sourceUrl: `https://sketchfab.com/3d-models/${entry.remoteId}`,
+    files: written,
+  }
+}
+
 export function readMeta(id: string): CacheMeta | null {
   const path = join(CACHE, id, 'meta.json')
   return existsSync(path) ? (JSON.parse(readFileSync(path, 'utf8')) as CacheMeta) : null
@@ -169,7 +225,9 @@ async function main() {
     const meta =
       entry.source === 'polyhaven'
         ? await fetchPolyHaven(entry, dir)
-        : await fetchAmbientCg(entry, dir)
+        : entry.source === 'sketchfab'
+          ? await fetchSketchfab(entry, dir)
+          : await fetchAmbientCg(entry, dir)
     if (FORBIDDEN_PATTERNS.some((p) => p.test(meta.author))) {
       throw new Error(`forbidden author for ${entry.id}: ${meta.author}`)
     }
