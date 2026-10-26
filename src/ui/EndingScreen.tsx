@@ -1,4 +1,5 @@
 import { useGame } from './gameStore'
+import { EndingVignette } from '@/presenters/mobile/EndingVignette'
 
 const ENDING_TITLES: Record<string, string> = {
   A: 'Qoʻshni',
@@ -23,6 +24,7 @@ export function EndingScreen() {
 
   return (
     <div className="screen">
+      <EndingVignette ending={card.id} />
       <h1 className="title" style={{ fontSize: 40 }}>
         {title}
       </h1>

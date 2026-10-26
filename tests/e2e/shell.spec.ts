@@ -69,8 +69,8 @@ test('accept warning → title → full flow: form, night 1, save → reload →
   await page.getByRole('button', { name: 'Davom etish' }).first().click()
   await expect(page.getByText(/Xonadon sizniki/)).toBeVisible()
 
-  // Inspect the clock.
-  await page.getByRole('button', { name: /Devordagi soatga qarash/ }).click()
+  // Inspect the clock (panel button on desktop, shimmering hotspot on mobile).
+  await page.getByRole('button', { name: /Devordagi soatga qarash|^Soat$/ }).click()
   await expect(page.getByText(/Katta devor soati/)).toBeVisible()
 
   // Reload: the run must resume at the same node (save → reload → resume).

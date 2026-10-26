@@ -5,6 +5,7 @@ import { TitleScreen } from './TitleScreen'
 import { RentalForm } from './RentalForm'
 import { SettingsScreen } from './SettingsScreen'
 import { GameScreen } from './GameScreen'
+import { MobilePresenter } from '@/presenters/mobile/MobilePresenter'
 import { EndingScreen } from './EndingScreen'
 import { GalleryScreen } from './GalleryScreen'
 import { DebugOverlay } from '@/debug/DebugOverlay'
@@ -100,7 +101,12 @@ export function GameShell() {
         {screen === 'warning' && <ContentWarning />}
         {screen === 'title' && <TitleScreen mode={mode} />}
         {screen === 'form' && <RentalForm />}
-        {(screen === 'game' || screen === 'paused') && <GameScreen paused={screen === 'paused'} />}
+        {(screen === 'game' || screen === 'paused') &&
+          (mode === 'mobile' ? (
+            <MobilePresenter paused={screen === 'paused'} />
+          ) : (
+            <GameScreen paused={screen === 'paused'} />
+          ))}
         {screen === 'settings' && <SettingsScreen onBack={() => setScreen('title')} mode={mode} />}
         {screen === 'ending' && <EndingScreen />}
         {screen === 'gallery' && <GalleryScreen />}

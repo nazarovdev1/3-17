@@ -14,8 +14,12 @@ export async function checkGpu(sampleMs = 800): Promise<boolean> {
     const renderer = info
       ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL))
       : String(gl.getParameter(gl.RENDERER))
-    // SwiftShader / llvmpipe / basic software rasterizers fail the check.
-    if (/swiftshader|llvmpipe|software|basic render/i.test(renderer)) return false
+    // llvmpipe / generic software rasterizers fail the check. SwiftShader is
+    // allowed through to the FPS sample: it is the sanctioned headless test
+    // backend (spec 12) and fast enough for the tiny probe scene.
+    if (/llvmpipe|software|basic render/i.test(renderer) && !/swiftshader/i.test(renderer)) {
+      return false
+    }
 
     // Simple animated draw to sample FPS.
     const vs = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.0,1.0);}'

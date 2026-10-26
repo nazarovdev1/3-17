@@ -21,6 +21,8 @@
     "e2e": "npm run build && playwright test"
   },
   "dependencies": {
+    "@fontsource/ibm-plex-mono": "5.2.7",
+    "@fontsource/oswald": "5.2.8",
     "@react-three/drei": "10.7.9",
     "@react-three/fiber": "9.8.2",
     "@react-three/postprocessing": "3.2.2",

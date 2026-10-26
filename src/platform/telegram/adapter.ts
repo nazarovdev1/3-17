@@ -15,6 +15,15 @@ interface TgCloud {
   removeItem?: (key: string, cb?: (err: unknown, ok: boolean) => void) => void
 }
 export interface TelegramWebApp {
+  Gyroscope?: {
+    isStarted?: boolean
+    x: number
+    y: number
+    start?: (options: { refresh_rate: number }, callback: (started: boolean) => void) => void
+    stop?: () => void
+  }
+  onEvent?: (event: string, callback: () => void) => void
+  offEvent?: (event: string, callback: () => void) => void
   ready?: () => void
   expand?: () => void
   requestFullscreen?: () => void

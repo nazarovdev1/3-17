@@ -1,22 +1,6 @@
-import { useEffect, useState } from 'react'
 import { useGame } from './gameStore'
-import { StaticNarrationProvider } from '@/core/narration/static'
 import { visibleChoices } from '@/core/engine'
-import { useSettings } from './settingsStore'
-import type { GameState } from '@/core/state/types'
-
-const narration = new StaticNarrationProvider()
-
-const SPEAKER_CLASS: Record<string, string> = {
-  narrator: 'speaker-narrator',
-  voice: 'speaker-voice',
-  player: 'speaker-player',
-  landlord: 'speaker-landlord',
-  muhabbat: 'speaker-muhabbat',
-  diary: 'speaker-diary',
-}
-
-const TYPEWRITER_MS_PER_CHAR = 24
+import { NarrationText } from './NarrationText'
 
 /**
  * The in-game screen: narration lines with a skippable typewriter, choices,
@@ -45,7 +29,7 @@ export function GameScreen({ paused }: { paused: boolean }) {
       style={{ height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}
     >
       {/* Keyed by node so the typewriter restarts without effect cascades. */}
-      <Narration key={node.id} state={state} />
+      <NarrationText key={node.id} state={state} />
 
       {phase === 'next' && (
         <div className="choices">
@@ -108,39 +92,6 @@ export function GameScreen({ paused }: { paused: boolean }) {
           onQuit={quitToTitle}
         />
       )}
-    </div>
-  )
-}
-
-/** Typewriter narration; clicking the text skips to the end. */
-function Narration({ state }: { state: GameState }) {
-  const node = useGame((s) => s.currentStep?.node)
-  const [typed, setTyped] = useState(() =>
-    useSettings.getState().settings.reduceFlashing ? Number.MAX_SAFE_INTEGER : 0,
-  )
-
-  const lines = (node?.lines ?? []).map((line) => ({
-    speaker: line.speaker,
-    text: narration.resolveLineSync(line, state),
-  }))
-  const fullText = lines.map((l) => l.text).join('\n')
-
-  useEffect(() => {
-    if (typed >= fullText.length) return
-    const timer = window.setTimeout(() => setTyped((t) => t + 1), TYPEWRITER_MS_PER_CHAR)
-    return () => window.clearTimeout(timer)
-  }, [typed, fullText])
-
-  const shownText = fullText.slice(0, Math.min(typed, fullText.length))
-  const shownLines = shownText.split('\n')
-
-  return (
-    <div className="narration" onClick={() => setTyped(fullText.length)} role="presentation">
-      {shownLines.map((text, i) => (
-        <p key={i} className={`line ${SPEAKER_CLASS[lines[i]?.speaker ?? 'narrator'] ?? ''}`}>
-          {text}
-        </p>
-      ))}
     </div>
   )
 }

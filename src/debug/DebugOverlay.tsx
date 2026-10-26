@@ -64,6 +64,7 @@ export function DebugOverlay() {
       setFlag: (k: string, v: boolean | number | string) => useGame.getState().setFlag(k, v),
       setTime: (iso: string) => useGame.getState().debugSetTime(iso),
       getScreen: () => useGame.getState().screen,
+      getNodeId: () => useGame.getState().run?.currentNodeId ?? null,
       advance: () => useGame.getState().advance(),
     }
     return () => {

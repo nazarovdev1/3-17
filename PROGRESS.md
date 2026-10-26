@@ -6,7 +6,7 @@ Honest, phase-by-phase record. A phase is only marked done when every check ran 
 - [x] Phase 1 — Core engine
 - [x] Phase 2 — Full story content
 - [x] Phase 3 — Shell and platform
-- [ ] Phase 4 — Mobile presenter
+- [x] Phase 4 — Mobile presenter
 - [ ] Phase 5 — Audio
 - [ ] Phase 6 — Desktop 3D presenter
 - [ ] Phase 7 — Horror polish
@@ -138,5 +138,56 @@ Verified: `npm run check` green (117 unit tests, validator OK, mobile JS 87.9 KB
 e2e suites green, text-presenter A/B/C playthroughs still green.
 
 Notes:
+
 - Playwright projects force Chromium everywhere (spec 12 asks for Chromium+SwiftShader);
   iPhone 13 emulation therefore runs under Chromium, not WebKit.
+
+## Phase 4 — Mobile presenter
+
+Implemented:
+
+- Continued the existing uncommitted mobile draft. Canvas 2D scenes cover every story
+  location: room, kitchen, bathroom, corridor, balcony/window, stairwell, and flat 48;
+  dark-room, wall, landing, peephole, and three ending compositions are included.
+- Procedural furniture, wallpaper, window snow, stove/kettle, mirror/tiles, wardrobe,
+  carpet, calendar, diary page, and radiator; depth-dependent parallax, permanent grain,
+  scanlines and vignette. No remote visual assets or Three.js downloads on mobile.
+- Choice-backed 44 px hotspots; panel choices remain scrollable at 360×640. Shared
+  NarrationText retains skippable typewriter text and applies reversible corruption below
+  15 sanity. Colour drain, fine screen tears, and slow wobble follow sanity bands.
+- Voice overlay resets at every node, with delayed messages and a typing indicator.
+  Full-screen peephole retains readable, scrollable narration and a continuation control.
+- Hold-to-listen requires 700 ms, cancels on release/cancel, scene change or pause, and
+  emits heartbeat haptics. Engine haptics use Telegram with browser vibration fallback.
+- Telegram Gyroscope is feature/version gated; browser orientation requests permission
+  inside a gesture. Missing or denied sensors leave touch/pointer drag available. Canvas
+  reads mutable offsets rather than rebuilding its animation loop for each sensor sample.
+- Reduce flashing removes lamp flicker, screen tears, wobble, shimmer and text corruption;
+  subtitles and navigation remain available. Safe-area CSS and a centered phone frame.
+- Pinned local OFL fonts: IBM Plex Mono 5.2.7 and Oswald 5.2.8. Actual WOFF cmap entries
+  for U+02BB and U+2019 verified with `node scripts/verify-fonts.mjs`; both faces reviewed
+  in `tests/screenshots/mobile-font-glyphs.png`.
+
+Verification:
+
+- `npm run check`: green, 117 unit/component tests, 77-node validator green, mobile JS
+  93.1 KB gzipped (250 KB limit). The two existing meta-flag warnings remain intentional.
+- Real-input mobile playthroughs reach A, B and C, including the seven-page/sanity gate,
+  on 360×640. Scene sweep checks hotspot bounds across the story, peephole narration,
+  interrupted/successful holds, and pause/resume with DeviceOrientationEvent unavailable.
+- Full Playwright regression: 71 passed, 4 intentionally skipped (the no-WebGL-only
+  assertion is skipped in the four projects where WebGL is enabled). All three mobile
+  endings pass in all five projects; zero console/page errors. After the final hotspot
+  and hold-cleanup adjustments, reran the four small-Android mobile checks.
+- Opened and visually reviewed screenshots of every used mobile vignette and both fonts.
+  Review fixes: furnished formerly empty room, recognizable kitchen/bathroom details,
+  visible hotspot glints, preserved peephole text, and calendar target alignment.
+
+Not verified / later phases:
+
+- Physical iOS/Android sensor permission prompts, real Telegram Gyroscope and physical
+  haptics were not exercised on hardware. Chromium emulation is not a physical-device test.
+- Listening sound and all other audio remain Phase 5; desktop views remain Phase 6;
+  mirror lag, unobserved changes, corridor puzzle and fake-glitch polish remain Phase 7.
+  Performance/memory and full hardware/manual QA remain Phase 8.
+- Existing DECISIONS.md entries are unchanged. Stop here after the Phase 4 commit.

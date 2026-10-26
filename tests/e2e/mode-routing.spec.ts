@@ -6,6 +6,16 @@ import { acceptWarning } from './helpers'
  * work, routed into mobile mode ("telefon (2D)" on the title screen).
  */
 test('no WebGL → mobile mode on a desktop viewport', async ({ page }) => {
+  // Only meaningful in the no-webgl project (WebGL forced off); elsewhere the
+  // desktop viewport legitimately routes to desktop mode.
+  const hasWebgl = await page.evaluate(() => {
+    try {
+      return Boolean(document.createElement('canvas').getContext('webgl2'))
+    } catch {
+      return false
+    }
+  })
+  test.skip(hasWebgl, 'WebGL is available in this project')
   await page.goto('/')
   await acceptWarning(page)
   await expect(page.getByRole('button', { name: 'Yangi oʻyin' })).toBeVisible()

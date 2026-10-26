@@ -5,7 +5,7 @@
   --green: #9fbf8f;
   --paper: #cfc6b0;
   --danger: #8e1f1f;
-  --font-body: 'Courier New', Courier, monospace;
+  --font-body: 'IBM Plex Mono', monospace;
 }
 
 * {
@@ -59,6 +59,7 @@ button:disabled {
 }
 
 .screen .title {
+  font-family: 'Oswald', sans-serif;
   font-size: 64px;
   letter-spacing: 8px;
   color: var(--orange);
@@ -268,4 +269,224 @@ input[type='range'] {
   background: var(--bg);
   position: relative;
   overflow: hidden;
+}
+
+.hotspot {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  border: none;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #cfc6b0aa 0 2px,
+    rgba(217, 138, 43, 0.18) 4px,
+    transparent 70%
+  );
+  animation: shimmer 2.6s ease-in-out infinite;
+  padding: 0;
+}
+
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.text-s .mobile-panel .line,
+.text-s .mobile-panel .subtitle {
+  font-size: 13px;
+}
+
+.text-m .mobile-panel .line,
+.text-m .mobile-panel .subtitle {
+  font-size: 15px;
+}
+
+.text-l .mobile-panel .line,
+.text-l .mobile-panel .subtitle {
+  font-size: 18px;
+}
+
+.chat-overlay {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.chat-bubble {
+  background: rgba(20, 26, 34, 0.92);
+  border: 1px solid #26313d;
+  color: var(--green);
+  padding: 6px 10px;
+  font-size: 13px;
+  max-width: 85%;
+  line-height: 1.4;
+}
+
+.chat-typing {
+  background: rgba(20, 26, 34, 0.7);
+  color: rgba(159, 191, 143, 0.6);
+  border: 1px dashed #26313d;
+  padding: 4px 10px;
+  font-size: 12px;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.mobile-game {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.mobile-scene {
+  height: 55%;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
+  background: #0b0b0c;
+}
+.mobile-scene canvas {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  display: block;
+}
+.mobile-panel {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(#141a22, #0b0b0c);
+}
+.mobile-panel .narration {
+  width: 100%;
+}
+.mobile-panel .choices {
+  width: 100%;
+  margin-top: auto;
+  flex-shrink: 0;
+}
+.mobile-panel button {
+  min-height: 44px;
+}
+.mobile-game .pause-button {
+  position: absolute;
+  top: max(8px, env(safe-area-inset-top));
+  right: 8px;
+  width: 44px;
+  height: 44px;
+  text-align: center;
+  background: #0b0b0cbb;
+  z-index: 5;
+}
+.hotspot-hint {
+  font-size: 12px;
+  opacity: 0.7;
+  line-height: 1.5;
+}
+.hotspot-label {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px;
+  background: #0b0b0cef;
+  font-size: 12px;
+  width: 120px;
+  opacity: 0;
+  pointer-events: none;
+}
+.hotspot:focus-visible .hotspot-label {
+  opacity: 1;
+}
+.hotspot:focus-visible {
+  outline: 1px solid var(--orange);
+}
+.hold-hotspot {
+  border: 1px dashed #9fbf8f55;
+}
+.listening .hold-hotspot {
+  background: #9fbf8f44;
+  transform: translate(-50%, -50%) scale(1.12);
+}
+.scene-caption {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  opacity: 0.7;
+  pointer-events: none;
+}
+.peephole-scene {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+}
+.peephole-panel {
+  z-index: 1;
+  margin-top: auto;
+  max-height: 45%;
+  flex: 0 1 auto;
+  background: #0b0b0ce8;
+}
+.sanity-subtle canvas {
+  filter: saturate(0.75);
+}
+.sanity-heavy canvas,
+.sanity-corrupt canvas {
+  filter: saturate(0.35);
+}
+.sanity-heavy .mobile-panel {
+  text-shadow:
+    1px 0 #8e1f1f55,
+    -1px 0 #9fbf8f33;
+}
+.reduce-flashing .hotspot,
+.reduce-flashing .chat-typing {
+  animation: none;
+  opacity: 0.8;
+}
+
+.ending-vignette {
+  width: min(200px, 36vw);
+  height: min(210px, 28vh);
+  image-rendering: pixelated;
+  border: 1px solid #282b2d;
+}
+.sanity-heavy canvas,
+.sanity-corrupt canvas {
+  animation: uneasy 4s ease-in-out infinite;
+}
+@keyframes uneasy {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(1px) skewY(0.2deg);
+  }
+}
+.reduce-flashing canvas {
+  animation: none;
+}
+.chat-overlay {
+  top: 56px;
+  max-height: calc(100% - 80px);
+  overflow-y: auto;
 }
