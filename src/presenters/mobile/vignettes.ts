@@ -31,6 +31,9 @@ export interface DrawCtx {
   /** Sanity 0..100 for distortion intensity. */
   sanity: number
   reduceFlashing?: boolean
+  clockShifted?: boolean
+  mirrorPx?: number
+  mirrorPy?: number
 }
 
 function rect(
@@ -84,10 +87,12 @@ function furnishedRoom(d: DrawCtx, lit: boolean): void {
   // Soviet wall carpet, clock stopped at 3:17.
   rect(d, 62, 127, 58, 67, '#342a26', 0.5)
   for (let i = 0; i < 5; i++) rect(d, 67 + i * 10, 134, 3, 50, '#615144', 0.5)
-  rect(d, 80, 112, 20, 21, PAL.wood, 0.5)
-  rect(d, 83, 115, 14, 15, PAL.paper, 0.5)
-  rect(d, 90, 122, 5, 1, '#191b1c', 0.5)
-  rect(d, 90, 122, 1, 6, '#191b1c', 0.5)
+  const clockX = d.clockShifted ? 28 : 0
+  if (d.clockShifted) rect(d, 80, 112, 20, 21, '#303337', 0.5)
+  rect(d, 80 + clockX, 112, 20, 21, PAL.wood, 0.5)
+  rect(d, 83 + clockX, 115, 14, 15, PAL.paper, 0.5)
+  rect(d, 90 + clockX, 122, 5, 1, '#191b1c', 0.5)
+  rect(d, 90 + clockX, 122, 1, 6, '#191b1c', 0.5)
   // Wardrobe, brass handle and tallies.
   rect(d, 130, 100, 30, 98, PAL.wood, 0.65)
   rect(d, 145, 105, 1, 89, '#171513', 0.65)
@@ -134,11 +139,20 @@ function windowView(d: DrawCtx, dark: boolean): void {
   d.c.fill()
   d.c.globalAlpha = 1
   // Opposite building windows; dark = one by one they go out (3:16).
-  const lit = dark ? 1 : 5
-  for (let i = 0; i < 5; i++) {
-    if (i < lit) rect(d, 30 + i * 24, 58, 10, 12, '#e8c87a', 0.5)
+  const litWindows = [2, 8, 15, 21, 28]
+  const extinguished = dark ? Math.min(5, Math.floor(d.t * 1.4)) : 0
+  for (let i = 0; i < 30; i++) {
+    const rank = litWindows.indexOf(i)
+    rect(
+      d,
+      22 + (i % 6) * 22,
+      52 + Math.floor(i / 6) * 25,
+      9,
+      12,
+      rank >= extinguished && rank >= 0 ? '#e8c87a' : '#101317',
+      0.5,
+    )
   }
-  rect(d, 44, 92, 12, 14, dark ? '#101317' : '#e8c87a', 0.5)
   snowfall(d, 60)
   // Windowsill.
   rect(d, 10, 190, 160, 8, PAL.wood, 0.2)
@@ -289,6 +303,7 @@ function ending(d: DrawCtx, id: 'a' | 'b' | 'c'): void {
 const DRAWERS: Record<string, (d: DrawCtx) => void> = {
   room_entry: (d) => furnishedRoom(d, true),
   room: (d) => furnishedRoom(d, true),
+  room_shifted: (d) => furnishedRoom(d, true),
   room_dark: (d) => furnishedRoom(d, false),
   balcony: (d) => windowView(d, false),
   window: (d) => windowView(d, false),
@@ -324,8 +339,9 @@ const DRAWERS: Record<string, (d: DrawCtx) => void> = {
     rect(d, 25, 149, 8, 14, PAL.metal, 0.6)
     rect(d, 29, 148, 14, 3, PAL.metal, 0.6)
     for (let x = 143; x < 160; x += 4) rect(d, x, 52, 1, 10, PAL.metal, 0.5)
-    rect(d, 83, 54, 14, 12, '#182123', 0.5)
-    rect(d, 77, 66, 26, 34, '#182123', 0.5)
+    const reflected = { ...d, px: d.mirrorPx ?? d.px, py: d.mirrorPy ?? d.py }
+    rect(reflected, 83, 54, 14, 12, '#0e1719', 0.5)
+    rect(reflected, 77, 66, 26, 34, '#0e1719', 0.5)
   },
   corridor: (d) => corridor(d, false),
   corridor_stretched: (d) => corridor(d, true),
@@ -338,7 +354,7 @@ const DRAWERS: Record<string, (d: DrawCtx) => void> = {
   },
   flat48: (d) => flat48(d),
   wall: (d) => wallKnock(d, (d.t / 3) % 1),
-  peephole: (d) => peepholeView(d, true),
+  peephole: (d) => peepholeView(d, d.t < 1.5),
   peephole_empty: (d) => peepholeView(d, false),
   ending_a: (d) => ending(d, 'a'),
   ending_b: (d) => ending(d, 'b'),

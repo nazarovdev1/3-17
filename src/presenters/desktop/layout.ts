@@ -51,6 +51,7 @@ const CHOICE_OBJECT: Record<string, string> = {
   leave: 'front_door',
   open48: 'door48',
   wind: 'clock',
+  shifted_clock: 'clock',
   enter: 'door48',
   retreat: 'front_door',
   diary: 'chair',
@@ -58,13 +59,13 @@ const CHOICE_OBJECT: Record<string, string> = {
   keep: 'front_door',
   stop: 'corridor',
 }
-export function interactionPoint(choice: Choice, extension = 0): Point | null {
-  if (choice.to === 'n5_diary7') return [-1.1, 0.1, -2.55]
+export function interactionPoint(choice: Choice, extension = 0, clockOffset = 0): Point | null {
+  if (choice.to === 'n5_diary7') return [-1.1 + clockOffset, 0.1, -2.55]
   if (choice.to === 'n4_diary6') return [-1.8, 0.1, -0.2]
   const point = OBJECTS[CHOICE_OBJECT[choice.id] ?? choice.id]
   return point
     ? [
-        point[0],
+        point[0] + ((CHOICE_OBJECT[choice.id] ?? choice.id) === 'clock' ? clockOffset : 0),
         point[1],
         point[2] + (point[0] > -3 && point[0] < 3 && point[2] >= 4 ? extension : 0),
       ]

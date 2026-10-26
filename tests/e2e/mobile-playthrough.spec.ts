@@ -28,6 +28,7 @@ async function play(page: Page, ending: 'A' | 'B' | 'C') {
   const final =
     ending === 'C' ? /Soatni oʻrash/ : ending === 'B' ? /chiqib ketish/ : /Eshikni ochish/
   const seen = new Set<string>()
+  const visited = new Set<string>()
   let night = ''
   for (let i = 0; i < 250; i++) {
     if (
@@ -37,11 +38,33 @@ async function play(page: Page, ending: 'A' | 'B' | 'C') {
           exact: true,
         })
         .isVisible()
-    )
+    ) {
+      if (ending === 'C') {
+        expect([...new Set([...visited].map((id) => id.slice(0, 2)))].sort()).toEqual([
+          'n1',
+          'n2',
+          'n3',
+          'n4',
+          'n5',
+        ])
+        expect(visited.has('n3_room_return')).toBe(true)
+        await expect(page.locator('.ending-narration')).toContainText('Dunyo davom etdi.')
+        await test.info().attach('mobile-five-night-route', {
+          body: JSON.stringify([...visited]),
+          contentType: 'application/json',
+        })
+      }
       return
+    }
     const area = page.locator('.mobile-game')
     await expect(area).toBeVisible()
     const node = (await area.getAttribute('data-node')) ?? ''
+    if (!visited.has(node) && ending === 'C') {
+      await area.locator('.narration').click()
+      if (node.endsWith('_317') || node === 'n4_glitch' || node === 'n3_room_return')
+        await page.waitForTimeout(600)
+    }
+    visited.add(node)
     if (node.slice(0, 2) !== night) {
       night = node.slice(0, 2)
       seen.clear()
@@ -96,7 +119,13 @@ for (const ending of ['A', 'B', 'C'] as const) {
     await expect(page.locator('.mobile-game')).toBeVisible()
     await play(page, ending)
     if (info.project.name === 'small-android') {
-      await page.screenshot({ path: `tests/screenshots/mobile-ending-${ending}.png` })
+      await page.screenshot({ path: `tests/screenshots/phase7-ending-${ending}-mobile.png` })
+      await page.locator('.ending-narration').hover()
+      await page.mouse.wheel(0, 1600)
+      await expect(page.locator('.ending-narration .line').last()).toBeVisible()
+      if (ending === 'A')
+        await expect(page.locator('.ending-narration .line').last()).toContainText('Dilnoza')
+      await page.screenshot({ path: `tests/screenshots/phase7-ending-${ending}-mobile-bottom.png` })
     }
   })
 }

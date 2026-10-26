@@ -8,6 +8,8 @@ import { useGame } from '@/ui/gameStore'
 import { useSettings } from '@/ui/settingsStore'
 import { audio } from '@/audio/engine'
 import { NarrationText } from '@/ui/NarrationText'
+import { resolveAllLines } from '@/ui/NarrationText'
+import { sanityBand } from '@/core/state/sanity'
 import { PauseMenu } from '@/ui/GameScreen'
 import { QUALITY_HEIGHT, type QualityTier } from '@/platform/device/mode'
 import { QualityGovernor } from '@/platform/device/quality'
@@ -154,6 +156,8 @@ function Interactor({
   const point = interactionPoint(choice, extension)
   useFrame(({ clock }) => {
     if (mesh.current) mesh.current.scale.setScalar(0.8 + Math.sin(clock.elapsedTime * 2) * 0.15)
+    const target = interactionPoint(choice, extension, desktopRuntime.clockShifted ? 0.9 : 0)
+    if (mesh.current && target) mesh.current.position.set(...target)
   })
   if (!point) return null
   return (
@@ -223,7 +227,11 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
   }, [control])
   useEffect(() => {
     if (!step || paused || step.phase !== 'next' || step.node.desktop?.trigger !== 'timed') return
-    const delay = Math.max(step.node.desktop.delayMs ?? 4000, step.node.lines.length * 1500)
+    const characters = resolveAllLines(step.state).reduce(
+      (total, line) => total + line.text.length,
+      0,
+    )
+    const delay = Math.max(step.node.desktop.delayMs ?? 4000, characters * 24 + 1800)
     const timer = setTimeout(() => useGame.getState().advance(), delay)
     return () => clearTimeout(timer)
   }, [step, paused])
@@ -234,7 +242,11 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
     step.state.visitedNodes.includes(`n${step.state.night}_317`) ||
     step.node.mobile?.vignette === 'room_dark'
   return (
-    <div className="game-area desktop-game" data-node={step.node.id} data-tier={tier}>
+    <div
+      className={`game-area desktop-game sanity-${sanityBand(step.state.sanity)} ${settings.reduceFlashing ? 'reduce-flashing' : ''}`}
+      data-node={step.node.id}
+      data-tier={tier}
+    >
       <div className="desktop-view" aria-label="Xonadon 47 — 3D manzara">
         <Canvas
           dpr={Math.min(1, QUALITY_HEIGHT[tier] / window.innerHeight)}
@@ -264,6 +276,7 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
             windowsDark={outage || step.node.id.endsWith('_316')}
             lightsOff={lightsOff}
             neighbor={step.state.night === 2 && step.node.location === 'stairwell'}
+            clockRequested={!!step.state.flags['clock_shifted']}
           />
           <CameraRig
             step={step}

@@ -106,18 +106,22 @@ export const night5Nodes: StoryNode[] = [
     lines: [
       {
         speaker: 'narrator',
-        variants: [{ text: 'Soatni oldingiz. Ogʻir, issiq — xuddi tirikddek.' }],
+        variants: [{ text: 'Soatni oldingiz. Ogʻir, issiq — xuddi tirikdek.' }],
       },
       {
         speaker: 'narrator',
         variants: [
-          { text: 'Mil ichida — tishli gʻildiraklar. Bittasi siniq. Yana bittasi yetib bormaydi.' },
+          {
+            text: 'Qopqogʻi ostida — tishli gʻildiraklar. Bittasi siniq. Yana bittasi yetib bormaydi.',
+          },
         ],
       },
       {
         speaker: 'narrator',
         variants: [
-          { text: 'Uchrani oʻrash mumkin. Mil teskari emas — oldinga siljiydi. Faqat birmarta.' },
+          {
+            text: 'Soatning prujinasini oʻrash mumkin. Mil teskari emas — oldinga siljiydi. Faqat bir marta.',
+          },
         ],
       },
       {
@@ -139,13 +143,13 @@ export const night5Nodes: StoryNode[] = [
     lines: [
       {
         speaker: 'narrator',
-        variants: [{ text: 'Eshik. Zanjir sovuq, ishlaydi. Kaltak ishlaydi.' }],
+        variants: [{ text: 'Eshik. Zanjir sovuq, ishlaydi. Qulf ham joyida.' }],
       },
       {
         speaker: 'narrator',
         variants: [
           {
-            text: 'Zanjirni uring. Ertaga tong otguncha ochiq boʻladi. Agar… ketmoqchi boʻlsangiz.',
+            text: 'Zanjirni yechish qiyin emas. Hozir eshikni ochish mumkin. Agar… ketmoqchi boʻlsangiz.',
           },
         ],
       },
@@ -154,7 +158,7 @@ export const night5Nodes: StoryNode[] = [
         variants: [
           {
             when: { profile: 'doorAtNight', eq: 'ochiq' },
-            text: 'Anketada yozgandingiz: tuni eshigingiz ochiq. Uy buni eslab qolgan.',
+            text: 'Anketada yozgandingiz: tunda eshigingiz ochiq. Uy buni eslab qolgan.',
           },
           { text: 'Bu eshik sizni ozod qilishi mumkin. Faqat bir savol qolgan: qachon.' },
         ],
@@ -185,7 +189,7 @@ export const night5Nodes: StoryNode[] = [
         speaker: 'diary',
         variants: [
           {
-            text: '“3:18 — agar paydo boʻlsa, zanjir uziladi. Men ucha olmadim. Uyinganman. Sen uchishni tanla.”',
+            text: '“3:18 — agar paydo boʻlsa, zanjir uziladi. Men jur’at qilolmadim. Kuta berdim. Sen kutma.”',
           },
         ],
       },
@@ -254,9 +258,9 @@ export const night5Nodes: StoryNode[] = [
         variants: [
           {
             when: { flag: 'asked_sardor' },
-            text: 'Sardor deb soʻragandingiz. Men sizga rostini aytdim. Endi yana bir rost gapiraman.',
+            text: 'Sardor deb soʻragandingiz, {name}. Men sizga rostini aytdim. Endi yana bir rost gapiraman.',
           },
-          { text: 'Oxirgi kecha degan gap yoʻq. Faqat oxirgi tanlov bor.' },
+          { text: '{name}, oxirgi kecha degan gap yoʻq. Faqat oxirgi tanlov bor.' },
         ],
       },
       {
@@ -338,7 +342,7 @@ export const night5Nodes: StoryNode[] = [
       },
       {
         speaker: 'narrator',
-        variants: [{ text: 'Ichida sovutgan xona. Siz oʻtirdingiz — stul sizniki edi endi.' }],
+        variants: [{ text: 'Ichkarida sovuq xona. Siz oʻtirdingiz — stul sizniki edi endi.' }],
       },
       { speaker: 'narrator', variants: [{ text: 'Soat 3:18. Bir soniyaga. Keyin yana 3:17.' }] },
       {
@@ -358,7 +362,7 @@ export const night5Nodes: StoryNode[] = [
         ],
       },
       { speaker: 'narrator', variants: [{ text: 'Ovoz sizniki edi.' }] },
-      { speaker: 'narrator', variants: [{ text: 'Xonadon 48. Sizniki.' }] },
+      { speaker: 'narrator', variants: [{ text: 'Xonadon 48. {name}. Endi bu ovoz sizniki.' }] },
     ],
   },
   {
@@ -374,7 +378,7 @@ export const night5Nodes: StoryNode[] = [
         speaker: 'narrator',
         variants: [
           {
-            text: 'Zanjir chiqdi. Eshik. Pardaxona. Zinapoya — beshinchi qavat, toʻrtinchi, uchinchi…',
+            text: 'Zanjir chiqdi. Eshik. Maydoncha. Zinapoya — toʻrtinchi qavat, uchinchi, ikkinchi…',
           },
         ],
       },
@@ -393,16 +397,23 @@ export const night5Nodes: StoryNode[] = [
       {
         speaker: 'narrator',
         variants: [
-          { text: 'Yurasiz. Koʻcha. Chilonzorning tanish kvartali. Rahmatingiz joyiga tushdi.' },
+          {
+            text: 'Yurasiz. Koʻcha. Chilonzorning tanish kvartali. Yuragingizning urishi sekinlashdi.',
+          },
         ],
       },
       {
         speaker: 'narrator',
         variants: [
-          { text: 'Oʻralib qaradingiz. Toʻqqiz qavatli uy. Toʻrtinchi qavatda bitta oyna yonadi.' },
+          {
+            text: 'Oʻgirilib qaradingiz. Toʻqqiz qavatli uy. Toʻrtinchi qavatda bitta oyna yonadi.',
+          },
         ],
       },
-      { speaker: 'narrator', variants: [{ text: 'Sizniki oyna. Chiroq oʻchirmagan edingiz.' }] },
+      {
+        speaker: 'narrator',
+        variants: [{ text: 'Sizning derazangiz. Chiroqni oʻchirib ketgan edingiz.' }],
+      },
       {
         speaker: 'narrator',
         variants: [{ text: 'Yoki u oʻzi yoqdi. Kim biladi. Uy kutishni yaxshi koʻradi.' }],
@@ -433,7 +444,7 @@ export const night5Nodes: StoryNode[] = [
       {
         speaker: 'narrator',
         variants: [
-          { text: 'Tik-tik. Tik-tik. Bu ovozni uy eshitdi. Besh yilda birinchi marta eshitdi.' },
+          { text: 'Tik-tik. Tik-tik. Bu ovozni uy eshitdi. Yigirma yilda birinchi marta eshitdi.' },
         ],
       },
       {

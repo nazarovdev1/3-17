@@ -6,13 +6,14 @@ import {
   resume,
   startGame,
 } from '@/core/engine'
-import type { EngineEvent, Step } from '@/core/engine/types'
+import type { EngineEvent, Line, Step } from '@/core/engine/types'
 import { SaveService } from '@/core/save/saveService'
 import type { CloudStorageAdapter, StorageAdapter } from '@/core/save/types'
 import { evaluateCondition } from '@/core/engine/conditions'
 import type { EndingId, GameState, MetaState, PlayerProfile } from '@/core/state/types'
 import { story } from '@/content/story'
 import { isLateNight } from '@/core/engine/storyRunner'
+import { takeMetaComments } from './metaHorror'
 
 export type Screen =
   'boot' | 'warning' | 'title' | 'form' | 'game' | 'paused' | 'settings' | 'ending' | 'gallery'
@@ -30,6 +31,7 @@ interface GameStore {
   endingCard: EndingCardInfo | null
   /** One-time real-clock 3:17 event (spec 5.6). */
   realClock317Visible: boolean
+  metaLines: Line[]
 
   setScreen: (screen: Screen) => void
   init: () => Promise<void>
@@ -84,7 +86,7 @@ function clampSanity(value: number): number {
 }
 
 export const useGame = create<GameStore>((set, get) => {
-  const applyStep = (step: Step) => {
+  const applyStep = (step: Step, metaLines: Line[] = []) => {
     const previous = get().currentStep
     const endingEvent = step.events.find((e) => e.kind === 'ending')
     const ending = endingEvent?.kind === 'ending' ? endingEvent.id : null
@@ -103,12 +105,13 @@ export const useGame = create<GameStore>((set, get) => {
         currentStep: step,
         endingCard: { id: ending, nodeId: step.node.id },
         screen: 'ending',
+        metaLines: [],
       })
       dispatchEvents(step.events, step, previous)
       get().saveNow()
       return
     }
-    set({ run: step.state, currentStep: step })
+    set({ run: step.state, currentStep: step, metaLines })
     dispatchEvents(step.events, step, previous)
     if (step.events.some((e) => e.kind === 'autosave')) get().saveNow()
   }
@@ -120,6 +123,7 @@ export const useGame = create<GameStore>((set, get) => {
     currentStep: null,
     endingCard: null,
     realClock317Visible: false,
+    metaLines: [],
 
     setScreen: (screen) => set({ screen }),
 
@@ -130,9 +134,12 @@ export const useGame = create<GameStore>((set, get) => {
       const late = isLateNight(new Date())
       if (run) {
         // Meta-horror flags (spec 5.6) are injected by the shell, not the story.
-        if (late) run.flags['late_night'] = true
+        if (late && !run.metaHints.lateNightCommentFired) run.flags['late_night'] = true
         const awayMs = Date.now() - new Date(run.lastPlayedAt).getTime()
-        if (awayMs > 30 * 60 * 1000) run.flags['return_comment'] = true
+        if (!run.finished && awayMs > 30 * 60 * 1000 && !run.metaHints.returnCommentFired) {
+          run.flags['return_comment'] = true
+          run.flags['away_minutes'] = Math.floor(awayMs / 60_000)
+        }
         const step = resume(story, run)
         set({ meta, run, currentStep: step })
       } else {
@@ -151,7 +158,9 @@ export const useGame = create<GameStore>((set, get) => {
       const nowIso = new Date().toISOString()
       const step = startGame(story, profile, nowIso)
       if (isLateNight(new Date())) step.state.flags['late_night'] = true
-      applyStep(step)
+      const comment = takeMetaComments(step.state)
+      set({ realClock317Visible: false })
+      applyStep({ ...step, state: comment.state }, comment.lines)
       get().saveNow()
       set({ screen: 'game' })
     },
@@ -159,8 +168,10 @@ export const useGame = create<GameStore>((set, get) => {
     continueRun: () => {
       const run = get().run
       if (!run) return
-      const step = resume(story, run)
-      set({ currentStep: step, screen: 'game' })
+      const comment = takeMetaComments(run)
+      const step = resume(story, comment.state)
+      set({ run: comment.state, currentStep: step, metaLines: comment.lines, screen: 'game' })
+      get().saveNow()
     },
 
     advance: () => {
@@ -240,9 +251,10 @@ export const useGame = create<GameStore>((set, get) => {
 
     showRealClock317: () => {
       const { run } = get()
-      if (!run || run.metaHints.realClock317Fired) return
-      run.metaHints.realClock317Fired = true
-      set({ realClock317Visible: true })
+      if (!run || run.finished || run.metaHints.realClock317Fired) return
+      const next = { ...run, metaHints: { ...run.metaHints, realClock317Fired: true } }
+      set({ run: next, currentStep: resume(story, next), realClock317Visible: true })
+      get().saveNow()
     },
 
     dismissRealClock317: () => set({ realClock317Visible: false }),

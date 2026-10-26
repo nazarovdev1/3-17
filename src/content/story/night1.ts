@@ -18,10 +18,6 @@ export const night1Nodes: StoryNode[] = [
       {
         speaker: 'narrator',
         variants: [
-          {
-            when: { flag: 'late_night' },
-            text: 'Soat tungi uchlar. Haqiqiy uchlar. Siz endigina koʻchib keldingiz — aqlsizlik, lekin ijara puli arzon edi.',
-          },
           { text: 'Chilonzor. Toʻqqiz qavatli paneli uy. Tashqarida qor sekin yogʻilyapti.' },
         ],
       },
@@ -110,8 +106,11 @@ export const night1Nodes: StoryNode[] = [
     desktop: { trigger: 'interact', objectId: 'clock' },
     mobile: { vignette: 'room', hotspots: ['clock'] },
     lines: [
-      { speaker: 'narrator', variants: [{ text: 'Katta devor soati. Sommergildan qolgan.' }] },
-      { speaker: 'narrator', variants: [{ text: 'Uchrasi toʻxtab qolgan: 3:17.' }] },
+      {
+        speaker: 'narrator',
+        variants: [{ text: 'Katta devor soati. Yogʻoch qutisi qorayib ketgan.' }],
+      },
+      { speaker: 'narrator', variants: [{ text: 'Millari qotib qolgan: 3:17.' }] },
       {
         speaker: 'narrator',
         variants: [
@@ -136,20 +135,24 @@ export const night1Nodes: StoryNode[] = [
       {
         speaker: 'narrator',
         variants: [
-          { text: 'Stol ustida borjali qogʻoz. Rustam akaning qoʻlyozmasi, shoshilinch yozilgan.' },
+          {
+            text: 'Stol ustida buklangan qogʻoz. Rustam akaning qoʻlyozmasi, shoshilinch yozilgan.',
+          },
         ],
       },
       {
         speaker: 'landlord',
-        variants: [{ text: 'Ijara: oyiga ikki yarim million. Komunalni men toʻlayman.' }],
+        variants: [{ text: 'Ijara: oyiga ikki yarim million. Kommunalni men toʻlayman.' }],
       },
       {
         speaker: 'landlord',
-        variants: [{ text: 'Qoida: tunda eshik zanjirini uring. Kim eshakni soʻrasa — ochmang.' }],
+        variants: [
+          { text: 'Qoida: tunda eshik zanjirini taqing. Kim ismingizni aytsa ham — ochmang.' },
+        ],
       },
       {
         speaker: 'narrator',
-        variants: [{ text: '“Kim eshakni soʻrasa”. Oddiy qogʻozda gʻalati jumla.' }],
+        variants: [{ text: '“Kim ismingizni aytsa ham”. Oddiy qogʻozda gʻalati ogohlantirish.' }],
       },
     ],
     next: 'n1_hub',
@@ -183,18 +186,18 @@ export const night1Nodes: StoryNode[] = [
     lines: [
       {
         speaker: 'narrator',
-        variants: [{ text: 'Eski Rubin televizor. Yogʻoch korpus, kurak antenna.' }],
+        variants: [{ text: 'Eski Rubin televizor. Yogʻoch korpus, qiyshiq antenna.' }],
       },
       {
         speaker: 'narrator',
-        variants: [{ text: 'Yaqdaganingizda — faqat oq shovqin, uzoqdagi daryoday.' }],
+        variants: [{ text: 'Yoqganingizda — faqat oq shovqin, uzoqdagi daryoday.' }],
       },
       {
         speaker: 'narrator',
         variants: [
           {
             when: { sanityLt: 90 },
-            text: 'Shovqin ichida bir narsa harakatlanayotganday. Ehtimol koʻz olovi.',
+            text: 'Shovqin ichida bir narsa harakatlanayotganday. Balki koʻzingizga koʻringandir.',
           },
           { text: 'Oʻchirdingiz. Xona yana jim.' },
         ],
@@ -212,11 +215,11 @@ export const night1Nodes: StoryNode[] = [
     lines: [
       {
         speaker: 'narrator',
-        variants: [{ text: 'Oynada qor. Narigi uyda bitta sariq lampa yonadi.' }],
+        variants: [{ text: 'Deraza ortida qor. Pastda sariq koʻcha chirogʻi yonadi.' }],
       },
       {
         speaker: 'narrator',
-        variants: [{ text: 'Uyning oynalarida oʻttiz oyna. Beshtida yorugʻlik.' }],
+        variants: [{ text: 'Narigi uyda oʻttizta deraza. Beshtasida chiroq yonib turibdi.' }],
       },
       {
         speaker: 'narrator',
@@ -237,15 +240,16 @@ export const night1Nodes: StoryNode[] = [
     lines: [
       {
         speaker: 'narrator',
-        variants: [
-          { text: 'Oshxona kichkina, lekin yorugʻ. Gaz plitasi koʻk alanga bilan tutadi.' },
-        ],
+        variants: [{ text: 'Oshxona kichkina, lekin yorugʻ. Gaz plitasida koʻk alanga.' }],
       },
       {
         speaker: 'narrator',
-        variants: [{ text: 'Choynak pichillaydi. Koʻprik choynagi — Rustam akada qolgan.' }],
+        variants: [{ text: 'Choynak asta shivirlaydi. Dastasi sim bilan mahkamlangan.' }],
       },
-      { speaker: 'narrator', variants: [{ text: 'Issiq choypiy. Tanangiz biroz boʻshashdi.' }] },
+      {
+        speaker: 'narrator',
+        variants: [{ text: 'Bir qultum issiq choy. Tanangiz biroz boʻshashdi.' }],
+      },
     ],
     next: 'n1_hub',
   },
@@ -257,14 +261,17 @@ export const night1Nodes: StoryNode[] = [
     desktop: { trigger: 'timed', delayMs: 4000 },
     mobile: { vignette: 'window', hotspots: ['opposite_building'] },
     lines: [
-      { speaker: 'narrator', variants: [{ text: 'Uxlamadingiz. Tanangiz olib ketmadi.' }] },
+      {
+        speaker: 'narrator',
+        variants: [{ text: 'Uyqu kelmadi. Choyning issigʻi ham tarqalib boʻldi.' }],
+      },
       {
         speaker: 'narrator',
         variants: [{ text: 'Soat 3:16. Narigi uyda oyna oʻchdi. Keyin yana bittasi. Keyin yana.' }],
       },
       {
         speaker: 'narrator',
-        variants: [{ text: 'Oʻttiz oyna. Bittadan. Qorongʻilik yaqinlashdi — tomonga.' }],
+        variants: [{ text: 'Oʻttiz oyna. Bittadan. Qorongʻilik siz tomonga yaqinlashmoqda.' }],
       },
     ],
     next: 'n1_317',
@@ -288,7 +295,7 @@ export const night1Nodes: StoryNode[] = [
       },
       {
         speaker: 'narrator',
-        variants: [{ text: 'Va u holda — devor. Oʻng tomondan. Uchta zarba.' }],
+        variants: [{ text: 'Keyin — devor. Oʻng tomondan. Uchta zarba.' }],
       },
     ],
     next: 'n1_knocks',
@@ -338,7 +345,7 @@ export const night1Nodes: StoryNode[] = [
     mobile: { vignette: 'wall', overlay: 'chat' },
     lines: [
       { speaker: 'player', variants: [{ text: 'Yoʻq… uxlayapman.' }] },
-      { speaker: 'narrator', variants: [{ text: 'Jimlik. Uzoq, tortinchi jimlik.' }] },
+      { speaker: 'narrator', variants: [{ text: 'Jimlik. Uzoq, tortinchoq jimlik.' }] },
       {
         speaker: 'voice',
         variants: [
@@ -366,7 +373,7 @@ export const night1Nodes: StoryNode[] = [
         speaker: 'narrator',
         variants: [
           {
-            text: 'Nafasingizni ushlab turdingiz. Yostiq ostida yashiringansiz, kattaski odam boʻlib.',
+            text: 'Nafasingizni ushlab turdingiz. Yostiqni qulogʻingizga bosdingiz. Bolalikdagi kabi.',
           },
         ],
       },
@@ -414,7 +421,7 @@ export const night1Nodes: StoryNode[] = [
     lines: [
       {
         speaker: 'narrator',
-        variants: [{ text: 'Tong ochilmaydi — lekin bir narsa oʻzgaradi. Uyga quyosh tushadi.' }],
+        variants: [{ text: 'Deraza sekin oqaradi. Avval qor, keyin narigi uy koʻrinadi.' }],
       },
       {
         speaker: 'narrator',

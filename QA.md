@@ -11,7 +11,7 @@ honest ✅ / ❌ / not-verified note with a date.
 - [x] Peephole fisheye view renders correctly (desktop shader and mobile vignette; reviewed 2026-10-26).
 - [x] All current mobile hotspots stay within the 360×640 scene; real-input ending runs
       and cancelled/successful wall holds pass (2026-10-25, Chromium emulation).
-- [ ] "Reduce flashing" removes the night 4 fake glitch and all strobes.
+- [x] "Reduce flashing" removes the night 4 fake glitch and decorative flashes (2026-10-26, both presenters in Chromium).
 - [ ] Telegram BackButton opens the pause menu; the player can always leave.
 - [ ] Pause menu reachable at any moment; closing the tab mid-game autosaves.
 - [x] IBM Plex Mono and Oswald contain ʻ (U+02BB) and ’ (U+2019); WOFF cmap check and
@@ -20,16 +20,16 @@ honest ✅ / ❌ / not-verified note with a date.
 
 ## E2E status
 
-| #   | Test (spec 12)                                                                   | Status                                                   |
-| --- | -------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| 1   | Boots without / with mocked Telegram                                             | passed (Phases 3–4)                                      |
-| 2   | Full playthrough to all 3 endings via `window.__game` + one ending by real input | mobile A/B/C real input passed; full debug paths pending |
-| 3   | Save → reload → resume                                                           | passed (Phases 3–4)                                      |
-| 4   | Audio unlock flow                                                                | native suspended → tap → running passed (Phase 5)        |
-| 5   | Rotate / resize does not break layout or state                                   | passed (Phases 3–4)                                      |
-| 6   | WebGL disabled → mobile mode on desktop viewport                                 | passed (Phases 3–4)                                      |
-| 7   | WebGL context loss → recovery or fallback                                        | passed (Phase 6: native restore and fallback)            |
-| 8   | No console.error / pageerror                                                     | active since Phase 0 (boot spec)                         |
+| #   | Test (spec 12)                                                                   | Status                                                           |
+| --- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| 1   | Boots without / with mocked Telegram                                             | passed (Phases 3–4)                                              |
+| 2   | Full playthrough to all 3 endings via `window.__game` + one ending by real input | desktop/mobile A/B/C real input passed; full debug paths pending |
+| 3   | Save → reload → resume                                                           | passed (Phases 3–4)                                              |
+| 4   | Audio unlock flow                                                                | native suspended → tap → running passed (Phase 5)                |
+| 5   | Rotate / resize does not break layout or state                                   | passed (Phases 3–4)                                              |
+| 6   | WebGL disabled → mobile mode on desktop viewport                                 | passed (Phases 3–4)                                              |
+| 7   | WebGL context loss → recovery or fallback                                        | passed (Phase 6: native restore and fallback)                    |
+| 8   | No console.error / pageerror                                                     | active since Phase 0 (boot spec)                                 |
 
 ## Run log
 
@@ -126,3 +126,48 @@ on high/450 pixels and 60.0 FPS after the room tours; GPU counts remain 41 geome
 10 textures. Tracing is disabled only in the performance file so browser recording does not
 become part of the renderer benchmark. Early startup measurements varied; physical laptop
 and real Telegram validation remain unverified and belong to Phase 8.
+
+## Phase 7 — Horror and pacing checks (2026-10-26)
+
+- [x] Late-night launch adds an extra narrator line; its saved gate prevents repeats after
+      node changes and reload. An artificially aged save resumes at the same bathroom node,
+      uses the elapsed absence in the voice comment and consumes that comment once.
+- [x] Advancing the browser's real local clock into 3:17 shows the one-time banner without
+      changing node/sanity, and persists its gate across reload. The native audio diagnostic
+      also verifies the short knock cue.
+- [x] Both presenters show the finite night-4 signal-loss cue, leave pause/continue usable,
+      and omit it with Reduce flashing. The effect has no pointer interception, never replays
+      on a repeated visit, clears on hidden-page exit, and uses the authored 2.5-second duration.
+- [x] The mobile return-room puzzle offers only its changed clock hotspot. The desktop clock
+      stays put while in the frustum and moves after a real drag-look turn. A real head turn
+      changes the camera before the delayed mirror yaw, which catches up after half a second.
+- [x] Both modes show five lit windows becoming zero before the outage. The mobile voice's
+      reveal control removes its typing pause and displays the dialogue once, without a second
+      copy in the narration panel. Opened the new effect/clock/voice/blackout screenshots.
+- [x] Real-input desktop and mobile C routes traverse nights 1–5 and the new clock node;
+      the route lists are attached by Playwright. A/B/C pass in both modes, and the seven-page,
+      sanity and never-answer requirements remain intact. The full scripts were read during
+      the text/pacing pass; per-night fixes are listed in PROGRESS.md.
+- [x] Ending narration uses a bounded scrollable panel with a visible reading hint and
+      accessible exit controls. Three 360×640 ending routes explicitly scroll to the last line;
+      A's final line names Dilnoza. Screenshots include the top and bottom of every mobile ending.
+- [x] A unit contract limits named narrator lines to one per night. Unit tests also check
+      immutable/persisted meta gates and reduced/finite/non-replaying glitch behavior.
+
+The high target was tuned from 450 to 400 pixels after the original software-GPU measurement
+fell below 55 FPS. This stays inside PROMPT's 320–480 range; low remains 320 and the test's
+55 FPS assertion is unchanged. With a five-second GPU warm-up and five-second sample, high
+measured 60.0 FPS; repeated room tours remained about 59.9 FPS with exactly 43 geometries
+and 10 textures before/after. DECISIONS.md is unchanged.
+
+The browser sweep and corrective reruns cover 121 passing cases and four expected skips.
+Initial red checks came from a case-sensitive old wording assertion and the original
+450-pixel software-GPU target. The wording check is now case-insensitive; the resolution
+change and measured results are recorded above. `npm run check` passes 157 tests, the
+78-node validator with zero warnings, build and JS budgets (99.3 KB mobile, 263.1 KB desktop).
+The old graph warnings disappeared because the meta-comment variants now live in the shared
+shell comment path, where their existing one-shot gates can be consumed consistently.
+
+Physical GPU/Telegram/sensor/audio validation remains Phase 8. Automated full-route runs
+skip typewriting and are not evidence of a 30–45 minute human play duration; that duration
+has not been measured. Phase 8 has not been started.

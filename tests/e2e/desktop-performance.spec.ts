@@ -2,6 +2,7 @@ import { expect, type Page } from '@playwright/test'
 import { test } from './fixtures'
 import { startNamedRun } from './helpers'
 import type { getDesktopState } from '../../src/platform/device/desktopRuntime'
+import { QUALITY_HEIGHT } from '../../src/platform/device/mode'
 
 type Metrics = ReturnType<typeof getDesktopState>
 interface DebugApi {
@@ -44,12 +45,13 @@ test('desktop steady rendering and resource stability', async ({ page }, info) =
   test.setTimeout(90_000)
   await boot(page)
   await jump(page, 'n1_hub')
-  await page.waitForTimeout(2000)
+  // Let the software GPU finish first-use uploads before measuring steady rendering.
+  await page.waitForTimeout(5000)
   const start = await page.evaluate(() => ({
     time: performance.now(),
     frames: (window as unknown as { __game: DebugApi }).__game.getDesktopState().frames,
   }))
-  await page.waitForTimeout(3000)
+  await page.waitForTimeout(5000)
   const end = await page.evaluate(() => ({
     time: performance.now(),
     frames: (window as unknown as { __game: DebugApi }).__game.getDesktopState().frames,
@@ -84,7 +86,7 @@ test('desktop steady rendering and resource stability', async ({ page }, info) =
   console.log('desktop steady metrics', JSON.stringify({ defaultFps, before, after }))
   expect(after.geometries).toBeLessThanOrEqual(before.geometries + 2)
   expect(after.textures).toBeLessThanOrEqual(before.textures + 2)
-  expect(after.renderHeight).toBe(after.tier === 'high' ? 450 : 320)
+  expect(after.renderHeight).toBe(QUALITY_HEIGHT[after.tier === 'high' ? 'high' : 'low'])
   expect(after.fps).toBeGreaterThan(25)
   await info.attach('desktop-metrics.json', {
     body: JSON.stringify({ defaultFps, before, after }),

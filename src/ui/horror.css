@@ -1,0 +1,52 @@
+.signal-loss {
+  position: absolute;
+  inset: 0 0 45%;
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+  color: #cfc6b0;
+  background: repeating-linear-gradient(0deg, #141a22cf 0 14px, #0b0b0ce6 14px 17px);
+  border-bottom: 1px solid #9fbf8f55;
+  text-shadow:
+    2px 0 #8e1f1f66,
+    -2px 0 #9fbf8f66;
+}
+.signal-loss strong {
+  font-family: var(--display-font, 'Oswald'), sans-serif;
+  font-size: clamp(24px, 5vw, 48px);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+.signal-loss span {
+  font-size: 12px;
+  opacity: 0.7;
+}
+.ending-screen {
+  gap: 10px;
+  padding: 16px;
+}
+.ending-screen .ending-vignette {
+  height: min(160px, 22vh);
+  width: auto;
+  aspect-ratio: 180 / 320;
+  flex-shrink: 0;
+}
+.ending-narration {
+  width: min(640px, 100%);
+  max-height: 44vh;
+  min-height: 80px;
+  overflow: auto;
+  flex-shrink: 1;
+}
+.ending-screen .menu {
+  flex-shrink: 0;
+}
+.ending-scroll-hint {
+  font-size: 11px;
+  opacity: 0.6;
+  margin: 0;
+}

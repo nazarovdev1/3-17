@@ -51,7 +51,7 @@ test('mobile scenes, hotspot bounds, peephole, hold cancellation, and glyph evid
   )
   await expect(page.locator('.peephole-panel .narration')).toBeVisible()
   await page.locator('.narration').click()
-  await expect(page.locator('.narration')).toContainText('kimdir')
+  await expect(page.locator('.narration')).toContainText(/kimdir/i)
 
   await page.evaluate(() =>
     (window as unknown as { __game: { goTo: (id: string) => void } }).__game.goTo('n2_night_hub'),

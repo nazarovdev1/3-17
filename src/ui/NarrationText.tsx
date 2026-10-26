@@ -23,8 +23,15 @@ const TYPEWRITER_MS_PER_CHAR = 24
  * it; "Reduce flashing" disables the animation entirely. Keyed by node id at
  * the call site so it restarts per node.
  */
-export function NarrationText({ state }: { state: GameState }) {
+export function NarrationText({
+  state,
+  omitVoice = false,
+}: {
+  state: GameState
+  omitVoice?: boolean
+}) {
   const node = useGame((s) => s.currentStep?.node)
+  const metaLines = useGame((s) => s.metaLines)
   const [typed, setTyped] = useState(() =>
     useSettings.getState().settings.reduceFlashing ? Number.MAX_SAFE_INTEGER : 0,
   )
@@ -36,10 +43,12 @@ export function NarrationText({ state }: { state: GameState }) {
     return () => window.clearInterval(timer)
   }, [state.sanity, reduceFlashing])
 
-  const lines = (node?.lines ?? []).map((line) => ({
-    speaker: line.speaker,
-    text: narration.resolveLineSync(line, state),
-  }))
+  const lines = [...metaLines, ...(node?.lines ?? [])]
+    .filter((line) => !omitVoice || line.speaker !== 'voice')
+    .map((line) => ({
+      speaker: line.speaker,
+      text: narration.resolveLineSync(line, state),
+    }))
   const fullText = lines.map((l) => l.text).join('\n')
 
   useEffect(() => {
@@ -65,7 +74,7 @@ export function NarrationText({ state }: { state: GameState }) {
 
 export function resolveAllLines(state: GameState): { speaker: string; text: string }[] {
   const node = useGame.getState().currentStep?.node
-  return (node?.lines ?? []).map((line) => ({
+  return [...useGame.getState().metaLines, ...(node?.lines ?? [])].map((line) => ({
     speaker: line.speaker,
     text: narration.resolveLineSync(line, state),
   }))

@@ -99,12 +99,12 @@ export function createResources() {
       c.fillRect(0, 0, 128, 128)
       c.font = '12px monospace'
       c.fillStyle = '#3d342b'
-      c.fillText('2006', 44, 16)
+      c.fillText(`2006 / ${new Date().getMonth() + 1}`, 28, 16)
       for (let date = 1; date <= 30; date++) {
         const x = 6 + ((date - 1) % 6) * 20
         const y = 36 + Math.floor((date - 1) / 6) * 19
         c.fillText(String(date), x, y)
-        if (date < 29) {
+        if (date < new Date().getDate()) {
           c.strokeStyle = '#693e30'
           c.beginPath()
           c.moveTo(x, y - 11)

@@ -1,7 +1,17 @@
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
 import { Billboard } from '@react-three/drei'
-import { Color, Object3D, type InstancedMesh, type Group, type PointLight } from 'three'
+import {
+  Box3,
+  Frustum,
+  Matrix4,
+  Vector3,
+  Color,
+  Object3D,
+  type InstancedMesh,
+  type Group,
+  type PointLight,
+} from 'three'
 import { SWITCHES, type Point } from './layout'
 import { type Resources, type Surface, SURFACES } from './textures'
 import { desktopRuntime } from '@/platform/device/desktopRuntime'
@@ -182,9 +192,9 @@ function PaneWindows({ outage }: { outage: boolean }) {
     if (!mesh) return
     const dummy = new Object3D()
     let index = 0
-    for (let y = 0; y < 6; y++)
-      for (let x = 0; x < 8; x++) {
-        dummy.position.set(-7 + x * 2, y * 1.8 - 0.8, -12.45)
+    for (let y = 0; y < 5; y++)
+      for (let x = 0; x < 6; x++) {
+        dummy.position.set(-7 + x * 2.8, y * 1.8 - 0.8, -12.45)
         dummy.scale.set(0.65, 0.9, 0.02)
         dummy.updateMatrix()
         mesh.setMatrixAt(index++, dummy.matrix)
@@ -199,12 +209,13 @@ function PaneWindows({ outage }: { outage: boolean }) {
       start.current = clock.elapsedTime
       previous.current = outage
     }
-    const dark = outage ? Math.min(48, Math.floor((clock.elapsedTime - start.current) * 12)) : 0
+    const dark = outage ? Math.min(5, Math.floor((clock.elapsedTime - start.current) * 1.4)) : 0
     if (dark === lastDark.current) return
     lastDark.current = dark
     let lit = 0
-    for (let i = 0; i < 48; i++) {
-      const on = i >= dark && i % 3 !== 0
+    for (let i = 0; i < 30; i++) {
+      const rank = [2, 8, 15, 21, 28].indexOf(i)
+      const on = rank >= dark && rank >= 0
       mesh.setColorAt(i, new Color(on ? '#9b6c32' : '#101821'))
       if (on) lit++
     }
@@ -212,7 +223,7 @@ function PaneWindows({ outage }: { outage: boolean }) {
     desktopRuntime.windowsLit = lit
   })
   return (
-    <instancedMesh ref={ref} args={[undefined, undefined, 48]}>
+    <instancedMesh ref={ref} args={[undefined, undefined, 30]}>
       <boxGeometry />
       <meshBasicMaterial />
     </instancedMesh>
@@ -227,6 +238,7 @@ export function World({
   windowsDark,
   lightsOff,
   neighbor,
+  clockRequested,
 }: {
   resources: Resources
   outage: boolean
@@ -236,7 +248,15 @@ export function World({
   windowsDark: boolean
   lightsOff: Set<number>
   neighbor: boolean
+  clockRequested: boolean
 }) {
+  const camera = useThree((state) => state.camera)
+  const [initialShift] = useState(clockRequested)
+  const clockGroups = useRef<(Group | null)[]>([])
+  const shifted = useRef([initialShift, initialShift])
+  const view = useRef(new Frustum())
+  const projection = useRef(new Matrix4())
+  const clockBounds = useRef(new Box3())
   const extension = corridorLength - 1
   const boxes = useMemo(() => buildBoxes(extension), [extension])
   const figure = useRef<Group>(null)
@@ -271,7 +291,28 @@ export function World({
     if (figure.current)
       figure.current.visible = peephole && performance.now() - figureStart.current < 1500
     for (const mirror of mirrors.current)
-      if (mirror) mirror.position.x = -2.1 + desktopRuntime.mirrorOffset
+      if (mirror) {
+        mirror.position.x = -2.1 + desktopRuntime.mirrorOffset
+        mirror.rotation.y = Math.max(-0.6, Math.min(0.6, -(desktopRuntime.mirrorYaw - 0.65) * 0.4))
+        mirror.rotation.x = desktopRuntime.mirrorPitch * 0.3
+      }
+    if (clockRequested && shifted.current.some((value) => !value)) {
+      camera.updateMatrixWorld()
+      projection.current.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
+      view.current.setFromProjectionMatrix(projection.current)
+      clockGroups.current.forEach((clock, index) => {
+        if (!clock || shifted.current[index]) return
+        clockBounds.current.setFromCenterAndSize(
+          new Vector3(index * 6 - 1.1, 1.95, -2.8),
+          new Vector3(0.6, 0.6, 0.2),
+        )
+        if (!view.current.intersectsBox(clockBounds.current)) {
+          clock.position.x = 0.9
+          shifted.current[index] = true
+        }
+      })
+    }
+    desktopRuntime.clockShifted = shifted.current[0]!
     doors.current.forEach((door, index) => {
       if (!door) return
       const distance = Math.hypot(
@@ -361,17 +402,28 @@ export function World({
               <meshBasicMaterial color="#c1aa76" />
             </mesh>
           </group>
-          <mesh position={[-1.1, 1.95, -2.84]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.27, 0.27, 0.09, 12]} />
-            <meshLambertMaterial color="#d1c4a1" />
-          </mesh>
-          <mesh position={[-1.027, 1.939, -2.77]} rotation={[0, 0, -1.719]}>
-            <boxGeometry args={[0.014, 0.15, 0.015]} />
-            <meshBasicMaterial color="#242522" />
-          </mesh>
-          <mesh position={[-1.002, 1.929, -2.77]} rotation={[0, 0, -1.78]}>
-            <boxGeometry args={[0.012, 0.2, 0.015]} />
-            <meshBasicMaterial color="#242522" />
+          <group
+            ref={(value) => {
+              clockGroups.current[x === 0 ? 0 : 1] = value
+            }}
+            position={[initialShift ? 0.9 : 0, 0, 0]}
+          >
+            <mesh position={[-1.1, 1.95, -2.84]} rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.27, 0.27, 0.09, 12]} />
+              <meshLambertMaterial color="#d1c4a1" />
+            </mesh>
+            <mesh position={[-1.027, 1.939, -2.77]} rotation={[0, 0, -1.719]}>
+              <boxGeometry args={[0.014, 0.15, 0.015]} />
+              <meshBasicMaterial color="#242522" />
+            </mesh>
+            <mesh position={[-1.002, 1.929, -2.77]} rotation={[0, 0, -1.78]}>
+              <boxGeometry args={[0.012, 0.2, 0.015]} />
+              <meshBasicMaterial color="#242522" />
+            </mesh>
+          </group>
+          <mesh position={[-1.1, 1.95, -2.895]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.29, 0.29, 0.008, 12]} />
+            <meshLambertMaterial color="#424940" />
           </mesh>
           <mesh position={[-2.1, 1.6, 1.17]}>
             <boxGeometry args={[0.75, 0.85, 0.025]} />

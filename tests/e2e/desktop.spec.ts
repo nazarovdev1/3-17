@@ -67,16 +67,41 @@ for (const ending of ['A', 'B', 'C'] as const)
     const final =
       ending === 'C' ? /Soatni oʻrash/ : ending === 'B' ? /chiqib ketish/ : /Eshikni ochish/
     const seen = new Set<string>()
+    const visited = new Set<string>()
     let night = ''
     for (let i = 0; i < 250; i++) {
       const title = page.getByRole('heading', {
         name: { A: 'Qoʻshni', B: 'Ketish', C: '3:18' }[ending],
         exact: true,
       })
-      if (await title.isVisible()) return
+      if (await title.isVisible()) {
+        if (ending === 'C') {
+          expect([...new Set([...visited].map((id) => id.slice(0, 2)))].sort()).toEqual([
+            'n1',
+            'n2',
+            'n3',
+            'n4',
+            'n5',
+          ])
+          expect(visited.has('n3_room_return')).toBe(true)
+          await expect(page.locator('.ending-narration')).toContainText('Dunyo davom etdi.')
+          await test.info().attach('desktop-five-night-route', {
+            body: JSON.stringify([...visited]),
+            contentType: 'application/json',
+          })
+          await page.screenshot({ path: 'tests/screenshots/phase7-ending-C-desktop.png' })
+        }
+        return
+      }
       const game = page.locator('.desktop-game')
       await expect(game).toBeVisible()
       const node = (await game.getAttribute('data-node')) ?? ''
+      if (!visited.has(node) && ending === 'C') {
+        await game.locator('.narration').click()
+        if (node.endsWith('_317') || node === 'n4_glitch' || node === 'n3_room_return')
+          await page.waitForTimeout(600)
+      }
+      visited.add(node)
       if (node.slice(0, 2) !== night) {
         night = node.slice(0, 2)
         seen.clear()

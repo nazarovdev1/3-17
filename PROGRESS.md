@@ -9,7 +9,7 @@ Honest, phase-by-phase record. A phase is only marked done when every check ran 
 - [x] Phase 4 — Mobile presenter
 - [x] Phase 5 — Audio
 - [x] Phase 6 — Desktop 3D presenter
-- [ ] Phase 7 — Horror polish
+- [x] Phase 7 — Horror polish
 - [ ] Phase 8 — Full QA
 - [ ] Phase 9 — Release docs
 
@@ -306,3 +306,68 @@ real Telegram Desktop webview behavior and hardware audio/sensors remain Phase 8
 Phase 7's cross-mode horror/pacing pass is not started.
 
 Phase 6 exit met. Stop after this phase commit.
+
+## Phase 7 — Horror polish
+
+Implemented (2026-10-26):
+
+- Preserved all recorded decisions, the seven diary pages, sanity economy and Ending C gate.
+  Added one authored return-room node (78 total) for the changed-detail puzzle. The mobile
+  scene offers only the shifted clock hotspot as its route forward; the engine owns that
+  choice in both modes. Clock movement is saved as a flag, and the desktop clocks wait
+  until outside the actual camera frustum. Their old wall impressions remain visible.
+- Mirror lag now includes desktop head yaw/pitch as well as position. Mobile reflections
+  sample a half-second history of touch/gyro parallax. The mobile peephole figure now leaves
+  after its short appearance, matching the desktop presentation.
+- Late-night and saved-absence comments are consumed once when a run starts/continues,
+  immediately persist their existing MetaHints gates, and can appear at the actual resumed
+  node. Absence wording uses the saved timestamp. The real 3:17 watcher checks once a second,
+  handles foreground return, saves its gate immutably and never moves the story node.
+- Shared signal-loss cue: only the authored night-4 event, 2.5 seconds with a hard 3-second
+  cap, visibly in-game 47/48 branding, no input interception, no replay after save/return,
+  hidden-page cancellation and complete omission with Reduce flashing. Narration and pause
+  controls remain available. Desktop uses the existing safe sanity colour/motion classes.
+- Voice text on mobile is presented once in the chat, with an explicit reveal/skip control
+  and paused message timers. Narration retains its narrator/diary text. Desktop timed nodes
+  allow enough time for their resolved text instead of advancing partway through typing.
+- The full ending scripts now appear in a bounded scrollable narration panel, preserving
+  always-available gallery/title controls. Ending A names the new resident; Ending C finally
+  exposes the scripted Sardor resolution instead of replacing it with a summary.
+
+Pacing and text pass:
+
+| Night | Concrete fixes                                                                                                                                                                                                                |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Natural wording for the note, tea and first silence. Both modes show thirty opposite windows with five initially lit, then extinguish those lights before the outage. Timed desktop narration gets its full reading interval. |
+| 2     | Clearer Muhabbat dialogue and tally description; half-second reflection includes head turns. Changing a mobile vignette alone no longer teleports the desktop camera.                                                         |
+| 3     | Turning back faces the room before the corridor contracts. Returning reveals the shifted-clock observation puzzle and then the existing carpet diary. Voice repetition and the no-answer ending condition remain intact.      |
+| 4     | Finite, skippable-through signal loss; clearer stairwell and copy-room text. Calendar marks end yesterday and show the current month under the unsettling 2006 year. The voice uses the player's name sparingly.              |
+| 5     | Correct fourth-floor descent and twenty-year clock reference. Full ending narration is readable/scrollable; the name appears at most once per night in narration. All ending requirements and consequences are preserved.     |
+
+Verified:
+
+- `npm run check` green: 157 unit/component tests, 78-node validator with zero warnings,
+  production build, mobile 99.3 KB / 250 KB and lazy desktop 263.1 KB / 700 KB gzipped JS.
+- Browser sweep plus corrective reruns: all 121 distinct cases pass, with four expected
+  project-specific skips. The first sweep caught an old case-sensitive wording assertion
+  and the software-GPU FPS budget. Five scene checks and the isolated benchmark passed
+  after their corrections; all other functional cases had already passed.
+- Desktop A/B/C and mobile A/B/C real-input routes pass. The C routes explicitly assert
+  all five nights and the new return-room node, and attach their node lists. Added short
+  observation pauses at the outage, signal-loss and changed-detail beats for the pacing pass.
+- All twelve targeted horror checks pass: late-night/absence/real-clock persistence, native
+  short knock, both modes' finite and reduced glitch, chat reveal, window extinction,
+  changed-detail-only mobile progression, frustum-controlled clock and delayed mirror yaw.
+- All three 360×640 endings were rerun with real wheel scrolling to the final line; A names
+  the player. Opened and reviewed the fourteen focused Phase 7 screenshots, including each
+  mobile ending's top/bottom. Previously reviewed Phase 4/6 location evidence is preserved.
+- Necessary performance tuning was explained before changing the tier target: high is now
+  400 pixels (inside the specified 320–480 range), low remains 320. At 450 pixels this
+  software renderer measured about 46–54 FPS. The unchanged ≥55 FPS check now measures
+  60.0 FPS over five seconds at high/400; repeated room tours hold about 59.9 FPS and exactly
+  43 geometries / 10 textures before and after. No recorded decision or budget was relaxed.
+
+Limits: automated routes skip typing; the 30–45 minute human play duration is not measured.
+Physical GPU, real Telegram webviews and hardware sensor/audio validation remain Phase 8.
+
+Phase 7 exit met. Stop after this phase commit; Phase 8 is not started.

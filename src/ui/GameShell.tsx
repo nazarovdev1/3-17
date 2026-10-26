@@ -13,6 +13,7 @@ import { useSettings } from './settingsStore'
 import { detectMode, type GameMode } from '@/platform/device/mode'
 import { checkGpu } from '@/platform/device/gpu'
 import { AudioController } from '@/audio/AudioController'
+import { HorrorEffects } from './HorrorEffects'
 import './shell.css'
 
 const DesktopPresenter = lazy(() => import('@/presenters/desktop/DesktopPresenter'))
@@ -90,13 +91,18 @@ export function GameShell() {
 
   // Real-clock 3:17 watcher (spec 5.6): one short event per run.
   useEffect(() => {
-    const timer = window.setInterval(() => {
+    const checkClock = () => {
       const now = new Date()
-      if (now.getHours() === 3 && now.getMinutes() === 17) {
+      if (!document.hidden && now.getHours() === 3 && now.getMinutes() === 17) {
         useGame.getState().showRealClock317()
       }
-    }, 20_000)
-    return () => window.clearInterval(timer)
+    }
+    const timer = window.setInterval(checkClock, 1000)
+    document.addEventListener('visibilitychange', checkClock)
+    return () => {
+      window.clearInterval(timer)
+      document.removeEventListener('visibilitychange', checkClock)
+    }
   }, [])
 
   const realClock317Visible = useGame((s) => s.realClock317Visible)
@@ -116,6 +122,7 @@ export function GameShell() {
     >
       <div className="phone-frame">
         <AudioController mode={mode} />
+        <HorrorEffects />
         {screen === 'warning' && <ContentWarning />}
         {screen === 'title' && <TitleScreen mode={mode} />}
         {screen === 'form' && <RentalForm />}

@@ -5,29 +5,43 @@ import { useEffect, useState } from 'react'
  * and messages appearing with delays. Stylized as part of the game — it never
  * imitates Telegram's real system UI.
  */
-export function ChatOverlay({ messages }: { messages: string[] }) {
+export function ChatOverlay({
+  messages,
+  paused = false,
+  immediate = false,
+}: {
+  messages: string[]
+  paused?: boolean
+  immediate?: boolean
+}) {
   const [shown, setShown] = useState(0)
 
   useEffect(() => {
-    if (shown >= messages.length) return
+    if (paused || immediate || shown >= messages.length) return
     const next = messages[shown] ?? ''
     const timer = window.setTimeout(
       () => setShown((s) => s + 1),
       Math.min(2600, 700 + next.length * 28),
     )
     return () => window.clearTimeout(timer)
-  }, [shown, messages])
+  }, [shown, messages, paused, immediate])
 
-  const typing = shown < messages.length
+  const count = immediate ? messages.length : shown
+  const typing = count < messages.length
 
   return (
-    <div className="chat-overlay" style={{ pointerEvents: 'none' }}>
-      {messages.slice(0, shown).map((text, i) => (
+    <div className="chat-overlay" style={{ pointerEvents: 'auto' }}>
+      {messages.slice(0, count).map((text, i) => (
         <div key={i} className="chat-bubble">
           {text}
         </div>
       ))}
       {typing && <div className="chat-typing">yozmoqda…</div>}
+      {typing && (
+        <button className="chat-reveal" onClick={() => setShown(messages.length)}>
+          Matnni ochish
+        </button>
+      )}
     </div>
   )
 }

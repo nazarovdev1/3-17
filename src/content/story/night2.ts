@@ -22,7 +22,9 @@ export const night2Nodes: StoryNode[] = [
       {
         speaker: 'narrator',
         variants: [
-          { text: 'Uchinchi qavatda eshik ochiq. Katta yoshli ayol halvani idish bilan turibdi.' },
+          {
+            text: 'Uchinchi qavatda eshik ochiq. Keksa ayol qoʻlida bir likopcha halva bilan turibdi.',
+          },
         ],
       },
       {
@@ -46,7 +48,7 @@ export const night2Nodes: StoryNode[] = [
     lines: [
       {
         speaker: 'muhabbat',
-        variants: [{ text: 'Nima soʻramoqchisan, jonim? Yuzingdan sezyapti.' }],
+        variants: [{ text: 'Nima soʻramoqchisan, jonim? Yuzingdan bilinib turibdi.' }],
       },
     ],
     choices: [
@@ -79,7 +81,7 @@ export const night2Nodes: StoryNode[] = [
         speaker: 'muhabbat',
         variants: [
           {
-            text: '2006-yilda mohrlandi. Ichidagi odam… Sardor edi ismi. Bir kunda gʻoyib boʻldi.',
+            text: '2006-yilda muhrlandi. Ichidagi odam… Sardor edi ismi. Bir kunda gʻoyib boʻldi.',
           },
         ],
       },
@@ -91,7 +93,7 @@ export const night2Nodes: StoryNode[] = [
         speaker: 'muhabbat',
         variants: [
           {
-            text: 'Sen 47da yashaysan-ku?.. Yaxshi, yaxshi, muhokama qilmaymiz. Halvani ol, chiqdi.',
+            text: 'Sen 47da yashaysan-ku?.. Yaxshi, yaxshi, muhokama qilmaymiz. Halvani ol. Sovib qolmasin.',
           },
         ],
       },
@@ -107,7 +109,9 @@ export const night2Nodes: StoryNode[] = [
       {
         speaker: 'muhabbat',
         variants: [
-          { text: 'Sardor… Ozgina jim, kitobxon yigit edi. 47da yashar edi, sen xonadonda.' },
+          {
+            text: 'Sardor… Ozgina jim, kitobxon yigit edi. 47da yashar edi, sen turgan xonadonda.',
+          },
         ],
       },
       {
@@ -205,7 +209,9 @@ export const night2Nodes: StoryNode[] = [
       {
         speaker: 'narrator',
         variants: [
-          { text: 'Choypiy. Qoʻllaringiz iliydi. Bir zumga devor oddiy devor boʻlib qoldi.' },
+          {
+            text: 'Bir qultum choy. Qoʻllaringiz iliydi. Bir zumga devor oddiy devor boʻlib qoldi.',
+          },
         ],
       },
     ],
@@ -221,13 +227,13 @@ export const night2Nodes: StoryNode[] = [
     lines: [
       {
         speaker: 'narrator',
-        variants: [{ text: 'Shkaf ichida eski kiyimlar. Va — devorning orqa tomonida.' }],
+        variants: [{ text: 'Shkaf ichida eski kiyimlar. Orqa taxtasida esa — chiziqlar.' }],
       },
       {
         speaker: 'narrator',
         variants: [
           {
-            text: 'Barmoq bilan chizilgan chiziqlar. Toʻrttasi qirgʻoq bilan, bittasi oralab. Guruhlarga boʻlingan.',
+            text: 'Taxtaga tirnab chizilgan. Toʻrtta tik chiziq, ustidan beshinchisi. Yonida yana shunday guruh.',
           },
         ],
       },
@@ -273,7 +279,7 @@ export const night2Nodes: StoryNode[] = [
         variants: [
           {
             when: { profile: 'fear', eq: 'kuzatuv' },
-            text: 'Sizni kimdir kuzatayotganini sezganingizda ham shunday ediku — huddi shu his.',
+            text: 'Sizni kimdir kuzatayotganini sezganingizda ham shunday edi-ku — xuddi shu his.',
           },
           {
             text: 'Yana sinab koʻrdingiz. Endi aks siz bilan birga harakat qiladi. Baribir… kechikkan.',
@@ -297,7 +303,7 @@ export const night2Nodes: StoryNode[] = [
       {
         speaker: 'diary',
         variants: [
-          { text: '“…Oyna menga emas, devorga qaraydi. Buni tushungan kungim yomon boʻldi.”' },
+          { text: '“…Oyna menga emas, devorga qaraydi. Buni tushungan kunim yomon boʻldi.”' },
         ],
       },
       {
@@ -317,11 +323,11 @@ export const night2Nodes: StoryNode[] = [
     lines: [
       {
         speaker: 'narrator',
-        variants: [{ text: 'Quloqingizni devorga qoʻydingiz. Sovuq, gʻadir-budur sirgʻaladi.' }],
+        variants: [{ text: 'Quloqingizni devorga qoʻydingiz. Suvoq sovuq, gʻadir-budur.' }],
       },
       {
         speaker: 'narrator',
-        variants: [{ text: 'Ichida — bir narsa. Pichillov, uzoq. Soʻzlar yoʻq, faqat diqqat.' }],
+        variants: [{ text: 'Ichida — bir narsa. Uzoq shivir. Soʻzlar yoʻq, faqat diqqat.' }],
       },
       {
         speaker: 'narrator',
@@ -358,7 +364,7 @@ export const night2Nodes: StoryNode[] = [
           },
           {
             when: { flag: 'n1_reaction', eq: 'urdi' },
-            text: 'Kecha menga javob berdingiz — urish orqali. Men buni unutmadyam.',
+            text: 'Kecha menga javob berdingiz — urish orqali. Men buni unutmadim.',
           },
           { text: 'Kecha jim edingiz. Jimlik ham javob, bilasizmi.' },
         ],
@@ -374,7 +380,7 @@ export const night2Nodes: StoryNode[] = [
             when: { profile: 'livesAlone', eq: 'hozircha' },
             text: '“Hozircha yolgʻiz”, dedingiz. “Hozircha” soʻzi… uzoq choʻziladi.',
           },
-          { text: 'Oldingizdagilar ham bor edi. Hammasi… bir martta edi.' },
+          { text: 'Oldingizdagilar ham bor edi. Hammasi… bir marta edi.' },
         ],
       },
     ],
@@ -396,7 +402,7 @@ export const night2Nodes: StoryNode[] = [
           },
           {
             when: { profile: 'fear', eq: 'yolgʻizlik' },
-            text: 'Yolgʻizlikdan qoʻrqasiz? Bas, endi yolgʻiz emassiz. Men bor.',
+            text: 'Yolgʻizlikdan qoʻrqasiz? Bas, endi yolgʻiz emassiz. Men borman.',
           },
           {
             when: { profile: 'fear', eq: 'kuzatuv' },
@@ -406,18 +412,18 @@ export const night2Nodes: StoryNode[] = [
             when: { profile: 'fear', eq: 'unutilish' },
             text: 'Unutilishdan qoʻrqasiz. Kecha sizni esladim. Yana eslayman.',
           },
-          { text: 'Siz nima dan qoʻrqsangiz, men oʻsha narsa boʻlib qolaman.' },
+          { text: 'Siz nimadan qoʻrqsangiz, men oʻsha narsa boʻlib qolaman.' },
         ],
+      },
+      {
+        speaker: 'narrator',
+        variants: [{ text: 'U anketangizni qayerdan biladi — soʻrashga jur’at qilmaysiz.' }],
       },
       {
         speaker: 'narrator',
         variants: [
-          { text: 'U anketangizni qayerdan biladi — bunga tegmaysiz. Tegish qoʻrqinchli.' },
+          { text: 'Uxlab qoldingiz. Kiyimingizni ham yechmadingiz. Bir qoʻlingiz uvishib qolgan.' },
         ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Uxlab qoldingiz. Uyushgan qoʻl bilan, kiyim bilan.' }],
       },
     ],
     next: 'n2_sleep',

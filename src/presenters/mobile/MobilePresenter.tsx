@@ -28,7 +28,12 @@ export function MobilePresenter({ paused }: { paused: boolean }) {
   const hold = useRef<ReturnType<typeof setTimeout> | null>(null)
   const node = step?.node
   const state = step?.state
-  const vignette = node?.mobile?.vignette ?? node?.location ?? 'room'
+  const baseVignette = node?.mobile?.vignette ?? node?.location ?? 'room'
+  const vignette =
+    baseVignette === 'window' &&
+    (node?.id.endsWith('_316') || state?.visitedNodes.includes(`n${state.night}_317`))
+      ? 'window_dark'
+      : baseVignette
   const choices = useMemo(() => (node && state ? visibleChoices(node, state) : []), [node, state])
   const voiceLines = useMemo(
     () =>
@@ -57,13 +62,23 @@ export function MobilePresenter({ paused }: { paused: boolean }) {
     if (!ctx || paused) return
     let frame = 0
     const start = performance.now()
+    const reflections: { time: number; x: number; y: number }[] = []
     const draw = () => {
+      const now = performance.now() / 1000
+      if (vignette === 'bathroom') {
+        reflections.push({ time: now, ...motion.parallax.current })
+        while (reflections.length > 2 && reflections[1]!.time < now - 0.5) reflections.shift()
+      }
+      const current = useGame.getState().run
       drawVignette(vignette, {
         c: ctx,
         ...{ px: motion.parallax.current.x, py: motion.parallax.current.y },
         t: (performance.now() - start) / 1000,
-        sanity: useGame.getState().run?.sanity ?? 100,
+        sanity: current?.sanity ?? 100,
         reduceFlashing: settings.reduceFlashing,
+        clockShifted: !!current?.flags['clock_shifted'],
+        mirrorPx: reflections[0]?.x,
+        mirrorPy: reflections[0]?.y,
       })
       frame = requestAnimationFrame(draw)
     }
@@ -113,6 +128,7 @@ export function MobilePresenter({ paused }: { paused: boolean }) {
     <div
       className={`game-area mobile-game sanity-${band} ${settings.reduceFlashing ? 'reduce-flashing' : ''}`}
       data-node={node.id}
+      data-vignette={vignette}
     >
       <div
         className={`mobile-scene ${peephole ? 'peephole-scene' : ''} ${listening ? 'listening' : ''}`}
@@ -132,7 +148,10 @@ export function MobilePresenter({ paused }: { paused: boolean }) {
           {node.location === 'flat48' ? '48' : '47'}
         </span>
         {choices.map((choice) => {
-          const spot = HOTSPOTS[choice.id]
+          const spot =
+            HOTSPOTS[
+              choice.id === 'clock' && state.flags['clock_shifted'] ? 'shifted_clock' : choice.id
+            ]
           if (!spot || peephole) return null
           const listen = choice.id === 'listen'
           return (
@@ -170,10 +189,17 @@ export function MobilePresenter({ paused }: { paused: boolean }) {
             </button>
           )
         })}
-        {voiceLines.length > 0 && <ChatOverlay key={node.id} messages={voiceLines} />}
+        {voiceLines.length > 0 && (
+          <ChatOverlay
+            key={node.id}
+            messages={voiceLines}
+            paused={paused}
+            immediate={settings.reduceFlashing}
+          />
+        )}
       </div>
       <div className={`mobile-panel ${peephole ? 'peephole-panel' : ''}`}>
-        <NarrationText key={node.id} state={state} />
+        <NarrationText key={node.id} state={state} omitVoice={voiceLines.length > 0} />
         <div className="choices">
           {step.phase === 'next' && (
             <button onClick={() => useGame.getState().advance()}>Davom etish</button>

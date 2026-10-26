@@ -21,7 +21,7 @@ export const night4Nodes: StoryNode[] = [
       },
       {
         speaker: 'narrator',
-        variants: [{ text: 'Dahdan — shivir. Xuddi eski eshik haqida gapirilayotganday.' }],
+        variants: [{ text: 'Dahlizdan — shivir. Xuddi eski eshik haqida gapirilayotganday.' }],
       },
     ],
     next: 'n4_hub',
@@ -75,7 +75,9 @@ export const night4Nodes: StoryNode[] = [
     lines: [
       {
         speaker: 'narrator',
-        variants: [{ text: 'Choypiy. Qoʻlingiz qanday iliq — siz buni sezib ololmaysiz endi.' }],
+        variants: [
+          { text: 'Bir qultum choy. Qoʻlingiz qanday iliq — siz buni sezib ololmaysiz endi.' },
+        ],
       },
       {
         speaker: 'narrator',
@@ -106,7 +108,7 @@ export const night4Nodes: StoryNode[] = [
       },
       {
         speaker: 'narrator',
-        variants: [{ text: 'Pardaxonadan oyoq ovozi. Bittasi. Yaqqol. Keyin jimlik.' }],
+        variants: [{ text: 'Zinapoya maydonchasidan oyoq ovozi. Bittasi. Yaqqol. Keyin jimlik.' }],
       },
     ],
     next: 'n4_hub',
@@ -122,17 +124,19 @@ export const night4Nodes: StoryNode[] = [
       { speaker: 'narrator', variants: [{ text: 'Kozachok. Barcha narsa burama, uchli, sariq.' }] },
       {
         speaker: 'narrator',
-        variants: [{ text: 'Pardaxona. Kattalar saportida kimdir turibdi. Orqasi sizga qaragan.' }],
-      },
-      {
-        speaker: 'narrator',
         variants: [
-          { text: 'Koʻzingizni koʻzdan uzoqlashtirdingiz. Yana qaradingiz — hech kim yoʻq.' },
+          { text: 'Zinapoya maydonchasi. Kimdir palto kiyib turibdi. Orqasi sizga qaragan.' },
         ],
       },
       {
         speaker: 'narrator',
-        variants: [{ text: 'Faqat oyoq iz. Qorda. Ichida, pardaxonada, qor yogʻmayapti.' }],
+        variants: [{ text: 'Kozachokdan uzoqlashdingiz. Yana qaradingiz — hech kim yoʻq.' }],
+      },
+      {
+        speaker: 'narrator',
+        variants: [
+          { text: 'Faqat oyoq iz. Qorda. Ichida, zinapoya maydonchasida, qor yogʻmayapti.' },
+        ],
       },
     ],
     next: 'n4_hub',
@@ -146,7 +150,9 @@ export const night4Nodes: StoryNode[] = [
     lines: [
       {
         speaker: 'narrator',
-        variants: [{ text: 'Gilam osti. Taxta yoʻq, faqat poll — va sahifa, chanqoq qogʻoz.' }],
+        variants: [
+          { text: 'Gilam ostidagi taxta cheti qayrilgan. Tagida quruq, sargʻaygan sahifa.' },
+        ],
       },
       {
         speaker: 'diary',
@@ -158,7 +164,7 @@ export const night4Nodes: StoryNode[] = [
       },
       {
         speaker: 'diary',
-        variants: [{ text: '“48 — bu 47. Faqat eski. Faqat toʻlgan. Faqat… bandi.”' }],
+        variants: [{ text: '“48 — bu 47. Faqat eski. Faqat toʻlgan. Faqat… band.”' }],
       },
     ],
     next: 'n4_hub',
@@ -171,10 +177,17 @@ export const night4Nodes: StoryNode[] = [
     desktop: { trigger: 'zone', zoneId: 'landing_48' },
     mobile: { vignette: 'landing48', hotspots: ['door48'] },
     lines: [
-      { speaker: 'narrator', variants: [{ text: 'Pardaxona. 47 — oʻngda. 48 — chapda.' }] },
       {
         speaker: 'narrator',
-        variants: [{ text: '48 eshigi qoʻyilgan. Yigirma yillik mohrdan keyin. Mohr yoʻq.' }],
+        variants: [{ text: 'Zinapoya maydonchasi. 47 — oʻngda. 48 — chapda.' }],
+      },
+      {
+        speaker: 'narrator',
+        variants: [
+          {
+            text: '48 eshigi qiya ochiq. Yigirma yil yopiq turgan eshik. Muhrning izi bor, oʻzi yoʻq.',
+          },
+        ],
       },
       {
         speaker: 'narrator',
@@ -204,7 +217,7 @@ export const night4Nodes: StoryNode[] = [
         speaker: 'narrator',
         variants: [
           {
-            text: 'Qaytdingiz. Eshikni berkitdingiz — u yopilmadi, faqat… arzimagan darajada yopildi.',
+            text: 'Qaytdingiz. Eshikni berkitdingiz — u yopilmadi, faqat suyangancha qoldi.',
           },
         ],
       },
@@ -273,12 +286,17 @@ export const night4Nodes: StoryNode[] = [
     onEnter: [flag('saw_calendar', true), sanity(-4)],
     mobile: { vignette: 'flat48', hotspots: ['calendar'] },
     lines: [
-      { speaker: 'narrator', variants: [{ text: 'Kalendarni. Qattiq qogʻoz, 2006 yozuvi.' }] },
+      { speaker: 'narrator', variants: [{ text: 'Devor taqvimi. Qattiq qogʻoz, 2006 yozuvi.' }] },
       {
         speaker: 'narrator',
-        variants: [{ text: 'Sanalar qirgʻoq bilan chizilgan. Birma-bir. Uzluksiz.' }],
+        variants: [{ text: 'Sanalar ustidan chiziq tortilgan. Birma-bir. Uzluksiz.' }],
       },
-      { speaker: 'narrator', variants: [{ text: '2006… 2007… 2010… 2020… Keyingi yil. Bu oy.' }] },
+      {
+        speaker: 'narrator',
+        variants: [
+          { text: 'Yili — 2006. Lekin oyi hozirgi oy. Kunlar ham shu oyga toʻgʻri keladi.' },
+        ],
+      },
       {
         speaker: 'narrator',
         variants: [{ text: 'Oxirgi chizilgan sana — kecha. Bugungi sana chizilmagan.' }],
@@ -296,7 +314,9 @@ export const night4Nodes: StoryNode[] = [
     lines: [
       {
         speaker: 'narrator',
-        variants: [{ text: 'Stol ustida sizniki: telefon qutisi, yarim choynak, nonmogʻor.' }],
+        variants: [
+          { text: 'Stol ustida sizniki: telefon qutisi, darz ketgan piyola, mogʻorlagan non.' },
+        ],
       },
       {
         speaker: 'narrator',
@@ -371,13 +391,17 @@ export const night4Nodes: StoryNode[] = [
         speaker: 'narrator',
         variants: [
           {
-            text: 'Signal yoʻqoldi — taxminan ikki soniyaga. Xona notoʻgʻri chizildi, qirgʻoqlari qirildi.',
+            text: 'Signal yoʻqoldi — taxminan ikki soniyaga. Xonaning tasviri surilib ketdi. Devor chiziqlari tutashmadi.',
           },
         ],
       },
       {
         speaker: 'narrator',
-        variants: [{ text: 'Keyin hammasi joyiga qaytdi. Faqat eshik endi boshqa tomonda edi.' }],
+        variants: [
+          {
+            text: 'Keyin hammasi joyiga qaytdi. Siz eshikka qaradingiz. Bir zum qaysi tomondaligini eslay olmadingiz.',
+          },
+        ],
       },
     ],
     next: 'n4_voice_identity',
@@ -393,10 +417,10 @@ export const night4Nodes: StoryNode[] = [
         speaker: 'narrator',
         variants: [{ text: 'Devor. Bu xonaning devori. Uch zarba — yaqindan.' }],
       },
-      { speaker: 'voice', variants: [{ text: 'Men oldin ham sen edim.' }] },
+      { speaker: 'voice', variants: [{ text: 'Men oldin ham sen edim, {name}.' }] },
       {
         speaker: 'narrator',
-        variants: [{ text: 'U bu jumlani maqtanadigan ovoz bilan aytdi. Yaxshi, tinch ovoz.' }],
+        variants: [{ text: 'U buni oddiy bir narsani tushuntirgandek aytdi. Shoshilmadi.' }],
       },
     ],
     choices: [
@@ -420,7 +444,7 @@ export const night4Nodes: StoryNode[] = [
       { speaker: 'player', variants: [{ text: 'Sardor… sizmisiz?' }] },
       {
         speaker: 'voice',
-        variants: [{ text: 'Sardor boʻlganman. Keyin — boshqa ism boʻldim. Keyin — sen boʻldim.' }],
+        variants: [{ text: 'Sardor boʻlganman. Keyin — boshqa ism boʻldim. Endi — {name}.' }],
       },
       {
         speaker: 'voice',
@@ -457,7 +481,10 @@ export const night4Nodes: StoryNode[] = [
         speaker: 'narrator',
         variants: [{ text: 'Javob bermadingiz. Devor iliq boʻlib qoldi — xuddi nafas olganday.' }],
       },
-      { speaker: 'voice', variants: [{ text: 'Mayli. Ertaga gaplashamiz. Ertaga doim bor.' }] },
+      {
+        speaker: 'voice',
+        variants: [{ text: 'Mayli, {name}. Ertaga gaplashamiz. Ertaga doim bor.' }],
+      },
     ],
     next: 'n4_return',
   },

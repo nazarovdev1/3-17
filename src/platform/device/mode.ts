@@ -37,7 +37,7 @@ export function detectTier(internalHeightTarget: number): QualityTier {
   return internalHeightTarget >= 400 ? 'high' : 'low'
 }
 
-export const QUALITY_HEIGHT: Record<QualityTier, number> = { high: 450, low: 320 }
+export const QUALITY_HEIGHT: Record<QualityTier, number> = { high: 400, low: 320 }
 
 /** FPS floors (spec 10): auto-drop below 40, fall back to mobile below 25. */
 export const FPS_DROP_THRESHOLD = 40

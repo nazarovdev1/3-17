@@ -23,13 +23,7 @@ export const night3Nodes: StoryNode[] = [
       },
       {
         speaker: 'narrator',
-        variants: [
-          {
-            when: { flag: 'return_comment' },
-            text: 'Bir paytlar ketgan edingiz. Uy siz ketganingizni eslab qoldi.',
-          },
-          { text: 'Uy sizni kutib olgandek. Juda… poylab turgandek.' },
-        ],
+        variants: [{ text: 'Uy sizni kutib olgandek. Juda… poylab turgandek.' }],
       },
     ],
     next: 'n3_hub',
@@ -80,7 +74,7 @@ export const night3Nodes: StoryNode[] = [
       {
         speaker: 'narrator',
         variants: [
-          { text: 'Choypiy. Issiq piyola qoʻllaringizda — reallikning eng oddiy dalili.' },
+          { text: 'Bir qultum choy. Issiq piyola qoʻllaringizda — reallikning eng oddiy dalili.' },
         ],
       },
       {
@@ -112,7 +106,7 @@ export const night3Nodes: StoryNode[] = [
         speaker: 'diary',
         variants: [
           {
-            text: '“Agar u seni oʻz ovozing bilan gapirsa — bu u emas. Bu sen boʻlib qolgan narsa.”',
+            text: '“Agar u sening ovozing bilan gapirsa — bu u emas. Bu sen boʻlib qolgan narsa.”',
           },
         ],
       },
@@ -138,7 +132,7 @@ export const night3Nodes: StoryNode[] = [
         variants: [
           {
             when: { sanityLt: 55 },
-            text: 'Dahliz choʻzildi. Yoki siz qisqardingiz. Aynan farqi yoʻq.',
+            text: 'Dahliz choʻzildi. Yoki siz qisqardingiz. Endi farqiga ham bormayapsiz.',
           },
           { text: 'Devorlar orasidagi masofa… oshib bordi.' },
         ],
@@ -159,7 +153,9 @@ export const night3Nodes: StoryNode[] = [
       {
         speaker: 'narrator',
         variants: [
-          { text: 'Yugurdingiz. Qadamlaringiz eshitsiz — hovli qattiq, poyabzal yumshoq.' },
+          {
+            text: 'Yugurdingiz. Qadamlaringiz eshitilmaydi. Tagʻin yurib koʻrdingiz. Hali ham jim.',
+          },
         ],
       },
       {
@@ -177,7 +173,7 @@ export const night3Nodes: StoryNode[] = [
     id: 'n3_corridor_stop',
     night: 3,
     location: 'corridor',
-    onEnter: [flag('corridor_looped', true), sanity(-2)],
+    onEnter: [flag('corridor_looped', true), flag('clock_shifted', true), sanity(-2)],
     lines: [
       { speaker: 'narrator', variants: [{ text: 'Toʻxtadingiz. Orqaga qaradingiz.' }] },
       {
@@ -191,7 +187,28 @@ export const night3Nodes: StoryNode[] = [
         ],
       },
     ],
-    next: 'n3_hub',
+    next: 'n3_room_return',
+  },
+  {
+    id: 'n3_room_return',
+    night: 3,
+    location: 'room',
+    onEnter: [flag('clock_shifted', true)],
+    mobile: { vignette: 'room_shifted', hotspots: ['shifted_clock'] },
+    desktop: { trigger: 'interact', objectId: 'clock' },
+    lines: [
+      {
+        speaker: 'narrator',
+        variants: [{ text: 'Xonaga qaytdingiz. Hamma narsa oʻz joyida. Deyarli.' }],
+      },
+      {
+        speaker: 'narrator',
+        variants: [{ text: 'Soat… avval bu yerda emasdi. Devorda eski joyining izi qolgan.' }],
+      },
+    ],
+    choices: [
+      { id: 'shifted_clock', label: 'Joyini oʻzgartirgan soatni tekshirish', to: 'n3_hub' },
+    ],
   },
   {
     id: 'n3_tv',
@@ -211,13 +228,13 @@ export const night3Nodes: StoryNode[] = [
         speaker: 'narrator',
         variants: [
           {
-            text: 'Sizning xonangiz. Yuqoridan koʻrinish. Siz oʻtiribsiz, oʻzingiz oʻtiringan joyda.',
+            text: 'Sizning xonangiz. Yuqoridan koʻrinish. Siz oʻtiribsiz, hozir oʻtirgan joyingizda.',
           },
         ],
       },
       {
         speaker: 'narrator',
-        variants: [{ text: 'Tasvirdagi siz boshni koʻtardi. Televozorni oʻchirdi.' }],
+        variants: [{ text: 'Tasvirdagi siz boshni koʻtardi. Televizorni oʻchirdi.' }],
       },
     ],
     next: 'n3_hub',
@@ -231,20 +248,20 @@ export const night3Nodes: StoryNode[] = [
     lines: [
       {
         speaker: 'narrator',
-        variants: [{ text: 'Gilam ostida, pollar taxtasi chigʻanogʻida — yana bir sahifa.' }],
+        variants: [{ text: 'Gilam ostida, pol taxtalari orasida — yana bir sahifa.' }],
       },
       {
         speaker: 'diary',
         variants: [
           {
-            text: '“…U meni 47 deb oʻylamaydi. U uyning oʻzini eshitadi. Biz — mehmonmiz. Ikkalaymiz.”',
+            text: '“…U meni 47 deb oʻylamaydi. U uyning oʻzini eshitadi. Biz — mehmonmiz. Ikkalamiz.”',
           },
         ],
       },
       {
         speaker: 'diary',
         variants: [
-          { text: '“Soat 3:17 — uyning chiqish vaqti. Chiqish esa… u erdan. Devor orasidan.”' },
+          { text: '“Soat 3:17 — uyning chiqish vaqti. Chiqish esa… u yerdan. Devor orasidan.”' },
         ],
       },
     ],
@@ -282,7 +299,7 @@ export const night3Nodes: StoryNode[] = [
         variants: [
           {
             when: { flag: 'n1_reaction', eq: 'javob' },
-            text: 'Eslayapsizmi: “Yoʻq, uxlayapman”, dedingiz. Oʻsha soʻzlar menim sevimli soʻzlarim boʻlib qoldi.',
+            text: 'Eslayapsizmi: “Yoʻq, uxlayapman”, dedingiz. Oʻsha soʻzlar mening sevimli soʻzlarim boʻlib qoldi.',
           },
           {
             when: { flag: 'n1_reaction', eq: 'sukut' },
@@ -321,7 +338,7 @@ export const night3Nodes: StoryNode[] = [
             when: { profile: 'fear', eq: 'yolgʻizlik' },
             text: 'Yolgʻizlik… men uni yutib yubordim. Sen ham yutasan, yutqazsang.',
           },
-          { text: 'Sen menga oʻxshab qolyapsan. Bu zoʻr. Bu qoʻrqinchli. Ikkalasi ham rost.' },
+          { text: 'Sen menga oʻxshab qolyapsan. Men ham boshida sezmagandim.' },
         ],
       },
     ],
@@ -351,7 +368,7 @@ export const night3Nodes: StoryNode[] = [
         speaker: 'voice',
         variants: [{ text: 'Men oldin ham sen edim. Bu savolga boshqa javobim yoʻq.' }],
       },
-      { speaker: 'narrator', variants: [{ text: 'Bu javob maʼnosiz edi. Va butunlay aniq.' }] },
+      { speaker: 'narrator', variants: [{ text: 'Bu javob ma’nosiz edi. Va butunlay aniq.' }] },
     ],
     next: 'n3_sleep',
   },

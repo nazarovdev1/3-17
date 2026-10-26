@@ -1,5 +1,6 @@
 import { useGame } from './gameStore'
 import { EndingVignette } from '@/presenters/mobile/EndingVignette'
+import { NarrationText } from './NarrationText'
 
 const ENDING_TITLES: Record<string, string> = {
   A: 'Qoʻshni',
@@ -16,6 +17,7 @@ const ENDING_TEXT: Record<string, string> = {
 /** Ending card (spec 4.3/5.4): names the ending, offers gallery / title. */
 export function EndingScreen() {
   const card = useGame((s) => s.endingCard)
+  const run = useGame((s) => s.run)
   const finish = useGame((s) => s.finishEnding)
   const setScreen = useGame((s) => s.setScreen)
 
@@ -23,12 +25,19 @@ export function EndingScreen() {
   const title = ENDING_TITLES[card.id] ?? card.id
 
   return (
-    <div className="screen">
+    <div className="screen ending-screen">
       <EndingVignette ending={card.id} />
       <h1 className="title" style={{ fontSize: 40 }}>
         {title}
       </h1>
-      <p className="subtitle">{ENDING_TEXT[card.id]}</p>
+      <div className="ending-narration">
+        {run ? (
+          <NarrationText key={card.nodeId} state={run} />
+        ) : (
+          <p className="subtitle">{ENDING_TEXT[card.id]}</p>
+        )}
+      </div>
+      <p className="ending-scroll-hint">Matnni pastga surib oʻqing.</p>
       <div className="menu">
         <button
           onClick={() => {

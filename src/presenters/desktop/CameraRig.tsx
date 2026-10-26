@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/immutability -- R3F scene handles are mutable Three.js objects, synchronized imperatively. */
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import {
   Box3,
@@ -57,20 +57,23 @@ export function CameraRig({
   const doorBounds = useRef(new Box3())
   const frustum = useRef(new Frustum())
   const viewProjection = useRef(new Matrix4())
-  const mirrorHistory = useRef<{ time: number; x: number }[]>([])
+  const mirrorHistory = useRef<{ time: number; x: number; yaw: number; pitch: number }[]>([])
 
-  useEffect(() => {
-    const view = VIEWS[step.node.mobile?.vignette === 'window' ? 'balcony' : step.node.location]
-    const peephole = step.node.mobile?.vignette === 'peephole'
+  const viewpoint = step.node.mobile?.vignette === 'window' ? 'balcony' : step.node.location
+  const peephole = step.node.mobile?.vignette === 'peephole'
+  const turnedBack = step.node.id === 'n3_corridor_stop'
+  useLayoutEffect(() => {
+    const view = VIEWS[viewpoint]
     const spawn: Point = peephole ? [0, 1.7, 7.12] : view.position
     camera.position.set(...spawn)
-    angles.current = { yaw: peephole ? Math.PI : view.yaw, pitch: 0 }
+    mirrorHistory.current = []
+    angles.current = { yaw: peephole ? Math.PI : turnedBack ? 0 : view.yaw, pitch: 0 }
     camera.rotation.set(0, angles.current.yaw, 0, 'YXZ')
     const perspective = camera as PerspectiveCamera
     // R3F owns a mutable Three camera; this is imperative scene synchronization.
     perspective.fov = peephole ? 110 : 66
     perspective.updateProjectionMatrix()
-  }, [step.node.location, step.node.mobile?.vignette, camera])
+  }, [viewpoint, peephole, turnedBack, camera])
 
   useEffect(() => {
     const stopListening = () => {
@@ -238,7 +241,7 @@ export function CameraRig({
       let best: Choice | null = null
       let bestDistance = 3.2
       for (const choice of choices) {
-        const point = interactionPoint(choice, extension)
+        const point = interactionPoint(choice, extension, desktopRuntime.clockShifted ? 0.9 : 0)
         if (!point) continue
         const vector = new Vector3(...point).sub(camera.position)
         const length = vector.length()
@@ -265,7 +268,7 @@ export function CameraRig({
       wasLooking.current = looking
     }
     const history = mirrorHistory.current
-    history.push({ time: clock.elapsedTime, x: camera.position.x })
+    history.push({ time: clock.elapsedTime, x: camera.position.x, yaw, pitch })
     while (history.length > 2 && history[1]!.time < clock.elapsedTime - 0.5) history.shift()
     desktopRuntime.mirrorDelay = step.node.location === 'bathroom' ? 0.5 : 0
     desktopRuntime.position = camera.position.toArray()
@@ -275,6 +278,8 @@ export function CameraRig({
     desktopRuntime.corridorLength = 3 + extension
     // The renderer samples this delayed position for the reflected silhouette.
     desktopRuntime.mirrorOffset = ((history[0]?.x ?? camera.position.x) + 2.1) * 0.1
+    desktopRuntime.mirrorYaw = history[0]?.yaw ?? yaw
+    desktopRuntime.mirrorPitch = history[0]?.pitch ?? pitch
     const target = nodePoint(step.node)
     if (
       target &&

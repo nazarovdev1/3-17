@@ -333,6 +333,14 @@ input[type='range'] {
   max-width: 85%;
   line-height: 1.4;
 }
+.chat-reveal {
+  min-height: 44px;
+  width: auto;
+  font-size: 12px;
+  background: #141a22e6;
+  color: var(--paper);
+  padding: 6px 10px;
+}
 
 .chat-typing {
   background: rgba(20, 26, 34, 0.7);
