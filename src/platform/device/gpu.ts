@@ -3,11 +3,16 @@
  * a small offscreen scene. Must stay fast and never throw.
  */
 export async function checkGpu(sampleMs = 800): Promise<boolean> {
+  let probe: WebGLRenderingContext | WebGL2RenderingContext | null = null
+  const shaders: WebGLShader[] = []
+  let program: WebGLProgram | null = null
+  let buffer: WebGLBuffer | null = null
   try {
     const canvas = document.createElement('canvas')
     canvas.width = 320
     canvas.height = 240
     const gl = canvas.getContext('webgl2') ?? canvas.getContext('webgl')
+    probe = gl
     if (!gl) return false
 
     const info = gl.getExtension('WEBGL_debug_renderer_info')
@@ -26,16 +31,17 @@ export async function checkGpu(sampleMs = 800): Promise<boolean> {
     const fs = 'void main(){gl_FragColor=vec4(0.1,0.1,0.1,1.0);}'
     const compile = (type: number, src: string) => {
       const shader = gl.createShader(type)!
+      shaders.push(shader)
       gl.shaderSource(shader, src)
       gl.compileShader(shader)
       return shader
     }
-    const program = gl.createProgram()
+    program = gl.createProgram()
     gl.attachShader(program, compile(gl.VERTEX_SHADER, vs))
     gl.attachShader(program, compile(gl.FRAGMENT_SHADER, fs))
     gl.linkProgram(program)
     gl.useProgram(program)
-    const buffer = gl.createBuffer()
+    buffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW)
     const loc = gl.getAttribLocation(program, 'p')
@@ -57,5 +63,12 @@ export async function checkGpu(sampleMs = 800): Promise<boolean> {
     return fps >= 30
   } catch {
     return false
+  } finally {
+    if (probe) {
+      for (const shader of shaders) probe.deleteShader(shader)
+      probe.deleteBuffer(buffer)
+      probe.deleteProgram(program)
+      probe.getExtension('WEBGL_lose_context')?.loseContext()
+    }
   }
 }

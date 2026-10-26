@@ -3,6 +3,8 @@ import { defineConfig, devices } from '@playwright/test'
 export default defineConfig({
   testDir: 'tests/e2e',
   fullyParallel: true,
+  // SwiftShader shares host CPU with every browser; FPS checks need an isolated renderer.
+  workers: 1,
   reporter: [['list']],
   use: {
     baseURL: 'http://localhost:4173',
@@ -31,14 +33,17 @@ export default defineConfig({
     },
     {
       name: 'iphone-13',
+      testIgnore: '**/desktop*.spec.ts',
       use: { ...devices['iPhone 13'], browserName: 'chromium' },
     },
     {
       name: 'pixel-7',
+      testIgnore: '**/desktop*.spec.ts',
       use: { ...devices['Pixel 7'], browserName: 'chromium' },
     },
     {
       name: 'small-android',
+      testIgnore: '**/desktop*.spec.ts',
       use: {
         viewport: { width: 360, height: 640 },
         isMobile: true,
@@ -50,6 +55,7 @@ export default defineConfig({
     },
     {
       name: 'no-webgl',
+      testIgnore: '**/desktop*.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1440, height: 900 },

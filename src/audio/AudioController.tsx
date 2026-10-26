@@ -5,6 +5,7 @@ import { useGame, onEngineEvents } from '@/ui/gameStore'
 import { useSettings } from '@/ui/settingsStore'
 import { getWebApp } from '@/platform/telegram/adapter'
 import type { GameMode } from '@/platform/device/mode'
+const SHARED_WALL = [3, 1.5, -1] as const
 
 /** One audio owner across presenters; all hooks/listeners are cleaned up. */
 export function AudioController({ mode }: { mode: GameMode }) {
@@ -39,7 +40,7 @@ export function AudioController({ mode }: { mode: GameMode }) {
     let lastClockBanner = useGame.getState().realClock317Visible
     const unsubscribeGame = useGame.subscribe((game) => {
       sync()
-      if (game.realClock317Visible && !lastClockBanner) audio.play('knock_soft', [1.5, 0, -1])
+      if (game.realClock317Visible && !lastClockBanner) audio.play('knock_soft', SHARED_WALL)
       lastClockBanner = game.realClock317Visible
     })
     const unsubscribeSettings = useSettings.subscribe((settings) =>
@@ -56,7 +57,7 @@ export function AudioController({ mode }: { mode: GameMode }) {
         // Ticking exists only in Ending C's loop. The authored inspection cues
         // stay silent and the winding cue is represented by that same loop.
         if (event.id === 'clock_tick') continue
-        audio.play(event.id, event.id.startsWith('knock') ? [1.5, 0, -1] : undefined)
+        audio.play(event.id, event.id.startsWith('knock') ? SHARED_WALL : undefined)
       }
       if (
         step.node.lines.some((line) => line.speaker === 'voice') &&
@@ -76,7 +77,7 @@ export function AudioController({ mode }: { mode: GameMode }) {
             : 'step_wood',
         )
       }
-      if (step.node.ending === 'A') audio.play('knock_triple', [1.5, 0, -1])
+      if (step.node.ending === 'A') audio.play('knock_triple', SHARED_WALL)
     })
     audio.setVolumes(useSettings.getState().settings)
     sync()

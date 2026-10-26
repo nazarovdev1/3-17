@@ -52,9 +52,17 @@ if (!entryKey) {
   process.exit(1)
 }
 
-const desktopFiles = desktopKey ? (subtree(desktopKey, isJs) ?? []) : []
-const desktopSet = new Set(desktopFiles)
-const mobileFiles = (subtree(entryKey, isJs) ?? []).filter((f) => !desktopSet.has(f))
+// The lazy presenter can import shared code from the entry. Count that code in
+// mobile exactly once, and only additional downloads in the desktop budget.
+const mobileFiles = subtree(entryKey, isJs) ?? []
+const mobileSet = new Set(mobileFiles)
+const desktopFiles = desktopKey
+  ? (subtree(desktopKey, isJs) ?? []).filter((file) => !mobileSet.has(file))
+  : []
+if (mobileFiles.some((file) => /DesktopPresenter|desktop-3d/.test(file))) {
+  console.error('budget: desktop renderer is statically reachable from the mobile entry')
+  process.exit(1)
+}
 
 const desktopBytes = desktopFiles.reduce((sum, f) => sum + gzipped(f), 0)
 const mobileBytes = mobileFiles.reduce((sum, f) => sum + gzipped(f), 0)

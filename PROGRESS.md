@@ -8,7 +8,7 @@ Honest, phase-by-phase record. A phase is only marked done when every check ran 
 - [x] Phase 3 — Shell and platform
 - [x] Phase 4 — Mobile presenter
 - [x] Phase 5 — Audio
-- [ ] Phase 6 — Desktop 3D presenter
+- [x] Phase 6 — Desktop 3D presenter
 - [ ] Phase 7 — Horror polish
 - [ ] Phase 8 — Full QA
 - [ ] Phase 9 — Release docs
@@ -253,3 +253,56 @@ Not verified:
 - Camera-relative spatial listening is Phase 6; full performance/hardware checks are Phase 8.
 
 Phase 5 exit met. Stop after committing this phase; Phase 6 is not started.
+
+## Phase 6 — Desktop 3D presenter
+
+Implemented (2026-10-26):
+
+- Lazy React Three Fiber presenter with procedural nearest-filtered textures, instanced
+  PS1 geometry, flat 47, its decayed copy in flat 48, an enclosed stair landing and balcony.
+  Furniture includes the stopped 3:17 clock, wall carpet, Rubin TV, radiator, kettle,
+  wardrobe, mirror, numbered doors, chain, calendar and diary targets. No remote assets.
+- Native Pointer Lock and rejected/unavailable-lock drag look; collision-limited WASD,
+  E interaction, F flashlight, held Q listening, numeric choices, Space text skip and
+  Escape pause. Shared narration and all story choices remain accessible in the HUD.
+  One-time controls hint, optional head bob and camera-relative spatial audio.
+- Fluorescent lamps and working switches, sodium streetlight, fog/snow, progressive
+  window blackout and current-night outage. A delayed mirror silhouette, corridor extension
+  outside the camera frustum, ajar door 48 and transient peephole figure are rendered.
+  The peephole uses a circular radial-distortion shader. Phase 7 pacing/polish remains separate.
+- 450/320-pixel render tiers with three-second FPS windows, automatic high-to-low drop,
+  low-to-mobile fallback preserving story state, WebGL 2 preflight and context-loss recovery.
+  Paused/hidden frames and long background stalls are excluded from quality sampling.
+  Shared GPU resources and boot-probe resources are explicitly disposed.
+- Scalar renderer diagnostics are available through the existing debug-only API and overlay.
+  Mobile mode does not probe the GPU or download the desktop renderer. Failed renderers stay
+  in mobile after resize, with manual Settings selection available to retry.
+- Necessary decision 6 correction was explained before editing: the old manual chunking
+  hoisted Three.js into mobile and its budget subtraction reported mobile as zero. Native
+  dynamic splitting and full-entry mobile accounting now enforce the intended budgets.
+  All other recorded decisions and story content remain unchanged.
+
+Verified:
+
+- `npm run check` green: lint, format, typecheck, 151 unit/component tests, 77-node validator,
+  production build, mobile 98.0 KB / 250 KB and lazy desktop 262.8 KB / 700 KB gzipped JS.
+- All 108 functional Playwright checks pass across five Chromium projects; four expected
+  project-specific skips. Desktop A/B/C all pass through real input, as do all mobile endings.
+  No console/page errors. Native context restore/fallback, WebGL 1/no-WebGL fallback,
+  Pointer Lock/drag, keyboard controls, actual 320-pixel low tier and mobile request isolation pass.
+- Isolated performance check passes separately with tracing disabled: 59.0 FPS over three
+  seconds at high/450 pixels, about 60 FPS after repeated room tours. Geometry/texture
+  counts remain exactly 41/10 after warm-up and repeated tours. The earlier traced run's
+  recording overhead and startup variability produced lower readings; performance recording
+  is now separated from functional traces. The benchmark retains its 55 FPS assertion.
+- Opened and reviewed all eight desktop scene captures. Kept the previously reviewed mobile
+  evidence; no finished mobile scene work was replaced.
+- Browser tests use one worker to avoid competing software renderers and an explicit SDK
+  fixture to remove CDN availability from the functional gate. Initial failures revealed
+  the fixed low-tier pixel-ratio overwrite and two test target ambiguities.
+
+Limits: the host exposes SwiftShader even without forced software flags. Physical GPU,
+real Telegram Desktop webview behavior and hardware audio/sensors remain Phase 8 validation.
+Phase 7's cross-mode horror/pacing pass is not started.
+
+Phase 6 exit met. Stop after this phase commit.

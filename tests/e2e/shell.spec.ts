@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test'
+import { expect } from '@playwright/test'
+import { test } from './fixtures'
 import { acceptWarning, startNamedRun } from './helpers'
 
 // Collects console.error and pageerror; any of these fails the test (spec 12).
@@ -83,7 +84,7 @@ test('pause menu is reachable and quit returns to title', async ({ page }) => {
   await page.goto('/')
   await startNamedRun(page, 'Dilnoza')
   await page.getByRole('button', { name: 'Pauza' }).click()
-  await expect(page.getByText('PAUZA')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'PAUZA', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Sarlavha ekraniga chiqish' }).click()
   await expect(page.getByRole('button', { name: 'Yangi oʻyin' })).toBeVisible()
 })

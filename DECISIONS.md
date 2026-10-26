@@ -18,9 +18,12 @@ Android phones"), recorded here.
    jsdom; component tests need the DOM. Storage adapters are injected, so no fake-localStorage
    hacks in engine tests.
 6. **Bundle budget via Vite manifest.** `build.manifest: true`; `scripts/check-bundle.mjs`
-   computes gzipped sizes of the desktop dynamic-import subtree (everything Rollup assigns to
-   the `desktop-3d` manual chunk) and of the entry subtree minus the desktop part. CSS/fonts
-   are reported but not gated (the spec budget is on JS).
+   counts the full static entry subtree for mobile and additional desktop-only downloads
+   for the lazy renderer. CSS/fonts are informational. Phase 6 correction: the original
+   subtraction reported mobile as 0 KB when the lazy module imported shared entry code;
+   the manual chunk grouping also hoisted Three.js into the entry. Native dynamic-import
+   splitting now preserves the mobile boundary, and the gate rejects a statically loaded
+   desktop presenter. This replaces the broken accounting, not the size limits.
 7. **git repository initialized locally, branch `main`.** No remote configured (deploy target
    is Vercel; pushing is a user decision).
 8. **`tsx` runs `scripts/validate-story.ts`** so validation is plain TypeScript sharing the

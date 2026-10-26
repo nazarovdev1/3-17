@@ -2,7 +2,15 @@ import { useSettings, type TextSize } from './settingsStore'
 import type { GameMode } from '@/platform/device/mode'
 
 /** Settings screen (spec 8): mode, volumes, text size, flashing, head bob. */
-export function SettingsScreen({ onBack, mode }: { onBack: () => void; mode: GameMode }) {
+export function SettingsScreen({
+  onBack,
+  mode,
+  onModeRequest,
+}: {
+  onBack: () => void
+  mode: GameMode
+  onModeRequest?: () => void
+}) {
   const settings = useSettings((s) => s.settings)
   const update = useSettings((s) => s.update)
 
@@ -18,7 +26,10 @@ export function SettingsScreen({ onBack, mode }: { onBack: () => void; mode: Gam
               <button
                 key={m}
                 className={settings.mode === m ? 'active' : ''}
-                onClick={() => update({ mode: m })}
+                onClick={() => {
+                  update({ mode: m })
+                  onModeRequest?.()
+                }}
               >
                 {m === 'auto' ? 'Auto' : m === 'mobile' ? 'Telefon' : 'Kompyuter'}
               </button>

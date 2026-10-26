@@ -3,6 +3,7 @@ import { useGame } from '@/ui/gameStore'
 import { getLog } from '@/ui/errorLog'
 import { story } from '@/content/story'
 import { audio } from '@/audio/engine'
+import { getDesktopState } from '@/platform/device/desktopRuntime'
 
 const DEBUG_KEY = 'g317:debug'
 const GAME_API_KEY = '__game' as const
@@ -54,6 +55,7 @@ export function DebugOverlay() {
   const mode = useGame((s) => s.screen)
   const goToNode = useGame((s) => s.goToNode)
   const errors = getLog().slice(-5)
+  const desktop = getDesktopState()
 
   useEffect(() => {
     if (!active) return
@@ -67,6 +69,7 @@ export function DebugOverlay() {
       getScreen: () => useGame.getState().screen,
       getNodeId: () => useGame.getState().run?.currentNodeId ?? null,
       getAudioState: () => audio.inspect(),
+      getDesktopState,
       advance: () => useGame.getState().advance(),
     }
     return () => {
@@ -91,6 +94,10 @@ export function DebugOverlay() {
         <button onClick={() => setOpen(false)}>—</button> FPS {fps} · ekran {mode}
       </div>
       <div>node: {node}</div>
+      <div>
+        presenter: {desktop.mounted ? 'desktop' : 'mobile'}
+        {desktop.mounted && ` · ${desktop.tier} · ${desktop.fps.toFixed(0)} FPS`}
+      </div>
       <div>es-hush: {sanity}</div>
       <div>inv: {inventory && inventory.length > 0 ? inventory.join(', ') : '—'}</div>
       <div>flags: {flags && Object.keys(flags).length > 0 ? JSON.stringify(flags) : '—'}</div>

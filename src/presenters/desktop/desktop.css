@@ -1,0 +1,159 @@
+.phones.desktop-mode .phone-frame {
+  width: 100%;
+}
+.desktop-game {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+.desktop-view {
+  position: absolute;
+  inset: 0;
+  background: #0b1019;
+}
+.desktop-view canvas {
+  image-rendering: pixelated;
+  touch-action: none;
+}
+.desktop-film {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(transparent 0 3px, #00000012 3px 4px),
+    radial-gradient(ellipse at center, transparent 40%, #00000099 100%);
+}
+.desktop-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  color: #cfc6b099;
+  pointer-events: none;
+  font-size: 24px;
+}
+.desktop-topline {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #cfc6b0aa;
+  pointer-events: none;
+}
+.desktop-topline span {
+  margin-right: auto;
+}
+.desktop-topline button {
+  width: auto;
+  padding: 8px 12px;
+  background: #0b0b0caa;
+  pointer-events: auto;
+}
+.desktop-controls {
+  position: absolute;
+  top: 75px;
+  left: 20px;
+  width: 230px;
+  padding: 14px;
+  background: #0b0b0cd9;
+  font-size: 12px;
+  line-height: 1.7;
+  border-left: 1px solid #d98a2b66;
+}
+.desktop-controls p {
+  margin: 0 0 12px;
+}
+.desktop-hud {
+  position: absolute;
+  bottom: 0;
+  width: min(900px, 100%);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 24px 24px 16px;
+  background: linear-gradient(transparent, #0b0b0ce8 18%);
+  max-height: 45%;
+  display: flex;
+  flex-direction: column;
+}
+.desktop-hud .narration {
+  overflow: auto;
+  padding: 12px 0 4px;
+  width: 100%;
+  min-height: 0;
+  max-width: 100%;
+}
+.desktop-hud .line {
+  margin-bottom: 8px;
+}
+.desktop-hud .choices {
+  width: 100%;
+  max-width: 100%;
+  padding: 4px 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  overflow: auto;
+  flex-shrink: 0;
+  max-height: 180px;
+}
+.desktop-hud .choices button {
+  min-height: 36px;
+  font-size: 13px;
+  background: #0b0b0c77;
+}
+.interaction-prompt {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  background: #0b0b0ccc;
+  padding: 8px 12px;
+  pointer-events: none;
+}
+.desktop-recovering,
+.desktop-loading {
+  position: absolute;
+  top: 40%;
+  width: 100%;
+  text-align: center;
+  color: #cfc6b0;
+}
+@media (max-width: 700px) {
+  .desktop-topline {
+    left: 8px;
+    right: 8px;
+    top: 8px;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .desktop-topline span {
+    width: 100%;
+  }
+  .desktop-topline button {
+    font-size: 11px;
+    padding: 5px;
+  }
+  .desktop-controls {
+    top: 95px;
+    left: 8px;
+    width: 190px;
+    font-size: 11px;
+  }
+  .desktop-hud {
+    padding: 10px;
+    max-height: 48%;
+  }
+  .desktop-hud .choices {
+    grid-template-columns: 1fr;
+    max-height: 140px;
+  }
+}

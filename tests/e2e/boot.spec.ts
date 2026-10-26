@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test'
+import { expect } from '@playwright/test'
+import { test } from './fixtures'
 
 // Collects console.error and pageerror; any of these fails the test (spec 12).
 test.beforeEach(({ page }) => {

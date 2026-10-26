@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useGame } from './gameStore'
 import { ContentWarning } from './ContentWarning'
 import { TitleScreen } from './TitleScreen'
 import { RentalForm } from './RentalForm'
 import { SettingsScreen } from './SettingsScreen'
-import { GameScreen } from './GameScreen'
+import { ErrorBoundary } from './ErrorBoundary'
 import { MobilePresenter } from '@/presenters/mobile/MobilePresenter'
 import { EndingScreen } from './EndingScreen'
 import { GalleryScreen } from './GalleryScreen'
@@ -14,6 +14,8 @@ import { detectMode, type GameMode } from '@/platform/device/mode'
 import { checkGpu } from '@/platform/device/gpu'
 import { AudioController } from '@/audio/AudioController'
 import './shell.css'
+
+const DesktopPresenter = lazy(() => import('@/presenters/desktop/DesktopPresenter'))
 
 /**
  * The shell (spec 3/4/6): boot → warning → title → form → game, with pause,
@@ -26,44 +28,56 @@ export function GameShell() {
   const settingsMode = useSettings((s) => s.settings.mode)
   const [mode, setMode] = useState<GameMode>('mobile')
   const [bootDone, setBootDone] = useState(false)
+  const failed = useRef(false)
+  const [retry, setRetry] = useState(0)
+  const [fallbackVisible, setFallbackVisible] = useState(false)
+  const fallBack = useCallback(() => {
+    failed.current = true
+    setMode('mobile')
+    setFallbackVisible(true)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
+    let webglAvailable: boolean | undefined
+    let gpuResult: Promise<boolean> | null = null
+    failed.current = false
     async function boot() {
-      const webglOk = hasWebGL()
-      const gpuOk = webglOk ? await checkGpu() : false
-      if (cancelled) return
-      const next = detectMode({
-        setting: settingsMode,
-        pointerFine: window.matchMedia('(pointer: fine)').matches,
-        viewportWidth: window.innerWidth,
-        webglAvailable: webglOk,
-        gpuOk,
-      })
-      setMode(next)
+      const candidate =
+        settingsMode === 'desktop' ||
+        (settingsMode === 'auto' &&
+          window.matchMedia('(pointer: fine)').matches &&
+          window.innerWidth >= 900)
+      if (!candidate) {
+        setMode('mobile')
+        setBootDone(true)
+        return
+      }
+      webglAvailable ??= hasWebGL()
+      gpuResult ??= webglAvailable ? checkGpu() : Promise.resolve(false)
+      const gpuOk = await gpuResult
+      if (cancelled || failed.current) return
+      setMode(
+        detectMode({
+          setting: settingsMode,
+          pointerFine: window.matchMedia('(pointer: fine)').matches,
+          viewportWidth: window.innerWidth,
+          webglAvailable,
+          gpuOk,
+        }),
+      )
       setBootDone(true)
     }
     void boot()
     const onResize = () => {
-      setMode((current) =>
-        settingsMode !== 'auto'
-          ? current
-          : detectMode({
-              setting: 'auto',
-              pointerFine: window.matchMedia('(pointer: fine)').matches,
-              viewportWidth: window.innerWidth,
-              webglAvailable: hasWebGL(),
-              gpuOk: true,
-            }),
-      )
+      if (settingsMode === 'auto' && !failed.current) void boot()
     }
     window.addEventListener('resize', onResize)
     return () => {
       cancelled = true
       window.removeEventListener('resize', onResize)
     }
-  }, [settingsMode])
-
+  }, [settingsMode, retry])
   useEffect(() => {
     const onVisibility = () => {
       if (document.visibilityState === 'hidden') {
@@ -97,7 +111,9 @@ export function GameShell() {
   }
 
   return (
-    <div className={`text-${useSettings.getState().settings.textSize.toLowerCase()} phones`}>
+    <div
+      className={`text-${useSettings.getState().settings.textSize.toLowerCase()} phones ${mode === 'desktop' ? 'desktop-mode' : ''}`}
+    >
       <div className="phone-frame">
         <AudioController mode={mode} />
         {screen === 'warning' && <ContentWarning />}
@@ -107,12 +123,27 @@ export function GameShell() {
           (mode === 'mobile' ? (
             <MobilePresenter paused={screen === 'paused'} />
           ) : (
-            <GameScreen paused={screen === 'paused'} />
+            <ErrorBoundary label="desktop" onError={fallBack}>
+              <Suspense fallback={<p className="subtitle">Xonadon tayyorlanmoqda…</p>}>
+                <DesktopPresenter paused={screen === 'paused'} onFallback={fallBack} />
+              </Suspense>
+            </ErrorBoundary>
           ))}
-        {screen === 'settings' && <SettingsScreen onBack={() => setScreen('title')} mode={mode} />}
+        {screen === 'settings' && (
+          <SettingsScreen
+            onBack={() => setScreen('title')}
+            mode={mode}
+            onModeRequest={() => setRetry((value) => value + 1)}
+          />
+        )}
         {screen === 'ending' && <EndingScreen />}
         {screen === 'gallery' && <GalleryScreen />}
         <DebugOverlay />
+        {fallbackVisible && (
+          <button className="realtime-banner" onClick={() => setFallbackVisible(false)}>
+            Tasvir yengil rejimga oʻtdi. Davom etishingiz mumkin.
+          </button>
+        )}
         {realClock317Visible && (
           <button className="realtime-banner" onClick={dismissRealClock}>
             Haqiqiy soatingiz 3:17’ni koʻrsatmoqda. Devorda urish bor… yoʻqmi?
@@ -126,7 +157,10 @@ export function GameShell() {
 export function hasWebGL(): boolean {
   try {
     const canvas = document.createElement('canvas')
-    return Boolean(canvas.getContext('webgl2') ?? canvas.getContext('webgl'))
+    const gl = canvas.getContext('webgl2') ?? canvas.getContext('webgl')
+    if (!gl) return false
+    gl.getExtension('WEBGL_lose_context')?.loseContext()
+    return true
   } catch {
     return false
   }

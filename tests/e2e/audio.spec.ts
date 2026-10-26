@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, type Page } from '@playwright/test'
+import { test } from './fixtures'
 import type { AudioEngine } from '../../src/audio/engine'
 
 type AudioInfo = ReturnType<AudioEngine['inspect']>

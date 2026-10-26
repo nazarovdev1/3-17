@@ -13,26 +13,6 @@ export default defineConfig({
   build: {
     manifest: true,
     target: 'es2022',
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (
-              id.includes('three') ||
-              id.includes('@react-three') ||
-              id.includes('postprocessing') ||
-              id.includes('troika')
-            ) {
-              // Everything that only the lazy-loaded desktop 3D presenter needs.
-              // Never referenced from the main bundle, so mobile users never fetch it.
-              return 'desktop-3d'
-            }
-            return 'vendor'
-          }
-          return undefined
-        },
-      },
-    },
   },
   test: {
     environment: 'jsdom',

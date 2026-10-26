@@ -5,10 +5,10 @@ honest ✅ / ❌ / not-verified note with a date.
 
 ## Manual checklist (to be executed during Phases 3–8)
 
-- [ ] Pointer Lock works in a normal browser; fallback to click-and-drag look inside a
-      webview without Pointer Lock.
-- [ ] Looping corridor (night 3, desktop) actually extends when the player looks away.
-- [ ] Peephole fisheye view renders correctly (desktop shader and mobile vignette).
+- [x] Pointer Lock works in a normal browser; fallback to click-and-drag look inside a
+      webview without Pointer Lock (2026-10-26, rejection simulated in Chromium; physical webview pending).
+- [x] Looping corridor (night 3, desktop) actually extends when the player looks away (2026-10-26, Chromium).
+- [x] Peephole fisheye view renders correctly (desktop shader and mobile vignette; reviewed 2026-10-26).
 - [x] All current mobile hotspots stay within the 360×640 scene; real-input ending runs
       and cancelled/successful wall holds pass (2026-10-25, Chromium emulation).
 - [ ] "Reduce flashing" removes the night 4 fake glitch and all strobes.
@@ -28,7 +28,7 @@ honest ✅ / ❌ / not-verified note with a date.
 | 4   | Audio unlock flow                                                                | native suspended → tap → running passed (Phase 5)        |
 | 5   | Rotate / resize does not break layout or state                                   | passed (Phases 3–4)                                      |
 | 6   | WebGL disabled → mobile mode on desktop viewport                                 | passed (Phases 3–4)                                      |
-| 7   | WebGL context loss → recovery or fallback                                        | pending (Phase 6)                                        |
+| 7   | WebGL context loss → recovery or fallback                                        | passed (Phase 6: native restore and fallback)            |
 | 8   | No console.error / pageerror                                                     | active since Phase 0 (boot spec)                         |
 
 ## Run log
@@ -87,3 +87,42 @@ expected spatial desktop audio after the no-WebGL mobile fallback; these are cor
 - [ ] Physical-device acoustic listening, iOS interruption/autoplay, and real Telegram
       lifecycle delivery. Chromium graph samples and mocked lifecycle events verify the
       implementation; these hardware checks remain Phase 8.
+
+## Phase 6 — Desktop checks (2026-10-26)
+
+- Native Pointer Lock, WASD collision, F flashlight, numeric choices, Space text skip and
+  Escape pause pass in Chromium. A rejected Pointer Lock promise leaves drag look working;
+  E reaches the clock. Context loss is exercised with the native WEBGL_lose_context extension:
+  restoration resumes the renderer; a second, unrecovered loss falls back to mobile with
+  identical story state, including after resize. Forced low FPS drops to low, verifies the
+  actual 320-pixel drawing buffer, then preserves the current node in mobile.
+- Real-input desktop routes reach A, B and the seven-page/sanity-gated C. Eight scene captures
+  cover the room, kitchen, bathroom, corridor, balcony, stair landing, flat 48 and peephole.
+  The circular fisheye, readable HUD, delayed silhouette and numbered doors were reviewed.
+- Room geometry is instanced by material; only the nearest interior ceiling fixture shades
+  visible surfaces. A locally generated grain tile and CSS vignette avoid redundant screen
+  passes; chromatic distortion and the peephole retain the effect composer when needed.
+  A standalone default-renderer probe measured 60 FPS at the high tier's 450-pixel height.
+  The host's default renderer is also SwiftShader; physical GPU/Telegram webview validation
+  remains a Phase 8 hardware check, not a claim made from software emulation.
+- Repeated room tours compare GPU resource counts after a first-use warm-up. Diagnostics
+  capture geometry/texture counts, draw calls, triangles, quality and drawing-buffer height.
+  The automated steady-frame sample enforces 55 FPS at the default high tier.
+- Corrected the bundle gate's shared-entry accounting and removed manual chunk grouping that
+  pulled Three.js into mobile. Mobile-only browsing checks actual request URLs and never
+  downloads the desktop presenter. WebGL 1 alone and no WebGL both keep a playable mobile game.
+- Browser tests run with one worker because concurrent SwiftShader sessions compete for host
+  CPU. A shared fixture serves an empty Telegram script outside the host; Telegram cases
+  install their explicit WebApp mocks. This removes CDN outages from the zero-console-error
+  gate. Earlier runs exercised the official SDK; real Telegram integration still needs hardware.
+- Review fixes include the low-tier pixel ratio being overwritten on rerenders, a misleading
+  pre-warm-up memory baseline, the kitchen starting view, and two ambiguous/obscured test
+  targets. Existing mobile screenshots remain the previously reviewed Phase 4 evidence.
+
+Final results: `npm run check` passes all 151 tests and both JS budgets (98.0 KB mobile,
+262.8 KB desktop). The full browser sweep passes all 108 functional cases with four expected
+skips. The corrected, separately run performance case passes at 59.0 FPS over three seconds
+on high/450 pixels and 60.0 FPS after the room tours; GPU counts remain 41 geometries and
+10 textures. Tracing is disabled only in the performance file so browser recording does not
+become part of the renderer benchmark. Early startup measurements varied; physical laptop
+and real Telegram validation remain unverified and belong to Phase 8.
