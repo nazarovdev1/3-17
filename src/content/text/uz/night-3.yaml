@@ -62,6 +62,10 @@ n3_room_return:
   l2: 'Soat boshqa devorda osilib turibdi. Eski joyida devor qogʻozi ochroq: toʻrtburchak iz qolgan.'
   c_shifted_clock: Soatni yaqindan koʻrish
 
+n3_clock_close:
+  l1: Soatni yaqindan koʻrdingiz. Millar hamon 3:17 da turibdi.
+  l2: Oynadagi changda bitta barmoq izi qolibdi. Yangi.
+
 n3_tv:
   l1: Televizorni yoqdingiz. Bu safar shitirlash oʻrniga tasvir chiqdi.
   l2: Ekranda shu xona, tepadagi burchakdan olingan. Divanda kimdir sizga orqasi bilan oʻtiribdi.

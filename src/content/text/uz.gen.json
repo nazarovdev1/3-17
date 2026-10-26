@@ -8,14 +8,13 @@
         "l4": "Bahorda qirq yettiga yangi ijarachi koʻchib keldi — yosh, yolgʻiz, qoʻlida bitta sumka.",
         "l5": "Birinchi kechasi uning stoli ustida telefon yorishdi. Ekranda «Onam», lekin u olmadi.",
         "l6": "Soat 3:17 boʻlganda siz devorni uch marta taqillatdingiz.",
-        "l7": "Qoʻshni… uxlamayapsizmi?",
-        "l8": "Endi bu ovoz sizniki, {name}."
+        "l7": "Qoʻshni… uxlamayapsizmi?"
       },
       "endB": {
         "l1": "Zanjirni yechib, zinapoyadan pastga tushdingiz: toʻrtinchi qavat, uchinchi.",
         "l2": "Muhabbat opaning eshigi ostidan yorugʻ tushib turibdi — u ham uxlamagan ekan. Siz toʻxtamadingiz.",
         "l3": "Hovlida qor yogʻyapti. Sariq chiroq ostida nafasingiz bugʻ boʻlib koʻtariladi.",
-        "l4": "Koʻkragingizni toʻldirib havo oldingiz. Sovuq havo oʻpkangizni achitdi, lekin bu yaxshi achishish edi.",
+        "l4": "Chuqur nafas oldingiz. Sovuq havo oʻpkangizni achitdi.",
         "l5": "Bekatda birinchi avtobus turibdi, haydovchi sizga qaramay eshikni ochdi.",
         "l6": "Choʻntagingizda telefon titradi. Ekranda «Onam» degan yozuv.",
         "l7": "Siz unga uzoq qarab turdingiz, keyin telefonni choʻntagingizga solib qoʻydingiz.",
@@ -27,9 +26,9 @@
         "l2": "Soat chiqillay boshladi. Tik. Tik.",
         "l3": "Uzun mil qimirladi. Soat endi 3:18.",
         "l4": "Devor jim. Uch marta taqillashini kutdingiz, lekin taqillamadi.",
-        "l5": "Ovoz chiqarib «Sardor», dedingiz. Kimdir eslab qolsin, degan edi u.",
+        "l5": "Ovoz chiqarib «Sardor», dedingiz.",
         "l6": "Muzlatgich gʻuvillab ishga tushdi, tok qaytdi, telefon ekrani yorishdi.",
-        "l7": "Siz «Onam» degan yozuvni bosdingiz. Bir gudok. Ikki.",
+        "l7": "Siz «Onam» degan yozuvni bosdingiz. Bir marta chaqirdi. Ikki.",
         "l8": "Alo… bolam?"
       }
     },
@@ -38,8 +37,9 @@
         "l1": "Chilonzordagi toʻqqiz qavatli panel uy, toʻrtinchi qavat.",
         "l2": "Zinapoyada chiroq yoʻq edi, telefon chirogʻida chiqib keldingiz. Smenadan keyin oyoqlaringiz oʻzingizniki emasdek.",
         "l3": "Mana kalit. Tok ba’zan oʻchib turadi, sham shkafda bor. Yana bitta gap — qirq sakkizga e’tibor bermang, u yerda hech kim turmaydi.",
-        "l4": "U kalitni qoʻlingizga tutqazdi-yu, pasportingizni ham soʻramay, zinadan tushib ketdi.",
-        "l5": "Kalit iliq edi. Uni ancha vaqt qoʻlida siqib turgan boʻlsa kerak."
+        "l4": "U kalit dastasini qoʻlingizga tutqazdi-yu, pasportingizni ham soʻramay, zinadan tushib ketdi.",
+        "l5": "Dastada ikkita kalit bor: biri eshikniki, ikkinchisi kichkina, mis. U haqda Rustam aka hech narsa demadi.",
+        "l6": "Dasta iliq edi. Uni ancha vaqt qoʻlida siqib turgan boʻlsa kerak."
       },
       "n1_hub": {
         "l1": "Xona sovuq, lekin toza. Polda hali hoʻl latta hidi bor, kimdir sizdan oldin yuvib ketgan.",
@@ -117,7 +117,7 @@
       },
       "n1_answer": {
         "l1": "Yoʻq… uxlayapman.",
-        "l2": "Gapingiz ahmoqona chiqdi, chunki uxlayotgan odam javob bermaydi.",
+        "l2": "Gapingiz ahmoqona chiqdi.",
         "l3": "Men ham.",
         "l4_yolgiz": "Yolgʻiz odam kechasi har bir tovushni eshitadi. Toʻgʻrimi?",
         "l4": "Yaxshi tush koʻring, qoʻshni.",
@@ -243,8 +243,7 @@
         "l1_kuzatuv": "Kimdir kuzatayotgandek tuyuladi sizga. Toʻgʻri tuyuladi.",
         "l1_unutilish": "Unutilishdan qoʻrqasiz. Men sizni unutmayman.",
         "l1": "Har kim nimadandir choʻchiydi, siz ham.",
-        "l2": "U bularni qayerdan biladi? Anketa Rustam akaning qoʻlida qolgan edi-ku.",
-        "l3": "Ertalab kiyimingiz bilan uygʻondingiz. Telefon koʻkragingizda yotgan ekan."
+        "l2": "Ertalab kiyimingiz bilan uygʻondingiz. Telefon koʻkragingizda yotgan ekan."
       },
       "n2_sleep": {
         "l1": "Tushlikka yaqin turdingiz. Telefonda yana bitta javobsiz qoʻngʻiroq bor edi."
@@ -311,6 +310,10 @@
         "l1": "Xonaga qaytdingiz. Hammasi joyida. Deyarli.",
         "l2": "Soat boshqa devorda osilib turibdi. Eski joyida devor qogʻozi ochroq: toʻrtburchak iz qolgan.",
         "c_shifted_clock": "Soatni yaqindan koʻrish"
+      },
+      "n3_clock_close": {
+        "l1": "Soatni yaqindan koʻrdingiz. Millar hamon 3:17 da turibdi.",
+        "l2": "Oynadagi changda bitta barmoq izi qolibdi. Yangi."
       },
       "n3_tv": {
         "l1": "Televizorni yoqdingiz. Bu safar shitirlash oʻrniga tasvir chiqdi.",
@@ -465,7 +468,7 @@
       },
       "n4_why": {
         "l1": "Bu gaplarni qayerdan bilasan?",
-        "l2": "Telefoning devor yonida yotadi, men esa doim shu yerdaman.",
+        "l2": "Telefoning yostiq ostida yotadi. Yostiq esa devorga tegib turadi.",
         "l3": "Sen eshitmaganni men eshitaman. Kimdir eshitishi kerak-ku."
       },
       "n4_no_talk": {
@@ -517,7 +520,7 @@
       "n5_clock": {
         "l1": "Soatni devordan oldingiz. U ogʻir, qopqogʻi ostida changli mexanizm koʻrinadi.",
         "l2": "Prujinasi boʻshab qolgan, yon tomonida esa kichkina kalit teshigi bor.",
-        "l3": "Kalit Rustam aka bergan dastada ekan — kichkina, mis. Shu paytgacha u nima uchunligini bilmagandingiz."
+        "l3": "Dastadagi kichkina mis kalitni teshikka tutdingiz. Aynan shu teshik uchun ekan."
       },
       "n5_chain": {
         "l1": "Zanjirni ushladingiz. Har kecha uni taqib yotgansiz.",
@@ -528,7 +531,7 @@
       "n5_diary7": {
         "l1": "Soat osilgan joyda devor qogʻozi koʻchib turibdi, ortida esa buklangan qogʻoz.",
         "l2": "«Soatni burash kerak edi. Men qoʻrqdim: soat yursa, men ham yurishim kerak boʻladi.»",
-        "l3": "«Uyga, onamning oldiga, odamlar orasiga. Sen burab koʻr. Mening ismim Sardor edi, uni kimdir eslab qolsin.»"
+        "l3": "«Kalit dastada turibdi. Har kecha qoʻlimga olaman, har kecha qaytarib qoʻyaman. Ismim Sardor. Buni ham unutib qoʻymay deb yozib qoʻydim.»"
       },
       "n5_316": {
         "l1": "3:16. Roʻparadagi derazalar yana birin-ketin oʻchyapti.",

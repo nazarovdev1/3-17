@@ -20,6 +20,7 @@ export const night1Nodes = build('night-1', [
       say('landlord', 'l3'),
       say('narrator', 'l4'),
       say('narrator', 'l5'),
+      say('narrator', 'l6'),
     ],
     next: 'n1_hub',
   },

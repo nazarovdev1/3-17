@@ -114,7 +114,16 @@ export const night3Nodes = build('night-3', [
     desktop: { trigger: 'interact', objectId: 'clock' },
     mobile: { vignette: 'room_shifted', hotspots: ['shifted_clock'] },
     lines: [say('narrator', 'l1'), say('narrator', 'l2')],
-    choices: [{ id: 'shifted_clock', to: 'n3_hub' }],
+    choices: [{ id: 'shifted_clock', to: 'n3_clock_close' }],
+  },
+  {
+    id: 'n3_clock_close',
+    night: 3,
+    location: 'room',
+    desktop: { trigger: 'interact', objectId: 'clock' },
+    mobile: { vignette: 'room_shifted' },
+    lines: [say('narrator', 'l1'), say('narrator', 'l2')],
+    next: 'n3_hub',
   },
   {
     id: 'n3_tv',

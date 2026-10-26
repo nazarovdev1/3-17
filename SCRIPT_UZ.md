@@ -13,8 +13,9 @@
 **Hikoyachi:** Chilonzordagi toʻqqiz qavatli panel uy, toʻrtinchi qavat.  
 **Hikoyachi:** Zinapoyada chiroq yoʻq edi, telefon chirogʻida chiqib keldingiz. Smenadan keyin oyoqlaringiz oʻzingizniki emasdek.  
 **Rustam aka:** Mana kalit. Tok ba’zan oʻchib turadi, sham shkafda bor. Yana bitta gap — qirq sakkizga e’tibor bermang, u yerda hech kim turmaydi.  
-**Hikoyachi:** U kalitni qoʻlingizga tutqazdi-yu, pasportingizni ham soʻramay, zinadan tushib ketdi.  
-**Hikoyachi:** Kalit iliq edi. Uni ancha vaqt qoʻlida siqib turgan boʻlsa kerak.  
+**Hikoyachi:** U kalit dastasini qoʻlingizga tutqazdi-yu, pasportingizni ham soʻramay, zinadan tushib ketdi.  
+**Hikoyachi:** Dastada ikkita kalit bor: biri eshikniki, ikkinchisi kichkina, mis. U haqda Rustam aka hech narsa demadi.  
+**Hikoyachi:** Dasta iliq edi. Uni ancha vaqt qoʻlida siqib turgan boʻlsa kerak.  
 
 → `n1_hub`
 
@@ -134,7 +135,7 @@ Tanlovlar:
 ### `n1_answer` · xona
 
 **Siz:** Yoʻq… uxlayapman.  
-**Hikoyachi:** Gapingiz ahmoqona chiqdi, chunki uxlayotgan odam javob bermaydi.  
+**Hikoyachi:** Gapingiz ahmoqona chiqdi.  
 **Ovoz:** Men ham.  
 **Ovoz** (variantlar, l4):
 - *agar anketada «yolgʻiz yashaysizmi»: ha:* Yolgʻiz odam kechasi har bir tovushni eshitadi. Toʻgʻrimi?
@@ -329,7 +330,6 @@ Tanlovlar:
 - *agar anketada qoʻrquv: kuzatuv:* Kimdir kuzatayotgandek tuyuladi sizga. Toʻgʻri tuyuladi.
 - *agar anketada qoʻrquv: unutilish:* Unutilishdan qoʻrqasiz. Men sizni unutmayman.
 - *boshqa hollarda:* Har kim nimadandir choʻchiydi, siz ham.
-**Hikoyachi:** U bularni qayerdan biladi? Anketa Rustam akaning qoʻlida qolgan edi-ku.  
 **Hikoyachi:** Ertalab kiyimingiz bilan uygʻondingiz. Telefon koʻkragingizda yotgan ekan.  
 
 → `n2_sleep`
@@ -436,7 +436,14 @@ Tanlovlar:
 **Hikoyachi:** Soat boshqa devorda osilib turibdi. Eski joyida devor qogʻozi ochroq: toʻrtburchak iz qolgan.  
 
 Tanlovlar:
-1. Soatni yaqindan koʻrish → `n3_hub`
+1. Soatni yaqindan koʻrish → `n3_clock_close`
+
+### `n3_clock_close` · xona
+
+**Hikoyachi:** Soatni yaqindan koʻrdingiz. Millar hamon 3:17 da turibdi.  
+**Hikoyachi:** Oynadagi changda bitta barmoq izi qolibdi. Yangi.  
+
+→ `n3_hub`
 
 ### `n3_tv` · xona
 
@@ -682,7 +689,7 @@ Tanlovlar:
 ### `n4_why` · qirq sakkizinchi xonadon
 
 **Siz:** Bu gaplarni qayerdan bilasan?  
-**Ovoz:** Telefoning devor yonida yotadi, men esa doim shu yerdaman.  
+**Ovoz:** Telefoning yostiq ostida yotadi. Yostiq esa devorga tegib turadi.  
 **Ovoz:** Sen eshitmaganni men eshitaman. Kimdir eshitishi kerak-ku.  
 
 → `n4_return`
@@ -767,7 +774,7 @@ Tanlovlar:
 
 **Hikoyachi:** Soatni devordan oldingiz. U ogʻir, qopqogʻi ostida changli mexanizm koʻrinadi.  
 **Hikoyachi:** Prujinasi boʻshab qolgan, yon tomonida esa kichkina kalit teshigi bor.  
-**Hikoyachi:** Kalit Rustam aka bergan dastada ekan — kichkina, mis. Shu paytgacha u nima uchunligini bilmagandingiz.  
+**Hikoyachi:** Dastadagi kichkina mis kalitni teshikka tutdingiz. Aynan shu teshik uchun ekan.  
 
 → `n5_hub`
 
@@ -786,7 +793,7 @@ Tanlovlar:
 
 **Hikoyachi:** Soat osilgan joyda devor qogʻozi koʻchib turibdi, ortida esa buklangan qogʻoz.  
 **Kundalik:** «Soatni burash kerak edi. Men qoʻrqdim: soat yursa, men ham yurishim kerak boʻladi.»  
-**Kundalik:** «Uyga, onamning oldiga, odamlar orasiga. Sen burab koʻr. Mening ismim Sardor edi, uni kimdir eslab qolsin.»  
+**Kundalik:** «Kalit dastada turibdi. Har kecha qoʻlimga olaman, har kecha qaytarib qoʻyaman. Ismim Sardor. Buni ham unutib qoʻymay deb yozib qoʻydim.»  
 
 → `n5_hub`
 
@@ -845,7 +852,6 @@ Tanlovlar:
 **Hikoyachi:** Birinchi kechasi uning stoli ustida telefon yorishdi. Ekranda «Onam», lekin u olmadi.  
 **Hikoyachi:** Soat 3:17 boʻlganda siz devorni uch marta taqillatdingiz.  
 **Ovoz:** Qoʻshni… uxlamayapsizmi?  
-**Hikoyachi:** Endi bu ovoz sizniki, {name}.  
 
 **Yakun A: Qoʻshni**
 
@@ -854,7 +860,7 @@ Tanlovlar:
 **Hikoyachi:** Zanjirni yechib, zinapoyadan pastga tushdingiz: toʻrtinchi qavat, uchinchi.  
 **Hikoyachi:** Muhabbat opaning eshigi ostidan yorugʻ tushib turibdi — u ham uxlamagan ekan. Siz toʻxtamadingiz.  
 **Hikoyachi:** Hovlida qor yogʻyapti. Sariq chiroq ostida nafasingiz bugʻ boʻlib koʻtariladi.  
-**Hikoyachi:** Koʻkragingizni toʻldirib havo oldingiz. Sovuq havo oʻpkangizni achitdi, lekin bu yaxshi achishish edi.  
+**Hikoyachi:** Chuqur nafas oldingiz. Sovuq havo oʻpkangizni achitdi.  
 **Hikoyachi:** Bekatda birinchi avtobus turibdi, haydovchi sizga qaramay eshikni ochdi.  
 **Hikoyachi:** Choʻntagingizda telefon titradi. Ekranda «Onam» degan yozuv.  
 **Hikoyachi:** Siz unga uzoq qarab turdingiz, keyin telefonni choʻntagingizga solib qoʻydingiz.  
@@ -869,9 +875,9 @@ Tanlovlar:
 **Hikoyachi:** Soat chiqillay boshladi. Tik. Tik.  
 **Hikoyachi:** Uzun mil qimirladi. Soat endi 3:18.  
 **Hikoyachi:** Devor jim. Uch marta taqillashini kutdingiz, lekin taqillamadi.  
-**Hikoyachi:** Ovoz chiqarib «Sardor», dedingiz. Kimdir eslab qolsin, degan edi u.  
+**Hikoyachi:** Ovoz chiqarib «Sardor», dedingiz.  
 **Hikoyachi:** Muzlatgich gʻuvillab ishga tushdi, tok qaytdi, telefon ekrani yorishdi.  
-**Hikoyachi:** Siz «Onam» degan yozuvni bosdingiz. Bir gudok. Ikki.  
+**Hikoyachi:** Siz «Onam» degan yozuvni bosdingiz. Bir marta chaqirdi. Ikki.  
 **Onam:** Alo… bolam?  
 
 **Yakun C: 3:18**

@@ -109,7 +109,7 @@ n4_ask_sardor:
 
 n4_why:
   l1: Bu gaplarni qayerdan bilasan? # siz
-  l2: Telefoning devor yonida yotadi, men esa doim shu yerdaman. # ovoz
+  l2: Telefoning yostiq ostida yotadi. Yostiq esa devorga tegib turadi. # ovoz
   l3: Sen eshitmaganni men eshitaman. Kimdir eshitishi kerak-ku. # ovoz
 
 n4_no_talk:

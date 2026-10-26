@@ -34,7 +34,7 @@ n5_tea:
 n5_clock:
   l1: Soatni devordan oldingiz. U ogʻir, qopqogʻi ostida changli mexanizm koʻrinadi.
   l2: Prujinasi boʻshab qolgan, yon tomonida esa kichkina kalit teshigi bor.
-  l3: Kalit Rustam aka bergan dastada ekan — kichkina, mis. Shu paytgacha u nima uchunligini bilmagandingiz.
+  l3: Dastadagi kichkina mis kalitni teshikka tutdingiz. Aynan shu teshik uchun ekan.
 
 n5_chain:
   l1: Zanjirni ushladingiz. Har kecha uni taqib yotgansiz.
@@ -45,7 +45,7 @@ n5_chain:
 n5_diary7:
   l1: Soat osilgan joyda devor qogʻozi koʻchib turibdi, ortida esa buklangan qogʻoz.
   l2: '«Soatni burash kerak edi. Men qoʻrqdim: soat yursa, men ham yurishim kerak boʻladi.»' # kundalik
-  l3: «Uyga, onamning oldiga, odamlar orasiga. Sen burab koʻr. Mening ismim Sardor edi, uni kimdir eslab qolsin.» # kundalik
+  l3: «Kalit dastada turibdi. Har kecha qoʻlimga olaman, har kecha qaytarib qoʻyaman. Ismim Sardor. Buni ham unutib qoʻymay deb yozib qoʻydim.» # kundalik
 
 n5_316:
   l1: '3:16. Roʻparadagi derazalar yana birin-ketin oʻchyapti.'

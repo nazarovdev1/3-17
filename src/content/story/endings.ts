@@ -18,7 +18,6 @@ export const endingNodes = build('endings', [
       say('narrator', 'l5'),
       say('narrator', 'l6'),
       say('voice', 'l7'),
-      say('narrator', 'l8'),
     ],
   },
   {

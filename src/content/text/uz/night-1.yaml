@@ -12,8 +12,9 @@ n1_start:
   l1: Chilonzordagi toʻqqiz qavatli panel uy, toʻrtinchi qavat.
   l2: Zinapoyada chiroq yoʻq edi, telefon chirogʻida chiqib keldingiz. Smenadan keyin oyoqlaringiz oʻzingizniki emasdek.
   l3: Mana kalit. Tok ba’zan oʻchib turadi, sham shkafda bor. Yana bitta gap — qirq sakkizga e’tibor bermang, u yerda hech kim turmaydi. # rustam
-  l4: U kalitni qoʻlingizga tutqazdi-yu, pasportingizni ham soʻramay, zinadan tushib ketdi.
-  l5: Kalit iliq edi. Uni ancha vaqt qoʻlida siqib turgan boʻlsa kerak.
+  l4: U kalit dastasini qoʻlingizga tutqazdi-yu, pasportingizni ham soʻramay, zinadan tushib ketdi.
+  l5: 'Dastada ikkita kalit bor: biri eshikniki, ikkinchisi kichkina, mis. U haqda Rustam aka hech narsa demadi.'
+  l6: Dasta iliq edi. Uni ancha vaqt qoʻlida siqib turgan boʻlsa kerak.
 
 n1_hub:
   l1: Xona sovuq, lekin toza. Polda hali hoʻl latta hidi bor, kimdir sizdan oldin yuvib ketgan.
@@ -91,7 +92,7 @@ n1_knocks:
 
 n1_answer:
   l1: Yoʻq… uxlayapman. # siz
-  l2: Gapingiz ahmoqona chiqdi, chunki uxlayotgan odam javob bermaydi.
+  l2: Gapingiz ahmoqona chiqdi.
   l3: Men ham. # ovoz
   l4_yolgiz: Yolgʻiz odam kechasi har bir tovushni eshitadi. Toʻgʻrimi? # ovoz
   l4: Yaxshi tush koʻring, qoʻshni. # ovoz

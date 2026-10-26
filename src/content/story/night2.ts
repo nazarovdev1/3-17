@@ -216,7 +216,6 @@ export const night2Nodes = build('night-2', [
         'l1',
       ),
       say('narrator', 'l2'),
-      say('narrator', 'l3'),
     ],
     next: 'n2_sleep',
   },

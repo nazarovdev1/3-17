@@ -134,7 +134,7 @@ test('mobile return puzzle exposes only the changed detail as the way forward', 
   await expect(page.locator('.mobile-panel .choices button')).toHaveCount(0)
   await page.screenshot({ path: 'tests/screenshots/phase7-shifted-mobile.png' })
   await page.locator('[data-choice-id="shifted_clock"]').click()
-  await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n3_hub')
+  await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n3_clock_close')
   expect((await state(page)).flags['clock_shifted']).toBe(true)
 })
 
