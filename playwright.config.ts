@@ -7,7 +7,7 @@ export default defineConfig({
   workers: 1,
   reporter: [['list']],
   use: {
-    baseURL: 'http://localhost:4173',
+    baseURL: 'http://localhost:4174',
     trace: 'retain-on-failure',
     launchOptions: {
       args: [
@@ -19,8 +19,10 @@ export default defineConfig({
     },
   },
   webServer: {
-    command: 'npm run preview',
-    url: 'http://localhost:4173',
+    // A test build (window.__game compiled in) served apart from the production dist.
+    command: 'npm run build:e2e && npm run preview:e2e',
+    url: 'http://localhost:4174',
+    timeout: 180_000,
     reuseExistingServer: true,
   },
   projects: [

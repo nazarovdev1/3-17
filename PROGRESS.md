@@ -11,7 +11,7 @@ Honest, phase-by-phase record. A phase is only marked done when every check ran 
 - [x] Phase 6 — Desktop 3D presenter
 - [x] Phase 7 — Horror polish
 - [x] Phase 8 — Full QA
-- [ ] Phase 9 — Release docs
+- [x] Phase 9 — Release docs
 
 ## Phase 0 — Scaffold
 
@@ -419,3 +419,44 @@ Not verified (no hardware on this host; all runs are Chromium + SwiftShader emul
 - The 30–45 minute human play duration has not been timed.
 
 Phase 8 exit met for everything verifiable here. Stop after this commit; Phase 9 not started.
+
+## Phase 9 — Release docs
+
+Implemented (2026-10-26):
+
+- `README.md`: requirements, local run (dev/build/preview, text presenter), `npm run check`
+  and the Playwright suite, debug mode, Vercel deploy (dashboard and CLI), BotFather bot
+  creation and attaching the `*.vercel.app` URL as the Mini App / menu button / direct link,
+  project layout and license.
+- `vercel.json`: Vite framework, `npm ci`, `npm run build`, output `dist`, immutable cache
+  headers for hashed `/assets/*`.
+- Spec gap fixed (explained before editing): PROMPT §11 says `window.__game` must not exist in
+  production builds, but the production build exposed it under `?debug=1` because the e2e
+  suite ran against that build. The API is now compiled in only when `VITE_GAME_API=1`
+  (`.env.e2e`). Playwright builds that variant into `dist-e2e/` and serves it on port 4174;
+  `npm run build` / Vercel ship without it, and `npm run budget` fails if it ever reappears.
+  The `?debug=1` overlay remains available in production. Mobile JS fell to 99.3 KB.
+- The mirror-lag assertion now samples the reflection gap every frame inside the page; a
+  slow software-renderer round trip had read it after the half-second lag had already ended.
+
+Verified:
+
+- `npm run check` green: 158 tests, 78-node validator with 0 warnings, mobile 99.3 KB / 250 KB,
+  desktop 263.1 KB / 700 KB, "debug API: absent from production JS".
+- `npm run e2e` full sweep in one run: 160 passed, 5 expected skips, 0 flaky. The changed
+  mirror case also passed 5× in a row. An earlier sweep was cut off when the session ended;
+  its one recorded failure (desktop signal loss) printed no details, did not reproduce in
+  36 repeated runs of that file, and the complete rerun was green.
+- Fresh-copy check following the README: only the files git would ship (tracked plus new,
+  `.gitignore` respected) copied into an empty directory → `npm ci` → `npm run check` green →
+  `vite preview` serves the build, which boots to the content warning with zero console
+  errors, `window.__game` absent and the debug overlay present → boot/shell e2e 8/8 green.
+
+Not verified:
+
+- The Vercel deployment and the BotFather steps were not executed (no account access from
+  this host); they follow the current Vercel and BotFather flows. Opening the game inside
+  real Telegram clients remains the hardware validation listed in Phase 8 and QA.md.
+
+Phase 9 exit met. All phases complete; the remaining unverified items are listed above and
+in Phase 8.

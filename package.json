@@ -18,7 +18,9 @@
     "validate:story": "tsx scripts/validate-story.ts",
     "budget": "node scripts/check-bundle.mjs",
     "check": "npm run lint && npm run format:check && npm run typecheck && npm run test && npm run validate:story && npm run build && npm run budget",
-    "e2e": "npm run build && playwright test"
+    "build:e2e": "vite build --mode e2e --outDir dist-e2e",
+    "preview:e2e": "vite preview --outDir dist-e2e --port 4174 --strictPort",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "5.2.7",

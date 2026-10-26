@@ -298,7 +298,7 @@ test('mobile selection never downloads desktop code or remote assets', async ({ 
   expect(
     requests.filter(
       (url) =>
-        !url.startsWith('http://localhost:4173/') &&
+        !url.startsWith('http://localhost:4174/') &&
         url !== 'https://telegram.org/js/telegram-web-app.js',
     ),
   ).toEqual([])

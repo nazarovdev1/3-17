@@ -199,6 +199,19 @@ test('desktop clock waits outside the frustum; mirror head turn follows after ha
   await jump(page, 'n2_mirror')
   await page.waitForTimeout(700)
   const before = await inspect(page)
+  // Sample the reflection gap every frame in the page: the lag lasts half a second,
+  // shorter than a round trip on a loaded software renderer.
+  await page.evaluate(() => {
+    const w = window as unknown as { __game: Api; __mirrorGap: number }
+    w.__mirrorGap = 0
+    const start = performance.now()
+    const sample = () => {
+      const view = w.__game.getDesktopState()
+      w.__mirrorGap = Math.max(w.__mirrorGap, Math.abs(view.yaw - view.mirrorYaw))
+      if (performance.now() - start < 3000) requestAnimationFrame(sample)
+    }
+    requestAnimationFrame(sample)
+  })
   await page.mouse.move(720, 350)
   await page.mouse.down()
   await page.mouse.move(820, 350)
@@ -206,8 +219,9 @@ test('desktop clock waits outside the frustum; mirror head turn follows after ha
   await expect
     .poll(async () => Math.abs((await inspect(page)).yaw - before.yaw))
     .toBeGreaterThan(0.15)
-  const moving = await inspect(page)
-  expect(Math.abs(moving.yaw - moving.mirrorYaw)).toBeGreaterThan(0.15)
+  await expect
+    .poll(() => page.evaluate(() => (window as unknown as { __mirrorGap: number }).__mirrorGap))
+    .toBeGreaterThan(0.15)
   await expect
     .poll(async () => {
       const view = await inspect(page)

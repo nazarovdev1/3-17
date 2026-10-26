@@ -91,4 +91,14 @@ if (desktopBytes > DESKTOP_BUDGET_BYTES) {
   console.error('budget: DESKTOP budget exceeded')
   failed = true
 }
+// Spec 11: the window.__game test API must not exist in production builds.
+const leaked = [...mobileFiles, ...desktopFiles].filter((f) =>
+  readFileSync(join(distDir, f), 'utf8').includes('getAudioState'),
+)
+if (leaked.length > 0) {
+  console.error(`budget: window.__game debug API found in production JS: ${leaked.join(', ')}`)
+  failed = true
+} else {
+  console.log('debug API: absent from production JS')
+}
 process.exit(failed ? 1 : 0)

@@ -8,6 +8,9 @@ import { getDesktopState } from '@/platform/device/desktopRuntime'
 
 const DEBUG_KEY = 'g317:debug'
 const GAME_API_KEY = '__game' as const
+/** Test builds only (`VITE_GAME_API=1`, see `npm run e2e`). Production builds compile
+ * the window.__game API out entirely (spec 11); the overlay itself stays available. */
+const GAME_API_ENABLED = import.meta.env.VITE_GAME_API === '1'
 
 function isDebug(): boolean {
   try {
@@ -22,8 +25,8 @@ function isDebug(): boolean {
 
 /**
  * Debug overlay (spec 11): FPS, node, sanity, flags, inventory, last errors,
- * node jumper — plus the window.__game test API. The API is attached only when
- * debug is active, so production builds ship without it.
+ * node jumper — plus the window.__game test API, attached only when debug is
+ * active in a test build.
  */
 export function DebugOverlay() {
   const [active] = useState(isDebug)
@@ -59,7 +62,7 @@ export function DebugOverlay() {
   const desktop = getDesktopState()
 
   useEffect(() => {
-    if (!active) return
+    if (!GAME_API_ENABLED || !active) return
     ;(window as unknown as Record<string, unknown>)[GAME_API_KEY] = {
       getState: () => useGame.getState().run,
       goTo: (nodeId: string) => useGame.getState().goToNode(nodeId),

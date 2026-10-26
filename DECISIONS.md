@@ -43,3 +43,13 @@ Android phones"), recorded here.
 12. **Sanity economy tuned for the Ending C gate.** Night 4's forced drops were reduced after
     a full-path trace showed the C gate (sanity ≥ 40) unreachable; verified end-to-end that a
     careful run arrives at ~50.
+13. **Separate test build for the debug API.** Spec 11 forbids `window.__game` in production,
+    while e2e needs it. `VITE_GAME_API=1` (in `.env.e2e`) compiles it in; Playwright builds
+    `dist-e2e/` and serves it on port 4174, never the production `dist/`. The `?debug=1`
+    overlay itself stays available in production builds.
+14. **Future-work extension points (spec 15).** An `AiNarrationProvider` can implement the
+    existing async `NarrationProvider` interface (every presenter already resolves text
+    through it) and fall back to `StaticNarrationProvider` per line. A bot backend for opt-in
+    night messages cannot read the client save (localStorage/CloudStorage stay on the device),
+    so it would need an opt-in setting that sends the Telegram user id and the saved
+    `GameState.lastPlayedAt` to that backend; the save already records that timestamp.
