@@ -33,3 +33,7 @@ honest ✅ / ❌ / not-verified note with a date.
 
 - 2026-10-25 — Phase 0. `npm run check` green after scaffold. Playwright browsers not yet
   installed; boot e2e not yet executed (no browsers).
+
+- 2026-10-25 — Phase 3. All 50 e2e tests across 5 Chromium projects green; fixed an unstable
+  zustand selector (React #185), a Telegram-script CloudStorage console.error, and several
+  test-flow bugs (warning checkbox, disabled form button).

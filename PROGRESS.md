@@ -5,7 +5,7 @@ Honest, phase-by-phase record. A phase is only marked done when every check ran 
 - [x] Phase 0 — Scaffold (see below)
 - [x] Phase 1 — Core engine
 - [x] Phase 2 — Full story content
-- [ ] Phase 3 — Shell and platform
+- [x] Phase 3 — Shell and platform
 - [ ] Phase 4 — Mobile presenter
 - [ ] Phase 5 — Audio
 - [ ] Phase 6 — Desktop 3D presenter
@@ -93,3 +93,50 @@ Notes:
 
 - The two validator warnings (flags `late_night`, `return_comment` never set by effects) are
   intentional: they are shell-injected meta-horror flags set at boot / on resume (Phase 3+).
+
+## Phase 3 — Shell and platform
+
+Done:
+
+- Screens: boot (mode detection + GPU check) → content warning (with Reduce flashing, gated
+  on confirm) → title (continue/new/settings/gallery) → diegetic rental form (name prefilled
+  from Telegram initDataUnsafe, sanitized to 20 chars; livesAlone / fear / doorAtNight) →
+  game with skippable typewriter narration + numbered choices + pause menu → ending cards →
+  endings gallery + chapter select (unlocked nights).
+- Telegram adapter: ready/expand/fullscreen/disableVerticalSwipes/lockOrientation, header and
+  background forced to #0B0B0C, HapticFeedback mapping + navigator.vibrate fallback,
+  CloudStorage as a best-effort save mirror (gated on isVersionAtLeast('6.9') because the
+  official script logs console.error when unsupported members are merely accessed),
+  BackButton registration. Everything feature-detected; absent gracefully outside Telegram.
+- Mode routing: pure detectMode() (settings override, pointer:fine, width ≥ 900, WebGL,
+  GPU check incl. SwiftShader/llvmpipe rejection and an FPS sample); Settings offers
+  manual auto/mobile/desktop; resize re-evaluates auto mode.
+- Persistence: settings store (localStorage, guarded) + SaveService wired with
+  LocalStorageAdapter and the Telegram cloud mirror; autosave on checkpoint nodes, on every
+  action, and on visibilitychange hidden.
+- Error handling: root ErrorBoundary with a calm Uzbek message, in-memory error log with
+  global error/unhandledrejection handlers.
+- Debug: ?debug=1 overlay (FPS, screen, node, sanity, inventory, flags, last errors, node
+  jumper) and window.__game (getState/goTo/choose/setSanity/setFlag/setTime/advance) —
+  attached only when debug is on; e2e-verified absent otherwise.
+- Real-clock 3:17 watcher (spec 5.6) polling every 20 s, one-shot per run, calm banner.
+
+E2E (50 tests across desktop-chrome 1440×900, iPhone 13 (Chromium per spec), Pixel 7,
+small-android 360×640, no-webgl):
+
+- boots without Telegram and with a mocked WebApp (ready/expand called, name prefill) ✔
+- full flow: warning → title → form → night 1 hub → clock → reload → resumes at the same
+  node ✔
+- pause menu reachable, quit to title works ✔
+- settings persist across reload ✔
+- resize/rotate does not break layout or state ✔
+- no WebGL on desktop viewport → mobile mode ✔; 360 px keeps controls inside the viewport ✔
+- window.__game absent without ?debug=1 ✔
+- zero console.error / pageerror enforced by afterEach in every test ✔
+
+Verified: `npm run check` green (117 unit tests, validator OK, mobile JS 87.9 KB gz ≤ 250),
+e2e suites green, text-presenter A/B/C playthroughs still green.
+
+Notes:
+- Playwright projects force Chromium everywhere (spec 12 asks for Chromium+SwiftShader);
+  iPhone 13 emulation therefore runs under Chromium, not WebKit.

@@ -23,11 +23,11 @@ export default defineConfig({
     },
     {
       name: 'iphone-13',
-      use: { ...devices['iPhone 13'] },
+      use: { ...devices['iPhone 13'], browserName: 'chromium' },
     },
     {
       name: 'pixel-7',
-      use: { ...devices['Pixel 7'] },
+      use: { ...devices['Pixel 7'], browserName: 'chromium' },
     },
     {
       name: 'small-android',

@@ -1,0 +1,271 @@
+:root {
+  --bg: #0b0b0c;
+  --bg-cold: #141a22;
+  --orange: #d98a2b;
+  --green: #9fbf8f;
+  --paper: #cfc6b0;
+  --danger: #8e1f1f;
+  --font-body: 'Courier New', Courier, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--paper);
+  font-family: var(--font-body);
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+button {
+  font-family: var(--font-body);
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid #3a3a3c;
+  padding: 8px 14px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  gap: 16px;
+  background: var(--bg);
+}
+
+.screen .title {
+  font-size: 64px;
+  letter-spacing: 8px;
+  color: var(--orange);
+  margin: 0;
+  text-shadow: 0 0 18px rgba(217, 138, 43, 0.4);
+}
+
+.screen .subtitle {
+  opacity: 0.7;
+  margin: 0;
+  text-align: center;
+  max-width: 420px;
+  line-height: 1.5;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 280px;
+}
+
+.panel {
+  width: min(560px, 92vw);
+  border: 1px solid #2c2c2e;
+  background: rgba(20, 26, 34, 0.5);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 86vh;
+  overflow-y: auto;
+}
+
+.panel h2 {
+  margin: 0;
+  color: var(--orange);
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.row .segmented {
+  display: flex;
+  gap: 4px;
+}
+
+.segmented button {
+  width: auto;
+  padding: 4px 10px;
+}
+
+.segmented button.active {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+input[type='text'] {
+  background: #101215;
+  border: 1px solid #3a3a3c;
+  color: var(--paper);
+  padding: 8px 10px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  width: 100%;
+}
+
+input[type='range'] {
+  accent-color: var(--orange);
+  width: 140px;
+}
+
+.narration {
+  padding: 16px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.narration .line {
+  margin: 0 0 12px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.narration .speaker-narrator {
+  color: var(--paper);
+}
+
+.narration .speaker-voice {
+  color: var(--green);
+}
+
+.narration .speaker-player {
+  color: var(--orange);
+}
+
+.narration .speaker-landlord,
+.narration .speaker-muhabbat {
+  color: #a8b6c4;
+}
+
+.narration .speaker-diary {
+  color: #b9a98c;
+  font-style: italic;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 16px 24px;
+}
+
+.error-fallback {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--paper);
+}
+
+.debug-overlay {
+  position: fixed;
+  top: 6px;
+  left: 6px;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid #333;
+  color: #9fe8a0;
+  font-size: 11px;
+  padding: 8px;
+  max-width: 320px;
+  max-height: 60vh;
+  overflow: auto;
+  font-family: monospace;
+}
+
+.debug-overlay button {
+  width: auto;
+  padding: 2px 6px;
+  font-size: 11px;
+}
+
+.realtime-banner {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(11, 11, 12, 0.95);
+  border: 1px solid var(--danger);
+  color: var(--paper);
+  padding: 10px 16px;
+  z-index: 500;
+  max-width: 88vw;
+  text-align: center;
+}
+
+.text-s .narration .line,
+.text-s .subtitle {
+  font-size: 13px;
+}
+
+.text-m .narration .line,
+.text-m .subtitle {
+  font-size: 16px;
+}
+
+.text-l .narration .line,
+.text-l .subtitle {
+  font-size: 19px;
+}
+
+.phones {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  background: #050506;
+}
+
+.phones .phone-frame {
+  width: min(100vw, 430px);
+  height: 100%;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
