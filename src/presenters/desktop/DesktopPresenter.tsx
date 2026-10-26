@@ -1,3 +1,4 @@
+import { ui } from '@/content/text'
 /* eslint-disable react-hooks/immutability -- Renderer diagnostics configure a mutable Three.js renderer, not React state. */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
@@ -247,7 +248,7 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
       data-node={step.node.id}
       data-tier={tier}
     >
-      <div className="desktop-view" aria-label="Xonadon 47 — 3D manzara">
+      <div className="desktop-view" aria-label={ui('desktop.scene_label')}>
         <Canvas
           dpr={Math.min(1, QUALITY_HEIGHT[tier] / window.innerHeight)}
           frameloop={paused || lost ? 'never' : 'always'}
@@ -258,7 +259,7 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
             powerPreference: 'low-power',
             toneMapping: NoToneMapping,
           }}
-          fallback={<div className="desktop-loading">Yengil rejimga oʻtilmoqda…</div>}
+          fallback={<div className="desktop-loading">{ui('desktop.fallback_loading')}</div>}
         >
           <Runtime
             tier={tier}
@@ -312,41 +313,47 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
         </span>
         {near && !paused && (
           <div className="interaction-prompt">
-            {near.id === 'listen' ? 'Q — bosib turing' : 'E'} · {near.label}
+            {near.id === 'listen' ? ui('desktop.hold_q') : 'E'} · {near.label}
           </div>
         )}
-        {lost && <p className="desktop-recovering">Tasvir tiklanmoqda…</p>}
+        {lost && <p className="desktop-recovering">{ui('desktop.recovering')}</p>}
       </div>
       <div className="desktop-topline">
         <span>
-          {step.state.night}-tun / 4-qavat / {step.node.location === 'flat48' ? '48' : '47'}
+          {ui('desktop.topline', {
+            night: step.state.night,
+            flat: step.node.location === 'flat48' ? '48' : '47',
+          })}
         </span>
         <button onClick={() => setTier(tier === 'high' ? 'low' : 'high')}>
-          Sifat: {tier === 'high' ? 'yuqori' : 'past'}
+          {ui('desktop.quality', {
+            tier: tier === 'high' ? ui('desktop.quality_high') : ui('desktop.quality_low'),
+          })}
         </button>
         <button onClick={toggleFlashlight}>
-          Chiroq: {flashlight ? 'yoqilgan' : 'oʻchirilgan'} · F
+          {ui('desktop.flashlight', {
+            state: flashlight ? ui('desktop.flashlight_on') : ui('desktop.flashlight_off'),
+          })}
         </button>
-        <button aria-label="Pauza" onClick={() => useGame.getState().setScreen('paused')}>
+        <button
+          aria-label={ui('common.pause')}
+          onClick={() => useGame.getState().setScreen('paused')}
+        >
           II
         </button>
       </div>
       {hint && (
         <aside className="desktop-controls">
           <p>
-            WASD — yurish
-            <br />
-            Sichqoncha — qarash
-            <br />E — tekshirish · F — chiroq
-            <br />Q — devorni tinglash
-            <br />
-            1–9 — tanlash · Space — matn
-            <br />
-            Esc — pauza
+            {ui('desktop.controls')
+              .split(' · ')
+              .map((row) => (
+                <span key={row} className="desktop-controls-row">
+                  {row}
+                </span>
+              ))}
           </p>
-          <p>
-            {control === 'lock' ? 'Sichqoncha ushlangan.' : 'Bosib sudrab qarashingiz ham mumkin.'}
-          </p>
+          <p>{control === 'lock' ? ui('desktop.control_lock') : ui('desktop.control_drag')}</p>
           <button
             onClick={() => {
               setHint(false)
@@ -357,7 +364,7 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
               }
             }}
           >
-            Tushunarli
+            {ui('desktop.got_it')}
           </button>
         </aside>
       )}
@@ -365,10 +372,10 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
         <NarrationText key={step.node.id} state={step.state} />
         <div className="choices">
           {step.phase === 'next' && (
-            <button onClick={() => useGame.getState().advance()}>Davom etish</button>
+            <button onClick={() => useGame.getState().advance()}>{ui('common.continue')}</button>
           )}
           {choices.map((choice, i) => (
-            <button key={choice.id} onClick={() => choose(choice.id)}>
+            <button key={choice.id} data-choice-id={choice.id} onClick={() => choose(choice.id)}>
               {i + 1}. {choice.label}
             </button>
           ))}

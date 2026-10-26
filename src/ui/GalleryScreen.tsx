@@ -1,11 +1,6 @@
+import { ui } from '@/content/text'
 import { useGame } from './gameStore'
 import type { Night } from '@/core/state/types'
-
-const ENDING_TITLES: Record<string, string> = {
-  A: 'Qoʻshni',
-  B: 'Ketish',
-  C: '3:18',
-}
 
 /** Endings gallery + chapter select (unlocked after finishing, spec 4.3). */
 export function GalleryScreen() {
@@ -24,18 +19,19 @@ export function GalleryScreen() {
   return (
     <div className="screen">
       <div className="panel">
-        <h2>TUGAMLAR</h2>
+        <h2>{ui('gallery.title')}</h2>
         {(['A', 'B', 'C'] as const).map((id) => (
           <div key={id} className="row">
             <span style={{ opacity: meta.endingsSeen.includes(id) ? 1 : 0.35 }}>
-              {ENDING_TITLES[id]} {meta.endingsSeen.includes(id) ? '' : '— ochilmagan'}
+              {ui(`endings.${id}.title`)}{' '}
+              {meta.endingsSeen.includes(id) ? '' : ui('gallery.locked')}
             </span>
           </div>
         ))}
 
         {meta.chaptersUnlocked.length > 0 && (
           <>
-            <h2 style={{ marginTop: 12 }}>BOBKLAR</h2>
+            <h2 style={{ marginTop: 12 }}>{ui('gallery.chapters')}</h2>
             {nightStarts
               .filter(([n]) => meta.chaptersUnlocked.includes(n))
               .map(([n, nodeId]) => (
@@ -46,13 +42,13 @@ export function GalleryScreen() {
                     setScreen('game')
                   }}
                 >
-                  {n}-tun
+                  {ui('gallery.night', { night: n })} · {ui(`nights.${n}`)}
                 </button>
               ))}
           </>
         )}
 
-        <button onClick={() => setScreen('title')}>Orqaga</button>
+        <button onClick={() => setScreen('title')}>{ui('common.back')}</button>
       </div>
     </div>
   )

@@ -35,7 +35,7 @@ export interface MobileHint {
 }
 
 export interface Line {
-  speaker: 'narrator' | 'voice' | 'player' | 'landlord' | 'muhabbat' | 'diary'
+  speaker: 'narrator' | 'voice' | 'player' | 'landlord' | 'muhabbat' | 'diary' | 'mother'
   /** First matching variant wins; the last variant must have no condition. */
   variants: { when?: Condition; text: string }[]
 }

@@ -1,3 +1,4 @@
+import { ui } from '@/content/text'
 import { useGame } from './gameStore'
 import type { GameMode } from '@/platform/device/mode'
 
@@ -10,17 +11,15 @@ export function TitleScreen({ mode }: { mode: GameMode }) {
   return (
     <div className="screen">
       <h1 className="title">3:17</h1>
-      <p className="subtitle">
-        Chilonzor. Toʻqqiz qavatli uy. Xonadon 47. Har tun soat 3:17’da kimdir devorni uradi.
-      </p>
+      <p className="subtitle">{ui('title.tagline')}</p>
       <div className="menu">
-        {hasRun && <button onClick={continueRun}>Davom etish</button>}
-        <button onClick={() => setScreen('form')}>Yangi oʻyin</button>
-        <button onClick={() => setScreen('settings')}>Sozlamalar</button>
-        <button onClick={() => setScreen('gallery')}>Tugamlar</button>
+        {hasRun && <button onClick={continueRun}>{ui('common.continue')}</button>}
+        <button onClick={() => setScreen('form')}>{ui('title.new_game')}</button>
+        <button onClick={() => setScreen('settings')}>{ui('common.settings')}</button>
+        <button onClick={() => setScreen('gallery')}>{ui('title.endings')}</button>
       </div>
       <p className="subtitle" style={{ opacity: 0.4, fontSize: 12 }}>
-        rejim: {mode === 'desktop' ? 'kompyuter (3D)' : 'telefon (2D)'}
+        {mode === 'desktop' ? ui('title.mode_desktop') : ui('title.mode_mobile')}
       </p>
     </div>
   )

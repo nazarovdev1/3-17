@@ -68,6 +68,10 @@
   line-height: 1.7;
   border-left: 1px solid #d98a2b66;
 }
+.desktop-controls-row {
+  display: block;
+}
+
 .desktop-controls p {
   margin: 0 0 12px;
 }

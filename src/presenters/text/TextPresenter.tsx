@@ -1,3 +1,4 @@
+import { ui } from '@/content/text'
 import { useMemo, useReducer } from 'react'
 import { advance, choose, startGame, visibleChoices, type Step } from '@/core/engine'
 import { StaticNarrationProvider } from '@/core/narration/static'
@@ -8,7 +9,7 @@ const NOW = new Date().toISOString()
 
 function defaultProfile(): PlayerProfile {
   return {
-    name: 'Mehmon',
+    name: ui('text_presenter.guest'),
     livesAlone: 'ha',
     fear: 'qorongʻulik',
     doorAtNight: 'yopiq',
@@ -83,20 +84,25 @@ export function TextPresenter() {
 
       {step.phase === 'ending' && (
         <>
-          <h2 style={{ color: '#D98A2B' }}>Tugam: {node.ending}</h2>
-          <button onClick={() => dispatch({ type: 'restart' })}>Boshidan</button>
+          <h2 style={{ color: '#D98A2B' }}>Yakun: {node.ending}</h2>
+          <button onClick={() => dispatch({ type: 'restart' })}>
+            {ui('text_presenter.restart')}
+          </button>
         </>
       )}
 
       {step.phase === 'next' && (
-        <button onClick={() => dispatch({ type: 'advance' })}>Davom etish</button>
+        <button onClick={() => dispatch({ type: 'advance' })}>{ui('common.continue')}</button>
       )}
 
       {step.phase === 'choices' && (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {choices.map((choice, i) => (
             <li key={choice.id} style={{ margin: '8px 0' }}>
-              <button onClick={() => dispatch({ type: 'choose', choiceId: choice.id })}>
+              <button
+                data-choice-id={choice.id}
+                onClick={() => dispatch({ type: 'choose', choiceId: choice.id })}
+              >
                 {i + 1}. {choice.label}
               </button>
             </li>

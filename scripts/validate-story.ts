@@ -19,6 +19,15 @@ if (!existsSync(storyPath)) {
 const module = (await import(pathToFileURL(storyPath).href)) as { story: Story }
 const outcome = validateStory(module.story)
 
+// Text lives in YAML (FIX_PROMPT 6.3): every key the story asks for must exist, and every
+// story key in the YAML must be used — the owner edits these files by hand.
+const text = await import('../src/content/text')
+for (const key of text.missingKeys) outcome.errors.push(`missing YAML text key: ${key}`)
+for (const key of text.allStoryKeys()) {
+  if (!text.usedKeys.has(key)) outcome.errors.push(`YAML text key not used by the story: ${key}`)
+}
+outcome.ok = outcome.errors.length === 0
+
 for (const warning of outcome.warnings) {
   console.warn(`WARN: ${warning}`)
 }

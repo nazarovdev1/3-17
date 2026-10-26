@@ -6,3 +6,5 @@ playwright-report
 coverage
 *.local
 .DS_Store
+audit/screenshots/
+.impeccable/hook.cache.json

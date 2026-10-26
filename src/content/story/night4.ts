@@ -1,70 +1,46 @@
-import type { StoryNode } from '@/core/engine/types'
-import { flag, haptic, item, sanity, sfx } from './features'
+import { build, say } from './build'
+import { flag, haptic, item, phoneNodes, sanity, sfx } from './features'
+
+const dark = { flag: 'n4_dark' } as const
 
 /**
- * Night 4 — "48". The peephole figure, the ajar door, the decayed copy of flat
- * 47 with the player's own belongings. Diary pages 5–6. The single allowed fake
- * glitch lives here (spec 6.3), behind the fx system so "Reduce flashing" can
- * remove it.
+ * Night 4 — "48". Before 3:17: the phone (food sent from home), a diary page. At 3:17 no knock —
+ * one step on the landing, the figure in the peephole, door 48 ajar with the warm bundle on the
+ * doorstep. Inside 48 the voice speaks in the mother's words.
  */
-export const night4Nodes: StoryNode[] = [
+export const night4Nodes = build('night-4', [
   {
     id: 'n4_start',
     night: 4,
     location: 'room',
     checkpoint: true,
     mobile: { vignette: 'room' },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Toʻrtinchi tun. Uy odatdagidan tinch. Bu yomon belgi.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Dahlizdan — shivir. Xuddi eski eshik haqida gapirilayotganday.' }],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2'), say('narrator', 'l3')],
     next: 'n4_hub',
   },
   {
     id: 'n4_hub',
     night: 4,
     location: 'room',
-    mobile: { vignette: 'room', hotspots: ['front_door', 'peephole', 'shared_wall', 'carpet'] },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Bu tun bir narsa boshqacha: old eshikdan shovqin eshitiladi.' }],
-      },
-    ],
+    mobile: {
+      vignette: 'room',
+      hotspots: ['front_door', 'peephole', 'shared_wall', 'carpet'],
+    },
+    lines: [say('narrator', [dark, 'l1_qorongi'], 'l1')],
     choices: [
-      {
-        id: 'peephole',
-        label: 'Kozachokka qarash',
-        to: 'n4_peephole',
-        when: { not: { flag: 'saw_figure' } },
-      },
-      {
-        id: 'carpet',
-        label: 'Gilamni koʻtarish',
-        to: 'n4_diary6',
-        when: { not: { flag: 'found_diary6' } },
-      },
-      {
-        id: 'corridor',
-        label: 'Dahliga chiqish',
-        to: 'n4_door48',
-        when: { flag: 'saw_figure' },
-      },
-      {
-        id: 'tea',
-        label: 'Oshxonada choy damlash',
-        to: 'n4_tea',
-        when: { not: { flag: 'tea_n4' } },
-      },
-      { id: 'wait', label: 'Kutish', to: 'n4_317' },
+      { id: 'phone', to: 'n4_phone', when: { not: { hasItem: 'mom_msg_4' } } },
+      { id: 'carpet', to: 'n4_diary6', when: { not: { flag: 'found_diary6' } } },
+      { id: 'tea', to: 'n4_tea', when: { all: [{ not: { flag: 'tea_n4' } }, { not: dark }] } },
+      { id: 'wait', to: 'n4_317', when: { not: dark } },
+      { id: 'peephole', to: 'n4_peephole', when: { all: [dark, { not: { flag: 'saw_figure' } }] } },
+      { id: 'corridor', to: 'n4_door48', when: { flag: 'saw_figure' } },
+      { id: 'sleep', to: 'n4_sleep', when: { flag: 'took_bundle' } },
     ],
   },
+  ...phoneNodes(4, 'n4_hub', {
+    phone: [say('narrator', 'l1')],
+    message: [say('mother', 'l1'), say('mother', 'l2'), say('mother', 'l3'), say('narrator', 'l4')],
+  }),
   {
     id: 'n4_tea',
     night: 4,
@@ -72,45 +48,17 @@ export const night4Nodes: StoryNode[] = [
     onEnter: [flag('tea_n4', true), sfx('kettle'), sanity(6)],
     desktop: { trigger: 'interact', objectId: 'kettle' },
     mobile: { vignette: 'kitchen', hotspots: ['kettle'] },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Bir qultum choy. Qoʻlingiz qanday iliq — siz buni sezib ololmaysiz endi.' },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Piyolada choy titraydi. Yoki bu qoʻlingizniki. Farqi yoʻq.' }],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2')],
     next: 'n4_hub',
   },
   {
     id: 'n4_317',
     night: 4,
     location: 'room',
-    onEnter: [flag('time', '3:17'), sfx('fridge_stop'), sanity(-3)],
+    onEnter: [flag('time', '3:17'), flag('n4_dark', true), sfx('fridge_stop'), sanity(-3)],
     desktop: { trigger: 'scripted', eventId: 'power_cut' },
     mobile: { vignette: 'room_dark' },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Soat 3:17. Yorugʻlik oʻchdi. Uy kutganingizdek tutdi.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Devorda urish boʻlmadi. Bu safar sukut kutishga oʻxshaydi — eshigingiz oldidan.',
-          },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Zinapoya maydonchasidan oyoq ovozi. Bittasi. Yaqqol. Keyin jimlik.' }],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2')],
     next: 'n4_hub',
   },
   {
@@ -121,52 +69,20 @@ export const night4Nodes: StoryNode[] = [
     desktop: { trigger: 'interact', objectId: 'peephole' },
     mobile: { vignette: 'peephole', hotspots: ['figure'] },
     lines: [
-      { speaker: 'narrator', variants: [{ text: 'Kozachok. Barcha narsa burama, uchli, sariq.' }] },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Zinapoya maydonchasi. Kimdir palto kiyib turibdi. Orqasi sizga qaragan.' },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Kozachokdan uzoqlashdingiz. Yana qaradingiz — hech kim yoʻq.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Faqat oyoq iz. Qorda. Ichida, zinapoya maydonchasida, qor yogʻmayapti.' },
-        ],
-      },
+      say('narrator', 'l1'),
+      say('narrator', 'l2'),
+      say('narrator', 'l3'),
+      say('narrator', 'l4'),
     ],
     next: 'n4_hub',
   },
   {
     id: 'n4_diary6',
     night: 4,
-    location: 'room',
+    location: 'corridor',
     onEnter: [item('diary_6'), flag('found_diary6', true), sfx('page')],
     mobile: { vignette: 'room', hotspots: ['carpet'] },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Gilam ostidagi taxta cheti qayrilgan. Tagida quruq, sargʻaygan sahifa.' },
-        ],
-      },
-      {
-        speaker: 'diary',
-        variants: [
-          {
-            text: '“…Ertaga 48ga kiraman. Agar kirgan boʻlsam va qaytmasam — yozuvni shu yerga qoldiraman.”',
-          },
-        ],
-      },
-      {
-        speaker: 'diary',
-        variants: [{ text: '“48 — bu 47. Faqat eski. Faqat toʻlgan. Faqat… band.”' }],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('diary', 'l2'), say('diary', 'l3')],
     next: 'n4_hub',
   },
   {
@@ -177,55 +93,27 @@ export const night4Nodes: StoryNode[] = [
     desktop: { trigger: 'zone', zoneId: 'landing_48' },
     mobile: { vignette: 'landing48', hotspots: ['door48'] },
     lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Zinapoya maydonchasi. 47 — oʻngda. 48 — chapda.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: '48 eshigi qiya ochiq. Yigirma yil yopiq turgan eshik. Muhrning izi bor, oʻzi yoʻq.',
-          },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Eshik ogʻzi qorongʻi. Undan eski xona hidi keladi: chang, nam, sovun.' },
-        ],
-      },
+      say('narrator', 'l1'),
+      say('narrator', [{ flag: 'took_bundle' }, 'l2_olingan'], 'l2'),
+      say('narrator', 'l3'),
     ],
     choices: [
+      { id: 'enter', to: 'n4_inside48', effects: [sanity(-4), sfx('door_open')] },
       {
-        id: 'enter',
-        label: '48-xonadonga kirish',
-        to: 'n4_inside48',
-        effects: [sanity(-4), sfx('door_open')],
+        id: 'retreat',
+        to: 'n4_retreat',
+        when: { not: { flag: 'took_bundle' } },
+        effects: [flag('took_bundle', true)],
       },
-      { id: 'retreat', label: 'Orqaga qaytish', to: 'n4_retreat' },
     ],
   },
   {
     id: 'n4_retreat',
     night: 4,
     location: 'room',
-    onEnter: [sanity(3)],
+    onEnter: [sanity(5), sfx('chain')],
     mobile: { vignette: 'room' },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Qaytdingiz. Eshikni berkitdingiz — u yopilmadi, faqat suyangancha qoldi.',
-          },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Uy siz kutgan tartibda. Endi u tartibsiz boʻlib qoldi.' }],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2')],
     next: 'n4_hub',
   },
   {
@@ -236,19 +124,7 @@ export const night4Nodes: StoryNode[] = [
     onEnter: [flag('entered_48', true), sanity(-4)],
     desktop: { trigger: 'zone', zoneId: 'flat48' },
     mobile: { vignette: 'flat48', hotspots: ['calendar', 'belongings', 'clock48'] },
-    lines: [
-      { speaker: 'narrator', variants: [{ text: 'Bu — 47. Aynan 47. Faqat oʻlik 47.' }] },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Gilam devorda, lekin rangi yoʻq. Rubin televizor, lekin ekrani boʻsh.' },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Chiroq yoʻq. Yorugʻlik eshigingiz ortidan kelgan nurdan qolgan.' }],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2'), say('narrator', 'l3')],
     next: 'n4_copy_room',
   },
   {
@@ -256,27 +132,12 @@ export const night4Nodes: StoryNode[] = [
     night: 4,
     location: 'flat48',
     mobile: { vignette: 'flat48', hotspots: ['calendar', 'belongings', 'clock48'] },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Xonada sizniki boʻlgan narsalar bor. Sizniki. Aynan sizniki.' }],
-      },
-    ],
+    lines: [say('narrator', 'l1')],
     choices: [
-      { id: 'calendar', label: 'Devordagi kalendarga yaqinlashish', to: 'n4_calendar' },
-      {
-        id: 'belongings',
-        label: 'Sizning buyumlaringizni koʻrish',
-        to: 'n4_belongings',
-        when: { not: { flag: 'saw_belongings' } },
-      },
-      {
-        id: 'diary',
-        label: 'Stuldagi qogʻozni olish',
-        to: 'n4_diary5',
-        when: { not: { flag: 'found_diary5' } },
-      },
-      { id: 'glitch', label: 'Chuqurroq yurish', to: 'n4_glitch', when: { flag: 'saw_calendar' } },
+      { id: 'calendar', to: 'n4_calendar', when: { not: { flag: 'saw_calendar' } } },
+      { id: 'belongings', to: 'n4_belongings', when: { not: { flag: 'saw_belongings' } } },
+      { id: 'diary', to: 'n4_diary5', when: { not: { flag: 'found_diary5' } } },
+      { id: 'glitch', to: 'n4_glitch', when: { flag: 'saw_calendar' } },
     ],
   },
   {
@@ -285,24 +146,7 @@ export const night4Nodes: StoryNode[] = [
     location: 'flat48',
     onEnter: [flag('saw_calendar', true), sanity(-4)],
     mobile: { vignette: 'flat48', hotspots: ['calendar'] },
-    lines: [
-      { speaker: 'narrator', variants: [{ text: 'Devor taqvimi. Qattiq qogʻoz, 2006 yozuvi.' }] },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Sanalar ustidan chiziq tortilgan. Birma-bir. Uzluksiz.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Yili — 2006. Lekin oyi hozirgi oy. Kunlar ham shu oyga toʻgʻri keladi.' },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Oxirgi chizilgan sana — kecha. Bugungi sana chizilmagan.' }],
-      },
-      { speaker: 'narrator', variants: [{ text: 'Hali.' }] },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2'), say('narrator', 'l3')],
     next: 'n4_copy_room',
   },
   {
@@ -311,30 +155,7 @@ export const night4Nodes: StoryNode[] = [
     location: 'flat48',
     onEnter: [flag('saw_belongings', true), sanity(-7), haptic('heartbeat')],
     mobile: { vignette: 'flat48', hotspots: ['belongings'] },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Stol ustida sizniki: telefon qutisi, darz ketgan piyola, mogʻorlagan non.' },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Bularni siz bu uyga olib kelmadingiz. Yoki… kelgan edingiz, faqat boshqa 47ga.',
-          },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Stul ostida pasport. {name}’ning pasporti. Ism sizniki. Rasm sizniki. Sana — kecha.',
-          },
-        ],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2'), say('narrator', 'l3')],
     next: 'n4_copy_room',
   },
   {
@@ -343,30 +164,7 @@ export const night4Nodes: StoryNode[] = [
     location: 'flat48',
     onEnter: [item('diary_5'), flag('found_diary5', true), sfx('page')],
     mobile: { vignette: 'flat48', hotspots: ['chair'] },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Stulda — daftar varagʻi. Yozuv tanish: shkafdagi chiziqlarning egasi.' },
-        ],
-      },
-      {
-        speaker: 'diary',
-        variants: [
-          {
-            text: '“…Men 48ga kirdim. U 47ning nusxasi, faqat unda vaqt bor: men oʻtkazgan vaqt.”',
-          },
-        ],
-      },
-      {
-        speaker: 'diary',
-        variants: [
-          {
-            text: '“Agar sen buni oʻqiyotgan boʻlsang, demak men allaqachon… gapiraman. Sen menga javob berding, shunday emasmi?”',
-          },
-        ],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('diary', 'l2'), say('diary', 'l3')],
     next: 'n4_copy_room',
   },
   {
@@ -382,56 +180,26 @@ export const night4Nodes: StoryNode[] = [
     ],
     desktop: { trigger: 'scripted', eventId: 'fake_glitch' },
     mobile: { vignette: 'flat48', overlay: 'none' },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Chuqur xona. Shkaf. Unda — kiyimlar. Sizniki.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Signal yoʻqoldi — taxminan ikki soniyaga. Xonaning tasviri surilib ketdi. Devor chiziqlari tutashmadi.',
-          },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Keyin hammasi joyiga qaytdi. Siz eshikka qaradingiz. Bir zum qaysi tomondaligini eslay olmadingiz.',
-          },
-        ],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2'), say('narrator', 'l3')],
     next: 'n4_voice_identity',
   },
   {
     id: 'n4_voice_identity',
     night: 4,
     location: 'flat48',
-    onEnter: [sfx('knock_triple'), haptic('knock'), sanity(-4)],
+    onEnter: [sfx('whisper'), haptic('knock'), sanity(-4)],
     mobile: { vignette: 'flat48', overlay: 'chat' },
     lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Devor. Bu xonaning devori. Uch zarba — yaqindan.' }],
-      },
-      { speaker: 'voice', variants: [{ text: 'Men oldin ham sen edim, {name}.' }] },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'U buni oddiy bir narsani tushuntirgandek aytdi. Shoshilmadi.' }],
-      },
+      say('narrator', 'l1'),
+      say('voice', 'l2'),
+      say('narrator', 'l3'),
+      say('narrator', [{ not: { hasItem: 'mom_msg_3' } }, 'l4_eshitmagan'], 'l4'),
+      say('voice', 'l5'),
     ],
     choices: [
-      {
-        id: 'who',
-        label: '“Sardormisan?” deb soʻrash',
-        to: 'n4_ask_sardor',
-        when: { flag: 'knows_sardor' },
-      },
-      { id: 'why', label: '“Nega men?” deb soʻrash', to: 'n4_why' },
-      { id: 'no_talk', label: 'Javob bermaslik', to: 'n4_no_talk' },
+      { id: 'who', to: 'n4_ask_sardor', when: { flag: 'knows_sardor' } },
+      { id: 'why', to: 'n4_why' },
+      { id: 'no_talk', to: 'n4_no_talk' },
     ],
   },
   {
@@ -440,35 +208,16 @@ export const night4Nodes: StoryNode[] = [
     location: 'flat48',
     onEnter: [flag('asked_sardor', true), sanity(-4)],
     mobile: { vignette: 'flat48', overlay: 'chat' },
-    lines: [
-      { speaker: 'player', variants: [{ text: 'Sardor… sizmisiz?' }] },
-      {
-        speaker: 'voice',
-        variants: [{ text: 'Sardor boʻlganman. Keyin — boshqa ism boʻldim. Endi — {name}.' }],
-      },
-      {
-        speaker: 'voice',
-        variants: [{ text: 'Ism bizniki emas. Uyning. U ismlarni almashtirib turadi.' }],
-      },
-    ],
+    lines: [say('player', 'l1'), say('voice', 'l2'), say('voice', 'l3')],
     next: 'n4_return',
   },
   {
     id: 'n4_why',
     night: 4,
     location: 'flat48',
+    onEnter: [flag('asked_why', true), sanity(-4)],
     mobile: { vignette: 'flat48', overlay: 'chat' },
-    lines: [
-      { speaker: 'player', variants: [{ text: 'Nega… men?' }] },
-      {
-        speaker: 'voice',
-        variants: [{ text: 'Chunki sen kelding. Shu javob boʻldi. Har safar shu javob boʻladi.' }],
-      },
-      {
-        speaker: 'voice',
-        variants: [{ text: 'Uy kutadi. Uy kutgani koʻrinadi. Uy kutganini toʻxtatmaydi.' }],
-      },
-    ],
+    lines: [say('player', 'l1'), say('voice', 'l2'), say('voice', 'l3')],
     next: 'n4_return',
   },
   {
@@ -476,16 +225,7 @@ export const night4Nodes: StoryNode[] = [
     night: 4,
     location: 'flat48',
     mobile: { vignette: 'flat48', overlay: 'chat' },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Javob bermadingiz. Devor iliq boʻlib qoldi — xuddi nafas olganday.' }],
-      },
-      {
-        speaker: 'voice',
-        variants: [{ text: 'Mayli, {name}. Ertaga gaplashamiz. Ertaga doim bor.' }],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('voice', 'l2')],
     next: 'n4_return',
   },
   {
@@ -495,20 +235,9 @@ export const night4Nodes: StoryNode[] = [
     onEnter: [sanity(6)],
     mobile: { vignette: 'room' },
     lines: [
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: '47ga qaytdingiz. Oʻz eshigingiz oldida toʻxtab, raqamga qaradingiz. Toʻrt-yetti.',
-          },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Toʻrtinchi tun tugadi. Sizniki boʻlgan narsalar ikki xonada yashayapti endi.' },
-        ],
-      },
+      say('narrator', 'l1'),
+      say('narrator', 'l2'),
+      say('narrator', [{ flag: 'took_bundle' }, 'l3_olingan'], 'l3'),
     ],
     next: 'n4_sleep',
   },
@@ -518,12 +247,7 @@ export const night4Nodes: StoryNode[] = [
     location: 'room',
     checkpoint: true,
     mobile: { vignette: 'room_dark' },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Ertaga — oxirgi kecha. Buni uy ham, siz ham bilasiz.' }],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2')],
     next: 'n5_start',
   },
-]
+])

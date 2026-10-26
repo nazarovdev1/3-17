@@ -1,6 +1,7 @@
 import { expect, type Page } from '@playwright/test'
 import { test } from './fixtures'
 import type { AudioEngine } from '../../src/audio/engine'
+import { ui } from '../../src/content/text'
 
 type AudioInfo = ReturnType<AudioEngine['inspect']>
 interface DebugAudioApi {
@@ -43,13 +44,13 @@ test.afterEach(({ page }) =>
 
 async function boot(page: Page) {
   await page.goto('/?debug=1')
-  await expect(page.getByRole('button', { name: 'Yangi oʻyin', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: ui('title.new_game'), exact: true })).toBeVisible()
   await page.addStyleTag({ content: '.debug-overlay { display: none }' })
 }
 async function start(page: Page) {
-  await page.getByRole('button', { name: 'Yangi oʻyin', exact: true }).click()
+  await page.getByRole('button', { name: ui('title.new_game'), exact: true }).click()
   await page.getByRole('textbox').fill('Dilnoza')
-  await page.getByRole('button', { name: 'Imzolash', exact: true }).click()
+  await page.getByRole('button', { name: ui('form.sign'), exact: true }).click()
 }
 
 test('native suspended context unlocks on a tap; mixer is audible, muted and persisted', async ({
@@ -58,42 +59,46 @@ test('native suspended context unlocks on a tap; mixer is audible, muted and per
   await boot(page)
   await expect.poll(async () => (await state(page)).contextState).toBe('suspended')
   expect((await state(page)).status).toBe('locked')
-  const unlock = page.getByRole('button', { name: 'Tovushni yoqish', exact: true })
-  await expect(unlock).toHaveText('Davom etish uchun bosing')
+  const unlock = page.getByRole('button', { name: ui('shell.audio_unlock_label'), exact: true })
+  await expect(unlock).toHaveText(ui('shell.audio_unlock'))
   if (info.project.name === 'small-android')
     await page.screenshot({ path: 'tests/screenshots/audio-unlock.png' })
   await unlock.click()
   await expect.poll(async () => (await state(page)).contextState).toBe('running')
   await expect(unlock).toBeHidden()
   await expect.poll(async () => (await state(page)).peak).toBeGreaterThan(0.001)
-  await page.getByRole('button', { name: 'Sozlamalar', exact: true }).click()
-  await page.getByRole('slider', { name: 'Umumiy tovush', exact: true }).press('Home')
-  await page.getByRole('slider', { name: 'Musiqa', exact: true }).press('Home')
-  await page.getByRole('slider', { name: 'Effektlar', exact: true }).press('End')
-  await page.getByRole('button', { name: 'Orqaga', exact: true }).click()
+  await page.getByRole('button', { name: ui('common.settings'), exact: true }).click()
+  await page.getByRole('slider', { name: ui('settings.master'), exact: true }).press('Home')
+  await page.getByRole('slider', { name: ui('settings.music'), exact: true }).press('Home')
+  await page.getByRole('slider', { name: ui('settings.effects'), exact: true }).press('End')
+  await page.getByRole('button', { name: ui('common.back'), exact: true }).click()
   await expect.poll(async () => (await state(page)).peak).toBeLessThan(0.00001)
   expect((await state(page)).volumes).toEqual({ masterVolume: 0, musicVolume: 0, effectsVolume: 1 })
   await page.reload()
-  await expect(page.getByRole('button', { name: 'Yangi oʻyin', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: ui('title.new_game'), exact: true })).toBeVisible()
   expect((await state(page)).volumes).toEqual({ masterVolume: 0, musicVolume: 0, effectsVolume: 1 })
-  await page.getByRole('button', { name: 'Sozlamalar', exact: true }).click()
-  await expect(page.getByRole('slider', { name: 'Umumiy tovush', exact: true })).toHaveValue('0')
-  await expect(page.getByRole('slider', { name: 'Effektlar', exact: true })).toHaveValue('1')
+  await page.getByRole('button', { name: ui('common.settings'), exact: true }).click()
+  await expect(page.getByRole('slider', { name: ui('settings.master'), exact: true })).toHaveValue(
+    '0',
+  )
+  await expect(page.getByRole('slider', { name: ui('settings.effects'), exact: true })).toHaveValue(
+    '1',
+  )
   // Music mute must leave effects audible, and effects mute must leave music audible.
-  await page.getByRole('slider', { name: 'Umumiy tovush', exact: true }).press('End')
-  await page.getByRole('button', { name: 'Orqaga', exact: true }).click()
+  await page.getByRole('slider', { name: ui('settings.master'), exact: true }).press('End')
+  await page.getByRole('button', { name: ui('common.back'), exact: true }).click()
   await expect.poll(async () => (await state(page)).peak).toBeLessThan(0.00001)
   await start(page)
   await jump(page, 'n1_knocks')
   await expect.poll(async () => (await state(page)).peak).toBeGreaterThan(0.001)
-  await page.getByRole('button', { name: 'Pauza', exact: true }).click()
-  await page.getByRole('button', { name: 'Sozlamalar', exact: true }).click()
-  await page.getByRole('slider', { name: 'Musiqa', exact: true }).press('End')
-  await page.getByRole('slider', { name: 'Effektlar', exact: true }).press('Home')
+  await page.getByRole('button', { name: ui('common.pause'), exact: true }).click()
+  await page.getByRole('button', { name: ui('common.settings'), exact: true }).click()
+  await page.getByRole('slider', { name: ui('settings.music'), exact: true }).press('End')
+  await page.getByRole('slider', { name: ui('settings.effects'), exact: true }).press('Home')
   // Settings opened from pause returns to pause, where playback is suspended.
-  await page.getByRole('button', { name: 'Orqaga', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'PAUZA', exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Davom etish', exact: true }).click()
+  await page.getByRole('button', { name: ui('common.back'), exact: true }).click()
+  await expect(page.getByRole('heading', { name: ui('pause.title'), exact: true })).toBeVisible()
+  await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
   await jump(page, 'n1_start')
   await expect.poll(async () => (await state(page)).peak).toBeGreaterThan(0.001)
   await jump(page, 'n1_knocks')
@@ -176,7 +181,7 @@ test('pause, hidden page and Telegram deactivation stop sound without replaying 
   await boot(page)
   await start(page)
   await jump(page, 'n2_night_hub')
-  const wall = page.getByRole('button', { name: 'Devorni tinglash', exact: true })
+  const wall = page.locator('[data-choice-id="listen"]')
   const target = (await wall.boundingBox())!
   await page.mouse.move(target.x + target.width / 2, target.y + target.height / 2)
   await page.mouse.down()
@@ -184,7 +189,7 @@ test('pause, hidden page and Telegram deactivation stop sound without replaying 
   await page.mouse.up()
   expect((await state(page)).listening).toBe(false)
   await jump(page, 'n1_knocks')
-  await page.getByRole('button', { name: 'Pauza', exact: true }).click()
+  await page.getByRole('button', { name: ui('common.pause'), exact: true }).click()
   await expect.poll(async () => (await state(page)).contextState).toBe('suspended')
   expect((await state(page)).voices).toBe(0)
   const frozen = (await state(page)).contextTime
@@ -193,7 +198,10 @@ test('pause, hidden page and Telegram deactivation stop sound without replaying 
   await page.evaluate(() =>
     (window as unknown as { emitTelegram: (event: string) => void }).emitTelegram('deactivated'),
   )
-  await page.getByRole('button', { name: 'Davom etish', exact: true }).last().click()
+  await page
+    .getByRole('button', { name: ui('common.continue'), exact: true })
+    .last()
+    .click()
   expect((await state(page)).status).toBe('paused')
   await page.evaluate(() =>
     (window as unknown as { emitTelegram: (event: string) => void }).emitTelegram('activated'),
@@ -223,11 +231,13 @@ test('missing Web Audio does not block playing or settings', async ({ page }) =>
   )
   await boot(page)
   expect((await state(page)).status).toBe('unavailable')
-  await expect(page.getByRole('button', { name: 'Tovushni yoqish', exact: true })).toBeHidden()
+  await expect(
+    page.getByRole('button', { name: ui('shell.audio_unlock_label'), exact: true }),
+  ).toBeHidden()
   await start(page)
-  await page.getByRole('button', { name: 'Davom etish', exact: true }).click()
+  await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
   await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n1_hub')
-  await page.getByRole('button', { name: 'Pauza', exact: true }).click()
-  await page.getByRole('button', { name: 'Sozlamalar', exact: true }).click()
-  await expect(page.getByRole('slider', { name: 'Umumiy tovush', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: ui('common.pause'), exact: true }).click()
+  await page.getByRole('button', { name: ui('common.settings'), exact: true }).click()
+  await expect(page.getByRole('slider', { name: ui('settings.master'), exact: true })).toBeVisible()
 })

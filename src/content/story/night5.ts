@@ -1,36 +1,18 @@
-import type { StoryNode } from '@/core/engine/types'
-import { flag, haptic, item, sanity, sfx } from './features'
+import { build, say } from './build'
+import { ENDING_C_CONDITION, flag, haptic, item, phoneNodes, sanity, sfx } from './features'
 
 /**
- * Night 5 — "3:17". The final night. Ending A (open the door), Ending B (leave
- * before 3:17), Ending C (hidden: wind the stopped clock — needs all 7 diary
- * pages, sanity >= 40, and never having answered the voice on night 3).
+ * Night 5 — "3:17". The last message ("eshigimiz ochiq"), the clock's keyhole and the brass
+ * key, Sardor's last page. At 3:17 the voice quotes the player's own words; three endings.
  */
-export const night5Nodes: StoryNode[] = [
+export const night5Nodes = build('night-5', [
   {
     id: 'n5_start',
     night: 5,
     location: 'room',
     checkpoint: true,
     mobile: { vignette: 'room' },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Beshinchi tun. Uy sizni oʻziga oʻxshatib boʻldi — yoki siz uni oʻzingizga.' },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            when: { flag: 'entered_48' },
-            text: '48 eshigi endi yopilmaydi. Siz u yerni bilibsiz. U ham sizni.',
-          },
-          { text: 'Devor bugun oʻzgacha tinch. Kutishning oʻzi bir turi.' },
-        ],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', [{ flag: 'entered_48' }, 'l2_kirgan'], 'l2')],
     next: 'n5_hub',
   },
   {
@@ -38,43 +20,25 @@ export const night5Nodes: StoryNode[] = [
     night: 5,
     location: 'room',
     mobile: { vignette: 'room', hotspots: ['clock', 'front_door', 'window', 'carpet'] },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Soat yana toʻxtab turgan joyda. Yoki u umuman toʻxtagan emas — u kutadi.' },
-        ],
-      },
-    ],
+    lines: [say('narrator', 'l1')],
     choices: [
-      {
-        id: 'clock',
-        label: 'Soatni diqqat bilan tekshirish',
-        to: 'n5_clock',
-        when: { not: { flag: 'clock_examined' } },
-      },
-      {
-        id: 'chain',
-        label: 'Eshik zanjirini tekshirish',
-        to: 'n5_chain',
-        when: { not: { flag: 'chain_checked' } },
-      },
+      { id: 'clock', to: 'n5_clock', when: { not: { flag: 'clock_examined' } } },
+      { id: 'chain', to: 'n5_chain', when: { not: { flag: 'chain_checked' } } },
       {
         id: 'carpet',
-        label: 'Soat ostidagi pollarni koʻrish',
         to: 'n5_diary7',
         when: { all: [{ flag: 'clock_examined' }, { not: { flag: 'found_diary7' } }] },
       },
-      { id: 'leave_early', label: 'Hozirqinoq uydan chiqib ketish', to: 'endB' },
-      {
-        id: 'tea',
-        label: 'Oxirgi marta choy damlash',
-        to: 'n5_tea',
-        when: { not: { flag: 'tea_n5' } },
-      },
-      { id: 'stay', label: 'Qolish. Oxirigacha qolish', to: 'n5_316' },
+      { id: 'phone', to: 'n5_phone', when: { not: { hasItem: 'mom_msg_5' } } },
+      { id: 'leave_early', to: 'endB', effects: [sfx('chain'), sfx('door_open')] },
+      { id: 'tea', to: 'n5_tea', when: { not: { flag: 'tea_n5' } } },
+      { id: 'stay', to: 'n5_316' },
     ],
   },
+  ...phoneNodes(5, 'n5_hub', {
+    phone: [say('narrator', 'l1')],
+    message: [say('mother', 'l1'), say('mother', 'l2'), say('narrator', 'l3')],
+  }),
   {
     id: 'n5_tea',
     night: 5,
@@ -82,18 +46,7 @@ export const night5Nodes: StoryNode[] = [
     onEnter: [flag('tea_n5', true), sfx('kettle'), sanity(6)],
     desktop: { trigger: 'interact', objectId: 'kettle' },
     mobile: { vignette: 'kitchen', hotspots: ['kettle'] },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Oxirgi choy. Hozircha oxirgi deb aytmang — shunchaki choy.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Issiq. Oddiy. Uy sizni tomosha qilayotganini his qilmaysiz. Hozircha.' },
-        ],
-      },
-    ],
+    lines: [say('narrator', [{ flag: 'took_bundle' }, 'l1_tugun'], 'l1'), say('narrator', 'l2')],
     next: 'n5_hub',
   },
   {
@@ -103,34 +56,7 @@ export const night5Nodes: StoryNode[] = [
     onEnter: [flag('clock_examined', true), sfx('clock_tick')],
     desktop: { trigger: 'interact', objectId: 'clock' },
     mobile: { vignette: 'room', hotspots: ['clock'] },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Soatni oldingiz. Ogʻir, issiq — xuddi tirikdek.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Qopqogʻi ostida — tishli gʻildiraklar. Bittasi siniq. Yana bittasi yetib bormaydi.',
-          },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Soatning prujinasini oʻrash mumkin. Mil teskari emas — oldinga siljiydi. Faqat bir marta.',
-          },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: '3:17 → 3:18. Bu yoʻl bor. Uy uni bilmayapti. Yoki biladi — va qoʻrqadi.' },
-        ],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2'), say('narrator', 'l3')],
     next: 'n5_hub',
   },
   {
@@ -141,28 +67,9 @@ export const night5Nodes: StoryNode[] = [
     desktop: { trigger: 'interact', objectId: 'front_door' },
     mobile: { vignette: 'corridor', hotspots: ['front_door'] },
     lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Eshik. Zanjir sovuq, ishlaydi. Qulf ham joyida.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Zanjirni yechish qiyin emas. Hozir eshikni ochish mumkin. Agar… ketmoqchi boʻlsangiz.',
-          },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            when: { profile: 'doorAtNight', eq: 'ochiq' },
-            text: 'Anketada yozgandingiz: tunda eshigingiz ochiq. Uy buni eslab qolgan.',
-          },
-          { text: 'Bu eshik sizni ozod qilishi mumkin. Faqat bir savol qolgan: qachon.' },
-        ],
-      },
+      say('narrator', 'l1'),
+      say('narrator', [{ profile: 'doorAtNight', eq: 'ochiq' }, 'l2_ochiq'], 'l2'),
+      say('narrator', 'l3'),
     ],
     next: 'n5_hub',
   },
@@ -172,32 +79,7 @@ export const night5Nodes: StoryNode[] = [
     location: 'room',
     onEnter: [item('diary_7'), flag('found_diary7', true), sfx('page')],
     mobile: { vignette: 'room', hotspots: ['carpet'] },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Soat tagidagi taxta boʻshashgan. Ichida — oxirgi varaq.' }],
-      },
-      {
-        speaker: 'diary',
-        variants: [
-          {
-            text: '“…Soat toʻxtagan emas. U toʻxtatilgan. Uni oʻrash mumkin, faqat uy buni istamaydi.”',
-          },
-        ],
-      },
-      {
-        speaker: 'diary',
-        variants: [
-          {
-            text: '“3:18 — agar paydo boʻlsa, zanjir uziladi. Men jur’at qilolmadim. Kuta berdim. Sen kutma.”',
-          },
-        ],
-      },
-      {
-        speaker: 'diary',
-        variants: [{ text: '“Ismim Sardor edi. Uni esla. Men oʻzim eslay olmay qoldim.”' }],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('diary', 'l2'), say('diary', 'l3')],
     next: 'n5_hub',
   },
   {
@@ -207,20 +89,7 @@ export const night5Nodes: StoryNode[] = [
     onEnter: [flag('time', '3:16'), sfx('window_dark')],
     desktop: { trigger: 'scripted', eventId: 'windows_dark' },
     mobile: { vignette: 'window', hotspots: ['opposite_building'] },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Soat 3:16. Narigi uyning oynalari bittadan oʻchmoqda.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Oxirgi oyna — qarama-qarshi toʻrtinchi qavatda. U ham oʻchdi.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Endi koʻchada faqat sariq lampa. Va sizning oynangiz.' }],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2')],
     next: 'n5_317',
   },
   {
@@ -230,59 +99,30 @@ export const night5Nodes: StoryNode[] = [
     onEnter: [flag('time', '3:17'), sfx('fridge_stop'), haptic('medium')],
     desktop: { trigger: 'scripted', eventId: 'power_cut' },
     mobile: { vignette: 'room_dark' },
-    lines: [
-      { speaker: 'narrator', variants: [{ text: 'Soat 3:17.' }] },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Yorugʻlik yoʻq. Muzlatgich yoʻq. Uy ham nafas olayotganini toʻxtatdi.' },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Uch zarba — bu safar yengil, tanish, deyarli samimiy.' }],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2'), say('narrator', 'l3')],
     next: 'n5_voice_final',
   },
   {
     id: 'n5_voice_final',
     night: 5,
     location: 'room',
-    onEnter: [sfx('knock_triple'), haptic('knock'), sanity(-6)],
+    onEnter: [sfx('knock_soft'), haptic('knock'), sanity(-6)],
     desktop: { trigger: 'scripted', eventId: 'knocks' },
     mobile: { vignette: 'wall', overlay: 'chat' },
     lines: [
-      {
-        speaker: 'voice',
-        variants: [
-          {
-            when: { flag: 'asked_sardor' },
-            text: 'Sardor deb soʻragandingiz, {name}. Men sizga rostini aytdim. Endi yana bir rost gapiraman.',
-          },
-          { text: '{name}, oxirgi kecha degan gap yoʻq. Faqat oxirgi tanlov bor.' },
-        ],
-      },
-      {
-        speaker: 'voice',
-        variants: [
-          {
-            when: { flag: 'n1_reaction', eq: 'urdi' },
-            text: 'Birinchi kunda menga urdingiz. U javob edi, bilardingizmi? Men uni javob deb oldim.',
-          },
-          {
-            when: { flag: 'n1_reaction', eq: 'javob' },
-            text: 'Birinchi kunda meni javobsiz qoldirmadingiz. Shu sababli hozir ham gapirishimiz mumkin.',
-          },
-          { text: 'Birinchi kunda jim edingiz. Men sukutingizni eslab qoldim. Uni sevdim.' },
-        ],
-      },
-      {
-        speaker: 'voice',
-        variants: [
-          { text: 'Keling, tanlang: eshik, yoki zanjir, yoki soat. Bittasi sizniki boʻladi.' },
-        ],
-      },
+      say(
+        'voice',
+        [{ flag: 'draft_written' }, 'l1_qoralama'],
+        [{ flag: 'n1_reaction', eq: 'javob' }, 'l1_javob'],
+        'l1',
+      ),
+      say(
+        'voice',
+        [{ flag: 'asked_sardor' }, 'l2_sardor'],
+        [{ flag: 'asked_why' }, 'l2_qayerdan'],
+        'l2',
+      ),
+      say('voice', 'l3'),
     ],
     next: 'n5_final_choice',
   },
@@ -292,196 +132,18 @@ export const night5Nodes: StoryNode[] = [
     location: 'room',
     mobile: { vignette: 'room_dark' },
     lines: [
-      { speaker: 'narrator', variants: [{ text: 'Eshik — chapda. U yerda 48 kutadi.' }] },
-      { speaker: 'narrator', variants: [{ text: 'Zanjir — old eshikda. U yerda koʻcha kutadi.' }] },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Soat — devorda. U yerda hech narsa kutmaydi. Faqat boʻsh vaqt.' }],
-      },
+      say('narrator', 'l1'),
+      say('narrator', 'l2'),
+      say('narrator', [{ flag: 'clock_examined' }, 'l3_soat'], 'l3'),
     ],
     choices: [
       {
         id: 'open48',
-        label: 'Eshikni ochish. 48 tomonga yurish',
         to: 'endA',
         effects: [sanity(-10), sfx('door_open'), haptic('heavy')],
       },
-      {
-        id: 'leave',
-        label: 'Zanjirni yechib, uydan chiqib ketish',
-        to: 'endB',
-        effects: [sfx('chain'), sfx('door_open')],
-      },
-      {
-        id: 'wind',
-        label: 'Soatni oʻrash',
-        to: 'endC',
-        when: {
-          all: [
-            { itemCountGte: { prefix: 'diary_', count: 7 } },
-            { sanityGte: 40 },
-            { not: { flag: 'answered_n3' } },
-          ],
-        },
-        effects: [sfx('clock_tick')],
-      },
+      { id: 'leave', to: 'endB', effects: [sfx('chain'), sfx('door_open')] },
+      { id: 'wind', to: 'endC', when: ENDING_C_CONDITION, effects: [sfx('clock_tick')] },
     ],
   },
-  {
-    id: 'endA',
-    night: 5,
-    location: 'flat48',
-    ending: 'A',
-    checkpoint: true,
-    desktop: { trigger: 'scripted', eventId: 'ending_a' },
-    mobile: { vignette: 'ending_a' },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Eshik ochilganda uy nafas oldi. Uzoq, toʻyingan nafas.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Ichkarida sovuq xona. Siz oʻtirdingiz — stul sizniki edi endi.' }],
-      },
-      { speaker: 'narrator', variants: [{ text: 'Soat 3:18. Bir soniyaga. Keyin yana 3:17.' }] },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Bir necha kundan keyin 47ga yangi ijarachi keldi. Arzon ijara, deyishdi.' },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'U soat tungi uchlarda eshik urilishini eshitdi. Uch marta.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: '“Qoʻshni… uxlamayapsizmi?” — devor ichidan ovoz kelganini u ham eshitdi.' },
-        ],
-      },
-      { speaker: 'narrator', variants: [{ text: 'Ovoz sizniki edi.' }] },
-      { speaker: 'narrator', variants: [{ text: 'Xonadon 48. {name}. Endi bu ovoz sizniki.' }] },
-    ],
-  },
-  {
-    id: 'endB',
-    night: 5,
-    location: 'stairwell',
-    ending: 'B',
-    checkpoint: true,
-    desktop: { trigger: 'scripted', eventId: 'ending_b' },
-    mobile: { vignette: 'ending_b' },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Zanjir chiqdi. Eshik. Maydoncha. Zinapoya — toʻrtinchi qavat, uchinchi, ikkinchi…',
-          },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Muhabbat opaning eshigi ostida yorugʻlik yoʻq. Uni uygʻotmadingiz. Yaxshisi.' },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Hovli. Qor. Sariq lampa. Havo toza — oʻpka birinchi marta toʻliq nafas oldi.' },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Yurasiz. Koʻcha. Chilonzorning tanish kvartali. Yuragingizning urishi sekinlashdi.',
-          },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Oʻgirilib qaradingiz. Toʻqqiz qavatli uy. Toʻrtinchi qavatda bitta oyna yonadi.',
-          },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Sizning derazangiz. Chiroqni oʻchirib ketgan edingiz.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Yoki u oʻzi yoqdi. Kim biladi. Uy kutishni yaxshi koʻradi.' }],
-      },
-      { speaker: 'narrator', variants: [{ text: 'Siz ketyapsiz. U kutadi.' }] },
-    ],
-  },
-  {
-    id: 'endC',
-    night: 5,
-    location: 'room',
-    ending: 'C',
-    checkpoint: true,
-    desktop: { trigger: 'scripted', eventId: 'ending_c' },
-    mobile: { vignette: 'ending_c' },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Soatni oldingiz. Milni ushlab, oldinga burdingiz.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Tishli gʻildirak qarshilik qildi. Uy qarshilik qildi. Davom etdingiz.' },
-        ],
-      },
-      { speaker: 'narrator', variants: [{ text: 'Uch… oʻn sakkiz.' }] },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Tik-tik. Tik-tik. Bu ovozni uy eshitdi. Yigirma yilda birinchi marta eshitdi.' },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Devorda urish boʻlmadi. Uch zarba — keldi, toʻxtab qoldi. Yana keldi. Yana toʻxtadi.',
-          },
-        ],
-      },
-      { speaker: 'voice', variants: [{ text: 'Sardor…' }] },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Ovoz bu ismni eslab qolganidek aytdi. Uzun, hayron, tinch.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Keyin devor sovudi. Birinchi marta u oddiy devor boʻldi — beton, sovuq, boʻsh.',
-          },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Soat 3:18. Yorugʻlik qaytdi. Muzlatgich pichilladi. Dunyo davom etdi.' },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Ertaga siz uydan ketasiz. Uy sizni toʻxtatmaydi — u endi kutmaydi.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Sardorni eslaysiz. Uni endi ikki kishi eslaydi.' }],
-      },
-    ],
-  },
-]
+])

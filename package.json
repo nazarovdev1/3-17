@@ -17,14 +17,18 @@
     "test": "vitest run",
     "validate:story": "tsx scripts/validate-story.ts",
     "budget": "node scripts/check-bundle.mjs",
-    "check": "npm run lint && npm run format:check && npm run typecheck && npm run test && npm run validate:story && npm run build && npm run budget",
+    "check": "npm run text:build && npm run lint && npm run format:check && npm run typecheck && npm run lint:text && npm run test && npm run validate:story && npm run build && npm run budget",
     "build:e2e": "vite build --mode e2e --outDir dist-e2e",
     "preview:e2e": "vite preview --outDir dist-e2e --port 4174 --strictPort",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "text:build": "tsx scripts/text-build.ts",
+    "lint:text": "tsx scripts/lint-text.ts",
+    "predev": "npm run text:build",
+    "prebuild": "npm run text:build"
   },
   "dependencies": {
-    "@fontsource/ibm-plex-mono": "5.2.7",
-    "@fontsource/oswald": "5.2.8",
+    "@fontsource/inter": "5.3.0",
+    "@fontsource/literata": "5.3.0",
     "@react-three/drei": "10.7.9",
     "@react-three/fiber": "9.8.2",
     "@react-three/postprocessing": "3.2.2",
@@ -55,6 +59,7 @@
     "typescript": "5.9.3",
     "typescript-eslint": "8.72.0",
     "vite": "8.3.5",
-    "vitest": "5.0.5"
+    "vitest": "5.0.5",
+    "yaml": "2.9.1"
   }
 }

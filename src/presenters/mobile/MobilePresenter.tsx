@@ -1,3 +1,4 @@
+import { ui } from '@/content/text'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useGame, onEngineEvents } from '@/ui/gameStore'
 import { NarrationText, resolveAllLines } from '@/ui/NarrationText'
@@ -141,7 +142,7 @@ export function MobilePresenter({ paused }: { paused: boolean }) {
           ref={canvasRef}
           width={VIGNETTE_W}
           height={VIGNETTE_H}
-          aria-label="Xonadon manzarasi"
+          aria-label={ui('mobile.scene_label')}
         />
         <span className="scene-caption">
           {state.night}-tun · {state.flags['time'] === '3:16' ? '3:16' : '3:17'} ·{' '}
@@ -157,6 +158,7 @@ export function MobilePresenter({ paused }: { paused: boolean }) {
           return (
             <button
               key={choice.id}
+              data-choice-id={choice.id}
               className={`hotspot ${listen ? 'hold-hotspot' : ''}`}
               aria-label={choice.label}
               title={choice.label}
@@ -202,26 +204,26 @@ export function MobilePresenter({ paused }: { paused: boolean }) {
         <NarrationText key={node.id} state={state} omitVoice={voiceLines.length > 0} />
         <div className="choices">
           {step.phase === 'next' && (
-            <button onClick={() => useGame.getState().advance()}>Davom etish</button>
+            <button onClick={() => useGame.getState().advance()}>{ui('common.continue')}</button>
           )}
           {choices
             .filter((choice) => peephole || !HOTSPOTS[choice.id])
             .map((choice) => (
-              <button key={choice.id} onClick={() => select(choice.id)}>
+              <button key={choice.id} data-choice-id={choice.id} onClick={() => select(choice.id)}>
                 {choice.label}
               </button>
             ))}
           {choices.some((choice) => HOTSPOTS[choice.id]) && !peephole && (
             <p className="hotspot-hint">
-              Yaltirayotgan joylarni bosing.
-              {choices.some((choice) => choice.id === 'listen') && ' Devorni bosib turing.'}
+              {ui('mobile.hotspot_hint')}
+              {choices.some((choice) => choice.id === 'listen') && ` ${ui('mobile.hold_hint')}`}
             </p>
           )}
         </div>
       </div>
       <button
         className="pause-button"
-        aria-label="Pauza"
+        aria-label={ui('common.pause')}
         onClick={() => {
           release()
           setScreen('paused')

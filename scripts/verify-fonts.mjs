@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { inflateSync } from 'node:zlib'
 
 // Check the actual WOFF cmap so browser font fallback cannot hide missing glyphs.
-for (const font of ['ibm-plex-mono', 'oswald']) {
+for (const font of ['literata', 'inter']) {
   const data = readFileSync(`node_modules/@fontsource/${font}/files/${font}-latin-400-normal.woff`)
   let cmap
   for (let i = 0; i < data.readUInt16BE(12); i++) {

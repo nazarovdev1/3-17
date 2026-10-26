@@ -1,11 +1,11 @@
-import type { StoryNode } from '@/core/engine/types'
-import { flag, item, sanity, sfx, haptic } from './features'
+import { build, say } from './build'
+import { flag, haptic, item, phoneNodes, sanity, sfx } from './features'
 
 /**
- * Night 1 — "Koʻchib kelish". Free exploration of flat 47, first contact at 3:17.
- * The first reaction (javob / jim / urdi) becomes a flag the voice remembers.
+ * Night 1 — "Koʻchib kelish". Arrival, free exploration, the first message from home,
+ * first contact at 3:17. The reaction (javob / sukut / urdi) is remembered by the voice.
  */
-export const night1Nodes: StoryNode[] = [
+export const night1Nodes = build('night-1', [
   {
     id: 'n1_start',
     night: 1,
@@ -15,32 +15,11 @@ export const night1Nodes: StoryNode[] = [
     desktop: { trigger: 'scripted', eventId: 'arrival' },
     mobile: { vignette: 'room_entry' },
     lines: [
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Chilonzor. Toʻqqiz qavatli paneli uy. Tashqarida qor sekin yogʻilyapti.' },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Xonadon 47. Toʻrtinchi qavat. Kalitlar qoʻlingizda hanuz iliq — Rustam akadan endigina oldingiz.',
-          },
-        ],
-      },
-      {
-        speaker: 'landlord',
-        variants: [
-          {
-            text: 'Bitta qoida bor, oʻrtoq: 48-xonadonga e’tibor bermang. U yerda hech kim yashamaydi.',
-          },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'U kalitlarni juda tez berdi. Xayrlashmadi ham.' }],
-      },
+      say('narrator', 'l1'),
+      say('narrator', 'l2'),
+      say('landlord', 'l3'),
+      say('narrator', 'l4'),
+      say('narrator', 'l5'),
     ],
     next: 'n1_hub',
   },
@@ -52,50 +31,16 @@ export const night1Nodes: StoryNode[] = [
       vignette: 'room',
       hotspots: ['clock', 'note', 'radiator', 'tv', 'window', 'kitchen_door'],
     },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Xonadon sizniki. Hozircha boʻsh, hozircha odatiy.' }],
-      },
-    ],
+    lines: [say('narrator', 'l1')],
     choices: [
-      {
-        id: 'clock',
-        label: 'Devordagi soatga qarash',
-        to: 'n1_clock',
-        when: { not: { flag: 'inspected_clock' } },
-      },
-      {
-        id: 'note',
-        label: 'Rustam akaning qogʻozini oʻqish',
-        to: 'n1_note',
-        when: { not: { flag: 'inspected_note' } },
-      },
-      {
-        id: 'radiator',
-        label: 'Radiatore yaqinlashish',
-        to: 'n1_radiator',
-        when: { not: { flag: 'inspected_radiator' } },
-      },
-      {
-        id: 'tv',
-        label: 'Rubin televizorni sinash',
-        to: 'n1_tv',
-        when: { not: { flag: 'inspected_tv' } },
-      },
-      {
-        id: 'window',
-        label: 'Oynaga qarash',
-        to: 'n1_window',
-        when: { not: { flag: 'inspected_window' } },
-      },
-      {
-        id: 'tea',
-        label: 'Oshxonada choy damlash',
-        to: 'n1_tea',
-        when: { not: { flag: 'tea_n1' } },
-      },
-      { id: 'sleep', label: 'Uxlashga yotish', to: 'n1_316', effects: [flag('time', '3:16')] },
+      { id: 'clock', to: 'n1_clock', when: { not: { flag: 'inspected_clock' } } },
+      { id: 'note', to: 'n1_note', when: { not: { flag: 'inspected_note' } } },
+      { id: 'radiator', to: 'n1_radiator', when: { not: { flag: 'inspected_radiator' } } },
+      { id: 'tv', to: 'n1_tv', when: { not: { flag: 'inspected_tv' } } },
+      { id: 'window', to: 'n1_window', when: { not: { flag: 'inspected_window' } } },
+      { id: 'phone', to: 'n1_phone', when: { not: { hasItem: 'mom_msg_1' } } },
+      { id: 'tea', to: 'n1_tea', when: { not: { flag: 'tea_n1' } } },
+      { id: 'sleep', to: 'n1_316', effects: [flag('time', '3:16')] },
     ],
   },
   {
@@ -106,21 +51,9 @@ export const night1Nodes: StoryNode[] = [
     desktop: { trigger: 'interact', objectId: 'clock' },
     mobile: { vignette: 'room', hotspots: ['clock'] },
     lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Katta devor soati. Yogʻoch qutisi qorayib ketgan.' }],
-      },
-      { speaker: 'narrator', variants: [{ text: 'Millari qotib qolgan: 3:17.' }] },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            when: { profile: 'fear', eq: 'unutilish' },
-            text: 'Sizga tuyuladi: soat kutib turganidek. Kimni — noma’lum.',
-          },
-          { text: 'Batareyani almashtirish kerak. Ehtimol keyinroq.' },
-        ],
-      },
+      say('narrator', 'l1'),
+      say('narrator', 'l2'),
+      say('narrator', [{ profile: 'fear', eq: 'unutilish' }, 'l3_unutilish'], 'l3'),
     ],
     next: 'n1_hub',
   },
@@ -132,28 +65,11 @@ export const night1Nodes: StoryNode[] = [
     desktop: { trigger: 'interact', objectId: 'note' },
     mobile: { vignette: 'room', hotspots: ['note'] },
     lines: [
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Stol ustida buklangan qogʻoz. Rustam akaning qoʻlyozmasi, shoshilinch yozilgan.',
-          },
-        ],
-      },
-      {
-        speaker: 'landlord',
-        variants: [{ text: 'Ijara: oyiga ikki yarim million. Kommunalni men toʻlayman.' }],
-      },
-      {
-        speaker: 'landlord',
-        variants: [
-          { text: 'Qoida: tunda eshik zanjirini taqing. Kim ismingizni aytsa ham — ochmang.' },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: '“Kim ismingizni aytsa ham”. Oddiy qogʻozda gʻalati ogohlantirish.' }],
-      },
+      say('narrator', 'l1'),
+      say('landlord', 'l2'),
+      say('landlord', 'l3'),
+      say('landlord', 'l4'),
+      say('narrator', 'l5'),
     ],
     next: 'n1_hub',
   },
@@ -164,16 +80,7 @@ export const night1Nodes: StoryNode[] = [
     onEnter: [flag('inspected_radiator', true), sfx('radiator'), haptic('light')],
     desktop: { trigger: 'interact', objectId: 'radiator' },
     mobile: { vignette: 'room', hotspots: ['radiator'] },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Choʻyan radiator. Issiq, lekin bezovta — u qattiq uriladi.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Urdi. Urdi. Toʻxtadi. Xuddi eshitib qolganday.' }],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2'), say('narrator', 'l3')],
     next: 'n1_hub',
   },
   {
@@ -184,24 +91,10 @@ export const night1Nodes: StoryNode[] = [
     desktop: { trigger: 'interact', objectId: 'tv' },
     mobile: { vignette: 'room', hotspots: ['tv'] },
     lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Eski Rubin televizor. Yogʻoch korpus, qiyshiq antenna.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Yoqganingizda — faqat oq shovqin, uzoqdagi daryoday.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            when: { sanityLt: 90 },
-            text: 'Shovqin ichida bir narsa harakatlanayotganday. Balki koʻzingizga koʻringandir.',
-          },
-          { text: 'Oʻchirdingiz. Xona yana jim.' },
-        ],
-      },
+      say('narrator', 'l1'),
+      say('narrator', 'l2'),
+      say('narrator', 'l3'),
+      say('narrator', 'l4'),
     ],
     next: 'n1_hub',
   },
@@ -212,24 +105,13 @@ export const night1Nodes: StoryNode[] = [
     onEnter: [flag('inspected_window', true)],
     desktop: { trigger: 'interact', objectId: 'window' },
     mobile: { vignette: 'window', hotspots: ['lamp', 'opposite_building'] },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Deraza ortida qor. Pastda sariq koʻcha chirogʻi yonadi.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Narigi uyda oʻttizta deraza. Beshtasida chiroq yonib turibdi.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [
-          { text: 'Qarama-qarshi toʻrtinchi qavatda bir oyna yonadi. Xuddi sizniki kabi.' },
-        ],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2'), say('narrator', 'l3')],
     next: 'n1_hub',
   },
+  ...phoneNodes(1, 'n1_hub', {
+    phone: [say('narrator', 'l1'), say('narrator', 'l2')],
+    message: [say('mother', 'l1'), say('narrator', 'l2'), say('narrator', 'l3')],
+  }),
   {
     id: 'n1_tea',
     night: 1,
@@ -237,20 +119,7 @@ export const night1Nodes: StoryNode[] = [
     onEnter: [flag('tea_n1', true), sfx('kettle'), sanity(8)],
     desktop: { trigger: 'interact', objectId: 'kettle' },
     mobile: { vignette: 'kitchen', hotspots: ['kettle', 'gas_stove'] },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Oshxona kichkina, lekin yorugʻ. Gaz plitasida koʻk alanga.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Choynak asta shivirlaydi. Dastasi sim bilan mahkamlangan.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Bir qultum issiq choy. Tanangiz biroz boʻshashdi.' }],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2'), say('narrator', 'l3')],
     next: 'n1_hub',
   },
   {
@@ -260,20 +129,7 @@ export const night1Nodes: StoryNode[] = [
     onEnter: [flag('time', '3:16'), sfx('window_dark')],
     desktop: { trigger: 'timed', delayMs: 4000 },
     mobile: { vignette: 'window', hotspots: ['opposite_building'] },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Uyqu kelmadi. Choyning issigʻi ham tarqalib boʻldi.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Soat 3:16. Narigi uyda oyna oʻchdi. Keyin yana bittasi. Keyin yana.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Oʻttiz oyna. Bittadan. Qorongʻilik siz tomonga yaqinlashmoqda.' }],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2'), say('narrator', 'l3')],
     next: 'n1_317',
   },
   {
@@ -284,19 +140,10 @@ export const night1Nodes: StoryNode[] = [
     desktop: { trigger: 'scripted', eventId: 'power_cut' },
     mobile: { vignette: 'room_dark', overlay: 'none' },
     lines: [
-      { speaker: 'narrator', variants: [{ text: 'Soat 3:17.' }] },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Yorugʻlik oʻchdi. Muzlatgichning pichillashi birdan toʻxtadi.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Shunday jimlikki, quloqlaringizda qon shovullaydi.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Keyin — devor. Oʻng tomondan. Uchta zarba.' }],
-      },
+      say('narrator', 'l1'),
+      say('narrator', 'l2'),
+      say('narrator', 'l3'),
+      say('narrator', 'l4'),
     ],
     next: 'n1_knocks',
   },
@@ -307,32 +154,16 @@ export const night1Nodes: StoryNode[] = [
     onEnter: [sfx('knock_triple'), haptic('knock'), sanity(-6)],
     desktop: { trigger: 'scripted', eventId: 'knocks' },
     mobile: { vignette: 'wall', overlay: 'chat' },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: '48-xonadon tomonidan. U yerda hech kim yashamaydi.' }],
-      },
-      {
-        speaker: 'voice',
-        variants: [{ text: 'Qoʻshni… uxlamayapsizmi?' }],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('voice', 'l2')],
     choices: [
       {
         id: 'answer',
-        label: 'Javob berish: “Yoʻq, uxlayapman”',
         to: 'n1_answer',
         effects: [flag('n1_reaction', 'javob'), flag('answered_n1', true), sanity(-4)],
       },
-      {
-        id: 'silent',
-        label: 'Jim yotish, nafasni ushlab turish',
-        to: 'n1_silent',
-        effects: [flag('n1_reaction', 'sukut'), sanity(-2)],
-      },
+      { id: 'silent', to: 'n1_silent', effects: [flag('n1_reaction', 'sukut'), sanity(-2)] },
       {
         id: 'knock_back',
-        label: 'Devorga qarshi urish',
         to: 'n1_knock_back',
         effects: [flag('n1_reaction', 'urdi'), haptic('knock'), sanity(-8)],
       },
@@ -344,22 +175,11 @@ export const night1Nodes: StoryNode[] = [
     location: 'room',
     mobile: { vignette: 'wall', overlay: 'chat' },
     lines: [
-      { speaker: 'player', variants: [{ text: 'Yoʻq… uxlayapman.' }] },
-      { speaker: 'narrator', variants: [{ text: 'Jimlik. Uzoq, tortinchoq jimlik.' }] },
-      {
-        speaker: 'voice',
-        variants: [
-          {
-            when: { profile: 'livesAlone', eq: 'ha' },
-            text: 'Yaxshi. Yolgʻiz ovoz — yaxshi ovoz.',
-          },
-          { text: 'Ovozingizni eshitganim yaxshi boʻldi. Uzoq edi.' },
-        ],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Endi uxlab qoldingiz. Nima uchun — bilmaysiz.' }],
-      },
+      say('player', 'l1'),
+      say('narrator', 'l2'),
+      say('voice', 'l3'),
+      say('voice', [{ profile: 'livesAlone', eq: 'ha' }, 'l4_yolgiz'], 'l4'),
+      say('narrator', 'l5'),
     ],
     next: 'n1_sleep',
   },
@@ -369,25 +189,9 @@ export const night1Nodes: StoryNode[] = [
     location: 'room',
     mobile: { vignette: 'wall', overlay: 'chat' },
     lines: [
-      {
-        speaker: 'narrator',
-        variants: [
-          {
-            text: 'Nafasingizni ushlab turdingiz. Yostiqni qulogʻingizga bosdingiz. Bolalikdagi kabi.',
-          },
-        ],
-      },
-      {
-        speaker: 'voice',
-        variants: [
-          {
-            when: { profile: 'doorAtNight', eq: 'yopiq' },
-            text: 'Eshigingiz yopiq, bilaman. Baribir eshitaman: yuragingiz.',
-          },
-          { text: 'Nafasingizni ushlab turdingiz. Baribir eshitdim.' },
-        ],
-      },
-      { speaker: 'narrator', variants: [{ text: 'Bundan keyin jimlik odatlanib qoldi.' }] },
+      say('narrator', 'l1'),
+      say('voice', [{ profile: 'doorAtNight', eq: 'yopiq' }, 'l2_yopiq'], 'l2'),
+      say('narrator', 'l3'),
     ],
     next: 'n1_sleep',
   },
@@ -398,16 +202,10 @@ export const night1Nodes: StoryNode[] = [
     onEnter: [sfx('knock')],
     mobile: { vignette: 'wall', overlay: 'chat' },
     lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Barmoqlaringiz bilan devorga uch marta urdingiz. Aniq, qattiq.' }],
-      },
-      { speaker: 'narrator', variants: [{ text: 'Devor sovuq. Urdi — toʻxtadi.' }] },
-      { speaker: 'voice', variants: [{ text: 'Javob berdingiz. Rahmat.' }] },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Siz savol bermadingiz. U buni javob deb hisobladi.' }],
-      },
+      say('narrator', 'l1'),
+      say('narrator', 'l2'),
+      say('voice', 'l3'),
+      say('narrator', 'l4'),
     ],
     next: 'n1_sleep',
   },
@@ -418,16 +216,7 @@ export const night1Nodes: StoryNode[] = [
     checkpoint: true,
     onEnter: [sanity(4)],
     mobile: { vignette: 'room_dark' },
-    lines: [
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Deraza sekin oqaradi. Avval qor, keyin narigi uy koʻrinadi.' }],
-      },
-      {
-        speaker: 'narrator',
-        variants: [{ text: 'Birinchi tun oʻtdi. Soat yana 3:17’da toʻxtab turadi.' }],
-      },
-    ],
+    lines: [say('narrator', 'l1'), say('narrator', 'l2'), say('narrator', 'l3')],
     next: 'n2_day_start',
   },
-]
+])

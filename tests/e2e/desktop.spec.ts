@@ -3,6 +3,8 @@ import { test } from './fixtures'
 import { startNamedRun } from './helpers'
 import { story } from '../../src/content/story'
 import type { getDesktopState } from '../../src/platform/device/desktopRuntime'
+import { ui } from '../../src/content/text'
+import { pickChoice } from '../routes'
 
 type Metrics = ReturnType<typeof getDesktopState>
 interface DebugApi {
@@ -40,40 +42,13 @@ test.beforeEach(async ({ page }) => {
 })
 test.afterEach(({ page }) => expect((page as unknown as { errors: string[] }).errors).toEqual([]))
 
-const preferences = [
-  /choy/i,
-  /Sahifa|qogʻoz|daftar|varag|Gilam|shkafini/,
-  /Kozachokka/,
-  /48-xonadonga/,
-  /kalendarg/,
-  /Stuldagi/,
-  /Chuqurroq/,
-  /Dahliga chiqish/,
-  /Hammomni/,
-  /oynaga qarash/,
-  /Oshxonaga borish/,
-  /Soatni diqqat/,
-  /Soat ostidagi/,
-  /Javob bermaslik|umuman javob|Jim/,
-  /Toʻxtab/,
-  /Uxlash|Toʻshak|Qolish|3:17/,
-  /Davom etish/,
-  /Kutish/,
-]
 for (const ending of ['A', 'B', 'C'] as const)
   test(`desktop real-input ending ${ending}`, async ({ page }) => {
     test.setTimeout(180_000)
     await boot(page)
-    const final =
-      ending === 'C' ? /Soatni oʻrash/ : ending === 'B' ? /chiqib ketish/ : /Eshikni ochish/
-    const seen = new Set<string>()
     const visited = new Set<string>()
-    let night = ''
-    for (let i = 0; i < 250; i++) {
-      const title = page.getByRole('heading', {
-        name: { A: 'Qoʻshni', B: 'Ketish', C: '3:18' }[ending],
-        exact: true,
-      })
+    for (let i = 0; i < 400; i++) {
+      const title = page.getByRole('heading', { name: ui(`endings.${ending}.title`), exact: true })
       if (await title.isVisible()) {
         if (ending === 'C') {
           expect([...new Set([...visited].map((id) => id.slice(0, 2)))].sort()).toEqual([
@@ -84,7 +59,9 @@ for (const ending of ['A', 'B', 'C'] as const)
             'n5',
           ])
           expect(visited.has('n3_room_return')).toBe(true)
-          await expect(page.locator('.ending-narration')).toContainText('Dunyo davom etdi.')
+          await expect(page.locator('.ending-narration')).toContainText(
+            story.nodes['endC']!.lines.at(-1)!.variants[0]!.text,
+          )
           await test.info().attach('desktop-five-night-route', {
             body: JSON.stringify([...visited]),
             contentType: 'application/json',
@@ -102,37 +79,15 @@ for (const ending of ['A', 'B', 'C'] as const)
           await page.waitForTimeout(600)
       }
       visited.add(node)
-      if (node.slice(0, 2) !== night) {
-        night = node.slice(0, 2)
-        seen.clear()
+      const hud = game.locator('.desktop-hud .choices')
+      const ids = await hud
+        .locator('button[data-choice-id]')
+        .evaluateAll((items) => items.map((item) => item.getAttribute('data-choice-id') ?? ''))
+      if (ids.length === 0) {
+        await hud.getByRole('button', { name: ui('common.continue'), exact: true }).click()
+        continue
       }
-      const buttons = game.locator('.desktop-hud .choices button')
-      const labels = await buttons.evaluateAll((items) =>
-        items.map((item) => (item.textContent ?? '').replace(/^\d+\.\s*/, '')),
-      )
-      const fresh = labels
-        .map((label, index) => ({ label, index }))
-        .filter(({ label }) => !seen.has(label))
-      let pool = fresh.length ? fresh : labels.map((label, index) => ({ label, index }))
-      if (ending === 'C' && pool.length > 1) {
-        const safe = pool.filter(
-          ({ label }) =>
-            !/televizor|tinglash|buyumlaringiz|Yugurib|Javob berish|Sardormisan|Nega men/i.test(
-              label,
-            ),
-        )
-        if (safe.length) pool = safe
-      }
-      let target = pool[0]!
-      for (const re of [final, ...preferences]) {
-        const match = pool.find(({ label }) => re.test(label))
-        if (match) {
-          target = match
-          break
-        }
-      }
-      seen.add(target.label)
-      await buttons.nth(target.index).click()
+      await hud.locator(`button[data-choice-id="${pickChoice(ending, ids)}"]`).click()
     }
     throw new Error(`Ending ${ending} not reached`)
   })
@@ -170,14 +125,17 @@ test('native pointer lock, movement, flashlight, pause and keyboard choices', as
   await page.keyboard.press('f')
   await expect.poll(async () => (await inspect(page)).flashlight).toBe(!initial)
   await page.keyboard.press('Escape')
-  await expect(page.getByText('PAUZA', { exact: true })).toBeVisible()
+  await expect(page.getByText(ui('pause.title'), { exact: true })).toBeVisible()
   await expect
     .poll(async () => await page.evaluate(() => !!document.pointerLockElement))
     .toBe(false)
-  await page.getByRole('button', { name: 'Davom etish', exact: true }).last().click()
+  await page
+    .getByRole('button', { name: ui('common.continue'), exact: true })
+    .last()
+    .click()
   await page
     .locator('.desktop-hud .choices button')
-    .getByText('Davom etish', { exact: true })
+    .getByText(ui('common.continue'), { exact: true })
     .click()
   await page.keyboard.press('1')
   await expect(page.locator('.desktop-game')).toHaveAttribute('data-node', 'n1_clock')
@@ -191,7 +149,7 @@ test('rejected pointer lock uses drag look; E interacts with the clock; corridor
       Promise.reject(new Error('Pointer lock unavailable in this webview'))
   })
   await boot(page)
-  await page.getByRole('button', { name: 'Davom etish', exact: true }).click()
+  await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
   await page.keyboard.down('w')
   await page.waitForTimeout(600)
   await page.keyboard.up('w')
@@ -319,6 +277,6 @@ test('WebGL 1 alone falls back to a playable mobile scene', async ({ page }) => 
   await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n1_start')
   await page.addStyleTag({ content: '.debug-overlay { display:none }' })
   await page.getByRole('button', { name: /Tasvir yengil rejimga/ }).click()
-  await page.getByRole('button', { name: 'Davom etish', exact: true }).click()
+  await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
   await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n1_hub')
 })

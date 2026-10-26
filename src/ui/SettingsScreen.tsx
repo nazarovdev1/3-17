@@ -1,3 +1,4 @@
+import { ui } from '@/content/text'
 import { useSettings, type TextSize } from './settingsStore'
 import type { GameMode } from '@/platform/device/mode'
 
@@ -17,10 +18,15 @@ export function SettingsScreen({
   return (
     <div className="screen">
       <div className="panel">
-        <h2>SOZLAMALAR</h2>
+        <h2>{ui('settings.title')}</h2>
 
         <div className="row">
-          <span>Rejim (joriy: {mode === 'desktop' ? '3D' : '2D'})</span>
+          <span>
+            {ui('settings.mode')}{' '}
+            {mode === 'desktop'
+              ? ui('settings.mode_current_desktop')
+              : ui('settings.mode_current_mobile')}
+          </span>
           <div className="segmented">
             {(['auto', 'mobile', 'desktop'] as const).map((m) => (
               <button
@@ -31,30 +37,34 @@ export function SettingsScreen({
                   onModeRequest?.()
                 }}
               >
-                {m === 'auto' ? 'Auto' : m === 'mobile' ? 'Telefon' : 'Kompyuter'}
+                {m === 'auto'
+                  ? ui('settings.mode_auto')
+                  : m === 'mobile'
+                    ? ui('settings.mode_mobile')
+                    : ui('settings.mode_desktop')}
               </button>
             ))}
           </div>
         </div>
 
         <Slider
-          label="Umumiy tovush"
+          label={ui('settings.master')}
           value={settings.masterVolume}
           onChange={(masterVolume) => update({ masterVolume })}
         />
         <Slider
-          label="Musiqa"
+          label={ui('settings.music')}
           value={settings.musicVolume}
           onChange={(musicVolume) => update({ musicVolume })}
         />
         <Slider
-          label="Effektlar"
+          label={ui('settings.effects')}
           value={settings.effectsVolume}
           onChange={(effectsVolume) => update({ effectsVolume })}
         />
 
         <div className="row">
-          <span>Matn oʻlchami</span>
+          <span>{ui('settings.text_size')}</span>
           <div className="segmented">
             {(['S', 'M', 'L'] as TextSize[]).map((size) => (
               <button
@@ -69,7 +79,7 @@ export function SettingsScreen({
         </div>
 
         <label className="row">
-          <span>Miltillashni kamaytirish</span>
+          <span>{ui('settings.reduce_flashing')}</span>
           <input
             type="checkbox"
             checked={settings.reduceFlashing}
@@ -78,7 +88,7 @@ export function SettingsScreen({
         </label>
 
         <label className="row">
-          <span>Bosh silkinishi (koʻchish rejimi)</span>
+          <span>{ui('settings.head_bob')}</span>
           <input
             type="checkbox"
             checked={settings.headBob}
@@ -87,11 +97,11 @@ export function SettingsScreen({
         </label>
 
         <div className="row">
-          <span>Til</span>
-          <span style={{ opacity: 0.6 }}>Oʻzbek (oʻzgarmas)</span>
+          <span>{ui('settings.language')}</span>
+          <span style={{ opacity: 0.6 }}>{ui('settings.language_value')}</span>
         </div>
 
-        <button onClick={onBack}>Orqaga</button>
+        <button onClick={onBack}>{ui('common.back')}</button>
       </div>
     </div>
   )

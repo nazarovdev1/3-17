@@ -1,3 +1,4 @@
+import { ui } from '@/content/text'
 import type { Line } from '@/core/engine/types'
 import type { GameState } from '@/core/state/types'
 
@@ -12,15 +13,17 @@ export function takeMetaComments(state: GameState): { state: GameState; lines: L
       variants: [
         {
           when: { flag: 'late_night' },
-          text: 'Haqiqiy soat ham yarim tundan oʻtgan. Hali uxlamadingizmi?',
+          text: ui('meta.late_night'),
         },
-        { text: 'Tashqarida tun uzoq davom etayotgandek.' },
+        { text: ui('meta.late_night_fallback') },
       ],
     })
     metaHints.lateNightCommentFired = true
   }
   if (state.flags['return_comment'] && !metaHints.returnCommentFired) {
     const awayMinutes = Number(state.flags['away_minutes'] ?? 30)
+    // From night 3 the voice says "sen" (FIX_PROMPT 6.1); its return comment follows suit.
+    const informal = state.night >= 3
     lines.push({
       speaker: 'voice',
       variants: [
@@ -28,10 +31,10 @@ export function takeMetaComments(state: GameState): { state: GameState; lines: L
           when: { flag: 'return_comment' },
           text:
             awayMinutes >= 120
-              ? 'Bir necha soat yoʻq boʻldingiz. Men kutdim. Bu yerda soat hali ham oʻsha.'
-              : 'Yarim soatdan koʻproq kutdim. Qaytdingiz. Bu yerda soat hali ham oʻsha.',
+              ? ui(informal ? 'meta.return_long_sen' : 'meta.return_long')
+              : ui(informal ? 'meta.return_short_sen' : 'meta.return_short'),
         },
-        { text: 'Qaytdingiz. Men kutdim.' },
+        { text: ui('meta.return_fallback') },
       ],
     })
     metaHints.returnCommentFired = true

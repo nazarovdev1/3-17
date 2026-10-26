@@ -1,3 +1,4 @@
+import { ui } from '@/content/text'
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useGame, type Screen } from './gameStore'
 import { TelegramAdapter } from '@/platform/telegram/adapter'
@@ -130,7 +131,7 @@ export function GameShell() {
   if (!bootDone) {
     return (
       <div className="screen">
-        <p className="subtitle">Yuklanmoqda…</p>
+        <p className="subtitle">{ui('common.loading')}</p>
       </div>
     )
   }
@@ -150,7 +151,7 @@ export function GameShell() {
             <MobilePresenter paused={screen === 'paused'} />
           ) : (
             <ErrorBoundary label="desktop" onError={fallBack}>
-              <Suspense fallback={<p className="subtitle">Xonadon tayyorlanmoqda…</p>}>
+              <Suspense fallback={<p className="subtitle">{ui('shell.preparing')}</p>}>
                 <DesktopPresenter paused={screen === 'paused'} onFallback={fallBack} />
               </Suspense>
             </ErrorBoundary>
@@ -167,12 +168,12 @@ export function GameShell() {
         <DebugOverlay />
         {fallbackVisible && (
           <button className="realtime-banner" onClick={() => setFallbackVisible(false)}>
-            Tasvir yengil rejimga oʻtdi. Davom etishingiz mumkin.
+            {ui('shell.fallback_notice')}
           </button>
         )}
         {realClock317Visible && (
           <button className="realtime-banner" onClick={dismissRealClock}>
-            Haqiqiy soatingiz 3:17’ni koʻrsatmoqda. Devorda urish bor… yoʻqmi?
+            {ui('shell.real_317')}
           </button>
         )}
       </div>

@@ -1,3 +1,4 @@
+import { ui } from '@/content/text'
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 import { logError } from './errorLog'
 
@@ -33,8 +34,8 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return this.props.label === 'root' ? (
         <div className="error-fallback">
-          <p>Bir narsa buzildi.</p>
-          <button onClick={() => window.location.reload()}>Qaytadan boshlash</button>
+          <p>{ui('shell.error')}</p>
+          <button onClick={() => window.location.reload()}>{ui('shell.error_restart')}</button>
         </div>
       ) : null
     }

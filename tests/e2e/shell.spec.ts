@@ -1,6 +1,10 @@
 import { expect } from '@playwright/test'
 import { test } from './fixtures'
 import { acceptWarning, startNamedRun } from './helpers'
+import { ui } from '../../src/content/text'
+import { story } from '../../src/content/story'
+
+const line = (node: string, index: number) => story.nodes[node]!.lines[index]!.variants.at(-1)!.text
 
 // Collects console.error and pageerror; any of these fails the test (spec 12).
 test.beforeEach(({ page }) => {
@@ -50,7 +54,7 @@ test('boots with a mocked Telegram WebApp object', async ({ page }) => {
 
   // The pre-filled name from initDataUnsafe lands in the rental form.
   await acceptWarning(page)
-  await page.getByRole('button', { name: 'Yangi oʻyin' }).click()
+  await page.getByRole('button', { name: ui('title.new_game') }).click()
   await expect(page.getByText('IJARA ANKETASI')).toBeVisible()
   await expect(page.getByRole('textbox')).toHaveValue('Aziz')
 })
@@ -62,40 +66,43 @@ test('accept warning → title → full flow: form, night 1, save → reload →
   await acceptWarning(page)
   await expect(page.getByRole('heading', { name: '3:17' })).toBeVisible()
 
-  await page.getByRole('button', { name: 'Yangi oʻyin' }).click()
+  await page.getByRole('button', { name: ui('title.new_game') }).click()
   await page.getByRole('textbox').fill('Dilnoza')
-  await page.getByRole('button', { name: 'Imzolash' }).click()
+  await page.getByRole('button', { name: ui('form.sign') }).click()
 
   // Night 1: advance past the opening narration to the hub.
-  await page.getByRole('button', { name: 'Davom etish' }).first().click()
-  await expect(page.getByText(/Xonadon sizniki/)).toBeVisible()
+  await page
+    .getByRole('button', { name: ui('common.continue') })
+    .first()
+    .click()
+  await expect(page.getByText(line('n1_hub', 0))).toBeVisible()
 
   // Inspect the clock (panel button on desktop, shimmering hotspot on mobile).
   await page.getByRole('button', { name: /Devordagi soatga qarash|^Soat$/ }).click()
-  await expect(page.getByText(/Katta devor soati/)).toBeVisible()
+  await expect(page.getByText(line('n1_clock', 0))).toBeVisible()
 
   // Reload: the run must resume at the same node (save → reload → resume).
   await page.reload()
-  await page.getByRole('button', { name: 'Davom etish' }).click() // continue run
-  await expect(page.getByText(/Katta devor soati/)).toBeVisible()
+  await page.getByRole('button', { name: ui('common.continue') }).click() // continue run
+  await expect(page.getByText(line('n1_clock', 0))).toBeVisible()
 })
 
 test('pause menu is reachable and quit returns to title', async ({ page }) => {
   await page.goto('/')
   await startNamedRun(page, 'Dilnoza')
-  await page.getByRole('button', { name: 'Pauza' }).click()
-  await expect(page.getByRole('heading', { name: 'PAUZA', exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Sarlavha ekraniga chiqish' }).click()
-  await expect(page.getByRole('button', { name: 'Yangi oʻyin' })).toBeVisible()
+  await page.getByRole('button', { name: ui('common.pause') }).click()
+  await expect(page.getByRole('heading', { name: ui('pause.title'), exact: true })).toBeVisible()
+  await page.getByRole('button', { name: ui('common.to_menu') }).click()
+  await expect(page.getByRole('button', { name: ui('title.new_game') })).toBeVisible()
 })
 
 test('settings persist across reload', async ({ page }) => {
   await page.goto('/')
   await acceptWarning(page)
-  await page.getByRole('button', { name: 'Sozlamalar' }).click()
+  await page.getByRole('button', { name: ui('common.settings') }).click()
   await page.getByRole('button', { name: /^L$/ }).click()
   await page.reload()
-  await page.getByRole('button', { name: 'Sozlamalar' }).click()
+  await page.getByRole('button', { name: ui('common.settings') }).click()
   await expect(page.getByRole('button', { name: /^L$/ })).toHaveClass(/active/)
 })
 
@@ -103,17 +110,20 @@ test('resizing / rotating does not break layout or state', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
   await acceptWarning(page)
-  await page.getByRole('button', { name: 'Yangi oʻyin' }).click()
+  await page.getByRole('button', { name: ui('title.new_game') }).click()
   await page.getByRole('textbox').fill('Dilnoza')
-  await page.getByRole('button', { name: 'Imzolash' }).click()
-  await page.getByRole('button', { name: 'Davom etish' }).first().click()
-  await expect(page.getByText(/Xonadon sizniki|Soat tungi uchlar/)).toBeVisible()
+  await page.getByRole('button', { name: ui('form.sign') }).click()
+  await page
+    .getByRole('button', { name: ui('common.continue') })
+    .first()
+    .click()
+  await expect(page.getByText(line('n1_hub', 0))).toBeVisible()
 
   await page.setViewportSize({ width: 390, height: 844 })
-  await expect(page.getByText(/Xonadon sizniki|Soat tungi uchlar/)).toBeVisible()
+  await expect(page.getByText(line('n1_hub', 0))).toBeVisible()
 
   await page.setViewportSize({ width: 800, height: 1200 })
-  await expect(page.getByText(/Xonadon sizniki|Soat tungi uchlar/)).toBeVisible()
+  await expect(page.getByText(line('n1_hub', 0))).toBeVisible()
 })
 
 test('window.__game exists only in debug mode', async ({ page }) => {

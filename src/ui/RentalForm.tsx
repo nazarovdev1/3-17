@@ -1,3 +1,4 @@
+import { ui } from '@/content/text'
 import { useState } from 'react'
 import { useGame } from './gameStore'
 import { TelegramAdapter } from '@/platform/telegram/adapter'
@@ -24,29 +25,29 @@ export function RentalForm() {
   return (
     <div className="screen">
       <div className="panel">
-        <h2>IJARA ANKETASI</h2>
+        <h2>{ui('form.title')}</h2>
         <p className="subtitle" style={{ fontSize: 13 }}>
-          Xonadon 47, Chilonzor, Toshkent. Ijarachi: Rustam aka. Toʻldiring va imzolang.
+          {ui('form.intro')}
         </p>
 
         <div className="form-field">
-          <label>Ismingiz</label>
+          <label>{ui('form.name')}</label>
           <input
             type="text"
             value={name}
             maxLength={20}
-            placeholder={telegramName ?? 'Ismingiz'}
+            placeholder={telegramName ?? ui('form.name')}
             onChange={(e) => setName(e.target.value)}
           />
         </div>
 
         <div className="form-field">
-          <label>Yolgʻiz yashaysizmi?</label>
+          <label>{ui('form.alone')}</label>
           <Segmented
             options={[
-              ['ha', 'Ha'],
-              ['yoʻq', 'Yoʻq'],
-              ['hozircha', 'Hozircha'],
+              ['ha', ui('form.alone_ha')],
+              ['yoʻq', ui('form.alone_yoq')],
+              ['hozircha', ui('form.alone_hozircha')],
             ]}
             value={alone}
             onChange={(v) => setAlone(v as Alone)}
@@ -54,13 +55,13 @@ export function RentalForm() {
         </div>
 
         <div className="form-field">
-          <label>Eng koʻp nimadan qoʻrqasiz?</label>
+          <label>{ui('form.fear')}</label>
           <Segmented
             options={[
-              ['qorongʻulik', 'Qorongʻulik'],
-              ['yolgʻizlik', 'Yolgʻizlik'],
-              ['kuzatuv', 'Kimdir kuzatayotgani'],
-              ['unutilish', 'Unutilish'],
+              ['qorongʻulik', ui('form.fear_qorongulik')],
+              ['yolgʻizlik', ui('form.fear_yolgizlik')],
+              ['kuzatuv', ui('form.fear_kuzatuv')],
+              ['unutilish', ui('form.fear_unutilish')],
             ]}
             value={fear}
             onChange={(v) => setFear(v as Fear)}
@@ -68,11 +69,11 @@ export function RentalForm() {
         </div>
 
         <div className="form-field">
-          <label>Uxlaganda eshigingiz…</label>
+          <label>{ui('form.door')}</label>
           <Segmented
             options={[
-              ['ochiq', 'Ochiq'],
-              ['yopiq', 'Yopiq'],
+              ['ochiq', ui('form.door_ochiq')],
+              ['yopiq', ui('form.door_yopiq')],
             ]}
             value={door}
             onChange={(v) => setDoor(v as Door)}
@@ -90,7 +91,7 @@ export function RentalForm() {
             })
           }
         >
-          Imzolash
+          {ui('form.sign')}
         </button>
       </div>
     </div>

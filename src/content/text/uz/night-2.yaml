@@ -1,0 +1,109 @@
+# 2-tun — "Devor"
+# Qoidalar night-1.yaml boshida.
+
+n2_day_start:
+  l1: Kunduzi atigi uch soat uxladingiz, keyin non olgani pastga tushdingiz.
+  l2: Uchinchi qavatda bir eshik ochiq turibdi. Ostonada roʻmol oʻragan kampir qoʻlida bir likopcha halva ushlab turibdi.
+  l3: Voy, bolam, oʻsha qirq yettiga koʻchdingmi? Kel, kel, halva ol, hali issiq. # muhabbat
+  l4: Men Muhabbat opangman. Shu uyda qirq yildan beri turaman, hammani bilaman. # muhabbat
+  l5: Oʻzing qayerdansan? Ota-onang bormi? Yolgʻiz turasanmi? # muhabbat
+  l6: U javobingizni kutib oʻtirmadi, likopchani qoʻlingizga tutqazdi.
+
+n2_muhabbat_talk:
+  l1_yana: Yana nimani soʻramoqchisan? Soʻrayver, uyalma. # muhabbat
+  l1: Nima soʻramoqchisan, bolam? Yuzingdan koʻrinib turibdi. # muhabbat
+  c_ask48: Qirq sakkiz haqida soʻrash
+  c_asksardor: Oldin bu yerda kim turganini soʻrash
+  c_leavetalk: Rahmat aytib, yuqoriga chiqish
+
+n2_ask_48:
+  l1: Qirq sakkiz? Voy, uni gapirma, yigirma yildan beri yopiq turibdi. # muhabbat
+  l2: Ikki ming oltinchi yili muhrlab ketishgan. Eshigida qogʻoz bor edi, keyin u ham yoʻqolib qoldi. # muhabbat
+  l3: Ba’zan kechalari u yoqdan televizor ovozi keladi. Men eshitmaganga olaman, yoshim bir joyga borib qoldi. # muhabbat
+
+n2_ask_sardor:
+  l1: Sendan oldin Sardor degan bola turardi. Qishloqdan kelgan, odobli, kitobga oʻch bola edi. # muhabbat
+  l2: Keyin birdan oʻzgarib, uydan chiqmay qoʻydi. «Qoʻshnim bilan gaplashib oʻtiraman», derdi. # muhabbat
+  l3: Qaysi qoʻshni, desam, kulib qoʻyardi. Qirq sakkizda u paytda ham hech kim yoʻq edi. # muhabbat
+  l4: Onasi qishloqdan kelib-ketib yurdi, eshik oldida soatlab oʻtirib kutardi. Sardor esa ochmasdi. # muhabbat
+  l5: Bir kuni yoʻq boʻlib qoldi. Na koʻrgan bor, na eshitgan. # muhabbat
+
+n2_day_end:
+  l1: Onangga qoʻngʻiroq qilib tur, xoʻpmi? Onalar kutadi. # muhabbat
+  l2: U eshigini yopdi, halva esa qoʻlingizda asta soviy boshladi.
+
+n2_night_hub:
+  l1: Tun. Ishdan qaytganingizda radiator zoʻrgʻa iliq, derazada esa muz gullari ochilgan edi.
+  c_wardrobe: Shkafni ochish
+  c_mirror: Hammomga kirib, oynaga qarash
+  c_bathroom: Vanna ostini qarash
+  c_listen: Devorga quloq solish
+  c_phone: Telefonga qarash
+  c_tea: Choy qoʻyish
+  c_wait317: Kiyimni yechmay yotish
+
+n2_phone:
+  l1: Ekranning yuqorisida «Onam (11)» degan belgi, yana bitta ovozli xabar kelibdi.
+  c_hear: Ovozli xabarni eshitish
+  c_later: Keyinroq eshitaman, deb telefonni qoʻyish
+
+n2_message:
+  l1: 'Bolam, otang soʻrayapti: pul yetyaptimi? Ovqat qilyapsanmi oʻzi? Yetmasa ayt, uyalma.' # onam
+  l2: Bizda qor yogʻdi. Sen tomonda ham yogʻdimi? Issiq kiyin, shamollab qolma. # onam
+  l3: Orqada televizor gapiryapti, choynakning qopqogʻi shiqirlayapti. Uyning ovozi.
+  c_draft: «Yaxshiman, ona» deb yozish
+  c_down: Telefonni teskari qoʻyish
+
+n2_draft:
+  l1: «Yaxshiman, ona. Ishdaman», deb yozdingiz.
+  l2: Aslida ishda emassiz — qorongʻi xonada, kurtkangizni ham yechmay yotibsiz.
+  l3: Barmogʻingiz joʻnatish tugmasi ustida toʻxtab qoldi. Keyin harflarni bittalab oʻchirib chiqdingiz.
+
+n2_tea:
+  l1: Choynak shivillayapti. Gazning koʻk alangasi bu uydagi eng tirik narsa.
+  l2: Issiq piyolani ikki qoʻllab ushladingiz va bir zumga devor oddiy devorga aylandi.
+
+n2_wardrobe:
+  l1: Shkafda uzun, qora palto osilib turibdi. Bu sizning paltongiz emas.
+  l2: 'Orqa taxtasiga tirnab chiziqlar chizilgan: toʻrttasi tik, beshinchisi ustidan. Bunday guruhlar juda koʻp.'
+  l3: Eng oxirgi chiziq yangi, tokchada hali yogʻoch qirindisi turibdi.
+  l4: Palto choʻntagidan buklangan qogʻoz chiqdi.
+  l5: «Bugun yana uch marta taqilladi, javob bermadim. Onam ham qoʻngʻiroq qildi. Unga ham javob bermadim.» # kundalik
+
+n2_mirror:
+  l1: 'Hammom tor: vanna, rakovina va uning ustida oynali javoncha.'
+  l2: Oynada koʻz osti koʻkargan, sochlari yogʻlanib qolgan yuz turibdi. Necha kundan beri shundaysiz?
+  l3: Boshingizni oʻngga burdingiz, oynadagi siz esa bir lahza kech burildi.
+  l4_kuzatuv: Yana burilib koʻrdingiz, bu safar aks oʻz vaqtida burildi. Ortingizdagi eshik esa qiya ochiq edi, holbuki siz uni yopgan edingiz.
+  l4: Yana burilib koʻrdingiz, bu safar aks oʻz vaqtida burildi. Faqat koʻzini sizdan uzmadi.
+
+n2_diary2:
+  l1: Vanna ostida, quvurning orqasida namdan qavargan qogʻoz yotibdi.
+  l2: «Bugun ishga bormadim, kecha ham. Devor ortidagi odam meni tushunadi, boshqalar tushunmaydi.» # kundalik
+
+n2_listen:
+  l1: Qulogʻingizni devorga qoʻydingiz. Gilam ortidagi suvoq muzdek.
+  l2: Avvaliga hech narsa eshitilmadi. Keyin sekin, bir tekis nafas keldi — siz bilan bir vaqtda.
+  l3: Nafasingizni toʻxtatdingiz. Devorning u tomonidagi nafas ham toʻxtadi.
+
+n2_317:
+  l1: '3:17. Muzlatgich yana jim boʻldi.'
+  l2: Bu safar taqillashni kutib yotgan edingiz. Devor uch marta taqilladi.
+  l3_javob: Kecha javob berdingiz. Ovozingiz charchagan ekan. # ovoz
+  l3_urdi: Kecha devorni qattiq urdingiz. Qoʻlingiz ogʻrimadimi? # ovoz
+  l3: Kecha indamadingiz, lekin uxlamadingiz ham. Bilaman. # ovoz
+  l4_ha: Yolgʻiz yashaysiz-a? Men ham. # ovoz
+  l4_hozircha: «Hozircha yolgʻizman», debsiz. Bu «hozircha» qancha davom etadi? # ovoz
+  l4: Yolgʻiz emasman, debsiz. Unda nega hech kimga qoʻngʻiroq qilmaysiz? # ovoz
+
+n2_voice_fear:
+  l1_qorongulik: Qorongʻidan qoʻrqasiz. Men ham qoʻrqardim, keyin koʻnikib ketdim. # ovoz
+  l1_yolgizlik: Yolgʻizlikdan qoʻrqasiz. Endi yolgʻiz emassiz, men borman-ku. # ovoz
+  l1_kuzatuv: Kimdir kuzatayotgandek tuyuladi sizga. Toʻgʻri tuyuladi. # ovoz
+  l1_unutilish: Unutilishdan qoʻrqasiz. Men sizni unutmayman. # ovoz
+  l1: Har kim nimadandir choʻchiydi, siz ham. # ovoz
+  l2: U bularni qayerdan biladi? Anketa Rustam akaning qoʻlida qolgan edi-ku.
+  l3: Ertalab kiyimingiz bilan uygʻondingiz. Telefon koʻkragingizda yotgan ekan.
+
+n2_sleep:
+  l1: Tushlikka yaqin turdingiz. Telefonda yana bitta javobsiz qoʻngʻiroq bor edi.

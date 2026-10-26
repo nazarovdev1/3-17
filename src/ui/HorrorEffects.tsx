@@ -1,3 +1,4 @@
+import { ui } from '@/content/text'
 import { useEffect, useState } from 'react'
 import { onEngineEvents, useGame } from './gameStore'
 import { useSettings } from './settingsStore'
@@ -35,9 +36,9 @@ export function HorrorEffects() {
   }, [])
   if (!active || reduced || screen !== 'game' || node !== active.node) return null
   return (
-    <div className="signal-loss" role="status" aria-label="Xona tasviri buzildi">
+    <div className="signal-loss" role="status" aria-label={ui('shell.glitch_label')}>
       <span>47 / 48</span>
-      <strong>Signal yoʻqoldi</strong>
+      <strong>{ui('shell.glitch_text')}</strong>
       <span>3:17</span>
     </div>
   )

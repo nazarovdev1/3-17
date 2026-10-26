@@ -13,6 +13,7 @@ export default tseslint.config(
       'playwright-report',
       'coverage',
       'tests/screenshots',
+      'audit',
     ],
   },
   js.configs.recommended,

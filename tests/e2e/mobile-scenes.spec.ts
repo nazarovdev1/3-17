@@ -2,6 +2,7 @@ import { expect } from '@playwright/test'
 import { test } from './fixtures'
 import { story } from '../../src/content/story'
 import { startNamedRun } from './helpers'
+import { ui } from '../../src/content/text'
 
 // Scene evidence is written once; the interaction checks run at every viewport.
 test('mobile scenes, hotspot bounds, peephole, hold cancellation, and glyph evidence', async ({
@@ -61,7 +62,7 @@ test('mobile scenes, hotspot bounds, peephole, hold cancellation, and glyph evid
       window as unknown as { __game: { setFlag: (key: string, value: boolean) => void } }
     ).__game.setFlag('listened_n2', false),
   )
-  const listen = page.getByRole('button', { name: 'Devorni tinglash', exact: true })
+  const listen = page.locator('[data-choice-id="listen"]')
   const box = (await listen.boundingBox())!
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
   await page.mouse.down()
@@ -72,16 +73,19 @@ test('mobile scenes, hotspot bounds, peephole, hold cancellation, and glyph evid
   await page.waitForTimeout(800)
   await page.mouse.up()
   await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n2_listen')
-  await page.getByRole('button', { name: 'Pauza' }).click()
-  await expect(page.getByText('PAUZA', { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Davom etish', exact: true }).last().click()
+  await page.getByRole('button', { name: ui('common.pause') }).click()
+  await expect(page.getByText(ui('pause.title'), { exact: true })).toBeVisible()
+  await page
+    .getByRole('button', { name: ui('common.continue'), exact: true })
+    .last()
+    .click()
 
   if (info.project.name === 'small-android') {
     await page.evaluate(() => {
       const samples = document.createElement('div')
       samples.style.cssText =
         'position:fixed;inset:0;z-index:20000;background:#141a22;padding:24px;color:#cfc6b0'
-      for (const family of ['IBM Plex Mono', 'Oswald']) {
+      for (const family of ['Literata', 'Inter']) {
         const line = document.createElement('p')
         line.style.cssText = `font: 26px "${family}";line-height:2`
         line.textContent = `${family}: Qoʻshni · gʻalati · ma’no · e’tibor`

@@ -53,3 +53,29 @@ Android phones"), recorded here.
     night messages cannot read the client save (localStorage/CloudStorage stay on the device),
     so it would need an opt-in setting that sends the Telegram user id and the saved
     `GameState.lastPlayedAt` to that backend; the save already records that timestamp.
+
+## Fix phases (FIX_PROMPT.md overrides PROMPT.md where they conflict)
+
+15. **Text in YAML, compiled to JSON.** The owner edits `src/content/text/uz/*.yaml`;
+    `npm run text:build` compiles them to `src/content/text/uz.gen.json` (committed) and
+    regenerates `SCRIPT_UZ.md`. JSON (not a YAML loader) because the same story module is
+    imported by Vite, Vitest, tsx scripts and Playwright specs; JSON imports work in all four.
+    `text:build` runs first in `npm run check`, before `dev` and before `build`, and
+    `lint:text` fails if the generated files are stale. Generated files and the YAML are in
+    `.prettierignore`, so the owner's formatting never fails the check.
+16. **Story structure stays in TypeScript, text keys are per node.** Lines are `l1, l2…`,
+    conditional variants `l3_<reason>`, choice labels `c_<choiceId>`. Missing keys render as
+    `⟦file/node.key⟧` instead of crashing; `validate:story` and `lint:text` fail on missing and
+    unused keys. UI strings are flat dotted keys in `ui.yaml`, read with `ui('a.b')`.
+17. **Tests route by choice id, never by label.** `tests/routes.ts` holds one route per
+    ending; presenters expose `data-choice-id`; E2E specs read UI labels through `ui()`. The
+    owner can rewrite any Uzbek line without breaking a test.
+18. **Mother's messages are inventory items `mom_msg_1…5`.** Ending C reuses the existing
+    `itemCountGte` condition (`ENDING_C_CONDITION` in `content/story/features.ts`). A message
+    left unheard is lost when the night moves on — that loss is the point.
+19. **Content root is `src/content/text/uz`, not `content/text/uz`.** FIX_PROMPT names
+    `content/…`; PROMPT.md's architecture keeps content under `src/content/`. Kept the
+    existing root so the import alias and build stay unchanged.
+20. **Fonts: Literata (narration) and Inter (UI)**, owner's choice. Both latin subsets carry
+    ʻ U+02BB and ’ U+2019 (`scripts/verify-fonts.mjs` reads the cmap). IBM Plex Mono and
+    Oswald were removed. Narration is 17/18/21 px for text size S/M/L.

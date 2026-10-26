@@ -1,3 +1,4 @@
+import { ui } from '@/content/text'
 import { useEffect, useState } from 'react'
 
 /**
@@ -36,10 +37,10 @@ export function ChatOverlay({
           {text}
         </div>
       ))}
-      {typing && <div className="chat-typing">yozmoqda…</div>}
+      {typing && <div className="chat-typing">{ui('mobile.typing')}</div>}
       {typing && (
         <button className="chat-reveal" onClick={() => setShown(messages.length)}>
-          Matnni ochish
+          {ui('mobile.reveal')}
         </button>
       )}
     </div>

@@ -1,3 +1,4 @@
+import { ui } from '@/content/text'
 import { useGame } from './gameStore'
 import { visibleChoices } from '@/core/engine'
 import { NarrationText } from './NarrationText'
@@ -39,7 +40,7 @@ export function GameScreen({ paused }: { paused: boolean }) {
               advance()
             }}
           >
-            Davom etish
+            {ui('common.continue')}
           </button>
         </div>
       )}
@@ -68,14 +69,14 @@ export function GameScreen({ paused }: { paused: boolean }) {
               setScreen('ending')
             }}
           >
-            Davom etish
+            {ui('common.continue')}
           </button>
         </div>
       )}
 
       <button
         className="pause-button"
-        aria-label="Pauza"
+        aria-label={ui('common.pause')}
         style={{ width: 'auto', position: 'absolute', top: 8, right: 8, padding: '4px 10px' }}
         onClick={(e) => {
           stop(e)
@@ -111,11 +112,11 @@ export function PauseMenu({
       style={{ position: 'absolute', background: 'rgba(11,11,12,0.94)', zIndex: 100 }}
     >
       <div className="panel">
-        <h2>PAUZA</h2>
+        <h2>{ui('pause.title')}</h2>
         <div className="menu" style={{ width: '100%' }}>
-          <button onClick={onResume}>Davom etish</button>
-          <button onClick={onSettings}>Sozlamalar</button>
-          <button onClick={onQuit}>Sarlavha ekraniga chiqish</button>
+          <button onClick={onResume}>{ui('common.continue')}</button>
+          <button onClick={onSettings}>{ui('common.settings')}</button>
+          <button onClick={onQuit}>{ui('common.to_menu')}</button>
         </div>
       </div>
     </div>

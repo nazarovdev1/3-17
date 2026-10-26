@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-10-26T17:07:15.781Z",
+        "reason": "user confirmed: owner chose 'Literata for narration, Inter for UI' in the F1 instructions"
+      }
+    ]
+  }
+}

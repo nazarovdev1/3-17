@@ -5,7 +5,9 @@
   --green: #9fbf8f;
   --paper: #cfc6b0;
   --danger: #8e1f1f;
-  --font-body: 'IBM Plex Mono', monospace;
+  --font-ui: 'Inter', system-ui, sans-serif;
+  --font-story: 'Literata', Georgia, serif;
+  --font-body: var(--font-ui);
 }
 
 * {
@@ -59,9 +61,10 @@ button:disabled {
 }
 
 .screen .title {
-  font-family: 'Oswald', sans-serif;
+  font-family: var(--font-story);
+  font-weight: 600;
   font-size: 64px;
-  letter-spacing: 8px;
+  letter-spacing: 4px;
   color: var(--orange);
   margin: 0;
   text-shadow: 0 0 18px rgba(217, 138, 43, 0.4);
@@ -150,14 +153,15 @@ input[type='range'] {
 }
 
 .narration {
+  font-family: var(--font-story);
   padding: 16px;
   max-width: 640px;
   margin: 0 auto;
 }
 
 .narration .line {
-  margin: 0 0 12px;
-  line-height: 1.55;
+  margin: 0 0 14px;
+  line-height: 1.6;
   white-space: pre-wrap;
 }
 
@@ -176,6 +180,10 @@ input[type='range'] {
 .narration .speaker-landlord,
 .narration .speaker-muhabbat {
   color: #a8b6c4;
+}
+
+.narration .speaker-mother {
+  color: #d9c7a3;
 }
 
 .narration .speaker-diary {
@@ -240,19 +248,29 @@ input[type='range'] {
   text-align: center;
 }
 
-.text-s .narration .line,
-.text-s .subtitle {
-  font-size: 13px;
+/* Narration never goes below 17 px (FIX_PROMPT 2). */
+.text-s .narration .line {
+  font-size: 17px;
 }
 
-.text-m .narration .line,
+.text-m .narration .line {
+  font-size: 18px;
+}
+
+.text-l .narration .line {
+  font-size: 21px;
+}
+
+.text-s .subtitle {
+  font-size: 15px;
+}
+
 .text-m .subtitle {
   font-size: 16px;
 }
 
-.text-l .narration .line,
 .text-l .subtitle {
-  font-size: 19px;
+  font-size: 18px;
 }
 
 .phones {

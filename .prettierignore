@@ -6,3 +6,7 @@ playwright-report
 coverage
 package-lock.json
 tests/screenshots
+src/content/text/uz.gen.json
+SCRIPT_UZ.md
+src/content/text/uz/*.yaml
+.impeccable/hook.cache.json

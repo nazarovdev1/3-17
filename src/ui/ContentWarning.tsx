@@ -1,3 +1,4 @@
+import { ui } from '@/content/text'
 import { useState } from 'react'
 import { useGame } from './gameStore'
 import { useSettings } from './settingsStore'
@@ -11,14 +12,11 @@ export function ContentWarning() {
   return (
     <div className="screen">
       <div className="panel">
-        <h2>OGOHLANTIRISH</h2>
-        <p className="subtitle">
-          Bu psixologik qoʻrqinchli oʻyin. Unda yorugʻlik miltillashi, toʻsatdan tovushlar va
-          bezovta qiluvchi mavzular bor. Qon va zoʻravonlik yoʻq.
-        </p>
-        <p className="subtitle">Quloqchinlar bilan oʻynash tavsiya etiladi.</p>
+        <h2>{ui('warning.title')}</h2>
+        <p className="subtitle">{ui('warning.body')}</p>
+        <p className="subtitle">{ui('warning.headphones')}</p>
         <label className="row">
-          <span>Miltillashni kamaytirish</span>
+          <span>{ui('warning.reduce_flashing')}</span>
           <input
             type="checkbox"
             checked={reduceFlashing}
@@ -26,7 +24,7 @@ export function ContentWarning() {
           />
         </label>
         <label className="row">
-          <span>Buni oʻqidim, davom etaman</span>
+          <span>{ui('warning.confirm')}</span>
           <input
             type="checkbox"
             checked={confirmed}
@@ -34,7 +32,7 @@ export function ContentWarning() {
           />
         </label>
         <button disabled={!confirmed} onClick={accept}>
-          Davom etish
+          {ui('common.continue')}
         </button>
       </div>
     </div>

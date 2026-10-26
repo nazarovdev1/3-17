@@ -1,0 +1,75 @@
+# 5-tun — "3:17"
+# Qoidalar night-1.yaml boshida. Bu tunda ovoz oʻyinchining oʻz soʻzlarini qaytaradi.
+
+n5_start:
+  l1: Bugun koʻchaga chiqmadingiz. Kecha ham, undan oldingi kun ham chiqmagandingiz, shekilli.
+  l2_kirgan: Qirq sakkizning eshigi endi yopilmaydi, ochiq tirqishdan dahlizga sovuq oqib kiryapti.
+  l2: Maydonchadan sovuq kiryapti. Qirq sakkizning eshigi qiya ochiq qolgan boʻlsa kerak.
+
+n5_hub:
+  l1: Soat devorda, millari qimirlamaydi. Muzlatgich esa gʻuvillab turibdi.
+  c_clock: Soatni devordan olish
+  c_chain: Eshik zanjirini ushlab koʻrish
+  c_carpet: Soat osilgan joyni koʻrish
+  c_phone: Telefonga qarash
+  c_leave_early: Hoziroq kiyinib, uydan chiqib ketish
+  c_tea: Oxirgi marta choy qoʻyish
+  c_stay: Shu yerda qolib, kutish
+
+n5_phone:
+  l1: «Onam» — 52. Oxirgi qoʻngʻiroq bir soat oldin boʻlgan, yangi ovozli xabar ham kelibdi.
+  c_hear: Ovozli xabarni eshitish
+  c_later: Keyinroq eshitaman, deb telefonni qoʻyish
+
+n5_message:
+  l1: Bolam, endi koʻp qoʻngʻiroq qilmayman, bezor qilmay. # onam
+  l2: 'Faqat bilib qoʻy: eshigimiz ochiq. Kelsang ham, kelmasang ham, qachon boʻlsa ham.' # onam
+  l3: Xabar tugadi, siz esa telefonni ancha vaqtgacha qoʻlingizdan qoʻymadingiz.
+
+n5_tea:
+  l1_tugun: Oxirgi marta choy qoʻydingiz va somsaning qolganini isitdingiz.
+  l1: Oxirgi marta choy qoʻydingiz. Choynak shivillab, oshxona biroz iliqlashdi.
+  l2: Bir piyola choy ichguncha hech narsa boʻlmadi. Shuning oʻzi koʻp edi.
+
+n5_clock:
+  l1: Soatni devordan oldingiz. U ogʻir, qopqogʻi ostida changli mexanizm koʻrinadi.
+  l2: Prujinasi boʻshab qolgan, yon tomonida esa kichkina kalit teshigi bor.
+  l3: Kalit Rustam aka bergan dastada ekan — kichkina, mis. Shu paytgacha u nima uchunligini bilmagandingiz.
+
+n5_chain:
+  l1: Zanjirni ushladingiz. Har kecha uni taqib yotgansiz.
+  l2_ochiq: Anketada «eshigim ochiq» deb yozgan edingiz, lekin bu yerda uni bir marta ham ochiq qoldirmadingiz.
+  l2: Anketada «eshigim yopiq» deb yozgan edingiz. Toʻgʻri yozgan ekansiz.
+  l3: Koʻchaga chiqish uchun bitta harakat yetadi.
+
+n5_diary7:
+  l1: Soat osilgan joyda devor qogʻozi koʻchib turibdi, ortida esa buklangan qogʻoz.
+  l2: '«Soatni burash kerak edi. Men qoʻrqdim: soat yursa, men ham yurishim kerak boʻladi.»' # kundalik
+  l3: «Uyga, onamning oldiga, odamlar orasiga. Sen burab koʻr. Mening ismim Sardor edi, uni kimdir eslab qolsin.» # kundalik
+
+n5_316:
+  l1: '3:16. Roʻparadagi derazalar yana birin-ketin oʻchyapti.'
+  l2: Toʻrtinchi qavat eng oxirida oʻchdi. U yerda kimdir telefon ushlab turgan edi, ekranning yorugʻi uning yuziga tushib turardi.
+
+n5_317:
+  l1: '3:17. Xonadagi chiroq, muzlatgich, koʻcha chirogʻi — hammasi bir vaqtda oʻchdi.'
+  l2: Telefon ekrani ham qorayib qoldi, holbuki quvvati toʻla edi.
+  l3: Keyin devordan uch marta taqillash eshitildi — sekin, deyarli mehr bilan.
+
+n5_voice_final:
+  l1_qoralama: «Yaxshiman, ona. Ishdaman». Yozganding, lekin joʻnatmading. Men ham shunday yozardim. # ovoz
+  l1_javob: «Yoʻq, uxlayapman». Birinchi kechasi shunday deganding. Hali ham uxlamayapsan. # ovoz
+  l1: Birinchi kechasi sen indamading. Men jimligingni ham eslab qoldim. # ovoz
+  l2_sardor: «Sardormisan?» deb soʻraganding. Sardor shu yerda, men ham shu yerdaman. Sen ham kelasan. # ovoz
+  l2_qayerdan: «Bu gaplarni qayerdan bilasan?» deganding. Endi bilasan. # ovoz
+  l2: '{name}. Ismingni hamma unutadi, men esa unutmayman.' # ovoz
+  l3: Eshikni och. Bu yerda seni hech kim qoʻngʻiroq bilan bezor qilmaydi. # ovoz
+
+n5_final_choice:
+  l1: Qirq sakkiz devor ortida, uning eshigi maydonchada ochiq turibdi.
+  l2: Kirish eshigi dahliz oxirida. Undan keyin zinapoya, hovli va koʻcha.
+  l3_soat: Soat qoʻlingizda. Mis kalit uning teshigiga mos keladi.
+  l3: Soat devorda, millari qimirlamaydi.
+  c_open48: Eshikni ochib, qirq sakkizga kirish
+  c_leave: Zanjirni yechib, uydan chiqib ketish
+  c_wind: Soatni burash

@@ -1,3 +1,4 @@
+import { ui } from '@/content/text'
 import { useEffect, useRef } from 'react'
 import { drawVignette, VIGNETTE_H, VIGNETTE_W } from './vignettes'
 import type { EndingId } from '@/core/state/types'
@@ -22,7 +23,7 @@ export function EndingVignette({ ending }: { ending: EndingId }) {
       ref={canvas}
       width={VIGNETTE_W}
       height={VIGNETTE_H}
-      aria-label="Yakun manzarasi"
+      aria-label={ui('mobile.ending_label')}
     />
   )
 }

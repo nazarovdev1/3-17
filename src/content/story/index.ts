@@ -4,6 +4,7 @@ import { night2Nodes } from './night2'
 import { night3Nodes } from './night3'
 import { night4Nodes } from './night4'
 import { night5Nodes } from './night5'
+import { endingNodes } from './endings'
 
 function toRecord(nodes: StoryNode[]): Record<string, StoryNode> {
   const record: Record<string, StoryNode> = {}
@@ -11,7 +12,14 @@ function toRecord(nodes: StoryNode[]): Record<string, StoryNode> {
   return record
 }
 
-const allNodes = [...night1Nodes, ...night2Nodes, ...night3Nodes, ...night4Nodes, ...night5Nodes]
+const allNodes = [
+  ...night1Nodes,
+  ...night2Nodes,
+  ...night3Nodes,
+  ...night4Nodes,
+  ...night5Nodes,
+  ...endingNodes,
+]
 
 export const story: Story = {
   start: 'n1_start',

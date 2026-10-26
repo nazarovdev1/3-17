@@ -1,0 +1,32 @@
+# Yakunlar. Qoidalar night-1.yaml boshida.
+
+endA:
+  l1: Maydonchaga chiqdingiz. Qirq sakkizning eshigi sizni kutib turgan edi.
+  l2: Ichkarida chang, sovuq va sizning stulingiz. Siz oʻtirdingiz.
+  l3: Devor ortida, qirq yettida telefoningiz titrab yotardi. Keyin u ham titrashdan toʻxtadi.
+  l4: Bahorda qirq yettiga yangi ijarachi koʻchib keldi — yosh, yolgʻiz, qoʻlida bitta sumka.
+  l5: Birinchi kechasi uning stoli ustida telefon yorishdi. Ekranda «Onam», lekin u olmadi.
+  l6: Soat 3:17 boʻlganda siz devorni uch marta taqillatdingiz.
+  l7: Qoʻshni… uxlamayapsizmi? # ovoz (endi siz)
+  l8: Endi bu ovoz sizniki, {name}.
+
+endB:
+  l1: 'Zanjirni yechib, zinapoyadan pastga tushdingiz: toʻrtinchi qavat, uchinchi.'
+  l2: Muhabbat opaning eshigi ostidan yorugʻ tushib turibdi — u ham uxlamagan ekan. Siz toʻxtamadingiz.
+  l3: Hovlida qor yogʻyapti. Sariq chiroq ostida nafasingiz bugʻ boʻlib koʻtariladi.
+  l4: Koʻkragingizni toʻldirib havo oldingiz. Sovuq havo oʻpkangizni achitdi, lekin bu yaxshi achishish edi.
+  l5: Bekatda birinchi avtobus turibdi, haydovchi sizga qaramay eshikni ochdi.
+  l6: Choʻntagingizda telefon titradi. Ekranda «Onam» degan yozuv.
+  l7: Siz unga uzoq qarab turdingiz, keyin telefonni choʻntagingizga solib qoʻydingiz.
+  l8: Avtobus joyidan qoʻzgʻaldi, telefon esa yana titray boshladi.
+  l9: Derazaga qaradingiz. Qorongʻi oynada oʻsha charchagan yuz.
+
+endC:
+  l1: Mis kalitni soatning teshigiga solib buradingiz. Prujina gʻijirlab ketdi.
+  l2: Soat chiqillay boshladi. Tik. Tik.
+  l3: Uzun mil qimirladi. Soat endi 3:18.
+  l4: Devor jim. Uch marta taqillashini kutdingiz, lekin taqillamadi.
+  l5: Ovoz chiqarib «Sardor», dedingiz. Kimdir eslab qolsin, degan edi u.
+  l6: Muzlatgich gʻuvillab ishga tushdi, tok qaytdi, telefon ekrani yorishdi.
+  l7: Siz «Onam» degan yozuvni bosdingiz. Bir gudok. Ikki.
+  l8: Alo… bolam? # onam

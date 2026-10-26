@@ -1,0 +1,63 @@
+import { build, say } from './build'
+
+/** The three endings (FIX_PROMPT 6.2). Ending cards and gallery text live in ui.yaml. */
+export const endingNodes = build('endings', [
+  {
+    id: 'endA',
+    night: 5,
+    location: 'flat48',
+    ending: 'A',
+    checkpoint: true,
+    desktop: { trigger: 'scripted', eventId: 'ending_a' },
+    mobile: { vignette: 'ending_a' },
+    lines: [
+      say('narrator', 'l1'),
+      say('narrator', 'l2'),
+      say('narrator', 'l3'),
+      say('narrator', 'l4'),
+      say('narrator', 'l5'),
+      say('narrator', 'l6'),
+      say('voice', 'l7'),
+      say('narrator', 'l8'),
+    ],
+  },
+  {
+    id: 'endB',
+    night: 5,
+    location: 'stairwell',
+    ending: 'B',
+    checkpoint: true,
+    desktop: { trigger: 'scripted', eventId: 'ending_b' },
+    mobile: { vignette: 'ending_b' },
+    lines: [
+      say('narrator', 'l1'),
+      say('narrator', 'l2'),
+      say('narrator', 'l3'),
+      say('narrator', 'l4'),
+      say('narrator', 'l5'),
+      say('narrator', 'l6'),
+      say('narrator', 'l7'),
+      say('narrator', 'l8'),
+      say('narrator', 'l9'),
+    ],
+  },
+  {
+    id: 'endC',
+    night: 5,
+    location: 'room',
+    ending: 'C',
+    checkpoint: true,
+    desktop: { trigger: 'scripted', eventId: 'ending_c' },
+    mobile: { vignette: 'ending_c' },
+    lines: [
+      say('narrator', 'l1'),
+      say('narrator', 'l2'),
+      say('narrator', 'l3'),
+      say('narrator', 'l4'),
+      say('narrator', 'l5'),
+      say('narrator', 'l6'),
+      say('narrator', 'l7'),
+      say('mother', 'l8'),
+    ],
+  },
+])

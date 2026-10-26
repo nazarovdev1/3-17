@@ -13,6 +13,51 @@ Honest, phase-by-phase record. A phase is only marked done when every check ran 
 - [x] Phase 8 — Full QA
 - [x] Phase 9 — Release docs
 
+Fix phases (FIX_PROMPT.md):
+
+- [x] F0 — Audit and plan (`AUDIT.md`), approved by the owner
+- [x] F1 — Story and language (waiting for the owner's review of `SCRIPT_UZ.md`)
+- [ ] F2 — Asset pipeline
+- [ ] F3 — Desktop flat rebuild
+- [ ] F4 — Desktop horror
+- [ ] F5 — Audio
+- [ ] F6 — Mobile
+- [ ] F7 — Fear pass
+- [ ] F8 — Full QA
+
+## F1 — Story and language
+
+Done:
+
+- `docs/fear-design.md`: core theme, phone escalation table (3 → 11 → 24 → 40 → 52 missed
+  calls, one voice message per night), tension curve and events per night, unobserved changes.
+- Story rewritten around the new core: a young person alone in Tashkent, the mother's calls
+  and voice messages, the reply typed and deleted, days blurring, a diary page in the player's
+  own handwriting. The voice: _siz_ (N1–2) → _sen_ without comment (N3) → the mother's words
+  (N4, including messages the player never heard) → the player's own words (N5).
+- Endings rewritten (FIX_PROMPT 6.2). Ending C now also needs all 5 messages heard.
+- 89 nodes (17/17/18/22/12 per night + 3 endings), validator green.
+- All Uzbek text in `src/content/text/uz/night-1…5.yaml`, `endings.yaml`, `ui.yaml`; every UI
+  string in the shell and presenters reads from `ui.yaml` (no hard-coded Uzbek left in `src/`
+  except the debug text presenter's heading).
+- `npm run text:build` → `uz.gen.json` + `SCRIPT_UZ.md`; `npm run lint:text` (Cyrillic,
+  English words, wrong apostrophes, forbidden clichés, sentences > 25 words, 4-word phrase
+  repeated > 2 times, missing/unused keys, stale generated files) — both in `npm run check`.
+- Fonts: Literata (narration, 17–21 px) + Inter (UI). Glyphs ʻ and ’ verified in the cmap and
+  in screenshots (`audit/screenshots/f1/`).
+- New unit tests: real-story playthroughs to A/B/C by choice id, exact Ending C requirements,
+  C hidden when a message is skipped or the voice answered on night 3, the voice speaking the
+  mother's words, siz → sen arc; text-lint rules; YAML key completeness.
+- E2E playthroughs (text, desktop, mobile, debug API) now route by `data-choice-id` through
+  the shared `tests/routes.ts`; UI labels come from `ui()`.
+
+Not changed in F1 (later phases): desktop/mobile visuals, audio, the phone object in 3D
+(the phone is a HUD/panel choice until F4).
+
+Language notes for the owner: average sentence ≈ 5 words by `.!?` (short horror prose with
+longer sentences mixed in); the text is mine, not machine-translated, but it still needs a
+native speaker's read — that is the F1 review.
+
 ## Phase 0 — Scaffold
 
 Done:

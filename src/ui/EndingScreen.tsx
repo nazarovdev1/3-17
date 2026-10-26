@@ -1,18 +1,7 @@
+import { ui } from '@/content/text'
 import { useGame } from './gameStore'
 import { EndingVignette } from '@/presenters/mobile/EndingVignette'
 import { NarrationText } from './NarrationText'
-
-const ENDING_TITLES: Record<string, string> = {
-  A: 'Qoʻshni',
-  B: 'Ketish',
-  C: '3:18',
-}
-
-const ENDING_TEXT: Record<string, string> = {
-  A: 'Siz eshikni ochdingiz. Xonadon 48 endi sizniki. Keyingi ijarachi kelganda, devor ichidan ovoz sizniki boʻladi.',
-  B: 'Siz uydan chiqdingiz. Qor, havo, erkinlik. Faqat bitta oyna hali yonadi — sizniki. Uy kutayotgani toʻxtamadi.',
-  C: 'Siz toʻxtagan soatni oʻradingiz. 3:18. Urish toʻxtadi. Ovoz bir ismni eslab qoldi: Sardor. Halq uzildi.',
-}
 
 /** Ending card (spec 4.3/5.4): names the ending, offers gallery / title. */
 export function EndingScreen() {
@@ -22,7 +11,7 @@ export function EndingScreen() {
   const setScreen = useGame((s) => s.setScreen)
 
   if (!card) return null
-  const title = ENDING_TITLES[card.id] ?? card.id
+  const title = ui(`endings.${card.id}.title`)
 
   return (
     <div className="screen ending-screen">
@@ -34,10 +23,10 @@ export function EndingScreen() {
         {run ? (
           <NarrationText key={card.nodeId} state={run} />
         ) : (
-          <p className="subtitle">{ENDING_TEXT[card.id]}</p>
+          <p className="subtitle">{ui(`endings.${card.id}.summary`)}</p>
         )}
       </div>
-      <p className="ending-scroll-hint">Matnni pastga surib oʻqing.</p>
+      <p className="ending-scroll-hint">{ui('ending.scroll_hint')}</p>
       <div className="menu">
         <button
           onClick={() => {
@@ -45,9 +34,9 @@ export function EndingScreen() {
             setScreen('gallery')
           }}
         >
-          Tugamlar galereyasi
+          {ui('ending.gallery')}
         </button>
-        <button onClick={finish}>Sarlavha ekraniga</button>
+        <button onClick={finish}>{ui('common.to_menu')}</button>
       </div>
     </div>
   )

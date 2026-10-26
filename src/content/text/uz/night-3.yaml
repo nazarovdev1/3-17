@@ -1,0 +1,106 @@
+# 3-tun — "Takror"
+# Qoidalar night-1.yaml boshida. Bu tundan ovoz «sen» deb gapiradi — izohsiz.
+
+n3_start:
+  l1: Telefonda seshanba deb turibdi, siz esa bugun dushanba deb yurgan edingiz.
+  l2: Ishxonadan xabar keldi — «Bugun ham kelmaysizmi?» Kecha ishga borgandingiz-ku. Yoki bormagan edingizmi?
+  l3: Shu payt telefon jiringladi. Ekranda «Rustam aka». Siz birinchi signaldayoq oldingiz.
+  l4: Alo, hammasi joyidami? Muhabbat opa sizga nimadir dedimi? U kishi koʻp gapiradi. # rustam
+  l5: Ijarani beshinchigacha bersangiz boʻldi. Xayr. # rustam
+  l6: Suhbat oʻn olti soniya davom etdi. Ekranda uning ostida hamon «Onam — 24 ta javobsiz» degan yozuv turardi.
+
+n3_hub:
+  l1: Xona tanish, juda tanish. Har bir dogʻini yoddan bilasiz.
+  c_kitchen: Oshxonadagi non qutisini ochish
+  c_corridor: Dahlizga chiqish
+  c_tv: Televizorni qayta yoqish
+  c_carpet: Gilamning chetini koʻtarish
+  c_phone: Telefonga qarash
+  c_tea: Choy qoʻyish
+  c_wait: Divanga choʻzilish
+
+n3_phone:
+  l1: Yangi ovozli xabar. Yuboruvchi — «Onam».
+  c_hear: Ovozli xabarni eshitish
+  c_later: Keyinroq eshitaman, deb telefonni qoʻyish
+
+n3_message:
+  l1: Bolam, nega telefonni olmayapsan? # onam
+  l2: Kecha tushimda koʻrdim seni. Kichkina ekansan, qorda yalangoyoq turgan ekansan. # onam
+  l3: Bir ogʻiz «yaxshiman» deb yoz, boshqa hech narsa kerakmas. # onam
+  l4: Xabar tugadi. Ekran oʻchdi va xona yana qorongʻilikka choʻmdi.
+
+n3_tea:
+  l1: Issiq piyola qoʻlingizda. Hozir bu yerdagi eng haqiqiy narsa shu.
+  l2: Choy tugaguncha hech narsani oʻylamadingiz.
+
+n3_kitchen:
+  l1: Non qutisi boʻm-boʻsh, faqat tubida buklangan qogʻoz yotibdi.
+  l2: «U mening gaplarimni qaytaryapti. Men aytgan gaplarni — lekin men ularni unga aytmaganman.» # kundalik
+
+n3_corridor_loop:
+  l1: 'Dahliz: chapda oshxona, oʻngda hammom, oxirida kirish eshigi. Hammasi besh qadam.'
+  l2: Eshik tomon yurdingiz. Oʻn qadam, oʻn besh qadam.
+  l3: Eshik esa hamon oʻsha masofada turibdi.
+  l4_charchoq: Devor qogʻozidagi gullar takrorlanyapti — oʻsha dogʻ, oʻsha yirtiq, yana va yana.
+  l4: Ortingizdagi xona eshigi ham uzoqlashib qolibdi.
+  c_keep: Yugurib ketish
+  c_stop: Toʻxtab, orqaga qarash
+
+n3_corridor_run:
+  l1: Yugurdingiz, lekin shippaklaringiz polda shapillamadi. Hech qanday tovush yoʻq edi.
+  l2: Bir payt qoʻlingiz eshik tutqichiga tegdi. Eshikda raqam yoʻq, faqat burama mixlarning izi qolgan.
+  l3: Koʻzingizni yumib ochdingiz va xonada, divan oldida turganingizni koʻrdingiz.
+
+n3_corridor_stop:
+  l1: Toʻxtab, orqangizga qaradingiz.
+  l2: Dahliz odatdagidek kalta, xona eshigi ikki qadamda turibdi.
+  l3: Faqat bitta pol taxtasi koʻtarilib qolibdi. Oldin bunday emas edi.
+
+n3_room_return:
+  l1: Xonaga qaytdingiz. Hammasi joyida. Deyarli.
+  l2: 'Soat boshqa devorda osilib turibdi. Eski joyida devor qogʻozi ochroq: toʻrtburchak iz qolgan.'
+  c_shifted_clock: Soatni yaqindan koʻrish
+
+n3_tv:
+  l1: Televizorni yoqdingiz. Bu safar shitirlash oʻrniga tasvir chiqdi.
+  l2: Ekranda shu xona, tepadagi burchakdan olingan. Divanda kimdir sizga orqasi bilan oʻtiribdi.
+  l3: Tasvirdagi odam asta boshini bura boshladi.
+  l4: Oʻchirdingiz. Qora ekranda xona aks etdi — divan boʻsh, siz esa tik turibsiz.
+
+n3_diary4:
+  l1: Gilamning chetini koʻtardingiz, ostidan buklangan qogʻoz chiqdi.
+  l2: Xat tanish, juda tanish. Bu sizning xatingiz.
+  l3: «Onamga qoʻngʻiroq qilish kerak. Ertaga. Ertaga albatta.» # kundalik (sizning xatingiz)
+  l4: Buni qachon yozganingizni eslay olmaysiz, qogʻoz esa allaqachon sargʻayib ketgan.
+
+n3_317:
+  l1: '3:17. Tok oʻchdi, uy jimib qoldi.'
+  l2: Bu safar taqillash boʻlmadi. Faqat devor ortida kimdir yoʻtalib qoʻydi.
+  l3: Keyin juda yaqindan ovoz keldi.
+
+n3_voice_repeat:
+  l1_javob: «Yoʻq, uxlayapman». Esingdami? Men ham birinchi kechasi shunday degandim. # ovoz
+  l1_sukut: Birinchi kechasi men ham nafasimni ichimga yutib yotgandim. Qimirlamasang, koʻrishmaydi, deb oʻylagandim. # ovoz
+  l1: Birinchi kechasi men ham devorni musht bilan urgandim. Barmoqlarim achishib ketgandi. # ovoz
+  l2_sardor: Muhabbat opa senga Sardor haqida gapirib berdi-a? Bilaman, hamma shuni gapiradi. # ovoz
+  l2: Muhabbat opa senga halva berdi-a? Menga ham bergan edi. Issiqqina edi. # ovoz
+
+n3_voice_echo:
+  l1_ertaga: «Ertaga», deysan. Men ham doim «ertaga» derdim. # ovoz
+  l1: Sen menga oʻxshab qolyapsan. Men ham boshida buni sezmagandim. # ovoz
+  c_answer: «Sen kimsan?» deb soʻrash
+  c_silent: Indamaslik
+
+n3_answered:
+  l1: Sen… kimsan? # siz
+  l2: Qoʻshningman. Devorning u tomonidagi qoʻshning. # ovoz
+  l3: Yaqinda sen ham kimgadir qoʻshni boʻlasan. # ovoz
+
+n3_silent:
+  l1: Indamadingiz. Tizzalaringizni quchoqlab, tong otguncha oʻtirdingiz.
+  l2: Mayli, gaplashmasak ham boʻladi. Men shu yerdaman. # ovoz
+  l3: Ertalab devorga kaftingizni qoʻydingiz. Devor iliq edi, holbuki qirq sakkizda isitish yoʻq.
+
+n3_sleep:
+  l1: Kun qanday oʻtganini eslay olmaysiz. Derazaga qarasangiz, tashqari yana qorongʻi.

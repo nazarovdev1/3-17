@@ -1,42 +1,16 @@
 import { expect, type Page } from '@playwright/test'
 import { test } from './fixtures'
 import { startNamedRun } from './helpers'
+import { ui } from '../../src/content/text'
+import { story } from '../../src/content/story'
+import { pickChoice, type EndingTarget } from '../routes'
 
-const preferences = [
-  /choy/i,
-  /Sahifa|qogʻoz|daftar|varag|Gilam|shkafini/,
-  /Kozachokka/,
-  /48-xonadonga/,
-  /kalendarg/,
-  /Stuldagi/,
-  /Chuqurroq/,
-  /Dahliga chiqish/,
-  /Hammomni/,
-  /oynaga qarash/,
-  /Oshxonaga borish/,
-  /Soatni diqqat/,
-  /Soat ostidagi/,
-  /Javob bermaslik|umuman javob|Jim/,
-  /Toʻxtab/,
-  /Uxlash|Toʻshak|Qolish|3:17/,
-  /Davom etish/,
-  /Kutish/,
-]
-const avoid = /televizor|tinglash|buyumlaringiz|Yugurib|Javob berish|Sardormisan|Nega men/i
-
-async function play(page: Page, ending: 'A' | 'B' | 'C') {
-  const final =
-    ending === 'C' ? /Soatni oʻrash/ : ending === 'B' ? /chiqib ketish/ : /Eshikni ochish/
-  const seen = new Set<string>()
+async function play(page: Page, ending: EndingTarget) {
   const visited = new Set<string>()
-  let night = ''
-  for (let i = 0; i < 250; i++) {
+  for (let i = 0; i < 400; i++) {
     if (
       await page
-        .getByRole('heading', {
-          name: { A: 'Qoʻshni', B: 'Ketish', C: '3:18' }[ending],
-          exact: true,
-        })
+        .getByRole('heading', { name: ui(`endings.${ending}.title`), exact: true })
         .isVisible()
     ) {
       if (ending === 'C') {
@@ -48,7 +22,9 @@ async function play(page: Page, ending: 'A' | 'B' | 'C') {
           'n5',
         ])
         expect(visited.has('n3_room_return')).toBe(true)
-        await expect(page.locator('.ending-narration')).toContainText('Dunyo davom etdi.')
+        await expect(page.locator('.ending-narration')).toContainText(
+          story.nodes['endC']!.lines.at(-1)!.variants[0]!.text,
+        )
         await test.info().attach('mobile-five-night-route', {
           body: JSON.stringify([...visited]),
           contentType: 'application/json',
@@ -65,32 +41,18 @@ async function play(page: Page, ending: 'A' | 'B' | 'C') {
         await page.waitForTimeout(600)
     }
     visited.add(node)
-    if (node.slice(0, 2) !== night) {
-      night = node.slice(0, 2)
-      seen.clear()
-    }
-    const buttons = area.locator('button:not(.pause-button)')
-    const labels = await buttons.evaluateAll((items) =>
-      items.map((item) => item.getAttribute('aria-label') ?? item.textContent ?? ''),
+    const choices = area.locator('[data-choice-id]')
+    const ids = await choices.evaluateAll((items) =>
+      items.map((item) => item.getAttribute('data-choice-id') ?? ''),
     )
-    const fresh = labels
-      .map((label, index) => ({ label, index }))
-      .filter(({ label }) => !seen.has(label))
-    let pool = fresh.length ? fresh : labels.map((label, index) => ({ label, index }))
-    if (ending === 'C' && pool.length > 1) {
-      const safe = pool.filter(({ label }) => !avoid.test(label))
-      if (safe.length) pool = safe
+    if (ids.length === 0) {
+      await area.getByRole('button', { name: ui('common.continue'), exact: true }).click()
+      continue
     }
-    let target = pool[0]!
-    for (const re of [final, ...preferences]) {
-      const match = pool.find(({ label }) => re.test(label))
-      if (match) {
-        target = match
-        break
-      }
-    }
-    seen.add(target.label)
-    await buttons.nth(target.index).click()
+    await area
+      .locator(`[data-choice-id="${pickChoice(ending, ids)}"]`)
+      .first()
+      .click()
   }
   throw new Error(`Ending ${ending} was not reached`)
 }

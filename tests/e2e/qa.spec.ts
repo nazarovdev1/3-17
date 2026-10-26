@@ -1,6 +1,8 @@
 import { expect, type Page } from '@playwright/test'
 import { test } from './fixtures'
 import { acceptWarning, startNamedRun } from './helpers'
+import { ui } from '../../src/content/text'
+import { pickChoice } from '../routes'
 
 /**
  * Phase 8 QA: fast debug-API routes to every ending, Telegram BackButton,
@@ -31,54 +33,6 @@ interface DebugStep {
   choices: { id: string; label: string }[]
 }
 
-const PREFERENCES: Record<Ending, RegExp[]> = {
-  A: [
-    /Eshikni ochish/,
-    /Kozachokka/,
-    /Dahliga chiqish/,
-    /48-xonadonga/,
-    /Chuqurroq/,
-    /Toʻxtab/,
-    /Uxlash|Toʻshak|Qolish/,
-    /Davom etish/,
-    /Kutish/,
-  ],
-  B: [
-    /chiqib ketish/,
-    /Zanjirni yechib/,
-    /Kozachokka/,
-    /Dahliga chiqish/,
-    /48-xonadonga/,
-    /Chuqurroq/,
-    /Toʻxtab/,
-    /Uxlash|Toʻshak|Qolish/,
-    /Davom etish/,
-    /Kutish/,
-  ],
-  C: [
-    /Soatni oʻrash/,
-    /choy|Choy/,
-    /Sahifa|qogʻoz|daftar|varag|Gilam|shkafini/,
-    /Kozachokka/,
-    /48-xonadonga/,
-    /kalendarg/,
-    /Stuldagi/,
-    /Chuqurroq/,
-    /Dahliga chiqish/,
-    /Hammomni/,
-    /oynaga qarash/,
-    /Oshxonaga borish/,
-    /Soatni diqqat/,
-    /Soat ostidagi/,
-    /Javob bermaslik|umuman javob|Jim/,
-    /Toʻxtab/,
-    /Uxlash|Toʻshak|Qolish|3:17/,
-    /Davom etish/,
-    /Kutish/,
-  ],
-}
-const AVOID_C = /Televizorni|tinglash|buyumlaringiz|Yugurib|Javob berish|Sardormisan|Nega men/
-
 const api = <T>(page: Page, fn: string, ...args: unknown[]): Promise<T> =>
   page.evaluate(
     ([name, rest]) => {
@@ -89,41 +43,27 @@ const api = <T>(page: Page, fn: string, ...args: unknown[]): Promise<T> =>
     [fn, args] as const,
   )
 
-/** Drives the story through window.__game only, with the same route strategy as
- * the real-input runs. Returns the visited node ids. */
+/** Drives the story through window.__game only, with the shared choice-id route
+ * (tests/routes.ts) used by the real-input runs. Returns the visited node ids. */
 async function debugRoute(page: Page, ending: Ending): Promise<string[]> {
   const visited: string[] = []
-  const seen = new Set<string>()
-  let night = 0
   for (let i = 0; i < 400; i++) {
     const step = await api<DebugStep | null>(page, 'getStep')
     expect(step, 'a running story').not.toBeNull()
     visited.push(step!.nodeId)
     if (step!.phase === 'ending') return visited
-    if (step!.night !== night) {
-      night = step!.night
-      seen.clear()
-    }
     if (step!.phase === 'next') {
       await api(page, 'advance')
       continue
     }
-    const fresh = step!.choices.filter((c) => !seen.has(c.label))
-    let pool = fresh.length > 0 ? fresh : step!.choices
-    if (ending === 'C' && pool.length > 1) {
-      const safe = pool.filter((c) => !AVOID_C.test(c.label))
-      if (safe.length > 0) pool = safe
-    }
-    let pick = pool[0]!
-    for (const re of PREFERENCES[ending]) {
-      const hit = pool.find((c) => re.test(c.label))
-      if (hit) {
-        pick = hit
-        break
-      }
-    }
-    seen.add(pick.label)
-    await api(page, 'choose', pick.id)
+    await api(
+      page,
+      'choose',
+      pickChoice(
+        ending,
+        step!.choices.map((c) => c.id),
+      ),
+    )
   }
   throw new Error(`no ending after 400 steps for ${ending}`)
 }
@@ -149,11 +89,12 @@ for (const ending of ['A', 'B', 'C'] as const) {
       expect(state.inventory.filter((id) => id.startsWith('diary_'))).toHaveLength(7)
       expect(state.sanity).toBeGreaterThanOrEqual(40)
       expect(state.flags['answered_n3']).toBeFalsy()
+      expect(state.inventory.filter((id) => id.startsWith('mom_msg_'))).toHaveLength(5)
     }
     await expect(
       page
         .locator('h1, h2')
-        .filter({ hasText: /Qoʻshni|Ketish|3:18/ })
+        .filter({ hasText: ui(`endings.${ending}.title`) })
         .first(),
     ).toBeVisible()
   })
@@ -196,31 +137,31 @@ test('Telegram BackButton opens pause, resumes and steps back from settings', as
   await page.goto('/')
   await acceptWarning(page)
   // Title: hidden, so Telegram's own close remains the way out.
-  await expect(page.getByRole('button', { name: 'Yangi oʻyin' })).toBeVisible()
+  await expect(page.getByRole('button', { name: ui('title.new_game') })).toBeVisible()
   expect(await backState()).toEqual({ visible: false, count: 0 })
 
-  await page.getByRole('button', { name: 'Yangi oʻyin' }).click()
+  await page.getByRole('button', { name: ui('title.new_game') }).click()
   await page.getByRole('textbox').fill('Dilnoza')
-  await page.getByRole('button', { name: 'Imzolash' }).click()
+  await page.getByRole('button', { name: ui('form.sign') }).click()
   await expect.poll(backState).toEqual({ visible: true, count: 1 })
 
   await press()
-  const pauseHeading = page.getByRole('heading', { name: 'PAUZA', exact: true })
+  const pauseHeading = page.getByRole('heading', { name: ui('pause.title'), exact: true })
   await expect(pauseHeading).toBeVisible()
   await press()
   await expect(pauseHeading).toBeHidden()
 
   await press()
-  await page.getByRole('button', { name: 'Sozlamalar' }).click()
-  await expect(page.getByRole('button', { name: 'Orqaga' })).toBeVisible()
+  await page.getByRole('button', { name: ui('common.settings') }).click()
+  await expect(page.getByRole('button', { name: ui('common.back') })).toBeVisible()
   await press()
   await expect(pauseHeading).toBeVisible()
 
   // The on-screen back button also returns to the pause menu, not the title.
-  await page.getByRole('button', { name: 'Sozlamalar' }).click()
-  await page.getByRole('button', { name: 'Orqaga' }).click()
+  await page.getByRole('button', { name: ui('common.settings') }).click()
+  await page.getByRole('button', { name: ui('common.back') }).click()
   await expect(pauseHeading).toBeVisible()
-  await page.getByRole('button', { name: 'Sarlavha ekraniga chiqish' }).click()
+  await page.getByRole('button', { name: ui('common.to_menu') }).click()
   await expect.poll(backState).toEqual({ visible: false, count: 0 })
 })
 
@@ -244,7 +185,7 @@ test('closing the tab mid-game keeps the exact node and state', async ({ page, c
     if (m.type() === 'error') errors.push(m.text())
   })
   await next.goto('/?debug=1')
-  await next.getByRole('button', { name: 'Davom etish' }).click()
+  await next.getByRole('button', { name: ui('common.continue') }).click()
   const after = await api<{
     currentNodeId: string
     sanity: number
@@ -270,7 +211,12 @@ test('no runtime request leaves the origin except the Telegram SDK', async ({ pa
   await page.goto('/?debug=1')
   await startNamedRun(page, 'Dilnoza')
   await debugRoute(page, 'B')
-  await expect(page.locator('h1, h2').filter({ hasText: 'Ketish' }).first()).toBeVisible()
+  await expect(
+    page
+      .locator('h1, h2')
+      .filter({ hasText: ui('endings.B.title') })
+      .first(),
+  ).toBeVisible()
   expect(foreign).toEqual([])
 })
 
@@ -342,7 +288,10 @@ test('mobile scene holds 30 FPS under ×4 CPU throttling', async ({ page }, info
   test.setTimeout(120_000)
   await page.goto('/')
   await startNamedRun(page, 'Dilnoza')
-  await page.getByRole('button', { name: 'Davom etish' }).first().click()
+  await page
+    .getByRole('button', { name: ui('common.continue') })
+    .first()
+    .click()
   await expect(page.locator('.mobile-game canvas').first()).toBeVisible()
   const cdp = await page.context().newCDPSession(page)
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 })

@@ -1,3 +1,4 @@
+import { ui } from '@/content/text'
 import { useEffect, useSyncExternalStore } from 'react'
 import { audio } from './engine'
 import { audioScene } from './presentation'
@@ -106,8 +107,12 @@ export function AudioController({ mode }: { mode: GameMode }) {
   }, [])
 
   return status === 'locked' && ['title', 'game', 'form', 'ending'].includes(screen) ? (
-    <button className="audio-unlock" aria-label="Tovushni yoqish" onClick={audio.unlock}>
-      Davom etish uchun bosing
+    <button
+      className="audio-unlock"
+      aria-label={ui('shell.audio_unlock_label')}
+      onClick={audio.unlock}
+    >
+      {ui('shell.audio_unlock')}
     </button>
   ) : null
 }

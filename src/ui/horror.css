@@ -16,7 +16,7 @@
     -2px 0 #9fbf8f66;
 }
 .signal-loss strong {
-  font-family: var(--display-font, 'Oswald'), sans-serif;
+  font-family: var(--font-ui);
   font-size: clamp(24px, 5vw, 48px);
   font-weight: 400;
   letter-spacing: 0.06em;

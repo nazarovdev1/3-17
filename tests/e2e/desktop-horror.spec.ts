@@ -3,6 +3,7 @@ import { test } from './fixtures'
 import { startNamedRun } from './helpers'
 import type { GameState } from '../../src/core/state/types'
 import type { getDesktopState } from '../../src/platform/device/desktopRuntime'
+import { ui } from '../../src/content/text'
 
 interface Api {
   getState: () => GameState
@@ -45,12 +46,12 @@ test.afterEach(({ page }) => expect((page as unknown as { errors: string[] }).er
 test('late-night launch adds one line and consumes it across reload', async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-10-25T19:20:00Z'))
   await boot(page, 'mobile')
-  await expect(page.getByText(/Haqiqiy soat ham yarim tundan/)).toBeVisible()
+  await expect(page.getByText(ui('meta.late_night'))).toBeVisible()
   expect((await state(page)).metaHints.lateNightCommentFired).toBe(true)
-  await page.getByRole('button', { name: 'Davom etish', exact: true }).click()
+  await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
   await page.reload()
-  await page.getByRole('button', { name: 'Davom etish', exact: true }).click()
-  await expect(page.getByText(/Haqiqiy soat ham yarim tundan/)).toHaveCount(0)
+  await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
+  await expect(page.getByText(ui('meta.late_night'))).toHaveCount(0)
 })
 
 test('saved absence is acknowledged once at the actual resumed node', async ({ page }) => {
@@ -62,13 +63,13 @@ test('saved absence is acknowledged once at the actual resumed node', async ({ p
     localStorage.setItem('g317:run', JSON.stringify(saved))
   })
   await page.reload()
-  await page.getByRole('button', { name: 'Davom etish', exact: true }).click()
-  await expect(page.getByText(/Bir necha soat yoʻq boʻldingiz/)).toBeVisible()
+  await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
+  await expect(page.getByText(ui('meta.return_long'))).toBeVisible()
   expect((await state(page)).currentNodeId).toBe('n2_mirror')
   expect((await state(page)).metaHints.returnCommentFired).toBe(true)
   await page.reload()
-  await page.getByRole('button', { name: 'Davom etish', exact: true }).click()
-  await expect(page.getByText(/Bir necha soat yoʻq boʻldingiz/)).toHaveCount(0)
+  await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
+  await expect(page.getByText(ui('meta.return_long'))).toHaveCount(0)
 })
 
 test('real 3:17 adds a knock without moving the story and stays consumed on reload', async ({
@@ -78,7 +79,7 @@ test('real 3:17 adds a knock without moving the story and stays consumed on relo
   await boot(page, 'mobile')
   const previous = await state(page)
   await page.clock.setFixedTime(new Date('2026-10-25T22:17:00Z'))
-  const banner = page.getByRole('button', { name: /Haqiqiy soatingiz/ })
+  const banner = page.getByRole('button', { name: ui('shell.real_317') })
   await expect(banner).toBeVisible()
   expect((await state(page)).currentNodeId).toBe(previous.currentNodeId)
   expect((await state(page)).sanity).toBe(previous.sanity)
@@ -88,7 +89,7 @@ test('real 3:17 adds a knock without moving the story and stays consumed on relo
   ).toContain('knock_soft')
   await banner.click()
   await page.reload()
-  await page.getByRole('button', { name: 'Davom etish', exact: true }).click()
+  await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
   await page.waitForTimeout(1200)
   await expect(banner).toHaveCount(0)
 })
@@ -97,15 +98,18 @@ for (const mode of ['mobile', 'desktop'] as const) {
   test(`${mode}: finite signal loss leaves pause and continuation available`, async ({ page }) => {
     await boot(page, mode, false)
     await jump(page, 'n4_glitch')
-    const signal = page.getByRole('status', { name: 'Xona tasviri buzildi' })
+    const signal = page.getByRole('status', { name: ui('shell.glitch_label') })
     await expect(signal).toBeVisible()
     expect(await signal.evaluate((node) => getComputedStyle(node).pointerEvents)).toBe('none')
     await page.screenshot({ path: `tests/screenshots/phase7-signal-${mode}.png` })
-    await page.getByRole('button', { name: 'Pauza', exact: true }).click()
-    await expect(page.getByRole('heading', { name: 'PAUZA', exact: true })).toBeVisible()
-    await page.getByRole('button', { name: 'Davom etish', exact: true }).last().click()
+    await page.getByRole('button', { name: ui('common.pause'), exact: true }).click()
+    await expect(page.getByRole('heading', { name: ui('pause.title'), exact: true })).toBeVisible()
+    await page
+      .getByRole('button', { name: ui('common.continue'), exact: true })
+      .last()
+      .click()
     await expect(signal).toHaveCount(0, { timeout: 3100 })
-    await page.getByRole('button', { name: 'Davom etish', exact: true }).click()
+    await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
     await expect(page.locator(`.${mode}-game`)).toHaveAttribute('data-node', 'n4_voice_identity')
     await jump(page, 'n4_glitch')
     await expect(signal).toHaveCount(0)
@@ -113,8 +117,8 @@ for (const mode of ['mobile', 'desktop'] as const) {
   test(`${mode}: Reduce flashing removes the signal-loss effect`, async ({ page }) => {
     await boot(page, mode)
     await jump(page, 'n4_glitch')
-    await expect(page.getByRole('status', { name: 'Xona tasviri buzildi' })).toHaveCount(0)
-    await page.getByRole('button', { name: 'Davom etish', exact: true }).click()
+    await expect(page.getByRole('status', { name: ui('shell.glitch_label') })).toHaveCount(0)
+    await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
     await expect(page.locator(`.${mode}-game`)).toHaveAttribute('data-node', 'n4_voice_identity')
   })
 }
@@ -124,14 +128,12 @@ test('mobile return puzzle exposes only the changed detail as the way forward', 
 }) => {
   await boot(page, 'mobile')
   await jump(page, 'n3_corridor_loop')
-  await page.getByRole('button', { name: 'Toʻxtab, orqaga qarash', exact: true }).click()
-  await page.getByRole('button', { name: 'Davom etish', exact: true }).click()
+  await page.locator('[data-choice-id="stop"]').click()
+  await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
   await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n3_room_return')
   await expect(page.locator('.mobile-panel .choices button')).toHaveCount(0)
   await page.screenshot({ path: 'tests/screenshots/phase7-shifted-mobile.png' })
-  await page
-    .getByRole('button', { name: 'Joyini oʻzgartirgan soatni tekshirish', exact: true })
-    .click()
+  await page.locator('[data-choice-id="shifted_clock"]').click()
   await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n3_hub')
   expect((await state(page)).flags['clock_shifted']).toBe(true)
 })
@@ -143,7 +145,7 @@ test('mobile voice reveal skips the pause without duplicating dialogue in narrat
   await jump(page, 'n3_voice_repeat')
   await expect(page.locator('.chat-typing')).toBeVisible()
   await expect(page.locator('.mobile-panel .speaker-voice')).toHaveCount(0)
-  await page.getByRole('button', { name: 'Matnni ochish', exact: true }).click()
+  await page.getByRole('button', { name: ui('mobile.reveal'), exact: true }).click()
   await expect(page.locator('.chat-bubble')).toHaveCount(2)
   await expect(page.locator('.chat-typing')).toHaveCount(0)
   await page.screenshot({ path: 'tests/screenshots/phase7-voice-mobile.png' })
