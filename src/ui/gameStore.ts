@@ -50,7 +50,7 @@ interface GameStore {
   dismissRealClock317: () => void
 }
 
-export type EngineListener = (events: EngineEvent[]) => void
+export type EngineListener = (events: EngineEvent[], step: Step, previous: Step | null) => void
 const listeners = new Set<EngineListener>()
 
 /** Presenters subscribe to engine side-effect events (sfx/fx/haptic/…). */
@@ -61,8 +61,8 @@ export function onEngineEvents(listener: EngineListener): () => void {
   }
 }
 
-function dispatchEvents(events: EngineEvent[]): void {
-  for (const listener of listeners) listener(events)
+function dispatchEvents(events: EngineEvent[], step: Step, previous: Step | null): void {
+  for (const listener of listeners) listener(events, step, previous)
 }
 
 let saveService: SaveService | null = null
@@ -85,10 +85,7 @@ function clampSanity(value: number): number {
 
 export const useGame = create<GameStore>((set, get) => {
   const applyStep = (step: Step) => {
-    dispatchEvents(step.events)
-    if (step.events.some((e) => e.kind === 'autosave')) {
-      get().saveNow()
-    }
+    const previous = get().currentStep
     const endingEvent = step.events.find((e) => e.kind === 'ending')
     const ending = endingEvent?.kind === 'ending' ? endingEvent.id : null
     if (ending) {
@@ -100,17 +97,20 @@ export const useGame = create<GameStore>((set, get) => {
         (a, b) => a - b,
       )
       const nextMeta = { ...meta, endingsSeen, chaptersUnlocked }
-      set({ meta: nextMeta })
-      get().saveNow()
       set({
+        meta: nextMeta,
         run: step.state,
         currentStep: step,
         endingCard: { id: ending, nodeId: step.node.id },
         screen: 'ending',
       })
+      dispatchEvents(step.events, step, previous)
+      get().saveNow()
       return
     }
     set({ run: step.state, currentStep: step })
+    dispatchEvents(step.events, step, previous)
+    if (step.events.some((e) => e.kind === 'autosave')) get().saveNow()
   }
 
   return {

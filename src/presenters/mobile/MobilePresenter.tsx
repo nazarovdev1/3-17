@@ -10,6 +10,7 @@ import { HOTSPOTS } from './hotspots'
 import { useParallax } from './useParallax'
 import { ChatOverlay } from './ChatOverlay'
 import { PauseMenu } from '@/ui/GameScreen'
+import { audio } from '@/audio/engine'
 
 const telegram = new TelegramAdapter()
 function haptic(pattern: 'light' | 'heartbeat') {
@@ -75,11 +76,13 @@ export function MobilePresenter({ paused }: { paused: boolean }) {
       if (hold.current) clearTimeout(hold.current)
       hold.current = null
       setListening(false)
+      audio.setListening(false)
     },
     [node?.id, paused],
   )
 
   const release = () => {
+    audio.setListening(false)
     if (hold.current) clearTimeout(hold.current)
     hold.current = null
     setListening(false)
@@ -87,10 +90,12 @@ export function MobilePresenter({ paused }: { paused: boolean }) {
   const startListening = (choiceId: string) => {
     if (paused || hold.current) return
     setListening(true)
+    audio.setListening(true)
     haptic('heartbeat')
     hold.current = setTimeout(() => {
       hold.current = null
       setListening(false)
+      audio.setListening(false)
       haptic('heartbeat')
       useGame.getState().choose(choiceId)
     }, 700)

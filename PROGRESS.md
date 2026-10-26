@@ -7,7 +7,7 @@ Honest, phase-by-phase record. A phase is only marked done when every check ran 
 - [x] Phase 2 — Full story content
 - [x] Phase 3 — Shell and platform
 - [x] Phase 4 — Mobile presenter
-- [ ] Phase 5 — Audio
+- [x] Phase 5 — Audio
 - [ ] Phase 6 — Desktop 3D presenter
 - [ ] Phase 7 — Horror polish
 - [ ] Phase 8 — Full QA
@@ -191,3 +191,65 @@ Not verified / later phases:
   mirror lag, unobserved changes, corridor puzzle and fake-glitch polish remain Phase 7.
   Performance/memory and full hardware/manual QA remain Phase 8.
 - Existing DECISIONS.md entries are unchanged. Stop here after the Phase 4 commit.
+
+## Phase 5 — Audio
+
+Implemented:
+
+- A dependency-free Web Audio engine with locally synthesized mono PCM at 22.05 kHz.
+  Twenty sound cues cover wood/tile footsteps, radiator and wall knocks, chain, kettle,
+  pages, heartbeat, filtered whisper noise, doors, relay/switch, static, pouring and pen.
+  Separate four-second drone, wind, fridge, traffic and ending-clock loops are cached.
+  The voice remains text; there is no speech generation or audio network request.
+- Master/music/effects gain buses use the existing persisted Settings sliders, now with
+  accessible labels. Gain smoothing, a compressor, an eight-voice cap, reusable buffers,
+  and explicit source/node cleanup keep playback bounded. Desktop knocks use PannerNode;
+  a listener-position API is ready for the Phase 6 camera.
+- Title hum; pre-outage ambience; abrupt ambient silence at 3:17; one-shot story cues;
+  whisper texture on voice lines; rising wall-listening texture and heartbeat; quiet
+  street ambience for B; ticking exclusively in C. The saved current-night outage marker
+  restores silence on reload, without treating a previous night's time flag as an outage.
+- Context starts suspended and unlocks from pointer/keyboard gestures. A non-blocking Uzbek
+  prompt offers retry when locked; unavailable Web Audio leaves navigation/play intact.
+  Pause/settings, hidden document, pagehide and Telegram deactivation suspend playback.
+  Separate pause reasons prevent activation from overriding a still-paused/hidden game;
+  transient sounds are dropped rather than queued for later replay.
+- Debug-only `window.__game.getAudioState()` reports native context state, active layers,
+  bounded voices/buffers, gain settings, output peak and recent sound ids for verification.
+
+Necessary fixes to existing code (explained before editing):
+
+- `choose()` previously discarded side-effect events from choice.effects, losing chain,
+  door and winding cues. Those events now precede destination effects; state/choices are
+  unchanged. A regression test checks event order, including haptic and visual effects.
+- Store steps/ending metadata are now committed atomically before event subscribers and
+  checkpoint saves run. Intermediate old-state notifications could reset the audio scene
+  during an ending. A regression test checks the committed ending and finished saved node.
+- Existing clock-inspection cue ids stay in the story data but remain silent in the audio
+  presenter; only Ending C creates the ticking loop, as required by PROMPT section 7.
+  No recorded decisions or story content were changed.
+
+Verified:
+
+- `npm run check` green: 147 tests, 77-node validation, build and 97.2 KB gzipped mobile JS.
+- `npx vitest run --coverage`: all 147 tests pass; core/engine retains 72/72 covered branches.
+- Four native-audio browser tests pass on small Android: suspended → tap → running with
+  nonzero output; master mute and independent music/effects channels; slider persistence;
+  outage silence; native spatial panner; C-only ticking; bounded polyphony; wall-listening
+  cancellation; pause/visibility/Telegram overlap; absent Web Audio; zero console/page errors.
+- Full `npm run e2e -- --workers=2`: 91 passed, 4 expected project-specific skips.
+  All 20 audio cases pass across the five projects, including mobile fallback when WebGL
+  is disabled. Existing all-ending mobile routes, saves, settings, resizing and shell
+  regression tests remain green. The no-WebGL spatial assertion was corrected to expect
+  mobile audio rather than a desktop panner in that project.
+- Opened `tests/screenshots/audio-unlock.png`: prompt is readable at 360×640 and leaves the
+  title controls accessible.
+
+Not verified:
+
+- Physical iOS autoplay/interruption behavior, real Telegram lifecycle callbacks and
+  subjective speaker/headphone listening were not exercised on hardware. PCM tests and
+  Chromium analyser measurements verify the generated signal, not acoustic playback.
+- Camera-relative spatial listening is Phase 6; full performance/hardware checks are Phase 8.
+
+Phase 5 exit met. Stop after committing this phase; Phase 6 is not started.

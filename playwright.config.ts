@@ -8,7 +8,12 @@ export default defineConfig({
     baseURL: 'http://localhost:4173',
     trace: 'retain-on-failure',
     launchOptions: {
-      args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
+      args: [
+        '--use-gl=angle',
+        '--use-angle=swiftshader',
+        '--enable-unsafe-swiftshader',
+        '--autoplay-policy=user-gesture-required',
+      ],
     },
   },
   webServer: {
@@ -49,7 +54,12 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         viewport: { width: 1440, height: 900 },
         launchOptions: {
-          args: ['--disable-webgl', '--disable-webgl2', '--disable-gpu'],
+          args: [
+            '--disable-webgl',
+            '--disable-webgl2',
+            '--disable-gpu',
+            '--autoplay-policy=user-gesture-required',
+          ],
         },
       },
     },

@@ -185,6 +185,36 @@ describe('resume / goTo', () => {
 })
 
 describe('ending handling', () => {
+  it('preserves choice side effects before destination effects and ending events', () => {
+    const withCues: Story = {
+      start: 'choice',
+      nodes: {
+        choice: node('choice', {
+          choices: [
+            {
+              id: 'go',
+              label: 'Davom etish',
+              to: 'end',
+              effects: [
+                { type: 'sfx', id: 'chain' },
+                { type: 'haptic', pattern: 'heavy' },
+                { type: 'fx', id: 'darken' },
+              ],
+            },
+          ],
+        }),
+        end: node('end', { ending: 'A', onEnter: [{ type: 'sfx', id: 'door_close' }] }),
+      },
+    }
+    const initial = startGame(withCues, profile(), NOW)
+    expect(choose(withCues, initial.state, 'go').events).toEqual([
+      { kind: 'sfx', id: 'chain' },
+      { kind: 'haptic', pattern: 'heavy' },
+      { kind: 'fx', id: 'darken' },
+      { kind: 'sfx', id: 'door_close' },
+      { kind: 'ending', id: 'A' },
+    ])
+  })
   it('marks the run finished and emits the ending event once', () => {
     const atTail = goTo(story, started(), 'tail').state
     const step = choose(story, atTail, 'a')

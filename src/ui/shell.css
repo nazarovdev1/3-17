@@ -490,3 +490,17 @@ input[type='range'] {
   max-height: calc(100% - 80px);
   overflow-y: auto;
 }
+
+.audio-unlock {
+  position: fixed;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(340px, 90vw);
+  min-height: 44px;
+  background: #141a22f5;
+  border-color: var(--orange);
+  text-align: center;
+  font-size: 13px;
+  z-index: 200;
+}

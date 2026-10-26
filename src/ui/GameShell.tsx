@@ -12,6 +12,7 @@ import { DebugOverlay } from '@/debug/DebugOverlay'
 import { useSettings } from './settingsStore'
 import { detectMode, type GameMode } from '@/platform/device/mode'
 import { checkGpu } from '@/platform/device/gpu'
+import { AudioController } from '@/audio/AudioController'
 import './shell.css'
 
 /**
@@ -98,6 +99,7 @@ export function GameShell() {
   return (
     <div className={`text-${useSettings.getState().settings.textSize.toLowerCase()} phones`}>
       <div className="phone-frame">
+        <AudioController mode={mode} />
         {screen === 'warning' && <ContentWarning />}
         {screen === 'title' && <TitleScreen mode={mode} />}
         {screen === 'form' && <RentalForm />}

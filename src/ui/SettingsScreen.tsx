@@ -99,6 +99,7 @@ function Slider({
     <div className="row">
       <span>{label}</span>
       <input
+        aria-label={label}
         type="range"
         min={0}
         max={1}

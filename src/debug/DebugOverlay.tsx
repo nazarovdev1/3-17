@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useGame } from '@/ui/gameStore'
 import { getLog } from '@/ui/errorLog'
 import { story } from '@/content/story'
+import { audio } from '@/audio/engine'
 
 const DEBUG_KEY = 'g317:debug'
 const GAME_API_KEY = '__game' as const
@@ -65,6 +66,7 @@ export function DebugOverlay() {
       setTime: (iso: string) => useGame.getState().debugSetTime(iso),
       getScreen: () => useGame.getState().screen,
       getNodeId: () => useGame.getState().run?.currentNodeId ?? null,
+      getAudioState: () => audio.inspect(),
       advance: () => useGame.getState().advance(),
     }
     return () => {

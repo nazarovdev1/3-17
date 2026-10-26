@@ -108,7 +108,8 @@ export function choose(story: Story, state: GameState, choiceId: string): Step {
   const choice = visibleChoices(node, state).find((c) => c.id === choiceId)
   if (!choice) throw new EngineError(`Choice ${choiceId} is not available on node ${node.id}`)
   const applied = applyEffects(state, choice.effects)
-  return enterNode(story, applied.state, choice.to)
+  const step = enterNode(story, applied.state, choice.to)
+  return { ...step, events: [...applied.events, ...step.events] }
 }
 
 /**
