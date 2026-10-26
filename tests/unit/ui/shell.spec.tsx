@@ -52,3 +52,18 @@ describe('SettingsScreen persistence', () => {
     expect(useSettings.getState().settings.masterVolume).toBeCloseTo(0.3)
   })
 })
+
+describe('Telegram BackButton routing', () => {
+  it('opens pause in game, resumes from pause and steps back elsewhere', async () => {
+    const { backTarget } = await import('@/ui/GameShell')
+    expect(backTarget('game', 'title')).toBe('paused')
+    expect(backTarget('paused', 'title')).toBe('game')
+    expect(backTarget('settings', 'paused')).toBe('paused')
+    expect(backTarget('settings', 'title')).toBe('title')
+    expect(backTarget('form', 'title')).toBe('title')
+    expect(backTarget('ending', 'title')).toBe('title')
+    expect(backTarget('gallery', 'title')).toBe('title')
+    expect(backTarget('title', 'title')).toBeNull()
+    expect(backTarget('warning', 'title')).toBeNull()
+  })
+})

@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
-import { useGame } from './gameStore'
+import { useGame, type Screen } from './gameStore'
+import { TelegramAdapter } from '@/platform/telegram/adapter'
 import { ContentWarning } from './ContentWarning'
 import { TitleScreen } from './TitleScreen'
 import { RentalForm } from './RentalForm'
@@ -105,6 +106,24 @@ export function GameShell() {
     }
   }, [])
 
+  // Settings returns to wherever it was opened from (title or the pause menu).
+  const settingsReturn = useRef<Screen>('title')
+  const lastScreen = useRef<Screen>(screen)
+  useEffect(() => {
+    if (screen === 'settings' && lastScreen.current !== 'settings') {
+      settingsReturn.current = lastScreen.current === 'paused' ? 'paused' : 'title'
+    }
+    lastScreen.current = screen
+  }, [screen])
+
+  // Telegram BackButton (spec 9): in game it opens pause; elsewhere it steps back.
+  // On the warning/title screens it stays hidden so Telegram's own close applies.
+  useEffect(() => {
+    const target = backTarget(screen, settingsReturn.current)
+    if (!target) return
+    return new TelegramAdapter().onBack(() => useGame.getState().setScreen(target))
+  }, [screen])
+
   const realClock317Visible = useGame((s) => s.realClock317Visible)
   const dismissRealClock = useGame((s) => s.dismissRealClock317)
 
@@ -138,7 +157,7 @@ export function GameShell() {
           ))}
         {screen === 'settings' && (
           <SettingsScreen
-            onBack={() => setScreen('title')}
+            onBack={() => setScreen(settingsReturn.current)}
             mode={mode}
             onModeRequest={() => setRetry((value) => value + 1)}
           />
@@ -159,6 +178,24 @@ export function GameShell() {
       </div>
     </div>
   )
+}
+
+/** Where the Telegram BackButton leads from each screen; null hides it. */
+export function backTarget(screen: Screen, settingsReturn: Screen): Screen | null {
+  switch (screen) {
+    case 'game':
+      return 'paused'
+    case 'paused':
+      return 'game'
+    case 'settings':
+      return settingsReturn
+    case 'form':
+    case 'ending':
+    case 'gallery':
+      return 'title'
+    default:
+      return null
+  }
 }
 
 export function hasWebGL(): boolean {

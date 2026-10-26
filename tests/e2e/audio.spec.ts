@@ -90,9 +90,12 @@ test('native suspended context unlocks on a tap; mixer is audible, muted and per
   await page.getByRole('button', { name: 'Sozlamalar', exact: true }).click()
   await page.getByRole('slider', { name: 'Musiqa', exact: true }).press('End')
   await page.getByRole('slider', { name: 'Effektlar', exact: true }).press('Home')
+  // Settings opened from pause returns to pause, where playback is suspended.
   await page.getByRole('button', { name: 'Orqaga', exact: true }).click()
-  await expect.poll(async () => (await state(page)).peak).toBeGreaterThan(0.001)
+  await expect(page.getByRole('heading', { name: 'PAUZA', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Davom etish', exact: true }).click()
+  await jump(page, 'n1_start')
+  await expect.poll(async () => (await state(page)).peak).toBeGreaterThan(0.001)
   await jump(page, 'n1_knocks')
   await expect.poll(async () => (await state(page)).peak).toBeLessThan(0.00001)
   expect((await state(page)).failures).toEqual([])

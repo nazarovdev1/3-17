@@ -12,24 +12,29 @@ honest ✅ / ❌ / not-verified note with a date.
 - [x] All current mobile hotspots stay within the 360×640 scene; real-input ending runs
       and cancelled/successful wall holds pass (2026-10-25, Chromium emulation).
 - [x] "Reduce flashing" removes the night 4 fake glitch and decorative flashes (2026-10-26, both presenters in Chromium).
-- [ ] Telegram BackButton opens the pause menu; the player can always leave.
-- [ ] Pause menu reachable at any moment; closing the tab mid-game autosaves.
+- [x] Telegram BackButton opens the pause menu; the player can always leave (2026-10-26,
+      mocked WebApp BackButton in all five projects; it was previously never registered — fixed).
+      Hidden on warning/title so Telegram's own close applies. Physical Telegram pending.
+- [x] Pause menu reachable at any moment; closing the tab mid-game autosaves (2026-10-26,
+      `page.close({ runBeforeUnload })` → new tab resumes the exact node, sanity and flags).
+      Settings opened from pause now returns to pause instead of the title (fixed).
 - [x] IBM Plex Mono and Oswald contain ʻ (U+02BB) and ’ (U+2019); WOFF cmap check and
       visual review of `tests/screenshots/mobile-font-glyphs.png` (2026-10-25).
-- [ ] No external network requests at runtime except telegram-web-app.js.
+- [x] No external network requests at runtime except telegram-web-app.js (2026-10-26, every
+      request recorded through a full B route in all five projects; zero foreign URLs).
 
 ## E2E status
 
-| #   | Test (spec 12)                                                                   | Status                                                           |
-| --- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| 1   | Boots without / with mocked Telegram                                             | passed (Phases 3–4)                                              |
-| 2   | Full playthrough to all 3 endings via `window.__game` + one ending by real input | desktop/mobile A/B/C real input passed; full debug paths pending |
-| 3   | Save → reload → resume                                                           | passed (Phases 3–4)                                              |
-| 4   | Audio unlock flow                                                                | native suspended → tap → running passed (Phase 5)                |
-| 5   | Rotate / resize does not break layout or state                                   | passed (Phases 3–4)                                              |
-| 6   | WebGL disabled → mobile mode on desktop viewport                                 | passed (Phases 3–4)                                              |
-| 7   | WebGL context loss → recovery or fallback                                        | passed (Phase 6: native restore and fallback)                    |
-| 8   | No console.error / pageerror                                                     | active since Phase 0 (boot spec)                                 |
+| #   | Test (spec 12)                                                                   | Status                                                                      |
+| --- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| 1   | Boots without / with mocked Telegram                                             | passed (Phases 3–4)                                                         |
+| 2   | Full playthrough to all 3 endings via `window.__game` + one ending by real input | passed (Phase 8: `__game` A/B/C in 5 projects; real input A/B/C both modes) |
+| 3   | Save → reload → resume                                                           | passed (Phases 3–4)                                                         |
+| 4   | Audio unlock flow                                                                | native suspended → tap → running passed (Phase 5)                           |
+| 5   | Rotate / resize does not break layout or state                                   | passed (Phases 3–4)                                                         |
+| 6   | WebGL disabled → mobile mode on desktop viewport                                 | passed (Phases 3–4)                                                         |
+| 7   | WebGL context loss → recovery or fallback                                        | passed (Phase 6: native restore and fallback)                               |
+| 8   | No console.error / pageerror                                                     | passed (enforced in every spec, Phase 8 full sweep)                         |
 
 ## Run log
 
@@ -171,3 +176,37 @@ shell comment path, where their existing one-shot gates can be consumed consiste
 Physical GPU/Telegram/sensor/audio validation remains Phase 8. Automated full-route runs
 skip typewriting and are not evidence of a 30–45 minute human play duration; that duration
 has not been measured. Phase 8 has not been started.
+
+## Phase 8 — Full QA (2026-10-26)
+
+New spec `tests/e2e/qa.spec.ts` (8 cases × 5 projects) plus a fix pass:
+
+- [x] `window.__game` fast routes reach A, B and C in every project. The route visits
+      nights 1–5; C asserts 7 diary pages, sanity ≥ 40 and no night-3 answer. A new
+      debug-only `getStep()` exposes node, phase, ending and visible choices.
+- [x] Telegram BackButton: game → pause, pause → game, settings → where it was opened
+      from, form/ending/gallery → title; hidden (zero handlers) on warning/title.
+- [x] Closing the tab mid-game, then reopening: identical node, sanity and flags.
+- [x] Runtime network isolation through a full route: only same-origin, data/blob URLs and
+      the official Telegram script.
+- [x] Memory across nights: 1 warm-up + 2×4 cycles through the five night entry nodes, with
+      forced GC and exact CDP heap. GPU resources constant (desktop 24 geometries / 10
+      textures; one canvas everywhere). Heap growth shrinks per block (mobile ≈ 205 → 80 KB,
+      desktop ≈ 730 → 320 KB): bounded caches plus the run's own visited-node history,
+      not a leak. Gate: < 512 KB in the second block, < 2 MB overall.
+- [x] Mobile frame rate under Chromium ×4 CPU throttling: ≈ 60 FPS in iPhone 13, Pixel 7,
+      small Android and no-WebGL projects (budget ≥ 30).
+- [x] Desktop ≥ 55 FPS benchmark and GPU-resource tour (Phase 6/7 spec) green in the sweep.
+- Bugs found and fixed: (1) Telegram BackButton was never wired to the shell; (2) Settings
+  opened from pause always returned to the title. The audio mixer test had encoded the
+  old title return; it now asserts the pause return and checks music after resuming.
+- Results: `npm run check` green (158 tests, 78-node validator, 0 warnings, mobile
+  99.5 KB / 250 KB, desktop 263.1 KB / 700 KB gz). Full sweep in one run: 160
+  passed, 5 expected skips, 0 flaky. An earlier sweep exposed two test races (camera not
+  settled before the unobserved-clock flag; SDK stub missing on a reopened tab), now fixed.
+
+Not verifiable on this host (no physical devices): real Telegram iOS/Android/Desktop
+webviews (BackButton, CloudStorage, haptics, gyroscope, fullscreen), physical GPU laptop
+FPS, iOS Safari/WebKit audio autoplay and interruption, real sensor permission prompts,
+and acoustic listening. All runs use Chromium (SwiftShader) emulation. The 30–45 minute
+human play duration has not been timed.

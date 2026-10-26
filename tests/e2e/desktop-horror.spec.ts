@@ -172,6 +172,15 @@ test('desktop clock waits outside the frustum; mirror head turn follows after ha
   })
   await boot(page, 'desktop')
   await jump(page, 'n3_hub')
+  // The clock may only move unobserved, so wait until the camera has settled facing it.
+  await expect
+    .poll(async () => {
+      const a = await inspect(page)
+      await page.waitForTimeout(300)
+      const b = await inspect(page)
+      return a.yaw === b.yaw && a.position.every((v, i) => v === b.position[i])
+    })
+    .toBe(true)
   await page.evaluate(() =>
     (window as unknown as { __game: Api }).__game.setFlag('clock_shifted', true),
   )

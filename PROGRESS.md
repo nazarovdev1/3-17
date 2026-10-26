@@ -10,7 +10,7 @@ Honest, phase-by-phase record. A phase is only marked done when every check ran 
 - [x] Phase 5 — Audio
 - [x] Phase 6 — Desktop 3D presenter
 - [x] Phase 7 — Horror polish
-- [ ] Phase 8 — Full QA
+- [x] Phase 8 — Full QA
 - [ ] Phase 9 — Release docs
 
 ## Phase 0 — Scaffold
@@ -371,3 +371,51 @@ Limits: automated routes skip typing; the 30–45 minute human play duration is 
 Physical GPU, real Telegram webviews and hardware sensor/audio validation remain Phase 8.
 
 Phase 7 exit met. Stop after this phase commit; Phase 8 is not started.
+
+## Phase 8 — Full QA
+
+Implemented (2026-10-26):
+
+- New `tests/e2e/qa.spec.ts`: `window.__game` fast routes to A/B/C, Telegram BackButton,
+  tab-close autosave, runtime network isolation, memory across repeated night transitions,
+  and mobile FPS under ×4 CPU throttling. A debug-only `__game.getStep()` reports the node,
+  phase, ending and visible choices so the fast routes use the real choice list.
+- Bug fix: the Telegram BackButton adapter existed but the shell never registered it.
+  It now opens pause in game, resumes from pause, returns from settings/form/ending/
+  gallery, and stays hidden on warning/title so Telegram's own close remains the exit.
+- Bug fix: Settings opened from the pause menu always returned to the title. It now
+  returns to where it was opened from (pause or title). Unit test covers the back map.
+- Test corrections (no product change): the audio mixer case had encoded the old
+  settings→title return; the desktop unobserved-clock case set its flag before the camera
+  settled (a real race in the test, since the clock correctly moves whenever unseen); the
+  new close-tab case needed the Telegram SDK stub on the reopened tab as well.
+
+Verified:
+
+- `npm run check` green: lint, format, typecheck, 158 unit/component tests, 78-node
+  validator with 0 warnings, build, mobile 99.5 KB / 250 KB and desktop 263.1 KB / 700 KB gz.
+- Full Playwright sweep, single uninterrupted run: 160 passed, 5 expected skips (four
+  no-WebGL-only assertions in WebGL projects, the mobile throttle case on desktop), 0 flaky.
+  Zero console/page errors are enforced in every spec. The two race fixes were also
+  repeated 3× per project green before the sweep.
+- Fast `__game` routes reach A/B/C in all five projects, across nights 1–5; C asserts the
+  7 pages, sanity ≥ 40 and no night-3 answer. Real-input A/B/C remain green in both modes.
+- Memory: 1 warm-up + 2×4 cycles over the five night entry nodes, forced GC, exact CDP heap.
+  Desktop GPU resources constant (24 geometries / 10 textures), one canvas in every project.
+  Heap growth shrinks between blocks (mobile ≈ 205 → 80 KB, desktop ≈ 730 → 320 KB):
+  bounded first-use caches plus the run's own visited-node history, not a leak.
+- Mobile ×4 CPU throttle: ≈ 60 FPS in iPhone 13, Pixel 7, small-Android and no-WebGL
+  projects (budget ≥ 30). Desktop ≥ 55 FPS benchmark at high/400 px green in the sweep.
+- Network: a full route records only same-origin, data/blob and the Telegram SDK URL.
+- QA.md manual checklist: every item checked except physical-hardware validation.
+- DECISIONS.md unchanged.
+
+Not verified (no hardware on this host; all runs are Chromium + SwiftShader emulation):
+
+- Real Telegram clients (iOS/Android/Desktop/Web): BackButton delivery, CloudStorage,
+  haptics, gyroscope, fullscreen, Pointer Lock inside Telegram Desktop's webview.
+- Physical mid-range laptop GPU FPS; iOS WebKit audio unlock/interruption; real sensor
+  permission prompts; acoustic listening on speakers/headphones.
+- The 30–45 minute human play duration has not been timed.
+
+Phase 8 exit met for everything verifiable here. Stop after this commit; Phase 9 not started.

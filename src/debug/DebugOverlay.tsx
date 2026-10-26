@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useGame } from '@/ui/gameStore'
 import { getLog } from '@/ui/errorLog'
 import { story } from '@/content/story'
+import { visibleChoices } from '@/core/engine'
 import { audio } from '@/audio/engine'
 import { getDesktopState } from '@/platform/device/desktopRuntime'
 
@@ -68,6 +69,17 @@ export function DebugOverlay() {
       setTime: (iso: string) => useGame.getState().debugSetTime(iso),
       getScreen: () => useGame.getState().screen,
       getNodeId: () => useGame.getState().run?.currentNodeId ?? null,
+      getStep: () => {
+        const step = useGame.getState().currentStep
+        if (!step) return null
+        return {
+          nodeId: step.node.id,
+          night: step.node.night,
+          phase: step.phase,
+          ending: step.node.ending ?? null,
+          choices: visibleChoices(step.node, step.state).map((c) => ({ id: c.id, label: c.label })),
+        }
+      },
       getAudioState: () => audio.inspect(),
       getDesktopState,
       advance: () => useGame.getState().advance(),
