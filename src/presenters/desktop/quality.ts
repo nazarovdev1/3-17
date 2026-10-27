@@ -1,4 +1,4 @@
-import type { QualityTier } from '@/platform/device/mode'
+import { QUALITY_HEIGHT, type QualityTier } from '@/platform/device/mode'
 
 /**
  * Render resolution and features per device (FIX_PROMPT §2: native resolution, DPR up to 2
@@ -31,8 +31,8 @@ export function renderProfile(gl?: {
   return { software, ultra, shadows: !software || ultra }
 }
 
-/** Software backends keep the old test heights; real GPUs render at native resolution. */
-const SOFTWARE_HEIGHT: Record<QualityTier, number> = { high: 400, low: 320 }
+/** CPU rasterizer limits; native GPUs render at viewport resolution. */
+const SOFTWARE_HEIGHT = QUALITY_HEIGHT
 
 export function renderDpr(tier: QualityTier, profile: RenderProfile, viewportHeight: number) {
   const device = Math.min(2, window.devicePixelRatio || 1)

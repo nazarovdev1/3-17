@@ -1,5 +1,6 @@
-import { useMemo } from 'react'
-import type * as THREE from 'three'
+import { useEffect, useMemo } from 'react'
+import * as THREE from 'three'
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import {
   CEILING,
   CORRIDOR_SPLIT_Z,
@@ -49,7 +50,9 @@ function withDado(pieces: Piece[]): Piece[] {
   return pieces.flatMap((p) => {
     const bottom = p.position[1] - p.size[1] / 2
     const top = p.position[1] + p.size[1] / 2
-    if (!p.faces.includes('stairwell') || bottom >= DADO || top <= DADO) return [p]
+    if (!p.faces.includes('stairwell') || top <= DADO) return [p]
+    if (bottom >= DADO)
+      return [{ ...p, faces: p.faces.map((f) => (f === 'stairwell' ? 'whitewash' : f)) }]
     const lower: Piece = {
       ...p,
       key: `${p.key}-lo`,
@@ -177,62 +180,75 @@ export function Architecture({
     return list
   }, [extension])
 
-  const geometries = useMemo(() => {
-    const cache = new Map<string, THREE.BufferGeometry>()
-    const box = (size: [number, number, number]) => {
-      const key = size.map((v) => v.toFixed(3)).join('x')
-      let g = cache.get(key)
-      if (!g) cache.set(key, (g = metricBox(...size)))
-      return g
+  // A material group on every box face costs a draw call. Compile the static shell
+  // into one mesh per finish, preserving metric UVs, normals and exact openings.
+  const shell = useMemo(() => {
+    const batches = new Map<Surface, THREE.BufferGeometry[]>()
+    const add = (surface: Surface, geometry: THREE.BufferGeometry) => {
+      const batch = batches.get(surface) ?? []
+      batch.push(geometry)
+      batches.set(surface, batch)
     }
-    const plane = (w: number, d: number) => {
-      const key = `p${w.toFixed(3)}x${d.toFixed(3)}`
-      let g = cache.get(key)
-      if (!g) cache.set(key, (g = metricPlane(w, d)))
-      return g
+    for (const piece of pieces) {
+      const box = metricBox(...piece.size)
+      const expanded = box.toNonIndexed()
+      for (const [index, surface] of piece.faces.entries()) {
+        const face = new THREE.BufferGeometry()
+        const group = expanded.groups[index]!
+        for (const name of ['position', 'normal', 'uv']) {
+          const attribute = expanded.getAttribute(name)
+          face.setAttribute(
+            name,
+            new THREE.Float32BufferAttribute(
+              attribute.array.slice(
+                group.start * attribute.itemSize,
+                (group.start + group.count) * attribute.itemSize,
+              ),
+              attribute.itemSize,
+            ),
+          )
+        }
+        face.translate(...piece.position)
+        add(surface, face)
+      }
+      box.dispose()
+      expanded.dispose()
     }
-    return { box, plane, dispose: () => cache.forEach((g) => g.dispose()) }
-  }, [])
+    for (const { rect, floor, ceiling } of floors) {
+      const w = rect.x1 - rect.x0
+      const d = rect.z1 - rect.z0
+      const cx = (rect.x0 + rect.x1) / 2
+      const cz = (rect.z0 + rect.z1) / 2
+      for (const [surface, height, angle] of [
+        [floor, 0, -Math.PI / 2],
+        [ceiling, CEILING, Math.PI / 2],
+      ] as const) {
+        if (!surface) continue
+        const indexed = metricPlane(w, d)
+        const plane = indexed.toNonIndexed().rotateX(angle).translate(cx, height, cz)
+        indexed.dispose()
+        add(surface, plane)
+      }
+    }
+    return [...batches].map(([surface, parts]) => {
+      const geometry = mergeGeometries(parts, false)
+      parts.forEach((part) => part.dispose())
+      return { surface, geometry }
+    })
+  }, [pieces, floors])
+  useEffect(() => () => shell.forEach(({ geometry }) => geometry.dispose()), [shell])
 
   return (
     <group name="architecture">
-      {pieces.map((p) => (
+      {shell.map(({ surface, geometry }) => (
         <mesh
-          key={p.key}
-          position={p.position}
-          geometry={geometries.box(p.size)}
-          material={p.faces.map((f) => surfaces[f])}
+          key={surface}
+          geometry={geometry}
+          material={surfaces[surface]}
           castShadow
           receiveShadow
         />
       ))}
-      {floors.map(({ key, rect, floor, ceiling }) => {
-        const w = rect.x1 - rect.x0
-        const d = rect.z1 - rect.z0
-        const cx = (rect.x0 + rect.x1) / 2
-        const cz = (rect.z0 + rect.z1) / 2
-        return (
-          <group key={key}>
-            {floor && (
-              <mesh
-                position={[cx, 0, cz]}
-                rotation-x={-Math.PI / 2}
-                geometry={geometries.plane(w, d)}
-                material={surfaces[floor]}
-                receiveShadow
-              />
-            )}
-            {ceiling && (
-              <mesh
-                position={[cx, CEILING, cz]}
-                rotation-x={Math.PI / 2}
-                geometry={geometries.plane(w, d)}
-                material={surfaces[ceiling]}
-              />
-            )}
-          </group>
-        )
-      })}
       <Stairs surfaces={surfaces} />
       <Balcony surfaces={surfaces} />
     </group>
@@ -246,10 +262,19 @@ function Stairs({ surfaces }: { surfaces: SurfaceMaterials }) {
     // (geometry built once below)
     const rise = 0.163
     const run = 0.28
+    // The lower landing closes the shaft beneath both flights; no view into the skybox.
+    list.push({ position: [1.6, -1.6, 8.65], size: [2.8, 0.2, 2.9] })
+    for (const id of ['stairs_west', 'landing_east', 'stairs_south']) {
+      const { box } = WORLD.walls.find((wall) => wall.id === id)!
+      list.push({
+        position: [(box.x0 + box.x1) / 2, -0.75, (box.z0 + box.z1) / 2],
+        size: [box.x1 - box.x0, 1.5, box.z1 - box.z0],
+      })
+    }
     for (let i = 0; i < 8; i++) {
       const top = -rise * (i + 1)
       list.push({
-        position: [0.88, top - 0.1, 7.4 + run * i + run / 2],
+        position: [0.88, top - (0.2 + rise) / 2, 7.4 + run * i + run / 2],
         size: [1.3, 0.2 + rise, run],
       })
     }
@@ -264,6 +289,16 @@ function Stairs({ surfaces }: { surfaces: SurfaceMaterials }) {
     return list.map((step) => ({ ...step, geometry: metricBox(...step.size) }))
   }, [])
   const rail = useMemo(() => metricBox(0.05, 0.05, 2.6), [])
+  const posts = useMemo(
+    () =>
+      [7.45, 7.95, 8.5, 9.05, 9.55].map((z) => {
+        const tread = Math.min(8, Math.floor((z - 7.4) / 0.28) + 1)
+        const bottom = -0.163 * tread
+        const top = 0.9 - ((z - 7.38) * 1.3) / 2.24
+        return { z, y: (bottom + top) / 2, geometry: metricBox(0.035, top - bottom, 0.035) }
+      }),
+    [],
+  )
   return (
     <group name="stairs">
       {steps.map((step, i) => (
@@ -278,11 +313,21 @@ function Stairs({ surfaces }: { surfaces: SurfaceMaterials }) {
       ))}
       {/* Steel rail between the flights. */}
       <mesh
-        position={[1.6, -0.35, 8.5]}
+        position={[1.51, 0.25, 8.5]}
         rotation-x={Math.atan2(1.3, 2.24)}
         geometry={rail}
         material={surfaces.concrete}
       />
+      {posts.map((post) => (
+        <mesh
+          key={post.z}
+          position={[1.51, post.y, post.z]}
+          geometry={post.geometry}
+          material={surfaces.concrete}
+          castShadow
+          receiveShadow
+        />
+      ))}
     </group>
   )
 }

@@ -12,7 +12,7 @@ import {
   Vignette,
 } from '@react-three/postprocessing'
 import { BlendFunction, ToneMappingMode } from 'postprocessing'
-import { NoToneMapping, PCFSoftShadowMap, type Mesh } from 'three'
+import { AgXToneMapping, NoToneMapping, PCFSoftShadowMap, type Mesh } from 'three'
 import { visibleChoices } from '@/core/engine'
 import { useGame } from '@/ui/gameStore'
 import { useSettings } from '@/ui/settingsStore'
@@ -92,6 +92,8 @@ function Runtime({
     }
   }, [gl, onFallback, onLost])
   useFrame((_, delta) => {
+    desktopRuntime.software = profile.software
+    desktopRuntime.shadows = gl.shadowMap.enabled
     desktopRuntime.frames++
     frames.current++
     if (paused || document.hidden || delta > 0.5) {
@@ -123,6 +125,18 @@ function Runtime({
   }, -2)
   return null
 }
+function SoftwareOutput() {
+  const gl = useThree((s) => s.gl)
+  useEffect(() => {
+    const previous = gl.toneMapping
+    gl.toneMapping = AgXToneMapping
+    return () => {
+      gl.toneMapping = previous
+    }
+  }, [gl])
+  return null
+}
+
 function PostEffects({
   peephole,
   tier,
@@ -142,8 +156,9 @@ function PostEffects({
   )
   useEffect(() => () => aperture.dispose(), [aperture])
   // Ambient occlusion and bloom only where the GPU can afford them (FIX_PROMPT §2).
-  const rich = tier === 'high' && !profile.software
+  const rich = tier === 'high' && (!profile.software || profile.ultra)
   const aberration = !reduced && sanity < 70 ? (100 - sanity) * 0.000012 : 0
+  if (profile.software && !profile.ultra && !peephole) return <SoftwareOutput />
   return (
     <EffectComposer multisampling={rich ? 4 : 0} enableNormalPass={false}>
       {rich ? (
@@ -163,7 +178,7 @@ function PostEffects({
       )}
       <ToneMapping mode={ToneMappingMode.AGX} />
       <Vignette offset={0.3} darkness={0.6} />
-      <Noise premultiply blendFunction={BlendFunction.SCREEN} opacity={0.18} />
+      <Noise premultiply blendFunction={BlendFunction.SCREEN} opacity={0.035} />
       {peephole ? <primitive object={aperture} /> : <></>}
     </EffectComposer>
   )
@@ -223,7 +238,8 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
     !!step &&
     (step.state.visitedNodes.includes(`n${step.state.night}_317`) ||
       step.node.mobile?.vignette === 'room_dark')
-  const flashlight = torchOverride ?? outage
+  const torchNeeded = outage || step?.node.location === 'flat48'
+  const flashlight = torchOverride ?? torchNeeded
   const [lightsOff, setLightsOff] = useState<Set<number>>(() => new Set())
   const [near, setNear] = useState<Choice | null>(null)
   const [control, setControl] = useState<'lock' | 'drag'>('drag')
@@ -235,11 +251,14 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
       return true
     }
   })
-  const [profile] = useState(() => renderProfile())
+  const [profile, setProfile] = useState(() => renderProfile())
+  const [still] = useState(
+    () => new URLSearchParams(window.location.search).get('render') === 'still',
+  )
   const choices = useMemo(() => (step ? visibleChoices(step.node, step.state) : []), [step])
   const toggleFlashlight = useCallback(
-    () => setTorchOverride((value) => !(value ?? outage)),
-    [outage],
+    () => setTorchOverride((value) => !(value ?? torchNeeded)),
+    [torchNeeded],
   )
   const toggleSwitch = useCallback((index: number) => {
     setLightsOff((previous) => {
@@ -280,6 +299,7 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
     >
       <div className="desktop-view" aria-label={ui('desktop.scene_label')}>
         <Canvas
+          onCreated={({ gl }) => setProfile(renderProfile(gl))}
           dpr={renderDpr(tier, profile, window.innerHeight)}
           shadows={profile.shadows ? { type: PCFSoftShadowMap } : false}
           frameloop={paused || lost ? 'never' : 'always'}
@@ -322,14 +342,15 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
             extension={corridorExtension}
             shadows={profile.shadows}
           />
-          {choices.map((choice) => (
-            <Interactor
-              key={choice.id}
-              choice={choice}
-              onSelect={choose}
-              extension={corridorExtension}
-            />
-          ))}
+          {!still &&
+            choices.map((choice) => (
+              <Interactor
+                key={choice.id}
+                choice={choice}
+                onSelect={choose}
+                extension={corridorExtension}
+              />
+            ))}
           <PostEffects
             peephole={peephole}
             tier={tier}

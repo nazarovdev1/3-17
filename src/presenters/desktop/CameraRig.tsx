@@ -16,8 +16,17 @@ import { audio } from '@/audio/engine'
 import { useGame } from '@/ui/gameStore'
 import { useSettings } from '@/ui/settingsStore'
 import { desktopRuntime } from '@/platform/device/desktopRuntime'
-import { interactionPoint, nodePoint, VIEWS, walk, SWITCHES, type Point } from './layout'
+import {
+  interactionPoint,
+  nodePoint,
+  VIEWS,
+  AUDIT_VIEWS,
+  walk,
+  SWITCHES,
+  type Point,
+} from './layout'
 import type { Choice, Step } from '@/core/engine/types'
+import { softwareLight } from './world/softwareMaterial'
 
 export interface RigProps {
   step: Step
@@ -69,18 +78,23 @@ export function CameraRig({
   const viewpoint = step.node.mobile?.vignette === 'window' ? 'balcony' : step.node.location
   const peephole = step.node.mobile?.vignette === 'peephole'
   const turnedBack = step.node.id === 'n3_corridor_stop'
+  const params = new URLSearchParams(window.location.search)
+  const auditView =
+    import.meta.env.VITE_GAME_API === '1' && params.get('render') === 'still'
+      ? AUDIT_VIEWS[params.get('auditView') ?? '']
+      : undefined
   useLayoutEffect(() => {
-    const view = VIEWS[viewpoint]
+    const view = auditView ?? VIEWS[viewpoint]
     const spawn: Point = peephole ? [0, 1.62, 4.42] : view.position
     camera.position.set(...spawn)
     mirrorHistory.current = []
-    angles.current = { yaw: peephole ? Math.PI : turnedBack ? 0 : view.yaw, pitch: 0 }
-    camera.rotation.set(0, angles.current.yaw, 0, 'YXZ')
+    angles.current = { yaw: peephole ? Math.PI : turnedBack ? 0 : view.yaw, pitch: view.pitch ?? 0 }
+    camera.rotation.set(angles.current.pitch, angles.current.yaw, 0, 'YXZ')
     const perspective = camera as PerspectiveCamera
     // R3F owns a mutable Three camera; this is imperative scene synchronization.
     perspective.fov = peephole ? 110 : 66
     perspective.updateProjectionMatrix()
-  }, [viewpoint, peephole, turnedBack, camera])
+  }, [viewpoint, peephole, turnedBack, camera, auditView])
 
   useEffect(() => {
     const stopListening = () => {
@@ -233,6 +247,9 @@ export function CameraRig({
         : 0)
     camera.quaternion.setFromEuler(new Euler(pitch, yaw, 0, 'YXZ'))
     camera.getWorldDirection(forward.current)
+    softwareLight.torchPosition.value.copy(camera.position)
+    softwareLight.torchDirection.value.copy(forward.current)
+    softwareLight.torch.value = flashlight ? 12 : 0
     audio.setListener(
       [camera.position.x, camera.position.y, camera.position.z],
       [forward.current.x, forward.current.y, forward.current.z],

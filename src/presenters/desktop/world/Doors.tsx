@@ -5,6 +5,7 @@ import { WORLD, type DoorDef, type Opening, type Wall } from '@/content/world/la
 import { desktopRuntime } from '@/platform/device/desktopRuntime'
 import { metricBox, type SurfaceMaterials } from './materials'
 import { splitWall } from './stretch'
+import { softwareMaterial } from './softwareMaterial'
 
 /**
  * Hinged doors from the plan. Each leaf pivots at its hinge and swings toward the side the
@@ -20,6 +21,27 @@ interface Placed {
   base: number
   /** Sign of the opening rotation that swings the free end to the right side. */
   sign: 1 | -1
+}
+
+const plates = new Map<string, THREE.CanvasTexture>()
+function numberPlate(label: string) {
+  let texture = plates.get(label)
+  if (texture) return texture
+  const canvas = document.createElement('canvas')
+  canvas.width = 256
+  canvas.height = 128
+  const context = canvas.getContext('2d')!
+  context.fillStyle = '#292b29'
+  context.fillRect(0, 0, 256, 128)
+  context.fillStyle = '#c8c3ab'
+  context.textAlign = 'center'
+  context.textBaseline = 'middle'
+  context.font = '80px Georgia, serif'
+  context.fillText(label, 128, 68)
+  texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  plates.set(label, texture)
+  return texture
 }
 
 function place(def: DoorDef, extension: number): Placed | null {
@@ -53,7 +75,7 @@ function rest(def: DoorDef, doorAjar: boolean): number {
   if (def.kind === 'entrance' || def.kind === 'metal' || def.kind === 'lift') return 0
   if (def.kind === 'balcony' || def.kind === 'closet') return 0
   if (def.id.startsWith('bath_door')) return 0.22
-  if (def.id.startsWith('kitchen_door')) return 1.1
+  if (def.id.startsWith('kitchen_door')) return 0.22
   return 1.45
 }
 
@@ -147,8 +169,45 @@ function Leaf({ p, surfaces }: { p: Placed; surfaces: SurfaceMaterials }) {
         position: [width / 2, 1.6, 0],
       })
     }
-    return list
-  }, [def.kind, opening, surfaces])
+    if (def.label) {
+      list.push({
+        geometry: new THREE.BoxGeometry(0.18, 0.09, thick + 0.004),
+        material: new THREE.MeshStandardMaterial({ map: numberPlate(def.label), roughness: 0.7 }),
+        position: [width / 2, 1.82, 0],
+      })
+    }
+    if (def.kind === 'lift') {
+      list.push({
+        geometry: new THREE.BoxGeometry(0.009, height, thick + 0.002),
+        material: leather,
+        position: [width / 2, height / 2, 0],
+      })
+      list.push({
+        geometry: new THREE.BoxGeometry(0.12, 0.2, 0.025),
+        material: steel,
+        position: [width + 0.14, 1.2, -0.105],
+      })
+      list.push({
+        geometry: new THREE.CylinderGeometry(0.018, 0.018, 0.016, 16).rotateX(Math.PI / 2),
+        material: brass,
+        position: [width + 0.14, 1.2, -0.125],
+      })
+      list.push({
+        geometry: new THREE.BoxGeometry(0.16, 0.09, 0.012),
+        material: new THREE.MeshStandardMaterial({ map: numberPlate('4'), roughness: 0.65 }),
+        position: [width / 2, height + 0.12, -0.105],
+      })
+    }
+    return surfaces.door_paint instanceof THREE.MeshBasicMaterial
+      ? list.map((part) => ({
+          ...part,
+          material:
+            part.material instanceof THREE.MeshStandardMaterial
+              ? softwareMaterial(part.material)
+              : part.material,
+        }))
+      : list
+  }, [def.kind, def.label, opening, surfaces])
   return (
     <>
       {parts.map((part, i) => (
@@ -192,8 +251,16 @@ export function Doors({
       const centre = p.hinge.clone()
       const near = Math.hypot(px! - centre.x, pz! - centre.z) < 1.6
       const opensForPlayer =
-        p.def.kind !== 'metal' && p.def.kind !== 'lift' && p.def.id !== 'balcony_door'
-      const target = near && opensForPlayer ? 1.4 : rest(p.def, doorAjar)
+        p.def.kind !== 'metal' &&
+        p.def.kind !== 'lift' &&
+        p.def.id !== 'balcony_door' &&
+        (p.def.id !== 'front_door48' || doorAjar)
+      // Once the player is fully inside the small kitchen, close the leaf behind
+      // them. Holding it open here screened the fridge and washer with frosted glass.
+      const kitchenInside =
+        p.def.id.startsWith('kitchen_door') &&
+        (px! - p.hinge.x) * (p.def.id.endsWith('48') ? -1 : 1) > 0.37
+      const target = near && opensForPlayer && !kitchenInside ? 1.4 : rest(p.def, doorAjar)
       const current = angles.current[i] ?? rest(p.def, doorAjar)
       const next = current + (target - current) * 0.1
       angles.current[i] = next

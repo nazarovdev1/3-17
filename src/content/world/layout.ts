@@ -483,6 +483,7 @@ const OBJECTS_47: WorldObject[] = [
     asset: 'fridge',
     position: [1.06, 0, 0.42],
     rotation: 0,
+    orient: [0, -HALF_PI, 0],
     size: [0.6, 1.3, 0.61],
     support: ON_FLOOR,
     purpose: 'old fridge; its hum stops at 3:17',
@@ -793,9 +794,10 @@ const OBJECTS_47: WorldObject[] = [
     id: 'shoe_rack',
     room: 'hall',
     asset: 'shoe_rack',
-    position: [1.275, 0, 3.8],
+    position: [1.45, 0, 3.8],
     rotation: -HALF_PI,
-    size: [0.3, 1.13, 0.65],
+    orient: [0, -HALF_PI, 0],
+    size: [0.65, 1.13, 0.3],
     support: ON_FLOOR,
     purpose: 'shoe rack under the hooks',
     blocks: true,
@@ -894,6 +896,16 @@ const WALLS_COMMON: Wall[] = [
 ]
 
 const OBJECTS_COMMON: WorldObject[] = [
+  {
+    id: 'stairs_window',
+    room: 'stairs',
+    asset: 'window',
+    position: [1.6, 1.12, 10.15],
+    rotation: Math.PI,
+    size: [1.2, 1.17, 0.06],
+    support: wall('stairs_south'),
+    purpose: 'stairwell window above the radiator and half-landing',
+  },
   {
     id: 'landing_bulb',
     room: 'landing',
@@ -1116,7 +1128,13 @@ const DOORS_48: DoorDef[] = DOORS_47.filter((d) => d.id !== 'balcony_door').map(
   id: `${d.id}48`,
   wall: `${d.wall}48`,
   // Mirroring flips which end of an x-axis wall the hinge sits on.
-  hinge: d.hinge === 'low' ? 'high' : 'low',
+  hinge:
+    WALLS_47.find((w) => w.id === d.wall)?.axis === 'x'
+      ? d.hinge === 'low'
+        ? 'high'
+        : 'low'
+      : d.hinge,
+  swing: WALLS_47.find((w) => w.id === d.wall)?.axis === 'z' ? ((d.swing * -1) as 1 | -1) : d.swing,
   ...(d.label ? { label: '48' } : {}),
 }))
 

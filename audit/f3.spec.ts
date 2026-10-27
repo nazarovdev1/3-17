@@ -3,16 +3,25 @@
 import { expect, test, type Page } from '@playwright/test'
 
 const OUT = 'audit/screenshots/f3'
-type Api = { goTo: (id: string) => void; getDesktopState: () => { frames: number } }
+type Api = {
+  goTo: (id: string) => void
+  getDesktopState: () => { frames: number; worldReady: boolean }
+}
 
-const SHOTS: [name: string, node: string, drag: number][] = [
+const SHOTS: [name: string, node: string, drag: number, view?: string][] = [
   ['01-room', 'n1_hub', 0],
   ['02-room-sofa', 'n1_hub', -330],
   ['03-room-tv', 'n1_hub', 330],
   ['04-kitchen', 'n1_tea', 0],
+  ['04b-kitchen-stove', 'n1_tea', 0, 'app-inspect'],
   ['05-bathroom', 'n2_mirror', 0],
-  ['06-corridor', 'n3_corridor_stop', 0],
+  ['05b-bathroom-tub', 'n2_mirror', -1000],
+  ['05c-bathroom-fixtures', 'n2_mirror', 0, 'bath-inspect'],
+  ['06-corridor', 'n3_corridor_loop', 0],
+  ['06b-hall-fixtures', 'n3_corridor_loop', 0, 'fixtures'],
   ['07-landing', 'n2_day_start', 0],
+  ['07b-landing-doors', 'n2_day_start', 0, 'neighbours'],
+  ['07c-landing-stairs', 'n2_day_start', 0, 'stairs'],
   ['08-flat48', 'n4_inside48', 0],
   ['09-window', 'n1_window', 0],
   ['10-outage', 'n1_317', 0],
@@ -28,33 +37,66 @@ async function boot(page: Page) {
     sessionStorage.setItem('g317:controls', '1')
     HTMLCanvasElement.prototype.requestPointerLock = () => Promise.reject(new Error('drag'))
   })
-  await page.goto('/?debug=1&quality=ultra')
+  await page.goto('/?debug=1&quality=ultra&render=still')
   await page.locator('input[type=checkbox]').last().check()
   await page.locator('.panel button').last().click()
   await page.locator('.menu button').first().click()
   await page.getByRole('textbox').fill('Dilnoza')
   await page.locator('.panel > button').last().click()
   await page.locator('.desktop-view canvas').waitFor({ timeout: 120_000 })
+  await expect
+    .poll(
+      () =>
+        page.evaluate(
+          () => (window as unknown as { __game: Api }).__game.getDesktopState().worldReady,
+        ),
+      { timeout: 120_000 },
+    )
+    .toBe(true)
   await page.addStyleTag({
-    content: '.debug-overlay,.desktop-hud,.desktop-topline,.crosshair,.interaction-prompt{display:none!important}',
+    content:
+      '.debug-overlay,.desktop-hud,.desktop-topline,.crosshair,.interaction-prompt{display:none!important}',
   })
 }
 
 test('f3 flat shots', async ({ page }) => {
-  test.setTimeout(1_200_000)
+  test.setTimeout(3_600_000)
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(String(e)))
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
   await boot(page)
-  for (const [name, node, drag] of SHOTS) {
+  const selected = process.env.F3_SHOTS?.split(',')
+  for (const [name, node, drag, view] of SHOTS.filter(
+    ([name]) => !selected || selected.includes(name),
+  )) {
+    await page.evaluate((camera) => {
+      const url = new URL(window.location.href)
+      if (camera) url.searchParams.set('auditView', camera)
+      else url.searchParams.delete('auditView')
+      history.replaceState(null, '', url)
+    }, view)
+    // Consecutive room shots otherwise retain the previous drag yaw.
+    await page.evaluate(
+      (id) => (window as unknown as { __game: Api }).__game.goTo(id),
+      node === 'n2_day_start' ? 'n1_hub' : 'n2_day_start',
+    )
+    await page.waitForTimeout(250)
     await page.evaluate((id) => (window as unknown as { __game: Api }).__game.goTo(id), node)
     await expect(page.locator('.desktop-game')).toHaveAttribute('data-node', node)
     await page.waitForTimeout(1500)
     if (drag) {
-      await page.mouse.move(720, 450)
-      await page.mouse.down()
-      await page.mouse.move(720 + drag, 450, { steps: 12 })
-      await page.mouse.up()
+      // Stills need a camera pose, not a timed input test. Batch the drag so every
+      // intermediate pointer position does not wait for another full HD software frame.
+      await page.evaluate((distance) => {
+        const canvas = document.querySelector('.desktop-view canvas')!
+        canvas.dispatchEvent(
+          new PointerEvent('pointerdown', { clientX: 720, clientY: 450, bubbles: true }),
+        )
+        window.dispatchEvent(
+          new PointerEvent('pointermove', { clientX: 720 + distance, clientY: 450 }),
+        )
+        window.dispatchEvent(new PointerEvent('pointerup'))
+      }, drag)
     }
     // Let shadows, AO and the door animations settle (software GL is slow).
     await page.waitForTimeout(9000)

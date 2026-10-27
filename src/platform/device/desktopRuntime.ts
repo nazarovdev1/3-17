@@ -1,6 +1,9 @@
 /** Scalar diagnostics keep Three.js out of the mobile entry graph. */
 export const desktopRuntime = {
   mounted: false,
+  worldReady: false,
+  software: false,
+  shadows: false,
   context: 'idle',
   tier: 'high',
   fps: 0,

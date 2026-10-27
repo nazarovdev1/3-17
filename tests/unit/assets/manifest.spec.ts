@@ -22,14 +22,16 @@ describe('asset manifest (FIX_PROMPT §3)', () => {
     expect(ALLOWED_LICENSES).toContain(a.license)
     for (const p of FORBIDDEN_PATTERNS) expect(`${a.id} ${a.title} ${a.author}`).not.toMatch(p)
     expect(a.author).not.toBe('')
-    expect(a.sourceUrl).toMatch(/^https:\/\/(polyhaven\.com|ambientcg\.com)\//)
+    expect(a.sourceUrl).toMatch(/^https:\/\/(polyhaven\.com|ambientcg\.com|sketchfab\.com)\//)
     expect(a.purpose.length).toBeGreaterThan(5)
     expect(CREDITS).toContain(a.sourceUrl)
 
     const keys = Object.keys(a.files).sort()
     if (a.kind === 'model') {
       expect(keys).toEqual(['model'])
-      expect(a.dimensionsM).toHaveLength(3)
+      expect(a.boundsM).toHaveLength(3)
+      expect(a.boundsM!.every((extent) => Number.isFinite(extent) && extent > 0)).toBe(true)
+      if (a.source === 'polyhaven') expect(a.dimensionsM).toHaveLength(3)
     }
     if (a.kind === 'texture') expect(keys).toEqual(['color', 'normal', 'orm'])
     if (a.kind === 'hdri') expect(keys).toEqual(['hdr'])

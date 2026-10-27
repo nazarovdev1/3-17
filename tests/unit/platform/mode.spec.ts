@@ -37,6 +37,8 @@ describe('detectTier', () => {
   it('high for tall internal buffers, low otherwise', () => {
     expect(detectTier(450)).toBe('high')
     expect(detectTier(400)).toBe('high')
+    expect(detectTier(360)).toBe('high')
+    expect(detectTier(336)).toBe('high')
     expect(detectTier(320)).toBe('low')
   })
 })

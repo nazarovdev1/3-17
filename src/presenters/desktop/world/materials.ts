@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import type { Surface } from '@/content/world/layout'
 import { loadPbr } from '../assets'
+import { softwareMaterial } from './softwareMaterial'
 
 /**
  * PBR materials for architectural surfaces. Geometry carries UVs in metres, so each texture
@@ -24,15 +25,15 @@ const SOURCES: Record<
   tiles: { id: 'Tiles107', tile: 1.0, color: '#b9bdb6' },
   wallpaper47: { id: 'Wallpaper001C', tile: 1.1, color: '#9d9583', normal: 0.6 },
   wallpaper48: { id: 'Wallpaper002C', tile: 1.4, color: '#7b7c6e' },
-  whitewash: { id: 'PaintedPlaster017', tile: 3.0, color: '#aeaaa0', normal: 0.18 },
-  stairwell: { id: 'PaintedPlaster010', tile: 2.2, color: '#6f8274' },
+  whitewash: { id: 'PaintedPlaster017', tile: 3.0, color: '#aeaaa0', normal: 0.035 },
+  stairwell: { id: 'PaintedPlaster010', tile: 2.2, color: '#6f8274', normal: 0.2, plain: true },
   concrete: { id: 'Concrete034', tile: 2.0, color: '#7a7a76' },
   door_paint: { id: 'PaintedWood007C', tile: 1.0, color: '#cdc8bb', normal: 0.35, plain: true },
 }
 
-export type SurfaceMaterials = Record<Surface, THREE.MeshStandardMaterial>
+export type SurfaceMaterials = Record<Surface, THREE.MeshStandardMaterial | THREE.MeshBasicMaterial>
 
-export async function loadSurfaces(): Promise<SurfaceMaterials> {
+export async function loadSurfaces(detailed = true): Promise<SurfaceMaterials> {
   const entries = await Promise.all(
     (Object.keys(SOURCES) as Surface[]).map(async (surface) => {
       const source = SOURCES[surface]
@@ -40,14 +41,22 @@ export async function loadSurfaces(): Promise<SurfaceMaterials> {
       const maps = await loadPbr(source.id, [repeat, repeat])
       const material = new THREE.MeshStandardMaterial({
         ...maps,
+        ...(!detailed
+          ? { normalMap: null, roughnessMap: null, metalnessMap: null, aoMap: null }
+          : {}),
         ...(source.plain ? { map: null, roughness: 0.55 } : {}),
         color: source.color ?? '#ffffff',
         ...(source.plain ? {} : { roughness: source.roughness ?? 1 }),
-        metalness: 1,
+        metalness: detailed ? 1 : 0,
         // ORM: metalness lives in the map's blue channel; the scalar is a multiplier.
       })
       material.name = surface
       if (source.normal !== undefined) material.normalScale.setScalar(source.normal)
+      if (!detailed) {
+        const fallback = softwareMaterial(material)
+        material.dispose()
+        return [surface, fallback] as const
+      }
       return [surface, material] as const
     }),
   )

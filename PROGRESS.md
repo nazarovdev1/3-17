@@ -18,7 +18,7 @@ Fix phases (FIX_PROMPT.md):
 - [x] F0 — Audit and plan (`AUDIT.md`), approved by the owner
 - [x] F1 — Story and language, reviewed by the owner (8 fixes applied in `9c4dbb7`)
 - [x] F2 — Asset pipeline
-- [ ] F3 — Desktop flat rebuild (IN PROGRESS — see HANDOFF.md)
+- [ ] F3 — Desktop flat rebuild (verified; awaiting owner review — see HANDOFF.md)
 - [ ] F4 — Desktop horror
 - [ ] F5 — Audio
 - [ ] F6 — Mobile
@@ -31,13 +31,13 @@ Done:
 
 - `src/content/world/layout.ts`: the plan in metres (flat 47, 4th-floor landing with doors
   46–49, lift and stairs, flat 48 mirrored and decayed): 24 walls with openings, 14 doors,
-  71 objects each with room, transform, real size, support and story purpose.
+  72 objects each with room, transform, real size, support and story purpose.
 - `docs/floorplan.svg` generated from it (`npm run validate:world` rewrites it).
 - `npm run validate:world` (in `check`): intersections (objects, walls minus openings),
   floating, outside room, ±10 % scale, doorways clear, every room reachable on foot from the
   entrance (10 cm grid on the same walk function the camera uses). Unit tests prove each
   rule fires.
-- 15 Sketchfab CC-BY models added (credited); 42 assets, 19.4 MB.
+- 15 Sketchfab CC-BY models added (credited); 42 assets, 19.9 MB.
 - Desktop renderer rebuilt (`src/presenters/desktop/World.tsx`, `world/*`): PBR walls with
   per-room finishes and metric UVs, stairwell dado, doors on hinges, real fixtures, a live
   bathroom mirror, the block opposite with windows that go dark, snow, the yard below.
@@ -46,7 +46,38 @@ Done:
 - Movement and story anchors now come from the plan (`src/content/world/walk.ts`,
   `src/presenters/desktop/layout.ts`).
 
-Open / next (F4): the figure, the TV glow and on-screen picture, the phone as an object,
+F3 corrective pass (2026-10-27):
+
+- Reviewed HD views of every room plus appliance, bathroom, hall and stair details. Corrected
+  the fridge and shoe rack fronts, the clock's hands, mirrored door hinges, kitchen-door
+  occlusion, window glazing, stair treads/rail supports and the stairwell base. Added the
+  stair window, neighbour numbers, lift seam/button/floor indicator and whitewashed lintels.
+- Balanced warm bulbs against cold window fill, reduced ceiling relief and grain, and kept
+  the torch available in unpowered flat 48. Native/ultra retains full PBR, shadows, AO and bloom.
+- Fixed a software-renderer regression: refractive clock glass triggered an extra scene pass.
+  The CPU profile now uses cached mesh LODs, 512 px linear colour maps and vertex lighting at
+  336/320 lines. Static architecture is batched by finish. The 55 FPS test gate is unchanged.
+- Desktop tests wait for world assets and aim/walk toward the current clock anchor using real
+  input. Asset checks now cover the Sketchfab sources without assuming Poly Haven metadata.
+- The HD audit has 16 views plus the numbered floor plan; `audit/f3-contact-sheet.mjs` builds
+  one 12-shot review sheet and measures near-black pixels. Every view was opened; the
+  worst near-black result is 50.3%, below the 60% cap. Per-shot rubric scores are in QA.md.
+
+Verified on the final source:
+
+- `npm run check` green: 238 tests in 21 files, 90 story nodes / zero warnings, the
+  72-object world validator, production build and JS/asset budgets.
+- Full `npx playwright test`: **172 passed, 5 expected skips, 0 failures** in 12.1 minutes.
+  No tests were deleted or assertions relaxed. Desktop high/336 measured 59.88 FPS;
+  repeated tours held 59.99 FPS with exactly 217 geometries / 43 textures before and after.
+- Full HD capture plus corrective recaptures and a fresh floor-plan capture passed. The
+  final 12-shot contact sheet was opened and inspected. Native HD laptop performance and
+  physical Telegram/sensor/audio verification remain F8 work.
+
+F3 implementation and verification are complete. STOP for owner review before F4; the
+checkbox remains open until that review is approved.
+
+Open / next (F4, only after owner approval): the figure, the TV glow and on-screen picture, the phone as an object,
 interaction prompt only within 1.5 m, inspection in hand, the mirror's lagging reflection.
 
 ## F2 — Asset pipeline

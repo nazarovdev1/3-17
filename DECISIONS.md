@@ -119,3 +119,11 @@ Android phones"), recorded here.
 31. **Primitive figures removed.** The box-and-sphere neighbour and peephole figure are gone;
     F4 builds the figure. The torch now follows the power (off while bulbs burn, on after
     3:17) unless toggled with F.
+32. **F3 render profiles share the same plan and assets.** Native GPUs and `quality=ultra`
+    keep the full meshes, PBR maps, physical glass, shadows, AO and bloom. The CPU rasterizer
+    targets 336/320 lines, with cached mesh LODs, 512 px linear colour maps and vertex lighting (including the torch),
+    with AgX applied directly; the peephole retains its effect pass. Its clock glass must
+    also use the fallback material: leaving that one refractive physical material enabled
+    forced a second full-scene transmission pass and made the software renderer fall back
+    mid-story. The existing 55 FPS browser assertion stays in force. Static architecture is
+    batched by finish in both profiles, preserving the plan's openings and metric UVs.

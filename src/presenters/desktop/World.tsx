@@ -13,6 +13,7 @@ import { Furniture, placeClock, type Models } from './world/Furniture'
 import { Lighting } from './world/Lighting'
 import { loadSurfaces, type SurfaceMaterials } from './world/materials'
 import { Outside } from './world/Outside'
+import { softwareModel } from './world/software'
 
 /**
  * Flat 47, the landing and flat 48, built from src/content/world/layout.ts with the
@@ -25,7 +26,7 @@ interface Loaded {
   environment: THREE.Texture
 }
 
-function useWorldAssets(): Loaded | null {
+function useWorldAssets(detailed: boolean): Loaded | null {
   const [loaded, setLoaded] = useState<Loaded | null>(null)
   useEffect(() => {
     let cancelled = false
@@ -33,8 +34,13 @@ function useWorldAssets(): Loaded | null {
       (id) => !id.startsWith('proc:') && manifest.assets.some((a) => a.id === id),
     )
     void Promise.all([
-      Promise.all(modelIds.map(async (id) => [id, await loadModel(id)] as const)),
-      loadSurfaces(),
+      Promise.all(
+        modelIds.map(async (id) => {
+          const model = await loadModel(id)
+          return [id, detailed ? model : await softwareModel(model)] as const
+        }),
+      ),
+      loadSurfaces(detailed),
       loadHdri('dikhololo_night'),
     ]).then(([models, surfaces, environment]) => {
       if (!cancelled) setLoaded({ models: new Map(models), surfaces, environment })
@@ -42,17 +48,25 @@ function useWorldAssets(): Loaded | null {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [detailed])
   return loaded
 }
 
 const SKIP = new Set(['clock'])
 
-function Clock({ models, requested }: { models: Models; requested: boolean }) {
+function Clock({
+  models,
+  requested,
+  detailed,
+}: {
+  models: Models
+  requested: boolean
+  detailed: boolean
+}) {
   const camera = useThree((s) => s.camera)
   const o = objectById('clock')!
   const gltf = models.get(o.asset)
-  const node = useMemo(() => (gltf ? placeClock(o, gltf) : null), [gltf, o])
+  const node = useMemo(() => (gltf ? placeClock(o, gltf, detailed) : null), [gltf, o, detailed])
   const [initial] = useState(requested)
   const shifted = useRef(initial)
   const group = useRef<THREE.Group>(null)
@@ -106,17 +120,19 @@ export function World({
   clockRequested: boolean
   shadows: boolean
 }) {
-  const assets = useWorldAssets()
+  const assets = useWorldAssets(shadows)
   const scene = useThree((s) => s.scene)
   const extension = corridorLength - 1
   useEffect(() => {
     if (!assets) return
-    scene.environment = assets.environment
+    scene.environment = shadows ? assets.environment : null
     scene.environmentIntensity = 0.05
+    desktopRuntime.worldReady = true
     return () => {
       scene.environment = null
+      desktopRuntime.worldReady = false
     }
-  }, [assets, scene])
+  }, [assets, scene, shadows])
   if (!assets) return null
   return (
     <>
@@ -129,7 +145,7 @@ export function World({
         skip={SKIP}
         mirrors={shadows}
       />
-      <Clock models={assets.models} requested={clockRequested} />
+      <Clock models={assets.models} requested={clockRequested} detailed={shadows} />
       <Doors surfaces={assets.surfaces} extension={extension} doorAjar={doorAjar} />
       <Lighting outage={outage} lightsOff={lightsOff} extension={extension} shadows={shadows} />
     </>

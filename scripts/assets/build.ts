@@ -14,6 +14,7 @@ import { ALL_EXTENSIONS } from '@gltf-transform/extensions'
 import { dedup, meshopt, prune, simplify, textureCompress, weld } from '@gltf-transform/functions'
 import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer'
 import sharp from 'sharp'
+import { format, resolveConfig } from 'prettier'
 import { CACHE, readMeta } from './fetch'
 import {
   ALLOWED_LICENSES,
@@ -209,7 +210,10 @@ async function main() {
     })
   }
   const manifest: AssetManifest = { assets }
-  writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2) + '\n')
+  writeFileSync(
+    MANIFEST,
+    await format(JSON.stringify(manifest), { ...(await resolveConfig(MANIFEST)), parser: 'json' }),
+  )
   writeFileSync(CREDITS, credits(assets))
   const total = assets.reduce((sum, a) => sum + a.bytes, 0)
   console.log(`✓ assets:build — ${assets.length} assets, ${(total / 1048576).toFixed(1)} MB`)

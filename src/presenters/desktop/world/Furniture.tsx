@@ -6,6 +6,7 @@ import { WORLD, type WorldObject } from '@/content/world/layout'
 import { uniformScale } from '@/content/world/scale'
 import { metricBox, type SurfaceMaterials } from './materials'
 import { shiftZ } from './stretch'
+import { softwareMaterial } from './softwareMaterial'
 
 /**
  * Every object of the plan, at its declared real size: models are scaled uniformly (the
@@ -16,7 +17,7 @@ import { shiftZ } from './stretch'
 export type Models = Map<string, GLTF>
 
 /** Places a model so its footprint centre is at (x, z) and its base at y. */
-function placeModel(o: WorldObject, gltf: GLTF): THREE.Object3D {
+function placeModel(o: WorldObject, gltf: GLTF, detailed = true): THREE.Object3D {
   const inner = gltf.scene.clone(true)
   const s = uniformScale(o) ?? 1
   inner.scale.setScalar(s)
@@ -29,16 +30,52 @@ function placeModel(o: WorldObject, gltf: GLTF): THREE.Object3D {
   outer.add(inner)
   outer.rotation.y = o.rotation
   outer.name = o.id
-  if (o.asset === 'wall_clock') setClockHands(inner)
+  if (o.asset === 'wall_clock') setClockHands(outer, o.size)
   inner.traverse((node) => {
     const mesh = node as THREE.Mesh
     if (!mesh.isMesh) return
     mesh.castShadow = o.support.on !== 'ceiling'
     mesh.receiveShadow = true
+    if (!detailed) {
+      // The software fallback keeps the scanned geometry/albedo. Normal and ORM
+      // sampling is reserved for native GPUs and the explicit HD audit profile.
+      const simple = (material: THREE.Material) => {
+        const source = material as THREE.MeshStandardMaterial
+        return softwareMaterial(source)
+      }
+      mesh.material = Array.isArray(mesh.material)
+        ? mesh.material.map(simple)
+        : simple(mesh.material)
+    }
+    if (o.asset === 'window') {
+      // This scan baked opaque black panes into the frame's single material. Keep the
+      // painted frame and dirt, but let the courtyard show through the dark glass.
+      const glaze = (material: THREE.Material) => {
+        const copy = material.clone() as THREE.MeshStandardMaterial
+        copy.transparent = true
+        copy.depthWrite = false
+        copy.onBeforeCompile = (shader, renderer) => {
+          material.onBeforeCompile(shader, renderer)
+          shader.fragmentShader = shader.fragmentShader.replace(
+            '#include <map_fragment>',
+            `#include <map_fragment>
+            #ifdef USE_MAP
+            float pane = max(sampledDiffuseColor.r, max(sampledDiffuseColor.g, sampledDiffuseColor.b));
+            diffuseColor.a *= smoothstep(0.025, 0.16, pane);
+            #endif`,
+          )
+        }
+        copy.customProgramCacheKey = () => 'window-glazing'
+        return copy
+      }
+      mesh.material = Array.isArray(mesh.material) ? mesh.material.map(glaze) : glaze(mesh.material)
+    }
     if (o.tint) {
       const tint = new THREE.Color(o.tint)
       const tinted = (m: THREE.Material) => {
         const copy = m.clone() as THREE.MeshStandardMaterial
+        copy.onBeforeCompile = (shader, renderer) => m.onBeforeCompile(shader, renderer)
+        copy.customProgramCacheKey = () => m.customProgramCacheKey()
         if (copy.color) copy.color.multiply(tint)
         if ('roughness' in copy) copy.roughness = Math.min(1, copy.roughness + 0.2)
         return copy
@@ -98,13 +135,27 @@ function calendarTexture(): THREE.CanvasTexture {
 }
 
 /** The clock's hands, stopped at 3:17 (hours, minutes; the second hand at 12). */
-function setClockHands(root: THREE.Object3D) {
-  const turn = (name: string, fraction: number) => {
-    const hand = root.getObjectByName(name)
-    if (hand) hand.rotateZ(-fraction * Math.PI * 2)
+function setClockHands(root: THREE.Object3D, size: WorldObject['size']) {
+  // The scanned hands have off-centre pivots and already point to another time.
+  // Keep the scanned case/face, hide those hands, and pivot clean hands at the dial centre.
+  for (const name of ['hours', 'minute', 'second']) {
+    const hand = root.getObjectByName(`wall_clock_${name}_hand`)
+    if (hand) hand.visible = false
   }
-  turn('wall_clock_hours_hand', (3 + 17 / 60) / 12)
-  turn('wall_clock_minute_hand', 17 / 60)
+  const material = new THREE.MeshStandardMaterial({ color: '#242522', roughness: 0.7 })
+  for (const [length, width, fraction] of [
+    [0.073, 0.008, (3 + 17 / 60) / 12],
+    [0.112, 0.005, 17 / 60],
+    [0.12, 0.002, 0],
+  ]) {
+    const pivot = new THREE.Group()
+    pivot.position.set(0, size[1] / 2, size[2] / 2 + 0.002)
+    pivot.rotation.z = -fraction! * Math.PI * 2
+    const hand = new THREE.Mesh(new THREE.BoxGeometry(width, length, 0.001), material)
+    hand.position.y = length! / 2
+    pivot.add(hand)
+    root.add(pivot)
+  }
 }
 
 function Procedural({
@@ -226,7 +277,15 @@ function Procedural({
         break
       }
     }
-    return list
+    return surfaces.whitewash instanceof THREE.MeshBasicMaterial
+      ? list.map((part) => ({
+          ...part,
+          material:
+            part.material instanceof THREE.MeshStandardMaterial
+              ? softwareMaterial(part.material)
+              : part.material,
+        }))
+      : list
   }, [o.asset, w, h, d, surfaces, mirrors])
   return (
     <>
@@ -296,9 +355,9 @@ export function Furniture({
         .filter((o) => !skip.has(o.id))
         .map((o) => {
           const gltf = o.asset.startsWith('proc:') ? null : models.get(o.asset)
-          return { o, node: gltf ? placeModel(o, gltf) : null }
+          return { o, node: gltf ? placeModel(o, gltf, mirrors) : null }
         }),
-    [models, skip],
+    [models, skip, mirrors],
   )
   return (
     <group name="furniture">
@@ -320,6 +379,6 @@ export function Furniture({
 }
 
 /** The clock as its own object: it is the one that moves when no one is looking. */
-export function placeClock(o: WorldObject, gltf: GLTF): THREE.Object3D {
-  return placeModel(o, gltf)
+export function placeClock(o: WorldObject, gltf: GLTF, detailed = true): THREE.Object3D {
+  return placeModel(o, gltf, detailed)
 }

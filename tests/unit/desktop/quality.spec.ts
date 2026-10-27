@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest'
 import { QualityGovernor } from '@/platform/device/quality'
-import { walk, VIEWS } from '@/presenters/desktop/layout'
+import { walk, VIEWS, AUDIT_VIEWS } from '@/presenters/desktop/layout'
 import { canWalk } from '@/content/world/walk'
 import { mirrorX } from '@/content/world/layout'
 
@@ -60,7 +60,7 @@ it('every scene spawn is connected by walkable doorways', () => {
       queue.push([nx, nz])
     }
   }
-  for (const [name, view] of Object.entries(VIEWS))
+  for (const [name, view] of Object.entries({ ...VIEWS, ...AUDIT_VIEWS }))
     expect(
       visited.has(`${Math.round(view.position[0] * 10)},${Math.round(view.position[2] * 10)}`),
       name,

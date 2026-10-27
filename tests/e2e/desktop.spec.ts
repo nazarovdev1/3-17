@@ -5,6 +5,7 @@ import { story } from '../../src/content/story'
 import type { getDesktopState } from '../../src/platform/device/desktopRuntime'
 import { ui } from '../../src/content/text'
 import { pickChoice } from '../routes'
+import { OBJECTS } from '../../src/presenters/desktop/layout'
 
 type Metrics = ReturnType<typeof getDesktopState>
 interface DebugApi {
@@ -27,6 +28,7 @@ async function boot(page: Page) {
   await page.addStyleTag({ content: '.debug-overlay { display:none }' })
   await expect(page.locator('.desktop-view canvas')).toBeVisible()
   await expect.poll(async () => (await inspect(page)).frames).toBeGreaterThan(1)
+  await expect.poll(async () => (await inspect(page)).worldReady, { timeout: 30_000 }).toBe(true)
 }
 test.beforeEach(async ({ page }) => {
   const errors: string[] = []
@@ -144,18 +146,26 @@ test('native pointer lock, movement, flashlight, pause and keyboard choices', as
 test('rejected pointer lock uses drag look; E interacts with the clock; corridor grows out of view', async ({
   page,
 }) => {
+  test.setTimeout(60_000)
   await page.addInitScript(() => {
     HTMLCanvasElement.prototype.requestPointerLock = () =>
       Promise.reject(new Error('Pointer lock unavailable in this webview'))
   })
   await boot(page)
   await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
+  // Walk toward the new facade-wall clock, then aim at its actual plan anchor.
+  // Poll distance rather than assuming a fixed number of software-rendered frames.
   await page.keyboard.down('w')
-  await page.waitForTimeout(600)
+  await expect
+    .poll(async () => (await inspect(page)).position[2], { timeout: 10_000 })
+    .toBeLessThan(-1.5)
   await page.keyboard.up('w')
+  const view = await inspect(page)
+  const clock = OBJECTS.clock!
+  const yaw = Math.atan2(view.position[0]! - clock[0], view.position[2]! - clock[2])
   await page.mouse.move(720, 350)
   await page.mouse.down()
-  await page.mouse.move(520, 350, { steps: 8 })
+  await page.mouse.move(720 - (yaw - view.yaw) / 0.0024, 350, { steps: 8 })
   await page.mouse.up()
   await expect.poll(async () => (await inspect(page)).yaw).toBeGreaterThan(0.3)
   await expect

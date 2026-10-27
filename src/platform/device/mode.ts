@@ -34,10 +34,11 @@ export function detectMode(input: ModeInput): GameMode {
 export type QualityTier = 'high' | 'low'
 
 export function detectTier(internalHeightTarget: number): QualityTier {
-  return internalHeightTarget >= 400 ? 'high' : 'low'
+  return internalHeightTarget >= QUALITY_HEIGHT.high ? 'high' : 'low'
 }
 
-export const QUALITY_HEIGHT: Record<QualityTier, number> = { high: 400, low: 320 }
+/** CPU rasterizer targets; native GPU resolution is selected by the render profile. */
+export const QUALITY_HEIGHT: Record<QualityTier, number> = { high: 336, low: 320 }
 
 /** FPS floors (spec 10): auto-drop below 40, fall back to mobile below 25. */
 export const FPS_DROP_THRESHOLD = 40

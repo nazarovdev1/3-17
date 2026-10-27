@@ -30,7 +30,9 @@ async function boot(page: Page, mode: 'mobile' | 'desktop', reduced = true) {
   await page.goto('/?debug=1')
   await startNamedRun(page, 'Dilnoza')
   await page.addStyleTag({ content: '.debug-overlay {display:none}' })
-  await expect(page.locator(`.${mode}-game`)).toBeVisible()
+  await expect(page.locator(`.${mode}-game`)).toBeVisible({ timeout: 30_000 })
+  if (mode === 'desktop')
+    await expect.poll(async () => (await inspect(page)).worldReady, { timeout: 30_000 }).toBe(true)
 }
 test.use({ timezoneId: 'Asia/Tashkent' })
 test.beforeEach(({ page }) => {
@@ -169,6 +171,7 @@ for (const mode of ['mobile', 'desktop'] as const) {
 test('desktop clock waits outside the frustum; mirror head turn follows after half a second', async ({
   page,
 }) => {
+  test.setTimeout(60_000)
   await page.addInitScript(() => {
     HTMLCanvasElement.prototype.requestPointerLock = () => Promise.reject(new Error('Drag test'))
   })

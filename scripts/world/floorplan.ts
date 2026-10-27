@@ -12,13 +12,14 @@ import {
 } from '../../src/content/world/layout'
 import { wallSolids } from '../../src/core/validate/world'
 
-const PX = 60 // pixels per metre
+const PX = 90 // pixels per metre
 const PAD = 40
 const minX = -7.4
 const maxX = 3.5
 const minZ = -5.0
 const maxZ = 10.4
-const W = (maxX - minX) * PX + PAD * 2
+const PLAN_W = (maxX - minX) * PX + PAD * 2
+const W = PLAN_W + 300
 const H = (maxZ - minZ) * PX + PAD * 2 + 30
 const sx = (x: number) => +((x - minX) * PX + PAD).toFixed(1)
 const sz = (z: number) => +((z - minZ) * PX + PAD).toFixed(1)
@@ -38,7 +39,8 @@ const out: string[] = []
 out.push(
   `<svg xmlns="http://www.w3.org/2000/svg" width="${W.toFixed(0)}" height="${H.toFixed(0)}" viewBox="0 0 ${W.toFixed(0)} ${H.toFixed(0)}" font-family="Inter, Arial, sans-serif">`,
   `<rect width="100%" height="100%" fill="#ffffff"/>`,
-  `<text x="${PAD}" y="24" font-size="15" font-weight="600">3:17 — 4th floor: flat 47, landing, flat 48 (mirrored). Generated from src/content/world/layout.ts · 1 m = ${PX} px</text>`,
+  `<text x="${PAD}" y="24" font-size="15" font-weight="600">3:17 — 4th floor: flat 47, landing, flat 48 (mirrored)</text>`,
+  `<text x="${PAD}" y="43" font-size="11">Generated from src/content/world/layout.ts · 1 m = ${PX} px · numbered object key at right</text>`,
 )
 
 for (const room of WORLD.rooms) {
@@ -85,14 +87,18 @@ for (const d of WORLD.doors) {
   out.push(
     `<path d="M${sx(hx)} ${sz(hz)} L${sx(ox)} ${sz(oz)} A${o.width * PX} ${o.width * PX} 0 0 ${(d.swing > 0 === (d.hinge === 'low')) === (w.axis === 'x') ? 0 : 1} ${sx(fx)} ${sz(fz)}" fill="none" stroke="#a0763c" stroke-width="1.2"/>`,
   )
-  if (d.label) {
+  if (d.label || d.kind === 'lift') {
     out.push(
-      `<text x="${sx(w.axis === 'x' ? o.at : face)}" y="${sz(w.axis === 'x' ? face : o.at) + (d.swing > 0 ? 14 : -6)}" font-size="12" font-weight="700" text-anchor="middle" fill="#a0763c">${d.label}</text>`,
+      `<text x="${sx(w.axis === 'x' ? o.at : face)}" y="${sz(w.axis === 'x' ? face : o.at) + (d.swing > 0 ? 14 : -6)}" font-size="12" font-weight="700" text-anchor="middle" fill="#a0763c">${d.label ?? 'LIFT'}</text>`,
     )
   }
 }
 
-for (const ob of WORLD.objects) {
+const markers: { x: number; y: number }[] = []
+out.push(
+  `<text x="${PLAN_W + 15}" y="65" font-size="14" font-weight="600">Objects (all supports)</text>`,
+)
+for (const [index, ob] of WORLD.objects.entries()) {
   const f = footprint(ob)
   const colour =
     ob.support.on === 'ceiling' ? '#8aa0b8' : ob.support.on === 'wall' ? '#b07a52' : '#5b7a5a'
@@ -102,8 +108,23 @@ for (const ob of WORLD.objects) {
       `fill="${colour}" fill-opacity="${ob.support.on === 'ceiling' ? 0.15 : 0.35}" stroke="${colour}" stroke-width="1"${ob.support.on === 'ceiling' ? ' stroke-dasharray="3 2"' : ''}`,
     ),
   )
+  const cx = sx((f.x0 + f.x1) / 2)
+  const cy = sz((f.z0 + f.z1) / 2)
+  let x = cx
+  let y = cy
+  for (let attempt = 0; attempt < 80; attempt++) {
+    if (markers.every((m) => Math.hypot(m.x - x, m.y - y) >= 22)) break
+    const angle = attempt * 2.4
+    const radius = 12 + attempt * 0.65
+    x = cx + Math.cos(angle) * radius
+    y = cy + Math.sin(angle) * radius
+  }
+  markers.push({ x, y })
   out.push(
-    `<text x="${sx((f.x0 + f.x1) / 2)}" y="${sz((f.z0 + f.z1) / 2) + 3}" font-size="8.5" text-anchor="middle" fill="#1f2a1f">${esc(ob.id)}</text>`,
+    `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="${colour}" stroke-width="0.8"/>`,
+    `<circle cx="${x}" cy="${y}" r="9" fill="#fff" stroke="${colour}"/>`,
+    `<text x="${x}" y="${y + 3}" font-size="8" text-anchor="middle" fill="#1f2a1f">${index + 1}</text>`,
+    `<text x="${PLAN_W + 15}" y="${88 + index * 18}" font-size="11" fill="#1f2a1f">${index + 1}. ${esc(ob.id)}</text>`,
   )
 }
 

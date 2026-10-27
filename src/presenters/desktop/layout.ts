@@ -12,18 +12,28 @@ export type Point = [number, number, number]
 export interface Viewpoint {
   position: Point
   yaw: number
+  pitch?: number
 }
 
 const EYE = 1.6
 
 export const VIEWS: Record<LocationId, Viewpoint> = {
   room: { position: [0.6, EYE, -0.6], yaw: 0 },
-  kitchen: { position: [1.0, EYE, 1.4], yaw: -1.2 },
+  kitchen: { position: [1.04, EYE, 1.55], yaw: -2.0 },
   bathroom: { position: [-0.92, EYE, 2.75], yaw: 0.75 },
   corridor: { position: [0, EYE, 1.0], yaw: Math.PI },
   balcony: { position: [1.7, EYE, -2.6], yaw: 0 },
-  stairwell: { position: [-0.6, EYE, 6.2], yaw: 2.4 },
+  stairwell: { position: [-5.3, EYE, 5.6], yaw: -1.8 },
   flat48: { position: [mirrorX(0.6), EYE, -0.6], yaw: 0 },
+}
+
+/** Inspection poses used only by the test build's still-capture route. */
+export const AUDIT_VIEWS: Record<string, Viewpoint> = {
+  'app-inspect': { position: [1.04, EYE, 1.55], yaw: -0.5, pitch: -0.55 },
+  fixtures: { position: [0.2, EYE, 3.05], yaw: -2.0, pitch: -0.35 },
+  'bath-inspect': { position: [-0.92, EYE, 2.75], yaw: 1.65, pitch: -0.55 },
+  neighbours: { position: [-5.3, EYE, 5.6], yaw: 1.9 },
+  stairs: { position: [1.1, EYE, 6.65], yaw: Math.PI, pitch: -0.5 },
 }
 
 /** Centre of an object's bounding box (its interaction anchor). */

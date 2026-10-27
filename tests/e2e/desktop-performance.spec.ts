@@ -25,6 +25,7 @@ async function boot(page: Page) {
   await page.addStyleTag({ content: '.debug-overlay { display:none }' })
   await expect(page.locator('.desktop-view canvas')).toBeVisible()
   await expect.poll(async () => (await inspect(page)).frames).toBeGreaterThan(1)
+  await expect.poll(async () => (await inspect(page)).worldReady, { timeout: 30_000 }).toBe(true)
 }
 test.beforeEach(async ({ page }) => {
   const errors: string[] = []
@@ -60,6 +61,7 @@ test('desktop steady rendering and resource stability', async ({ page }, info) =
   console.log(
     'default graphics sample',
     defaultFps,
+    await inspect(page),
     await page.evaluate(() => {
       const gl = document
         .querySelector<HTMLCanvasElement>('.desktop-view canvas')!

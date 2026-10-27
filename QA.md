@@ -3,6 +3,74 @@
 Manual checklist (spec 12). Executed in a real browser where possible; every item gets an
 honest ✅ / ❌ / not-verified note with a date.
 
+## F3 — Desktop rebuild review (2026-10-27)
+
+All 16 HD captures were opened and inspected individually at 1440×900, including the
+supplementary appliance, sanitary fixture, hall and stair views. The regenerated 72-object
+plan was also opened. The single owner sheet is `audit/screenshots/f3-contact-sheet.jpg`
+(12 labelled shots); individual evidence is in `audit/screenshots/f3/`. These are local,
+git-ignored outputs, reproducible with the audit specs and `audit/f3-contact-sheet.mjs`.
+
+Scores below use FIX_PROMPT §9, from 1 to 5. R = readability, S = spatial logic,
+L = lighting/mood, F = environmental unease, P = polish. They are the implementer's visual
+assessment for the F3 environment, subject to the owner's review; they do not certify the
+F4 figure/events or the later fear pass. The technical plan has no lighting/fear score.
+
+| Capture                               | R   | S   | L   | F   | P   | Near-black % |
+| ------------------------------------- | --- | --- | --- | --- | --- | ------------ |
+| Floor plan / complete numbered key    | 5   | 5   | N/A | N/A | 4   | 0.1          |
+| 01 Room / window and stopped clock    | 5   | 4   | 4   | 4   | 4   | 26.0         |
+| 02 Sofa / wall carpet                 | 5   | 4   | 4   | 4   | 4   | 19.2         |
+| 03 TV / balcony door                  | 4   | 4   | 4   | 4   | 4   | 22.1         |
+| 04 Kitchen / sink and table           | 5   | 4   | 4   | 4   | 4   | 11.4         |
+| 04b Kitchen / appliance fronts        | 4   | 4   | 4   | 4   | 4   | 8.1          |
+| 05 Bathroom / cabinet mirror          | 5   | 4   | 4   | 4   | 4   | 0.0          |
+| 05b Bathroom / tub curtain and vent   | 4   | 4   | 4   | 4   | 4   | 1.0          |
+| 05c Bathroom / tub, toilet and sink   | 5   | 4   | 4   | 4   | 4   | 0.1          |
+| 06 Corridor / entrance and bathroom   | 4   | 4   | 4   | 4   | 4   | 5.3          |
+| 06b Hall / hooks and shoe rack        | 5   | 4   | 4   | 4   | 4   | 6.2          |
+| 07 Landing / lift and neighbour doors | 4   | 4   | 4   | 4   | 4   | 7.8          |
+| 07b Door 46 / number plate            | 4   | 4   | 4   | 4   | 4   | 41.4         |
+| 07c Stairs / rail and half-landing    | 4   | 4   | 4   | 4   | 4   | 4.0          |
+| 08 Flat 48 / cold, decayed room       | 4   | 4   | 4   | 4   | 4   | 20.5         |
+| 09 Window / snowy courtyard           | 4   | 4   | 4   | 4   | 4   | 34.1         |
+| 10 Outage / torch                     | 4   | 4   | 4   | 4   | 4   | 50.3         |
+
+Near-black is measured on the raw screenshots as sRGB luma
+`0.2126 R + 0.7152 G + 0.0722 B < 20/255`; the helper writes `darkness.json`.
+Every scene is below the 60% cap. The earlier stair, flat-48 and outage failures were
+75.1%, 80.1% and 63.5% respectively; cold window fill and the outage fill corrected them.
+
+Visual fixes: fridge and shoe-rack fronts now face the usable space; clock hands pivot at
+the dial and show 3:17; glazing reveals the courtyard; kitchen-door movement no longer
+screens the appliances; mirrored doors have the correct hinge/swing; the stair flights
+have supported rails and a closed lower shaft. Door numbers, the lift call button/seam/
+floor indicator and the stair window make the common area legible. Whitewashed lintels,
+smoother ceilings, weaker warm bulbs and reduced grain retain the worn domestic mood.
+No unsupported or intersecting furniture was found in these views or by the world validator.
+
+Verification: `npm run check` passes 238 tests in 21 files, 90 story nodes with zero
+warnings, and the 72-object / 24-wall / 14-door world validator. Production JS budgets pass
+(mobile 110.5 KB / 250 KB; desktop 399.3 KB / 700 KB); the debug API is absent. The full
+`npx playwright test` sweep on the final source passed: **172 passed, 5 expected skips,
+0 failures**, in 12.1 minutes. No tests were deleted or assertions relaxed. The skips are
+the four no-WebGL-only cases in WebGL projects and the desktop mobile-throttle case.
+
+The regular SwiftShader profile uses the same layout/assets with cached mesh LODs,
+512 px colour maps and vertex lighting at 336/320 lines. The full native/ultra profile keeps
+PBR, physical glass, shadows, AO and bloom. Removing the clock's software transmission pass
+and batching the static shell fixed a mid-route fallback/performance regression. The earlier
+400/360-line profiles passed focused runs but fell to about 53–54 FPS in a full sweep;
+336 lines provides more margin within the software profile's 320–480 range. The ≥55 FPS
+gate is unchanged. Native HD laptop FPS,
+real Telegram clients, physical sensors and listening tests remain unverified F8 work.
+
+The final full-sweep desktop benchmark measured **59.88 FPS** at high/336, with 59.99 FPS
+after repeated room tours. GPU resources stayed exactly **217 geometries / 43 textures**
+before and after the tour. All desktop functional cases passed in that run.
+
+F3 requires owner review. F4 has not been started.
+
 ## Manual checklist (to be executed during Phases 3–8)
 
 - [x] Pointer Lock works in a normal browser; fallback to click-and-drag look inside a

@@ -11,19 +11,9 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/sofa_03",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        2.731,
-        0.925,
-        1.118
-      ],
-      "boundsM": [
-        2.731,
-        1.118,
-        0.925
-      ],
-      "nodes": [
-        "sofa_03"
-      ],
+      "dimensionsM": [2.731, 0.925, 1.118],
+      "boundsM": [2.731, 1.118, 0.925],
+      "nodes": ["sofa_03"],
       "files": {
         "model": {
           "path": "assets/models/sofa_03.glb",
@@ -44,19 +34,9 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/Television_01",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        0.6,
-        0.471,
-        0.457
-      ],
-      "boundsM": [
-        0.6,
-        0.457,
-        0.471
-      ],
-      "nodes": [
-        "Television_01"
-      ],
+      "dimensionsM": [0.6, 0.471, 0.457],
+      "boundsM": [0.6, 0.457, 0.471],
+      "nodes": ["Television_01"],
       "files": {
         "model": {
           "path": "assets/models/Television_01.glb",
@@ -77,20 +57,9 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/painted_wooden_nightstand",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        0.505,
-        0.509,
-        0.616
-      ],
-      "boundsM": [
-        0.505,
-        0.616,
-        0.509
-      ],
-      "nodes": [
-        "painted_wooden_nightstand",
-        "painted_wooden_nightstand_drawer"
-      ],
+      "dimensionsM": [0.505, 0.509, 0.616],
+      "boundsM": [0.505, 0.616, 0.509],
+      "nodes": ["painted_wooden_nightstand", "painted_wooden_nightstand_drawer"],
       "files": {
         "model": {
           "path": "assets/models/painted_wooden_nightstand.glb",
@@ -111,16 +80,8 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/vintage_cabinet_01",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        2.022,
-        0.67,
-        2.235
-      ],
-      "boundsM": [
-        2.022,
-        2.235,
-        0.67
-      ],
+      "dimensionsM": [2.022, 0.67, 2.235],
+      "boundsM": [2.022, 2.235, 0.67],
       "nodes": [
         "vintage_cabinet_01_body",
         "vintage_cabinet_01_door_02",
@@ -151,16 +112,8 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/book_encyclopedia_set_01",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        0.551,
-        0.163,
-        0.237
-      ],
-      "boundsM": [
-        0.551,
-        0.237,
-        0.163
-      ],
+      "dimensionsM": [0.551, 0.163, 0.237],
+      "boundsM": [0.551, 0.237, 0.163],
       "nodes": [
         "book_encyclopedia_set_01_book01",
         "book_encyclopedia_set_01_book02",
@@ -203,16 +156,8 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/wall_clock",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        0.32,
-        0.047,
-        0.32
-      ],
-      "boundsM": [
-        0.32,
-        0.32,
-        0.047
-      ],
+      "dimensionsM": [0.32, 0.047, 0.32],
+      "boundsM": [0.32, 0.32, 0.047],
       "nodes": [
         "wall_clock_minute_hand",
         "wall_clock_second_hand",
@@ -239,19 +184,9 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/lightbulb_01",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        0.06,
-        0.06,
-        0.1
-      ],
-      "boundsM": [
-        0.06,
-        0.1,
-        0.06
-      ],
-      "nodes": [
-        "lightbulb_01"
-      ],
+      "dimensionsM": [0.06, 0.06, 0.1],
+      "boundsM": [0.06, 0.1, 0.06],
+      "nodes": ["lightbulb_01"],
       "files": {
         "model": {
           "path": "assets/models/lightbulb_01.glb",
@@ -272,19 +207,9 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/wooden_table_02",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        1.134,
-        0.706,
-        0.8
-      ],
-      "boundsM": [
-        1.134,
-        0.8,
-        0.706
-      ],
-      "nodes": [
-        "wooden_table_02"
-      ],
+      "dimensionsM": [1.134, 0.706, 0.8],
+      "boundsM": [1.134, 0.8, 0.706],
+      "nodes": ["wooden_table_02"],
       "files": {
         "model": {
           "path": "assets/models/wooden_table_02.glb",
@@ -305,19 +230,9 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/painted_wooden_chair_02",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        0.639,
-        0.662,
-        1.264
-      ],
-      "boundsM": [
-        0.639,
-        1.264,
-        0.662
-      ],
-      "nodes": [
-        "painted_wooden_chair_02"
-      ],
+      "dimensionsM": [0.639, 0.662, 1.264],
+      "boundsM": [0.639, 1.264, 0.662],
+      "nodes": ["painted_wooden_chair_02"],
       "files": {
         "model": {
           "path": "assets/models/painted_wooden_chair_02.glb",
@@ -338,19 +253,9 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/painted_wooden_stool",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        0.385,
-        0.406,
-        0.579
-      ],
-      "boundsM": [
-        0.385,
-        0.579,
-        0.406
-      ],
-      "nodes": [
-        "painted_wooden_stool"
-      ],
+      "dimensionsM": [0.385, 0.406, 0.579],
+      "boundsM": [0.385, 0.579, 0.406],
+      "nodes": ["painted_wooden_stool"],
       "files": {
         "model": {
           "path": "assets/models/painted_wooden_stool.glb",
@@ -371,16 +276,8 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/painted_wooden_cabinet",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        1.195,
-        0.617,
-        1.182
-      ],
-      "boundsM": [
-        1.195,
-        1.182,
-        0.617
-      ],
+      "dimensionsM": [1.195, 0.617, 1.182],
+      "boundsM": [1.195, 1.182, 0.617],
       "nodes": [
         "painted_wooden_cabinet",
         "painted_wooden_cabinet_door_02",
@@ -408,19 +305,9 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/vintage_electric_kettle",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        0.321,
-        0.249,
-        0.305
-      ],
-      "boundsM": [
-        0.321,
-        0.305,
-        0.249
-      ],
-      "nodes": [
-        "vintage_electric_kettle"
-      ],
+      "dimensionsM": [0.321, 0.249, 0.305],
+      "boundsM": [0.321, 0.305, 0.249],
+      "nodes": ["vintage_electric_kettle"],
       "files": {
         "model": {
           "path": "assets/models/vintage_electric_kettle.glb",
@@ -441,20 +328,9 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/pot_enamel_01",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        0.263,
-        0.18,
-        0.178
-      ],
-      "boundsM": [
-        0.263,
-        0.178,
-        0.18
-      ],
-      "nodes": [
-        "pot_enamel_01_lid",
-        "pot_enamel_01_base"
-      ],
+      "dimensionsM": [0.263, 0.18, 0.178],
+      "boundsM": [0.263, 0.178, 0.18],
+      "nodes": ["pot_enamel_01_lid", "pot_enamel_01_base"],
       "files": {
         "model": {
           "path": "assets/models/pot_enamel_01.glb",
@@ -475,16 +351,8 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/tea_set_01",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        0.918,
-        0.484,
-        0.165
-      ],
-      "boundsM": [
-        0.918,
-        0.165,
-        0.484
-      ],
+      "dimensionsM": [0.918, 0.484, 0.165],
+      "boundsM": [0.918, 0.165, 0.484],
       "nodes": [
         "tea_set_01_plate_large_square_01",
         "tea_set_01_cup_small_01",
@@ -517,19 +385,9 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/cardboard_box_01",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        0.387,
-        0.516,
-        0.342
-      ],
-      "boundsM": [
-        0.387,
-        0.342,
-        0.516
-      ],
-      "nodes": [
-        "cardboard_box_01"
-      ],
+      "dimensionsM": [0.387, 0.516, 0.342],
+      "boundsM": [0.387, 0.342, 0.516],
+      "nodes": ["cardboard_box_01"],
       "files": {
         "model": {
           "path": "assets/models/cardboard_box_01.glb",
@@ -550,19 +408,9 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/trashbag",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        0.528,
-        0.463,
-        0.575
-      ],
-      "boundsM": [
-        0.528,
-        0.575,
-        0.463
-      ],
-      "nodes": [
-        "trashbag"
-      ],
+      "dimensionsM": [0.528, 0.463, 0.575],
+      "boundsM": [0.528, 0.575, 0.463],
+      "nodes": ["trashbag"],
       "files": {
         "model": {
           "path": "assets/models/trashbag.glb",
@@ -583,19 +431,9 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/bleach_bottle",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        0.088,
-        0.061,
-        0.294
-      ],
-      "boundsM": [
-        0.088,
-        0.294,
-        0.061
-      ],
-      "nodes": [
-        "bleach_bottle"
-      ],
+      "dimensionsM": [0.088, 0.061, 0.294],
+      "boundsM": [0.088, 0.294, 0.061],
+      "nodes": ["bleach_bottle"],
       "files": {
         "model": {
           "path": "assets/models/bleach_bottle.glb",
@@ -616,19 +454,9 @@
       "source": "polyhaven",
       "sourceUrl": "https://polyhaven.com/a/ornate_mirror_01",
       "license": "CC0-1.0",
-      "dimensionsM": [
-        0.486,
-        0.026,
-        0.744
-      ],
-      "boundsM": [
-        0.486,
-        0.744,
-        0.026
-      ],
-      "nodes": [
-        "ornate_mirror_01"
-      ],
+      "dimensionsM": [0.486, 0.026, 0.744],
+      "boundsM": [0.486, 0.744, 0.026],
+      "nodes": ["ornate_mirror_01"],
       "files": {
         "model": {
           "path": "assets/models/ornate_mirror_01.glb",
@@ -649,11 +477,7 @@
       "source": "sketchfab",
       "sourceUrl": "https://sketchfab.com/3d-models/68d173f205344455933f861042b99fe3",
       "license": "CC-BY-4.0",
-      "boundsM": [
-        5.503,
-        11.875,
-        5.6
-      ],
+      "boundsM": [5.503, 11.875, 5.6],
       "nodes": [
         "OldFridge.fbx_Shell_0",
         "OldFridge.fbx_Element_0",
@@ -685,14 +509,8 @@
       "source": "sketchfab",
       "sourceUrl": "https://sketchfab.com/3d-models/0958b0ab4e2344cc847e14355f196512",
       "license": "CC-BY-4.0",
-      "boundsM": [
-        0.523,
-        0.756,
-        0.38
-      ],
-      "nodes": [
-        "Object_6"
-      ],
+      "boundsM": [0.523, 0.756, 0.38],
+      "nodes": ["Object_6"],
       "files": {
         "model": {
           "path": "assets/models/gas_stove.glb",
@@ -713,11 +531,7 @@
       "source": "sketchfab",
       "sourceUrl": "https://sketchfab.com/3d-models/4b765920f7c34676acda91c0bfd87abd",
       "license": "CC-BY-4.0",
-      "boundsM": [
-        2.25,
-        1.371,
-        0.65
-      ],
+      "boundsM": [2.25, 1.371, 0.65],
       "nodes": [
         "CabinetTable_A.004_Material_0",
         "Sink.001_Sink_0",
@@ -754,11 +568,7 @@
       "source": "sketchfab",
       "sourceUrl": "https://sketchfab.com/3d-models/22e187363dd14bc3a3e1b4611830236a",
       "license": "CC-BY-4.0",
-      "boundsM": [
-        0.949,
-        2.122,
-        1.523
-      ],
+      "boundsM": [0.949, 2.122, 1.523],
       "nodes": [
         "ShowerCurtain_ShowerCurtain_0",
         "BathTub_BathTub_0",
@@ -787,14 +597,8 @@
       "source": "sketchfab",
       "sourceUrl": "https://sketchfab.com/3d-models/a278d63585494921906ab3500c421ff7",
       "license": "CC-BY-4.0",
-      "boundsM": [
-        0.471,
-        1.187,
-        0.62
-      ],
-      "nodes": [
-        "Cube__0"
-      ],
+      "boundsM": [0.471, 1.187, 0.62],
+      "nodes": ["Cube__0"],
       "files": {
         "model": {
           "path": "assets/models/bath_sink.glb",
@@ -815,11 +619,7 @@
       "source": "sketchfab",
       "sourceUrl": "https://sketchfab.com/3d-models/132a8ee2af3a40d39d270fbed3d3666c",
       "license": "CC-BY-4.0",
-      "boundsM": [
-        0.478,
-        0.744,
-        0.607
-      ],
+      "boundsM": [0.478, 0.744, 0.607],
       "nodes": [
         "Toilet_Toilet_0",
         "ToiletSeatCover_Toilet_0",
@@ -847,11 +647,7 @@
       "source": "sketchfab",
       "sourceUrl": "https://sketchfab.com/3d-models/681661800df842c5bf3086e8888714b7",
       "license": "CC-BY-4.0",
-      "boundsM": [
-        0.59,
-        0.877,
-        0.614
-      ],
+      "boundsM": [0.59, 0.877, 0.614],
       "nodes": [
         "01_Washing-machine_Machine_01_0",
         "01_Washing-machine_Material #31_0",
@@ -889,15 +685,8 @@
       "source": "sketchfab",
       "sourceUrl": "https://sketchfab.com/3d-models/657795450eb54753ba59826d67b6ad2d",
       "license": "CC-BY-4.0",
-      "boundsM": [
-        3.079,
-        2.575,
-        0.784
-      ],
-      "nodes": [
-        "Object_4",
-        "Object_5"
-      ],
+      "boundsM": [3.079, 2.575, 0.784],
+      "nodes": ["Object_4", "Object_5"],
       "files": {
         "model": {
           "path": "assets/models/radiator.glb",
@@ -918,14 +707,8 @@
       "source": "sketchfab",
       "sourceUrl": "https://sketchfab.com/3d-models/fe13eecfc9b8405dab1fe76c5dd28a4c",
       "license": "CC-BY-4.0",
-      "boundsM": [
-        300,
-        2.147,
-        521.393
-      ],
-      "nodes": [
-        "rug01_MDL_nar_blinn2_0"
-      ],
+      "boundsM": [300, 2.147, 521.393],
+      "nodes": ["rug01_MDL_nar_blinn2_0"],
       "files": {
         "model": {
           "path": "assets/models/wall_carpet.glb",
@@ -946,11 +729,7 @@
       "source": "sketchfab",
       "sourceUrl": "https://sketchfab.com/3d-models/ba27e3421b264d6d8d93ed3cdd8654ad",
       "license": "CC-BY-4.0",
-      "boundsM": [
-        2.292,
-        2.022,
-        2.291
-      ],
+      "boundsM": [2.292, 2.022, 2.291],
       "nodes": [
         "_low_lamp med_0",
         "_low_lemp glass emishen_0",
@@ -981,11 +760,7 @@
       "source": "sketchfab",
       "sourceUrl": "https://sketchfab.com/3d-models/5747a012d6df466ca0e93665d67f5ac3",
       "license": "CC-BY-4.0",
-      "boundsM": [
-        10.482,
-        50.468,
-        10.482
-      ],
+      "boundsM": [10.482, 50.468, 10.482],
       "nodes": [
         "defaultMaterial",
         "defaultMaterial",
@@ -1017,14 +792,8 @@
       "source": "sketchfab",
       "sourceUrl": "https://sketchfab.com/3d-models/c60a6fe181e1482d96f9412a20c4a390",
       "license": "CC-BY-4.0",
-      "boundsM": [
-        1.276,
-        1.248,
-        0.063
-      ],
-      "nodes": [
-        "WINDOW3_standardSurface6_0"
-      ],
+      "boundsM": [1.276, 1.248, 0.063],
+      "nodes": ["WINDOW3_standardSurface6_0"],
       "files": {
         "model": {
           "path": "assets/models/window.glb",
@@ -1045,14 +814,8 @@
       "source": "sketchfab",
       "sourceUrl": "https://sketchfab.com/3d-models/a8bdbea2931841b0b1a8163e7abdae53",
       "license": "CC-BY-4.0",
-      "boundsM": [
-        0.49,
-        0.692,
-        2.936
-      ],
-      "nodes": [
-        "Cube_Material_0"
-      ],
+      "boundsM": [0.49, 0.692, 2.936],
+      "nodes": ["Cube_Material_0"],
       "files": {
         "model": {
           "path": "assets/models/coat_hooks.glb",
@@ -1073,11 +836,7 @@
       "source": "sketchfab",
       "sourceUrl": "https://sketchfab.com/3d-models/6f13df8908214ad69675300e83289ebf",
       "license": "CC-BY-4.0",
-      "boundsM": [
-        0.975,
-        3.677,
-        2.114
-      ],
+      "boundsM": [0.975, 3.677, 2.114],
       "nodes": [
         "Object_4",
         "Object_5",

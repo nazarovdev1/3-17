@@ -1,4 +1,24 @@
-# HANDOFF — continue "3:17" from the middle of phase F3
+# HANDOFF — "3:17" F3 owner review
+
+## Latest corrective pass (2026-10-27)
+
+The original handoff below is historical. The F3 corrective pass and final verification
+are recorded in PROGRESS.md and QA.md. F3 stays unchecked until the owner's review;
+do not start F4 without explicit owner approval.
+
+- ONE 12-shot sheet: `audit/screenshots/f3-contact-sheet.jpg` (local, git-ignored).
+- All 16 HD views plus the numbered plan: `audit/screenshots/f3/`.
+- Near-black measurements: `audit/screenshots/f3/darkness.json`.
+- Rebuild the sheet: `node audit/f3-contact-sheet.mjs`.
+- Test-build audit poses use `render=still&auditView=...`; gameplay uses normal spawns.
+  `F3_SHOTS` optionally selects capture names.
+
+CPU-renderer FPS does not establish native HD laptop performance. Physical GPU, Telegram
+and audio validation remain F8. After approval, F4 owns the figure, TV picture/glow,
+physical phone, interaction reach, in-hand inspection and lagging mirror reflection.
+No F4 implementation has been started during this pass.
+
+## Original handoff
 
 Written 2026-10-27 because the previous agent's session limit ran out. Read this first, then
 `FIX_PROMPT.md` (untracked, owner's file — never commit it), `PROGRESS.md`, `DECISIONS.md`

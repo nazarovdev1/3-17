@@ -40,11 +40,9 @@ export function Outside({
 
   // Window grid of the block opposite: 9 floors × 14 windows.
   const PANES = 9 * 14
-  const lit = useMemo(() => {
-    const list: number[] = []
-    for (let i = 0; i < PANES; i++) if ((i * 37) % 11 === 0) list.push(i)
-    return list
-  }, [PANES])
+  // Five occupied windows, scattered across the floors facing the flat. The story's
+  // five-step extinction stays the same when the building's full window grid grows.
+  const lit = useMemo(() => [32, 47, 62, 77, 92], [])
   useLayoutEffect(() => {
     const mesh = panes.current
     if (!mesh) return
