@@ -1,109 +1,84 @@
-# HANDOFF — "3:17" F3 owner review
+# HANDOFF — start phase F5 (audio) of "3:17"
 
-## Latest corrective pass (2026-10-27)
-
-The original handoff below is historical. The F3 corrective pass and final verification
-are recorded in PROGRESS.md and QA.md. F3 stays unchecked until the owner's review;
-do not start F4 without explicit owner approval.
-
-- ONE 12-shot sheet: `audit/screenshots/f3-contact-sheet.jpg` (local, git-ignored).
-- All 16 HD views plus the numbered plan: `audit/screenshots/f3/`.
-- Near-black measurements: `audit/screenshots/f3/darkness.json`.
-- Rebuild the sheet: `node audit/f3-contact-sheet.mjs`.
-- Test-build audit poses use `render=still&auditView=...`; gameplay uses normal spawns.
-  `F3_SHOTS` optionally selects capture names.
-
-CPU-renderer FPS does not establish native HD laptop performance. Physical GPU, Telegram
-and audio validation remain F8. After approval, F4 owns the figure, TV picture/glow,
-physical phone, interaction reach, in-hand inspection and lagging mirror reflection.
-No F4 implementation has been started during this pass.
-
-## Original handoff
-
-Written 2026-10-27 because the previous agent's session limit ran out. Read this first, then
-`FIX_PROMPT.md` (untracked, owner's file — never commit it), `PROGRESS.md`, `DECISIONS.md`
-(items 21–31 are the newest), `AUDIT.md`.
+Written 2026-10-27, after F4 (commit `2bc1be4`). Read this first, then `FIX_PROMPT.md`
+(untracked, the owner's file — never commit it; §8 is F5), `PROGRESS.md` (F4 section),
+`DECISIONS.md` (33–41 are the newest), `docs/fear-design.md` (which sound belongs to which
+beat), `QA.md`.
 
 ## Owner rules (still in force)
 
 - The owner writes in Uzbek; answer in Uzbek. Code, comments and commit messages in English.
-- Work in phases F0–F8 (FIX_PROMPT §10). **Stop at the end of every phase.** F1, F3, F4
-  and F6 need the owner's real review — do not start the next phase until the owner says so.
-- At each stop: ONE contact sheet image (≤ 12 labelled key shots) + a short table of rubric
-  scores (FIX_PROMPT §9). Do not dump all screenshots on the owner.
-- Look at your own screenshots before claiming anything looks good.
-- Keep `npm run check` and the Playwright suite green. Extend tests, never delete them to pass.
-- Figure (F4): build it yourself, smooth anatomical humanoid, long coat, slightly too tall,
-  only ever seen dark/backlit; no boxes/capsules/cones. At end of F4 show 3 shots: under the
-  door, frosted glass, peephole. Mixamo only if the owner later sends one.
-- Sounds (F5): Freesound CC0/CC-BY only, the owner gives the API key before F5.
-- Fonts: Literata (narration), Inter (UI) — owner approved, keep.
-- Sketchfab token: `.env.local` (`SKETCHFAB_TOKEN=…`, git-ignored). Never commit or print it.
+- Work in phases F0–F8 (FIX_PROMPT §10). **Stop at the end of every phase** with a short
+  report; F1, F3, F4 and F6 need the owner's real review. Do not start F6 without approval.
+- Keep `npm run check` and the Playwright suite green. Extend tests, never delete or relax
+  them to pass.
+- Sounds: **Freesound CC0 or CC-BY only** (Sonniss GDC bundles are allowed by FIX_PROMPT §3
+  too). No CC-NC, CC-ND, unknown licenses, ripped game audio. Every sound gets a line in
+  `CREDITS.md` and in Settings → Mualliflar (credits are generated from the asset manifest).
+- The owner gives the Freesound API key. Store it only in `.env.local` as
+  `FREESOUND_API_KEY=…` (git-ignored via `*.local`, next to `SKETCHFAB_TOKEN`). Never print
+  it, log it, or commit it. Never commit `FIX_PROMPT.md`.
+- No runtime requests to other domains: sounds are downloaded at build time, optimised, and
+  shipped from `public/assets/` like the models.
 - If context runs low mid-phase: update PROGRESS.md (done / half-done / open bugs / next
   step), commit, tell the owner.
 
+## F5 scope (FIX_PROMPT §8)
+
+Replace the synthesized one-shots with real recorded sounds; keep the procedural drone only
+as a low layer. Needed:
+
+- Footsteps on **parquet, painted boards (linoleum-like), tiles, concrete** — several
+  variations each, picked at random, slight pitch/volume jitter. The desktop already asks for
+  the right floor: `footstepAt()` in `src/presenters/desktop/layout.ts` returns `step_wood`,
+  `step_board`, `step_tile`, `step_concrete`.
+- Old door hinges (`door_open`), door shut (`door_close`), door chain (`chain`).
+- Radiator knocks (`radiator`), fridge hum (ambience `fridge`) and the fridge **stopping**
+  (`fridge_stop` — the scariest sound in the game: the hum must cut cleanly, then silence).
+- Kettle (`kettle`, `tea`), page/paper (`page`), pen (`pen`), light switch (`switch`).
+- Distant city winter ambience (`traffic`), wind against old window frames (`wind`),
+  muffled neighbour TV, TV static (`static`).
+- Knocks on a panel wall (`knock`, `knock_soft`, `knock_triple`), cloth rustle, breath
+  (`whisper` is used for the voice/breathing layer), heartbeat, phone vibration
+  (`phone_buzz`).
+- Loudness-normalise everything (e.g. ~-23 LUFS for ambience, consistent peaks for one-shots).
+- Spatial audio: HRTF panning on desktop already exists (`audio.setSpatial`, `play(id,
+position)`); keep it, check positions (knocks come from the party wall `SHARED_WALL` in
+  `src/audio/AudioController.tsx`; scripted spatial cues in `src/presenters/desktop/events.ts`;
+  doors play at their hinge; the phone buzzes at the table / under the pillow).
+- A short "headphones recommended" hint at the start already exists in the content warning
+  (`warning.headphones` in `ui.yaml`); keep it visible.
+
 ## Where things are
 
-| What                                                | Where                                                                                                               |
-| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| World plan (only source of positions)               | `src/content/world/layout.ts`                                                                                       |
-| Walk/collision                                      | `src/content/world/walk.ts`                                                                                         |
-| Model scale/orientation maths                       | `src/content/world/scale.ts`                                                                                        |
-| Validator + tests                                   | `src/core/validate/world.ts`, `tests/unit/validate/world.spec.ts`, `npm run validate:world`                         |
-| Floor plan SVG                                      | `scripts/world/floorplan.ts` → `docs/floorplan.svg`                                                                 |
-| Desktop renderer                                    | `src/presenters/desktop/World.tsx`, `world/{Architecture,Furniture,Doors,Lighting,Outside,materials,stretch}.ts(x)` |
-| Story anchors, spawn views, switches                | `src/presenters/desktop/layout.ts`                                                                                  |
-| Render quality (DPR, software GL, `?quality=ultra`) | `src/presenters/desktop/quality.ts`                                                                                 |
-| Asset pipeline                                      | `scripts/assets/{sources,fetch,build}.ts`, `npm run assets`                                                         |
-| Asset manifest (generated)                          | `src/assets/manifest.gen.json`, `CREDITS.md`                                                                        |
-| QA captures (git-ignored output)                    | `audit/*.spec.ts` → `audit/screenshots/`                                                                            |
+| What                                    | Where                                                                                          |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Sound ids (type)                        | `src/core/state/types.ts` (`SfxId`)                                                            |
+| Synth recipes (current placeholders)    | `src/audio/synthesis.ts` (`SOUND_IDS`, `synthSound`, `synthAmbience`)                          |
+| Playback engine (buffers, HRTF, scenes) | `src/audio/engine.ts` (`buffer()`, `play()`, `setScene()`, ambience `LAYERS`)                  |
+| Which scene/ambience per beat           | `src/audio/presentation.ts` (`audioScene`)                                                     |
+| Story → sound events                    | `src/audio/AudioController.tsx`; story `sfx(...)` effects in `src/content/story`               |
+| Asset pipeline                          | `scripts/assets/{sources,fetch,build}.ts`, `npm run assets`                                    |
+| Asset manifest / loader / credits       | `src/assets/manifest.gen.json`, `src/assets/loader.ts`, `CREDITS.md`, `src/ui/CreditsList.tsx` |
+| Budgets                                 | `scripts/check-bundle.mjs` (desktop ≤ 60 MB, flat 47 playable ≤ 25 MB, mobile)                 |
+| Audio tests                             | `tests/unit/audio/*.spec.ts`, E2E audio checks via `window.__game.getAudioState()`             |
 
-Run HD captures: `npx playwright test -c audit/playwright.audit.config.ts f3` (~12 min on
-SwiftShader; writes `audit/screenshots/f3/01…10*.png`). Floor plan PNG: `… floorplan`.
+Suggested shape: add `kind: 'sound'` to the pipeline (source `freesound`, pinned by sound id,
+license read from the API and refused unless CC0/CC-BY), encode to Opus/WebM or AAC/M4A at a
+sensible bitrate, store loudness-normalised files, and give the engine a decoded-buffer path
+that falls back to the synth recipe if a file is missing (so tests and the mobile build stay
+robust). Keep sound files out of the mobile initial JS; respect the size budgets.
 
-## State of F3 at handoff
+## Known open items carried from F4
 
-Done (see PROGRESS.md "F3"): plan in metres, floorplan.svg, validate:world in `check`,
-15 Sketchfab models, full PBR renderer, lighting, post effects, doors, mirror, outside.
+- The full Playwright suite was 169 passed / 3 failed under heavy machine load (software
+  rendering long routes and the 55 FPS gate); the unchanged F3 commit failed the same tests
+  under the same load. Rerun on a quiet machine; if they still fail, profile — do not relax.
+- Mobile (F6) has not been touched in F4.
 
-**Not yet verified after the last edits** (they were made while a capture was running):
+## When F5 is done
 
-- `npm run check` was NOT run after the last batch of changes. Last known: typecheck, lint,
-  desktop unit tests and validate:world green.
-- The full Playwright suite was NOT run since F3 started. Expect desktop E2E failures that
-  depend on the old coordinates, e.g. `tests/e2e/desktop.spec.ts` "E interacts with the
-  clock" (spawn is now `[0.6, 1.6, -0.6]`, clock on the façade wall at x −1.3) and
-  `desktop-horror.spec.ts` clock-shift / mirror tests. Fix the tests or the views; keep
-  them meaningful.
-- The last capture (`audit/screenshots/f3/`) may be mid-run or stale; re-run it.
-
-Latest visual review (by eye, before the last fixes):
-
-- Good: room with wall carpet over the sofa, window, radiator, chandelier; corridor view;
-  flat 48 in the dark with the torch (closest to the target mood); outage shot.
-- Fixed after that review, not yet re-checked: too bright/warm (bulbs 38→9 cd, darker wall
-  tints), stucco ceiling (whitewash normalScale 0.18), doors looked like plywood (now
-  `plain` gloss paint), balcony glass opaque (now clear), torch on in lit rooms (now follows
-  the outage), chair blocking the spawn view (moved west of the table), stairwell dado
-  (paint ≤1.5 m, whitewash above), calendar texture, long walls split per room (bathroom
-  side of the shared wall was plaster instead of tiles), live Reflector mirror in the
-  bathroom (hardware only), bathroom spawn moved.
-
-## Next steps to finish F3
-
-1. Re-run the f3 capture, review every image, fix what scores < 4 on the rubric
-   (readability, spatial logic, lighting/mood ≤60 % near-black, fear, polish). Things to
-   check: model orientations (Sketchfab fronts may face the wrong way — fix with `orient`
-   / `rotation` in layout.ts, then `npx tsx scripts/validate-world.ts`), coat hooks and shoe
-   rack facing, window glass, kitchen sink run, bathroom tiles, landing doors 46/49/lift,
-   stairs, nothing floating or clipping.
-2. `npm run check` green; full `npx playwright test` green (fix tests for new coordinates).
-3. Record rubric scores in `QA.md` (FIX_PROMPT §9) for the F3 shots.
-4. Build ONE contact sheet (≤12): floorplan + room ×2 + kitchen + bathroom + corridor +
-   landing + flat 48 + window + outage. A helper exists in the old scratchpad
-   (`f2sheet.py` pattern: PIL, 2 columns, labels) — recreate it in a temp dir if missing.
-5. Update PROGRESS.md, commit (exclude `FIX_PROMPT.md`), then STOP and show the owner the
-   contact sheet + rubric table in Uzbek, and wait for their review before F4.
-
-Commit trailer used so far: `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>` —
-use your own tool's attribution instead.
+`npm run check` green, full Playwright green, CREDITS updated, DECISIONS/PROGRESS updated,
+commit (without `FIX_PROMPT.md`, `.env.local` or any key), then STOP and report to the owner
+in Uzbek: which sounds were added (source, license), what was verified, what could only be
+judged by ear.
