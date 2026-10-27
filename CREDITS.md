@@ -7,6 +7,7 @@ authors are credited anyway. Sketchfab assets are CC-BY-4.0
 (https://creativecommons.org/licenses/by/4.0/): credited here and in Settings → Mualliflar.
 Assets from "this repository" were generated for the game by the linked script (CC0).
 They were optimised (re-compressed, resized and in some cases simplified) for the web.
+Mobile stills are original renders of the same credited world; their underlying model, texture and HDRI licenses and authors are listed below.
 Freesound recordings are excerpted, mixed to mono, filtered and loudness-normalised; effects use FLAC and ambience uses AAC.
 
 ## Fonts
@@ -92,3 +93,55 @@ Freesound recordings are excerpted, mixed to mono, filtered and loudness-normali
 | Muffled TV Program #6 | sound | milcahrawr | [Freesound](https://freesound.org/people/milcahrawr/sounds/872726/) | CC0-1.0 |
 | Cuckoo Clock Ticking.aif | sound | DiArchangeli | [Freesound](https://freesound.org/people/DiArchangeli/sounds/462929/) | CC0-1.0 |
 | Cuckoo Clock Ticking.aif | sound | DiArchangeli | [Freesound](https://freesound.org/people/DiArchangeli/sounds/462929/) | CC0-1.0 |
+
+## Mobile scene renders
+
+Original rendered compositions of the world above. The credited source models/materials retain their licenses and attribution; all renders include those sources.
+
+| Asset | Type | Author | Source | License |
+| --- | --- | --- | --- | --- |
+| bathroom-changed | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| bathroom-off | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| bathroom-on | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| coat-changed | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| corridor-changed | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| corridor-cleared | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| corridor-cold | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| corridor-off | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| corridor-on | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| ending_a-on | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| ending_b-on | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| ending_c-on | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| flat48-changed | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| flat48-off | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| flat48-on | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| kitchen-figure | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| kitchen-off | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| kitchen-on | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| landing48-changed | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| landing48-off | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| landing48-on | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| peephole-close | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| peephole-figure | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| peephole-off | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| peephole-on | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| phone-dead | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| phone-night1 | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| phone-night2 | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| phone-night3 | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| phone-night4 | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| phone-night5 | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| room-changed | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| room-off | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| room-on | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| room-return | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| room_entry-off | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| room_entry-on | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| stairwell-figure | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| stairwell-off | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| stairwell-on | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| tv-figure | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| wall-off | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| wall-on | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| window-off | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |
+| window-on | still + depth | 3:17 project | [Render pipeline](https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts) | CC-BY-4.0 |

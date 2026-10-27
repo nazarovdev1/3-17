@@ -318,12 +318,12 @@ input[type='range'] {
 
 .text-s .mobile-panel .line,
 .text-s .mobile-panel .subtitle {
-  font-size: 13px;
+  font-size: 17px;
 }
 
 .text-m .mobile-panel .line,
 .text-m .mobile-panel .subtitle {
-  font-size: 15px;
+  font-size: 17px;
 }
 
 .text-l .mobile-panel .line,
@@ -378,7 +378,7 @@ input[type='range'] {
   padding-bottom: env(safe-area-inset-bottom);
 }
 .mobile-scene {
-  height: 55%;
+  height: 58%;
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
@@ -388,7 +388,7 @@ input[type='range'] {
 .mobile-scene canvas {
   width: 100%;
   height: 100%;
-  image-rendering: pixelated;
+  image-rendering: auto;
   display: block;
 }
 .mobile-panel {
@@ -397,7 +397,9 @@ input[type='range'] {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(#141a22, #0b0b0c);
+  background: #11161bf5;
+  border-top: 1px solid #6f746c44;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 .mobile-panel .narration {
   width: 100%;
@@ -408,7 +410,8 @@ input[type='range'] {
   flex-shrink: 0;
 }
 .mobile-panel button {
-  min-height: 44px;
+  min-height: 48px;
+  line-height: 1.45;
 }
 .mobile-game .pause-button {
   position: absolute;
@@ -492,8 +495,79 @@ input[type='range'] {
 .ending-vignette {
   width: min(200px, 36vw);
   height: min(210px, 28vh);
-  image-rendering: pixelated;
+  position: relative;
+  overflow: hidden;
   border: 1px solid #282b2d;
+}
+.ending-vignette canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.still-loading {
+  z-index: 3;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  background: #141a22ed;
+  font-size: 14px;
+}
+.phone-clock {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  color: #d9e1e9;
+  font-family: var(--font-ui);
+  font-weight: 300;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  transform: translate(-50%, -50%) rotate(-2.29deg);
+}
+.still-loading progress {
+  width: 50%;
+  height: 3px;
+  accent-color: var(--paper);
+}
+.mobile-game .hotspot {
+  width: 48px;
+  height: 48px;
+  min-height: 48px;
+  border-radius: 50%;
+  border: 1px solid #d7cead90;
+  background: #12171c66;
+  box-shadow: 0 0 0 4px #cfc6b00d;
+}
+.mobile-game .hotspot::after {
+  content: '';
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: #ded6be;
+  border-radius: 50%;
+  inset: calc(50% - 2.5px);
+}
+.mobile-game .hotspot-label {
+  font-size: 13px;
+  line-height: 1.45;
+}
+.mobile-panel .narration {
+  padding: 18px 18px 8px;
+}
+.mobile-panel .choices {
+  padding: 8px 14px 14px;
+  gap: 8px;
+}
+.mobile-panel .line {
+  line-height: 1.65;
+}
+.mobile-game .pause-button {
+  width: 48px;
+  height: 48px;
 }
 .sanity-heavy canvas,
 .sanity-corrupt canvas {

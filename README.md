@@ -7,10 +7,10 @@ a flat that has been sealed for twenty years.
 It runs as a Telegram Mini App and in any normal browser. The same story and save file are
 presented two ways:
 
-- **Desktop** (fine pointer, ≥ 900 px wide, working WebGL): a first-person, PS1-style 3D walk
+- **Desktop** (fine pointer, ≥ 900 px wide, working WebGL): a first-person, textured HD 3D walk
   through the flat. Loaded lazily, so phones never download Three.js.
-- **Mobile** (everything else): vertical Canvas 2D pixel-art scenes with gyroscope parallax,
-  hotspots, typewriter narration and a chat-style overlay for the voice.
+- **Mobile** (everything else): HD stills of the same world, a small WebGL2 depth-parallax
+  shader with Canvas fallback, object hotspots, readable narration and the voice overlay.
 
 The game is a fully static site: no backend, no database, no AI APIs, no paid services.
 Assets, recorded sounds and fonts are bundled locally and credited in Settings. The low
@@ -95,6 +95,30 @@ The verification command measures the shipped decode: -6 ±0.5 dBFS effect peaks
 -23 ±0.75 LUFS loops, a short fridge stop and silent clock gaps. Raw downloads and reports
 stay in ignored `.asset-cache/`. A targeted rebuild may add `--only=sound_loop_clock`.
 
+## Mobile scene assets
+
+The committed 1080×1920 WebP stills and 270×480 grayscale depth maps require no runtime
+3D engine. Only the displayed camera/state pair is fetched; scene changes release decoded
+images and GPU objects. Canvas handles unavailable/lost WebGL; Reduce flashing stops motion.
+
+```sh
+npm run assets:stills
+npm run assets:stills -- --only=room-changed,peephole-close
+npx tsx scripts/review-stills.ts
+```
+
+The export command starts its own local Vite test server on port 4175 and uses Playwright
+at `?render=still&cam=<id>&state=<state>&quality=ultra`. Recipes and cameras are pinned in
+`src/presenters/mobile/still-scenes.ts`; `stills.gen.json` records local paths, hashes and
+camera-projected object anchors. The export bridge is absent from production. It uses the
+credited desktop world and settles changed arrangements before capturing; no image API or
+external runtime requests are involved. Model/audio rebuilds preserve the still directory.
+
+Review sheets and five-size screenshots are written to ignored `audit/screenshots/f6/`.
+The unit/budget gates enforce local files, hashes, the 10 MB total, valid scene coverage and
+non-overlapping 48 px hit rectangles. Browser tests cover all five required screen sizes,
+touch hold cancellation, native depth rendering, damaged-image retry and context-loss fallback.
+
 ## Debug mode
 
 - Add `?debug=1` to the URL (or run `localStorage.setItem('g317:debug', '1')` in the console
@@ -160,9 +184,9 @@ Telegram they are simply absent.
 src/core/         story engine, state, saves, narration provider, validator (pure TS)
 src/content/      the Uzbek story (nights 1–5, endings) as typed data
 src/platform/     Telegram adapter, mode routing / GPU check, storage
-src/audio/        procedural Web Audio engine and mixer
+src/audio/        recorded Web Audio playback, mixer, spatial cues and synth fallbacks
 src/ui/           shell screens: warning, title, form, settings, pause, endings
-src/presenters/   mobile (Canvas 2D), desktop (React Three Fiber, lazy), text
+src/presenters/   mobile (HD stills, tiny WebGL2/Canvas renderer), desktop (R3F, lazy), text
 src/debug/        overlay and the test-build window.__game API
 scripts/          story validator, bundle budget, font glyph check
 tests/            unit (Vitest) and e2e (Playwright)

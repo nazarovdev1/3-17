@@ -62,6 +62,8 @@ settings:
   credits_intro: Oʻyindagi modellar, teksturalar va shriftlar ochiq litsenziya ostida. Ularni yaratganlarga rahmat.
   credits_fonts: Shriftlar
   credits_assets: Modellar va teksturalar
+  credits_stills: Mobil manzaralar quyidagi modellar va materiallar asosida tayyorlangan.
+  credits_rendered: Mobil manzaralar
 
 pause:
   title: PAUZA

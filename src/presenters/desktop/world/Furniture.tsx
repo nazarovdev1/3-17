@@ -143,12 +143,14 @@ function setClockHands(root: THREE.Object3D, size: WorldObject['size']) {
     if (hand) hand.visible = false
   }
   const material = new THREE.MeshStandardMaterial({ color: '#242522', roughness: 0.7 })
+  let handIndex = 0
   for (const [length, width, fraction] of [
     [0.073, 0.008, (3 + 17 / 60) / 12],
     [0.112, 0.005, 17 / 60],
     [0.12, 0.002, 0],
   ]) {
     const pivot = new THREE.Group()
+    pivot.name = `clock-hand-${handIndex++}`
     pivot.position.set(0, size[1] / 2, size[2] / 2 + 0.002)
     pivot.rotation.z = -fraction! * Math.PI * 2
     const hand = new THREE.Mesh(new THREE.BoxGeometry(width, length, 0.001), material)

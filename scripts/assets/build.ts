@@ -7,8 +7,10 @@
 // KTX2 needs the native `toktx` binary, which is not part of this toolchain; WebP is the
 // fallback FIX_PROMPT §3 allows.
 import { createHash } from 'node:crypto'
+import { withStillCredits, type StillCreditsManifest } from './still-credits'
 import {
   copyFileSync,
+  cpSync,
   existsSync,
   mkdirSync,
   readFileSync,
@@ -208,6 +210,7 @@ function credits(assets: ManifestAsset[]): string {
     '(https://creativecommons.org/licenses/by/4.0/): credited here and in Settings → Mualliflar.',
     'Assets from "this repository" were generated for the game by the linked script (CC0).',
     'They were optimised (re-compressed, resized and in some cases simplified) for the web.',
+    'Mobile stills are original renders of the same credited world; their underlying model, texture and HDRI licenses and authors are listed below.',
     assets.some((a) => a.kind === 'sound')
       ? 'Freesound recordings are excerpted, mixed to mono, filtered and loudness-normalised; effects use FLAC and ambience uses AAC.'
       : 'F5 audio is in progress: no external sound recordings are bundled yet; synth fallbacks remain.',
@@ -300,6 +303,9 @@ async function main() {
     })
   }
   const manifest: AssetManifest = { assets }
+  // Stills are generated separately from this world; never discard them on audio/model rebuilds.
+  const stills = join(PUBLIC, 'assets', 'stills')
+  if (existsSync(stills)) cpSync(stills, join(OUT, 'stills'), { recursive: true })
   // A failed download/encode must never destroy the last working local asset set.
   const destination = join(PUBLIC, 'assets')
   const backup = join(CACHE, 'previous-assets')
@@ -316,7 +322,16 @@ async function main() {
     MANIFEST,
     await format(JSON.stringify(manifest), { ...(await resolveConfig(MANIFEST)), parser: 'json' }),
   )
-  writeFileSync(CREDITS, credits(assets))
+  const stillManifestPath = join(ROOT, 'src/presenters/mobile/stills.gen.json')
+  writeFileSync(
+    CREDITS,
+    existsSync(stillManifestPath)
+      ? withStillCredits(
+          credits(assets),
+          JSON.parse(readFileSync(stillManifestPath, 'utf8')) as StillCreditsManifest,
+        )
+      : credits(assets),
+  )
   const total = assets.reduce((sum, a) => sum + a.bytes, 0)
   console.log(`✓ assets:build — ${assets.length} assets, ${(total / 1048576).toFixed(1)} MB`)
 }

@@ -3,6 +3,46 @@
 Manual checklist (spec 12). Executed in a real browser where possible; every item gets an
 honest ✅ / ❌ / not-verified note with a date.
 
+## F6 — Mobile HD stills verification (2026-10-28, awaiting owner review)
+
+- `npm run check`: **312 tests / 28 files**; lint, format, types, story, build and budgets
+  pass (mobile initial JS 128.2 KB / 250 KB; desktop 3D 403.3 KB / 700 KB; desktop total
+  25.0 MB / 60 MB; mobile stills 2.2 MB / 10 MB; debug API absent from production JS).
+- 45 still/depth pairs: unit tests check recipes, story mappings, dimensions, SHA-256,
+  bytes, CREDITS rows, CC-BY-4.0 metadata and hotspot bounds/non-overlap at five sizes.
+  The six phone pairs were re-rendered with a blank clock; `darkness.json` reports no
+  frame above 55% near-black.
+- Focused `mobile-hd.spec.ts`: 15/15 after fixes (five sizes; WebGL2 vs Canvas; layout;
+  17 px text; 48 px disjoint targets; damaged-still retry; context loss → Canvas;
+  orientation → GPU uniform / Canvas pixels; Reduce flashing freeze; live 3:16 → 3:17).
+- Full suite, one worker, nothing else running:
+  - Run 1: 189 passed / 3 failed / 5 skipped. (a) **Real F6 regression**: hold-to-listen
+    on `n2_night_hub` at 360×640 fell into the panel below the fold (wall out of frame);
+    fixed by DECISIONS 57; original test passes. (b) Repeated-night heap delta 533,628 vs
+    524,288 bytes; passes 3/3 alone; limit unchanged. (c) Outage silence timing (below).
+  - Run 2: 190 passed / 2 failed / 5 skipped; both are `audio.spec.ts:113` measuring
+    2.981 s of silence against `> 3 s`.
+- Silence-timing investigation: the 4.42 s post-cut window is reset correctly. A
+  ~0.9 s main-thread frame on the desktop `n1_317 → n1_knocks` switch can fall inside the
+  measurement. The same probe on the **F5 commit** shows the identical stall and margins
+  of 3.03–3.06 s. This is a pre-existing borderline test, not an F6 regression. Test,
+  threshold and timeouts are unchanged; it passes 6/6 in isolation. Recommended for F7/F8:
+  remove that stall (likely blackout shader/light recompilation) instead of loosening it.
+
+Five-size rubric (`audit/screenshots/f6/five-sizes.jpg` plus per-node PNGs):
+
+| Screenshot                                  | Readability | Targets           | Scene | Notes                                          |
+| ------------------------------------------- | ----------- | ----------------- | ----- | ---------------------------------------------- |
+| 360×640 `n1_hub`                            | ✅ 17 px    | ✅ three hotspots | ✅    | Panel scrolls; third button cut off by design  |
+| 375×667 `n1_hub`                            | ✅          | ✅                | ✅    | —                                              |
+| 390/412/430 `n1_hub`                        | ✅          | ✅                | ✅    | Ceiling lamp visible on taller crops           |
+| 360–430 `n4_phone`                          | ✅          | ✅ panel          | ✅    | Live 3:17 aligned and centred; 40 missed calls |
+| `n1_tea`, `n2_mirror`, `n4_317` (all sizes) | ✅          | ✅                | ✅    | Captured by E2E; reviewed in sheets            |
+
+Owner review items: the `wall-off` torch hotspot is strongly blown out; check overall
+mood of the 45 renders (`stills-sheet-1..4.jpg`). Not verified: real iOS/WebKit,
+Telegram clients, physical gyroscope, real GPU context loss.
+
 ## F5 — Recorded audio verification (completed 2026-10-28)
 
 - `npm run check`: **309 tests / 27 files**; lint, formatting, strict types, 90-node story,

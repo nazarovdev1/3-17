@@ -32,6 +32,7 @@ import {
 } from './layout'
 import type { Choice, Step } from '@/core/engine/types'
 import { softwareLight } from './world/softwareMaterial'
+import { STILL_CAMERAS } from '../mobile/still-scenes'
 
 export interface RigProps {
   step: Step
@@ -333,6 +334,19 @@ export function CameraRig({
       1.6 +
       (settings.headBob && !settings.reduceFlashing && walking ? Math.sin(bob.current) * 0.018 : 0)
     camera.quaternion.setFromEuler(new Euler(pitch, yaw, 0, 'YXZ'))
+    if (import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1') {
+      const query = new URLSearchParams(window.location.search)
+      const pose = query.get('render') === 'still' ? STILL_CAMERAS[query.get('cam') ?? ''] : null
+      if (pose) {
+        camera.position.set(...pose.position)
+        camera.quaternion.setFromEuler(new Euler(pose.pitch, pose.yaw, 0, 'YXZ'))
+        const lens = camera as PerspectiveCamera
+        if (lens.fov !== pose.fov) {
+          lens.fov = pose.fov
+          lens.updateProjectionMatrix()
+        }
+      }
+    }
     camera.getWorldDirection(forward.current)
     softwareLight.torchPosition.value.copy(camera.position)
     softwareLight.torchDirection.value.copy(forward.current)

@@ -6,12 +6,14 @@ import { useSettings } from '@/ui/settingsStore'
 import { visibleChoices } from '@/core/engine'
 import { sanityBand } from '@/core/state/sanity'
 import { TelegramAdapter } from '@/platform/telegram/adapter'
-import { drawVignette, VIGNETTE_H, VIGNETTE_W } from './vignettes'
-import { HOTSPOTS } from './hotspots'
+import { layoutHotspots } from './hotspots'
+import { StillScene, stillManifest } from './StillScene'
+import { stillId } from './still-scenes'
 import { useParallax } from './useParallax'
 import { ChatOverlay } from './ChatOverlay'
 import { PauseMenu } from '@/ui/GameScreen'
 import { audio } from '@/audio/engine'
+import { PhoneClock } from './PhoneClock'
 
 const telegram = new TelegramAdapter()
 function haptic(pattern: 'light' | 'heartbeat') {
@@ -23,7 +25,8 @@ export function MobilePresenter({ paused }: { paused: boolean }) {
   const step = useGame((s) => s.currentStep)
   const setScreen = useGame((s) => s.setScreen)
   const settings = useSettings((s) => s.settings)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const sceneRef = useRef<HTMLDivElement>(null)
+  const [sceneSize, setSceneSize] = useState({ width: 360, height: 352 })
   const motion = useParallax(!paused)
   const [listening, setListening] = useState(false)
   const hold = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -36,6 +39,17 @@ export function MobilePresenter({ paused }: { paused: boolean }) {
       ? 'window_dark'
       : baseVignette
   const choices = useMemo(() => (node && state ? visibleChoices(node, state) : []), [node, state])
+  const frameId = state && node ? stillId(vignette, node.id, state) : 'room-on'
+  const spots = useMemo(
+    () =>
+      layoutHotspots(
+        choices,
+        stillManifest.frames[frameId]?.anchors ?? {},
+        sceneSize.width,
+        sceneSize.height,
+      ),
+    [choices, frameId, sceneSize],
+  )
   const voiceLines = useMemo(
     () =>
       state && node?.mobile?.overlay === 'chat'
@@ -59,33 +73,13 @@ export function MobilePresenter({ paused }: { paused: boolean }) {
   )
 
   useEffect(() => {
-    const ctx = canvasRef.current?.getContext('2d')
-    if (!ctx || paused) return
-    let frame = 0
-    const start = performance.now()
-    const reflections: { time: number; x: number; y: number }[] = []
-    const draw = () => {
-      const now = performance.now() / 1000
-      if (vignette === 'bathroom') {
-        reflections.push({ time: now, ...motion.parallax.current })
-        while (reflections.length > 2 && reflections[1]!.time < now - 0.5) reflections.shift()
-      }
-      const current = useGame.getState().run
-      drawVignette(vignette, {
-        c: ctx,
-        ...{ px: motion.parallax.current.x, py: motion.parallax.current.y },
-        t: (performance.now() - start) / 1000,
-        sanity: current?.sanity ?? 100,
-        reduceFlashing: settings.reduceFlashing,
-        clockShifted: !!current?.flags['clock_shifted'],
-        mirrorPx: reflections[0]?.x,
-        mirrorPy: reflections[0]?.y,
-      })
-      frame = requestAnimationFrame(draw)
-    }
-    draw()
-    return () => cancelAnimationFrame(frame)
-  }, [vignette, paused, settings.reduceFlashing, motion.parallax])
+    if (!sceneRef.current) return
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) setSceneSize({ width: entry.contentRect.width, height: entry.contentRect.height })
+    })
+    observer.observe(sceneRef.current)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(
     () => () => {
@@ -132,27 +126,37 @@ export function MobilePresenter({ paused }: { paused: boolean }) {
       data-vignette={vignette}
     >
       <div
+        ref={sceneRef}
         className={`mobile-scene ${peephole ? 'peephole-scene' : ''} ${listening ? 'listening' : ''}`}
         onPointerDown={motion.onPointerDown}
         onPointerMove={motion.onPointerMove}
         onPointerUp={motion.onPointerUp}
         onPointerCancel={motion.onPointerUp}
       >
-        <canvas
-          ref={canvasRef}
-          width={VIGNETTE_W}
-          height={VIGNETTE_H}
-          aria-label={ui('mobile.scene_label')}
+        <StillScene
+          key={frameId}
+          id={frameId}
+          motion={motion.parallax}
+          paused={paused}
+          reduced={settings.reduceFlashing}
+          cold={state.night === 5 && ['corridor', 'landing48'].includes(vignette)}
         />
+        {frameId.startsWith('phone-night') && (
+          <PhoneClock
+            state={state}
+            width={sceneSize.width}
+            height={sceneSize.height}
+            motion={motion.parallax}
+            reduced={settings.reduceFlashing}
+            paused={paused}
+          />
+        )}
         <span className="scene-caption">
-          {state.night}-tun · {state.flags['time'] === '3:16' ? '3:16' : '3:17'} ·{' '}
-          {node.location === 'flat48' ? '48' : '47'}
+          {state.night}-tun · {node.location === 'flat48' ? '48' : '47'}
+          {typeof state.flags['time'] === 'string' && ` · ${state.flags['time']}`}
         </span>
         {choices.map((choice) => {
-          const spot =
-            HOTSPOTS[
-              choice.id === 'clock' && state.flags['clock_shifted'] ? 'shifted_clock' : choice.id
-            ]
+          const spot = spots[choice.id]
           if (!spot || peephole) return null
           const listen = choice.id === 'listen'
           return (
@@ -162,7 +166,7 @@ export function MobilePresenter({ paused }: { paused: boolean }) {
               className={`hotspot ${listen ? 'hold-hotspot' : ''}`}
               aria-label={choice.label}
               title={choice.label}
-              style={{ left: `${spot.x * 100}%`, top: `${spot.y * 100}%` }}
+              style={{ left: spot.x, top: spot.y }}
               onClick={listen ? undefined : () => select(choice.id)}
               onPointerDown={
                 listen
@@ -207,13 +211,42 @@ export function MobilePresenter({ paused }: { paused: boolean }) {
             <button onClick={() => useGame.getState().advance()}>{ui('common.continue')}</button>
           )}
           {choices
-            .filter((choice) => peephole || !HOTSPOTS[choice.id])
+            .filter((choice) => peephole || !spots[choice.id])
+            // When the wall is out of frame, its hold button leads the panel so it stays above
+            // the fold on short screens; the hint names it as the scene's main interaction.
+            .sort((a, b) => Number(b.id === 'listen') - Number(a.id === 'listen'))
             .map((choice) => (
-              <button key={choice.id} data-choice-id={choice.id} onClick={() => select(choice.id)}>
+              <button
+                key={choice.id}
+                data-choice-id={choice.id}
+                onClick={choice.id === 'listen' ? undefined : () => select(choice.id)}
+                onPointerDown={
+                  choice.id === 'listen'
+                    ? (event) => {
+                        event.currentTarget.setPointerCapture(event.pointerId)
+                        startListening(choice.id)
+                      }
+                    : undefined
+                }
+                onPointerUp={choice.id === 'listen' ? release : undefined}
+                onPointerCancel={choice.id === 'listen' ? release : undefined}
+                onKeyDown={
+                  choice.id === 'listen'
+                    ? (event) => {
+                        if (event.key === ' ' || event.key === 'Enter') {
+                          event.preventDefault()
+                          startListening(choice.id)
+                        }
+                      }
+                    : undefined
+                }
+                onKeyUp={choice.id === 'listen' ? release : undefined}
+                onBlur={choice.id === 'listen' ? release : undefined}
+              >
                 {choice.label}
               </button>
             ))}
-          {choices.some((choice) => HOTSPOTS[choice.id]) && !peephole && (
+          {choices.some((choice) => spots[choice.id] || choice.id === 'listen') && !peephole && (
             <p className="hotspot-hint">
               {ui('mobile.hotspot_hint')}
               {choices.some((choice) => choice.id === 'listen') && ` ${ui('mobile.hold_hint')}`}

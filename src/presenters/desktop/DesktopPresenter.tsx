@@ -13,6 +13,7 @@ import {
 } from '@react-three/postprocessing'
 import { BlendFunction, ToneMappingMode } from 'postprocessing'
 import { ACESFilmicToneMapping, NoToneMapping, PCFSoftShadowMap, type Mesh } from 'three'
+import { StillCapture } from './StillCapture'
 import { visibleChoices } from '@/core/engine'
 import { useGame } from '@/ui/gameStore'
 import { useSettings } from '@/ui/settingsStore'
@@ -253,7 +254,11 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
     (on: boolean) => setPeek({ node: useGame.getState().currentStep?.node.id ?? '', on }),
     [],
   )
-  const peepholeView = step?.node.mobile?.vignette === 'peephole' || peeking
+  const peepholeView =
+    step?.node.mobile?.vignette === 'peephole' ||
+    peeking ||
+    ((import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1') &&
+      new URLSearchParams(window.location.search).get('cam')?.startsWith('peephole') === true)
   // An eye at the peephole holds no torch: the landing is lit only by what is out there.
   const manual = torchOverride?.needed === torchNeeded ? torchOverride.on : null
   const flashlight = !peepholeView && (manual ?? torchNeeded)
@@ -270,7 +275,9 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
   })
   const [profile, setProfile] = useState(() => renderProfile())
   const [still] = useState(
-    () => new URLSearchParams(window.location.search).get('render') === 'still',
+    () =>
+      (import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1') &&
+      new URLSearchParams(window.location.search).get('render') === 'still',
   )
   const choices = useMemo(() => (step ? visibleChoices(step.node, step.state) : []), [step])
   const paper = useMemo(() => (step ? readableOf(step) : null), [step])
@@ -311,7 +318,8 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
     return () => timers.forEach(clearTimeout)
   }, [nodeId, paused])
   useEffect(() => {
-    if (!step || paused || step.phase !== 'next' || step.node.desktop?.trigger !== 'timed') return
+    if (!step || paused || still || step.phase !== 'next' || step.node.desktop?.trigger !== 'timed')
+      return
     const characters = resolveAllLines(step.state).reduce(
       (total, line) => total + line.text.length,
       0,
@@ -319,9 +327,16 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
     const delay = Math.max(step.node.desktop.delayMs ?? 4000, characters * 24 + 1800)
     const timer = setTimeout(() => useGame.getState().advance(), delay)
     return () => clearTimeout(timer)
-  }, [step, paused])
+  }, [step, paused, still])
   if (!step || !supported) return null
-  const corridorExtension = step.node.id === 'n3_corridor_loop' ? extension : 0
+  const corridorExtension =
+    step.node.id === 'n3_corridor_loop'
+      ? (import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1') &&
+        still &&
+        new URLSearchParams(window.location.search).get('cam') === 'corridor_changed'
+        ? 2
+        : extension
+      : 0
   const appearance = figureAppearance(step.node.id, step.state)
   const peephole = peepholeView
   return (
@@ -335,9 +350,16 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
           onCreated={({ gl }) => setProfile(renderProfile(gl))}
           dpr={renderDpr(tier, profile, window.innerHeight)}
           shadows={profile.shadows ? { type: PCFSoftShadowMap } : false}
-          frameloop={paused || lost ? 'never' : 'always'}
+          frameloop={
+            paused || lost
+              ? 'never'
+              : still && new URLSearchParams(window.location.search).has('cam')
+                ? 'demand'
+                : 'always'
+          }
           camera={{ position: [0.6, 1.6, -0.6], fov: 66, near: 0.05, far: 80 }}
           gl={{
+            preserveDrawingBuffer: still && new URLSearchParams(window.location.search).has('cam'),
             antialias: false,
             alpha: false,
             powerPreference: 'high-performance',
@@ -346,6 +368,9 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
           }}
           fallback={<div className="desktop-loading">{ui('desktop.fallback_loading')}</div>}
         >
+          {(import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1') && still && (
+            <StillCapture />
+          )}
           <Runtime
             tier={tier}
             paused={paused}

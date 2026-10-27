@@ -83,7 +83,11 @@ function Clock({
     if (!g) return
     if (moved) {
       // On the shared wall now, facing into the room.
-      g.position.set(CLOCK_SHIFTED[0] - 0.09, CLOCK_SHIFTED[1] - o.size[1] / 2, CLOCK_SHIFTED[2])
+      g.position.set(
+        CLOCK_SHIFTED[0] + o.size[2] / 2 + 0.008,
+        CLOCK_SHIFTED[1] - o.size[1] / 2,
+        CLOCK_SHIFTED[2],
+      )
       g.rotation.y = Math.PI / 2
     } else {
       g.position.set(...o.position)
@@ -92,6 +96,16 @@ function Clock({
   }
   useEffect(() => place(shifted.current))
   useFrame(() => {
+    // A still's changed state represents a completed unobserved revisit.
+    if (
+      (import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1') &&
+      requested &&
+      new URLSearchParams(window.location.search).has('cam') &&
+      new URLSearchParams(window.location.search).get('render') === 'still'
+    ) {
+      shifted.current = true
+      place(true)
+    }
     if (requested && !shifted.current && group.current) {
       camera.updateMatrixWorld()
       matrix.current.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)

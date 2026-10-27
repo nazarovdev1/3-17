@@ -5,6 +5,7 @@ import { manifest } from '@/assets/loader'
 import { LoadingScreen } from '@/ui/LoadingScreen'
 import { SettingsScreen } from '@/ui/SettingsScreen'
 import { useAssetLoad } from '@/ui/assetLoadStore'
+import { stillManifest } from '@/presenters/mobile/StillScene'
 
 afterEach(() => cleanup())
 
@@ -43,4 +44,7 @@ it('lists every asset and font in the settings credits', () => {
   }
   expect(credits.textContent).toContain('Literata')
   expect(credits.textContent).toContain('Inter')
+  for (const id of Object.keys(stillManifest.frames)) expect(credits.textContent).toContain(id)
+  expect(credits.textContent).toContain(stillManifest.credit!.author)
+  expect(credits.textContent).toContain(stillManifest.credit!.license)
 })

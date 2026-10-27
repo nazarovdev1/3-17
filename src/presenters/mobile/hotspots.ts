@@ -1,47 +1,53 @@
-/**
- * Hotspot registry for the mobile presenter. Coordinates are normalized
- * (0..1) inside the scene area. A hotspot is rendered only when the current
- * node has a visible choice with the same id, so no dead buttons can exist. The
- * visible label is always the choice's own text from the YAML.
- */
+/** Object anchors are exported by the exact camera used to render each still. */
 export interface HotspotDef {
   x: number
   y: number
 }
+import { coverPoint } from './still-renderer'
 
-export const HOTSPOTS: Record<string, HotspotDef> = {
-  listen: { x: 0.92, y: 0.72 },
-  bathroom: { x: 0.1, y: 0.72 },
-  kitchen: { x: 0.9, y: 0.51 },
-  corridor: { x: 0.1, y: 0.46 },
-  diary: { x: 0.32, y: 0.66 },
-  clock: { x: 0.5, y: 0.38 },
-  shifted_clock: { x: 0.66, y: 0.38 },
-  note: { x: 0.24, y: 0.62 },
-  radiator: { x: 0.78, y: 0.66 },
-  tv: { x: 0.22, y: 0.44 },
-  window: { x: 0.5, y: 0.3 },
-  kitchen_door: { x: 0.86, y: 0.5 },
-  kettle: { x: 0.4, y: 0.62 },
-  gas_stove: { x: 0.6, y: 0.62 },
-  bread_bin: { x: 0.3, y: 0.58 },
-  wardrobe: { x: 0.8, y: 0.42 },
-  mirror: { x: 0.5, y: 0.3 },
-  vent: { x: 0.82, y: 0.24 },
-  shared_wall: { x: 0.9, y: 0.5 },
-  carpet: { x: 0.5, y: 0.8 },
-  front_door: { x: 0.16, y: 0.46 },
-  corridor_length: { x: 0.6, y: 0.5 },
-  muhabbat_door: { x: 0.5, y: 0.42 },
-  peephole: { x: 0.16, y: 0.42 },
-  figure: { x: 0.5, y: 0.44 },
-  door48: { x: 0.78, y: 0.48 },
-  calendar: { x: 0.74, y: 0.2 },
-  belongings: { x: 0.32, y: 0.6 },
-  chair: { x: 0.32, y: 0.66 },
-  lamp: { x: 0.66, y: 0.26 },
-  opposite_building: { x: 0.34, y: 0.34 },
-  bathroom_door: { x: 0.14, y: 0.52 },
+const ANCHOR: Record<string, string> = {
+  listen: 'shared_wall',
+  kitchen: 'bread_bin',
+  bathroom: 'vent',
+  diary: 'chair',
+  tea: 'kettle',
+  sleep: 'bed',
+  wait: 'bed',
+  wait317: 'bed',
+  stay: 'bed',
+  chain: 'front_door',
+  leave: 'front_door',
+  leave_early: 'front_door',
+  enter: 'door48',
+  open48: 'door48',
+  wind: 'clock',
+  shifted_clock: 'clock',
+  retreat: 'front_door',
+  keep: 'front_door',
+  stop: 'corridor',
+}
+/** A 48 px hit rectangle must be fully in the visible crop and clear of every other hit. */
+export function layoutHotspots(
+  choices: { id: string }[],
+  anchors: Record<string, HotspotDef>,
+  width: number,
+  height: number,
+) {
+  const result: Record<string, HotspotDef> = {}
+  for (const choice of choices) {
+    const point = anchors[ANCHOR[choice.id] ?? choice.id]
+    if (!point) continue
+    const at = coverPoint(point.x, point.y, width, height)
+    if (at.x < 30 || at.x > width - 30 || at.y < 56 || at.y > height - 48) continue
+    if (
+      Object.values(result).some(
+        (other) => Math.abs(other.x - at.x) < 56 && Math.abs(other.y - at.y) < 56,
+      )
+    )
+      continue
+    result[choice.id] = at
+  }
+  return result
 }
 
 /** Vignette ids the story uses, for the presenter's completeness check. */

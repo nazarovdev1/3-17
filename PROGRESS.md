@@ -21,9 +21,39 @@ Fix phases (FIX_PROMPT.md):
 - [x] F3 — Desktop flat rebuild, reviewed by the owner ("f3 qilindi")
 - [ ] F4 — Desktop horror (verified; awaiting owner review)
 - [x] F5 — Audio
-- [ ] F6 — Mobile
+- [ ] F6 — Mobile (verified; awaiting owner visual review)
 - [ ] F7 — Fear pass
 - [ ] F8 — Full QA
+
+## F6 — Mobile (verified, awaiting owner review, 2026-10-28)
+
+Owner authorised F6 after the completed F5 commit `8685684`. No F7 work is authorised.
+
+- `npm run assets:stills` renders 45 portrait 1080×1920 WebP stills of the actual desktop
+  world with 270×480 grayscale depth, SHA-256 and camera-projected anchors
+  (`stills.gen.json`, 2.2 MB / 10 MB). Supports `--only=a,b`; starts its own Vite server
+  on 127.0.0.1:4175. The capture bridge (`StillCapture`) is dev/test-only; the budget
+  rejects `__still` in production JS. Procedural `vignettes.ts` is removed.
+- WebGL2 depth parallax with Canvas fallback (missing WebGL2 or context loss), real fetch
+  progress and retry, per-scene resource release. Push-in, dust, snow, breath and delayed
+  mirror movement; Reduce flashing freezes all motion.
+- 58% scene / scrollable panel, ≥17 px narration, 48 px controls, safe areas. Hotspots
+  use projected anchors with cover-crop math; offscreen/colliding choices stay in the
+  panel, and an unanchored hold-to-listen button leads it (DECISIONS 57).
+- Live `PhoneClock` overlay draws story time over the blank exported phone clock; the six
+  phone pairs were re-rendered blank. Nightly screens show 3/11/24/40/52 missed calls.
+- Desktop fixes found by export: shifted clock no longer inside the party wall. Ordinary
+  desktop camera priority unchanged.
+- Credits: one CC-BY-4.0 "3:17 project" row per render pair in CREDITS and Settings.
+- Tests: `tests/unit/mobile/stills.spec.ts`, extended credits unit test,
+  `tests/e2e/mobile-hd.spec.ts` (3 tests × 5 projects). `npm run check`: 312 tests pass.
+- Full Playwright (197 cases, one worker): run 1 189 passed / 3 failed / 5 skipped;
+  run 2 190 passed / 2 failed / 5 skipped. The listen regression (run 1) is fixed; the
+  remaining failures are documented in QA as pre-existing timing margins, not F6.
+
+Open for the owner: visual review of renders and five-size captures; `wall-off` has a
+strong torch hotspot. Real iOS/WebKit/Telegram/gyroscope hardware remains unverified.
+F7 has not been started.
 
 ## F5 — Audio (completed, 2026-10-28)
 

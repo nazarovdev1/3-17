@@ -77,8 +77,16 @@ export function Outside({
     if (!mesh) return
     if (windowsDark && darkSince.current === null) darkSince.current = clock.elapsedTime
     if (!windowsDark) darkSince.current = null
+    const settled =
+      (import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1') &&
+      new URLSearchParams(window.location.search).get('render') === 'still' &&
+      new URLSearchParams(window.location.search).has('cam')
     const dark =
-      darkSince.current === null ? 0 : Math.floor((clock.elapsedTime - darkSince.current) * 1.4)
+      settled && windowsDark
+        ? 5
+        : darkSince.current === null
+          ? 0
+          : Math.floor((clock.elapsedTime - darkSince.current) * 1.4)
     if (dark === lastDark.current) return
     lastDark.current = dark
     const warm = new THREE.Color('#c48a48')

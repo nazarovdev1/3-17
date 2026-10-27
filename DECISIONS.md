@@ -233,3 +233,42 @@ Android phones"), recorded here.
     The final uninterrupted suite passes 177 cases with five expected skips; the
     unchanged desktop benchmark measures 59.71 FPS with 225 geometries / 45 textures
     stable across room tours. F5 ends here; F6 is not started.
+50. **Mobile shows renders of the real desktop world, not procedural scenes.** The pixel
+    vignettes are removed. `npm run assets:stills` drives the actual world through a
+    dev/test-only capture bridge (`?render=still`) and writes 45 portrait 1080×1920 WebP
+    stills with 270×480 grayscale depth, SHA-256 hashes and camera-projected anchors to
+    `stills.gen.json`. The budget rejects any `__still` leakage into production JS.
+    One render per story state (lights on/off, figure, return, revisit changes) keeps
+    evidence persistent instead of random. 2.2 MB of the 10 MB mobile budget.
+51. **Depth parallax with a Canvas fallback.** A small WebGL2 shader displaces the still by
+    its depth map for tilt/drag, restrained push-in, dust, window snow and cold breath.
+    Missing WebGL2 or a lost context drops to a 2D Canvas with the same image; the scene
+    is never blank. Reduce flashing freezes all motion. Retry is offered for a damaged
+    still; GPU/decoded resources are released per scene.
+52. **Capture is atomic and isolated from production camera priority.** StillCapture
+    renders on demand with four settling frames and reads colour, depth and anchors in one
+    step, retrying if HMR replaces the bridge mid-capture. Export poses are applied early;
+    CameraRig keeps a late export override so ordinary desktop frame order is unchanged.
+    Imported app modules must not be edited while an export runs.
+53. **The phone clock is live, not baked.** The portrait phone export leaves its clock area
+    blank; `PhoneClock` draws the story's current time at the projected position
+    (normalised .505/.349, 102 px source size, cover-crop scaled, following parallax).
+    A baked "02:41" would contradict 3:16/3:17. The dead phone gets no clock.
+54. **Export exposed a real shifted-clock bug.** The shifted clock was placed inside the
+    party wall; World now offsets it by the wall's thickness. Windows are captured in the
+    settled dark state during blackout, and Ending C's clock shows 3:18.
+55. **Render credits are one row per still pair.** Compositions are credited to the "3:17
+    project" under CC-BY-4.0 with the pipeline repository URL; models, textures and HDRIs
+    keep their own attribution in the main asset manifest. CREDITS and Settings share
+    the generated rows; unit tests check that every pair is listed.
+56. **Mobile layout: 58% scene, scrollable panel.** Narration is at least 17 px, controls
+    48 px, safe areas respected. Hotspots use projected anchors with shared cover-crop
+    math; a choice whose anchor is offscreen or collides stays a panel button.
+57. **An unanchored wall leads the panel.** The night hubs face the window, so the shared
+    wall is out of frame and hold-to-listen became the third panel button, below the fold
+    at 360×640: the unchanged audio E2E pressed outside the viewport. Rather than reframe
+    four reviewed room renders, the hold button sorts first among panel choices; the
+    hint already names the wall as the scene's main action. Other choices keep story order.
+58. **Five-size E2E starts each viewport from a fresh run.** Storage is cleared from a
+    static same-origin document; clearing inside the app was overwritten by its unload
+    save, and the warning screen no longer appeared.

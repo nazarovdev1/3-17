@@ -143,8 +143,41 @@ if (orphans.length > 0) {
   failed = true
 }
 const stillsBytes = walk(stillsDir).reduce((sum, f) => sum + statSync(f).size, 0)
+const stillManifestPath = join(rootDir, 'src/presenters/mobile/stills.gen.json')
+if (existsSync(stillManifestPath)) {
+  const stillManifest = JSON.parse(readFileSync(stillManifestPath, 'utf8'))
+  const expectedStills = new Set()
+  for (const [id, frame] of Object.entries(stillManifest.frames)) {
+    let bytes = 0
+    for (const url of [frame.color, frame.depth]) {
+      if (!/^\/assets\/stills\/[a-z0-9_-]+(?:\.depth)?\.webp$/.test(url)) {
+        console.error(`budget: invalid still URL for ${id}`)
+        failed = true
+        continue
+      }
+      expectedStills.add(url.slice(1))
+      const file = join(distDir, url.slice(1))
+      if (!existsSync(file)) {
+        console.error(`budget: missing built still ${url}`)
+        failed = true
+      } else bytes += statSync(file).size
+    }
+    if (bytes !== frame.bytes) {
+      console.error(`budget: built still pair differs for ${id}`)
+      failed = true
+    }
+  }
+  if (
+    walk(stillsDir).some(
+      (file) => !expectedStills.has(relative(publicDir, file).split('\\').join('/')),
+    )
+  ) {
+    console.error('budget: unlisted mobile still')
+    failed = true
+  }
+}
 const codeBytes = mobileBytes + desktopBytes + assetBytes
-const desktopTotal = assetTotal + codeBytes
+const desktopTotal = assetTotal + codeBytes + stillsBytes
 const playable = flat47 + codeBytes
 const mb = (n) => (n / MB).toFixed(1)
 console.log('--- asset budget report ---')
@@ -166,7 +199,7 @@ if (stillsBytes > STILLS_BYTES) {
 // The asset QA bench is dev/test only.
 const benchLeak = walk(join(distDir, 'assets'))
   .filter((f) => f.endsWith('.js'))
-  .filter((f) => readFileSync(f, 'utf8').includes('data-assetview'))
+  .filter((f) => /data-assetview|__still/.test(readFileSync(f, 'utf8')))
 if (benchLeak.length > 0) {
   console.error(`budget: asset bench found in production JS: ${benchLeak.join(', ')}`)
   failed = true

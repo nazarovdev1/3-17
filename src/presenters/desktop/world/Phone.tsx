@@ -154,6 +154,10 @@ export function Phone({
 }) {
   const camera = useThree((s) => s.camera)
   const phone = useMemo(() => phoneState(node, state), [node, state])
+  const portraitStill =
+    (import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1') &&
+    new URLSearchParams(window.location.search).get('render') === 'still' &&
+    new URLSearchParams(window.location.search).get('cam') === 'phone'
   const table = objectById('phone')!
   const { canvas, texture, body, glass, led } = useMemo(() => {
     const canvas = document.createElement('canvas')
@@ -264,7 +268,7 @@ export function Phone({
     let screen: Screen = phone.screen
     if (screen === 'off' && t < l.lit && phone.place === 'table') screen = 'incoming'
     const progress = screen === 'playing' ? Math.min(1, (t - l.started) / phone.messageSeconds) : 0
-    const time = phoneTime(state)
+    const time = portraitStill ? '' : phoneTime(state)
     if (
       screen !== l.screen ||
       time !== l.time ||
@@ -285,8 +289,8 @@ export function Phone({
       camera.getWorldDirection(forward)
       body.position.copy(camera.position).addScaledVector(forward, 0.38)
       body.quaternion.copy(camera.quaternion)
-      body.translateX(0.1)
-      body.translateY(-0.075)
+      body.translateX(portraitStill ? 0 : 0.1)
+      body.translateY(portraitStill ? -0.005 : -0.075)
       down.setFromEuler(new THREE.Euler(Math.PI / 2 - 0.18, 0, 0.04))
       body.quaternion.multiply(down)
       // A hand is never perfectly still.

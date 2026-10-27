@@ -615,6 +615,8 @@
     "settings.credits_intro": "Oʻyindagi modellar, teksturalar va shriftlar ochiq litsenziya ostida. Ularni yaratganlarga rahmat.",
     "settings.credits_fonts": "Shriftlar",
     "settings.credits_assets": "Modellar va teksturalar",
+    "settings.credits_stills": "Mobil manzaralar quyidagi modellar va materiallar asosida tayyorlangan.",
+    "settings.credits_rendered": "Mobil manzaralar",
     "pause.title": "PAUZA",
     "ending.scroll_hint": "Matn davomi pastda.",
     "ending.gallery": "Yakunlar roʻyxati",

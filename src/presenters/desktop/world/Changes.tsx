@@ -27,6 +27,10 @@ function useUnobserved(
   instant: boolean,
 ): boolean {
   const camera = useThree((s) => s.camera)
+  instant ||=
+    (import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1') &&
+    new URLSearchParams(window.location.search).get('render') === 'still' &&
+    new URLSearchParams(window.location.search).has('cam')
   // Keyed by the wish, so a new night (or a new wish) starts over without an effect.
   const key = `${want}:${instant}`
   const [mark, setMark] = useState({ key, done: want && instant })

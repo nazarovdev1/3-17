@@ -1,5 +1,6 @@
 import { ui } from '@/content/text'
 import { manifest } from '@/assets/loader'
+import { stillManifest } from '@/presenters/mobile/StillScene'
 
 /** Fonts are bundled through @fontsource; the rest comes from the asset manifest. */
 export const FONT_CREDITS = [
@@ -21,6 +22,7 @@ export function CreditsList() {
     <section className="credits" aria-label={ui('settings.credits_title')}>
       <h3>{ui('settings.credits_title')}</h3>
       <p className="credits-intro">{ui('settings.credits_intro')}</p>
+      <p className="credits-intro">{ui('settings.credits_stills')}</p>
       <h4>{ui('settings.credits_fonts')}</h4>
       <ul>
         {FONT_CREDITS.map((f) => (
@@ -45,6 +47,24 @@ export function CreditsList() {
           </li>
         ))}
       </ul>
+      {stillManifest.credit && (
+        <>
+          <h4>{ui('settings.credits_rendered')}</h4>
+          <ul>
+            {Object.keys(stillManifest.frames)
+              .sort()
+              .map((id) => (
+                <li key={id}>
+                  <span>{id}</span> — {stillManifest.credit!.author} ·{' '}
+                  <a href={stillManifest.credit!.sourceUrl} target="_blank" rel="noreferrer">
+                    3:17
+                  </a>{' '}
+                  · {stillManifest.credit!.license}
+                </li>
+              ))}
+          </ul>
+        </>
+      )}
     </section>
   )
 }

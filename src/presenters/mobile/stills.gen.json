@@ -1,0 +1,909 @@
+{
+  "version": 1,
+  "width": 1080,
+  "height": 1920,
+  "depthWidth": 270,
+  "depthHeight": 480,
+  "source": "Rendered from the credited 3:17 desktop world; see CREDITS.md",
+  "frames": {
+    "room-on": {
+      "color": "/assets/stills/room-on.webp",
+      "depth": "/assets/stills/room-on.depth.webp",
+      "bytes": 66000,
+      "colorHash": "bac6efee93b42352c9035802fcc0ef9dbd19b19f99aa2628c180008dfdb0edaf",
+      "depthHash": "bb7ccbcb3dafe29ce980cdb1c7818280092977ba6b9309c4b99abe81133b5bba",
+      "camera": "room",
+      "anchors": {
+        "note": {
+          "x": 0.39259739515008596,
+          "y": 0.6223009774845087
+        },
+        "phone": {
+          "x": 0.6240042150726408,
+          "y": 0.6428642756468095
+        },
+        "radiator": {
+          "x": 0.40471278981124825,
+          "y": 0.6221731094273497
+        },
+        "window": {
+          "x": 0.408592786672305,
+          "y": 0.4261585337768006
+        }
+      }
+    },
+    "kitchen-on": {
+      "color": "/assets/stills/kitchen-on.webp",
+      "depth": "/assets/stills/kitchen-on.depth.webp",
+      "bytes": 66920,
+      "colorHash": "e0cf5435bfc2e9fa4819613f2e857eab50d5e7212a5f5427bff7fc9e637f3495",
+      "depthHash": "da4cbf329eaf4fe246c162bf8485be6a131de141262cd0c82e28ade8aa005564",
+      "camera": "kitchen",
+      "anchors": {}
+    },
+    "bathroom-on": {
+      "color": "/assets/stills/bathroom-on.webp",
+      "depth": "/assets/stills/bathroom-on.depth.webp",
+      "bytes": 54808,
+      "colorHash": "43c18c1b5be216fbd6c70618379c00ff6e9f9c72717159e7443d0836b590b29e",
+      "depthHash": "aa0ec0dec0920047c0a119db48a45788b12a325dfca900c31b9e7aeaa73ce5bb",
+      "camera": "bathroom",
+      "anchors": {
+        "mirror": {
+          "x": 0.4981481829374005,
+          "y": 0.4426208204320585
+        },
+        "shared_wall": {
+          "x": 0.8674000129228675,
+          "y": 0.47865621289220056
+        },
+        "carpet": {
+          "x": 0.9489209323470378,
+          "y": 0.48562421441460035
+        },
+        "calendar": {
+          "x": 0.8192341716411383,
+          "y": 0.44883384947740174
+        },
+        "belongings": {
+          "x": 0.3001708749507691,
+          "y": 0.5614364303097557
+        },
+        "chair": {
+          "x": 0.530943382482262,
+          "y": 0.541253533486843
+        }
+      }
+    },
+    "room-off": {
+      "color": "/assets/stills/room-off.webp",
+      "depth": "/assets/stills/room-off.depth.webp",
+      "bytes": 54562,
+      "colorHash": "65a56924633644d6bbbf3cedd7bdfaf230b6f75c6fc2107ef470195850590fa9",
+      "depthHash": "8e4e873588206a5bf77b0d9cdb2b99626726356b07d255e45dddba0b0b0b5004",
+      "camera": "room",
+      "anchors": {
+        "note": {
+          "x": 0.39259739515008596,
+          "y": 0.6223009774845087
+        },
+        "phone": {
+          "x": 0.6240042150726408,
+          "y": 0.6428642756468095
+        },
+        "radiator": {
+          "x": 0.40471278981124825,
+          "y": 0.6221731094273497
+        },
+        "window": {
+          "x": 0.408592786672305,
+          "y": 0.4261585337768006
+        }
+      }
+    },
+    "room-changed": {
+      "color": "/assets/stills/room-changed.webp",
+      "depth": "/assets/stills/room-changed.depth.webp",
+      "bytes": 92426,
+      "colorHash": "331bed4f90c16bebaf92c5a806c5f029ab485d41f8594399a4afe3da1c097139",
+      "depthHash": "db2ea050ff0323c1227eb575099ac8cade810c82f0363721b37828a52fe431e5",
+      "camera": "room_shifted",
+      "anchors": {
+        "clock": {
+          "x": 0.5041884750252187,
+          "y": 0.48091242566344494
+        },
+        "carpet": {
+          "x": 0.15243376293744731,
+          "y": 0.5667974599998536
+        },
+        "bed": {
+          "x": 0.21895114115342995,
+          "y": 0.7664207468707567
+        },
+        "calendar": {
+          "x": 0.3661407089370029,
+          "y": 0.5085940602179366
+        }
+      }
+    },
+    "room_entry-on": {
+      "color": "/assets/stills/room_entry-on.webp",
+      "depth": "/assets/stills/room_entry-on.depth.webp",
+      "bytes": 90522,
+      "colorHash": "f8307fcc6103c31eae2e6be3a035ec149222b829f182f8dfc339ae5f920b0c6d",
+      "depthHash": "9a2ac598db4569d30c39239f8274b9489ab2f8c03d6153a56dca8582516ca9a7",
+      "camera": "room_entry",
+      "anchors": {
+        "clock": {
+          "x": 0.1785014027324593,
+          "y": 0.38993991497910463
+        },
+        "note": {
+          "x": 0.6062221846977661,
+          "y": 0.5766041633367238
+        },
+        "phone": {
+          "x": 0.7814886011766746,
+          "y": 0.5867511564424718
+        },
+        "radiator": {
+          "x": 0.5724566981454133,
+          "y": 0.5870161685878449
+        },
+        "window": {
+          "x": 0.5696756671750013,
+          "y": 0.4383839711845234
+        }
+      }
+    },
+    "room_entry-off": {
+      "color": "/assets/stills/room_entry-off.webp",
+      "depth": "/assets/stills/room_entry-off.depth.webp",
+      "bytes": 70520,
+      "colorHash": "bd0566b86de408f2f2cf4427cdf43eb1c6c99dd732c5999bf708dd6f569f18bb",
+      "depthHash": "1d69d2ce72b429b8e40b6a04362988dd9b9cf5f2891dedc2d977cd143d403433",
+      "camera": "room_entry",
+      "anchors": {
+        "clock": {
+          "x": 0.1785014027324593,
+          "y": 0.38993991497910463
+        },
+        "note": {
+          "x": 0.6062221846977661,
+          "y": 0.5766041633367238
+        },
+        "phone": {
+          "x": 0.7814886011766746,
+          "y": 0.5867511564424718
+        },
+        "radiator": {
+          "x": 0.5724566981454133,
+          "y": 0.5870161685878449
+        },
+        "window": {
+          "x": 0.5696756671750013,
+          "y": 0.4383839711845234
+        }
+      }
+    },
+    "kitchen-off": {
+      "color": "/assets/stills/kitchen-off.webp",
+      "depth": "/assets/stills/kitchen-off.depth.webp",
+      "bytes": 50164,
+      "colorHash": "e2057e80df5e66ec685097e93e0864080122c957ac4dc26a75c24c5f4c56a217",
+      "depthHash": "da4cbf329eaf4fe246c162bf8485be6a131de141262cd0c82e28ade8aa005564",
+      "camera": "kitchen",
+      "anchors": {}
+    },
+    "kitchen-figure": {
+      "color": "/assets/stills/kitchen-figure.webp",
+      "depth": "/assets/stills/kitchen-figure.depth.webp",
+      "bytes": 32430,
+      "colorHash": "ff889570f5900b48258dd47998d593a653a7a1e77999fa1900ef6cb75fa0e614",
+      "depthHash": "dc7a5135b87bdc1000e0481c8ac7b17576c555ef0cab2867e3316d102f278d4b",
+      "camera": "kitchen_glass",
+      "anchors": {
+        "kettle": {
+          "x": 0.20997597723170724,
+          "y": 0.5899995248008943
+        }
+      }
+    },
+    "bathroom-off": {
+      "color": "/assets/stills/bathroom-off.webp",
+      "depth": "/assets/stills/bathroom-off.depth.webp",
+      "bytes": 35568,
+      "colorHash": "bc5d462a2d32a11ea8333c8b7206de745cdf919eb3751292cece3dea2c1287d6",
+      "depthHash": "aa0ec0dec0920047c0a119db48a45788b12a325dfca900c31b9e7aeaa73ce5bb",
+      "camera": "bathroom",
+      "anchors": {
+        "mirror": {
+          "x": 0.4981481829374005,
+          "y": 0.4426208204320585
+        },
+        "shared_wall": {
+          "x": 0.8674000129228675,
+          "y": 0.47865621289220056
+        },
+        "carpet": {
+          "x": 0.9489209323470378,
+          "y": 0.48562421441460035
+        },
+        "calendar": {
+          "x": 0.8192341716411383,
+          "y": 0.44883384947740174
+        },
+        "belongings": {
+          "x": 0.3001708749507691,
+          "y": 0.5614364303097557
+        },
+        "chair": {
+          "x": 0.530943382482262,
+          "y": 0.541253533486843
+        }
+      }
+    },
+    "bathroom-changed": {
+      "color": "/assets/stills/bathroom-changed.webp",
+      "depth": "/assets/stills/bathroom-changed.depth.webp",
+      "bytes": 53328,
+      "colorHash": "58b77d9cdc3271d6456f89e9aee462a60c3351b3613dee064bce49d9281353c8",
+      "depthHash": "4a36d130aa4ecc51234b904da3a3a07338c6e99c9cae416b292d79bac37c876d",
+      "camera": "bathroom",
+      "anchors": {
+        "mirror": {
+          "x": 0.49685500891778245,
+          "y": 0.4639650532919017
+        },
+        "belongings": {
+          "x": 0.153364700006345,
+          "y": 0.6686395063612415
+        },
+        "chair": {
+          "x": 0.5534818558833433,
+          "y": 0.6332568052444902
+        }
+      }
+    },
+    "corridor-on": {
+      "color": "/assets/stills/corridor-on.webp",
+      "depth": "/assets/stills/corridor-on.depth.webp",
+      "bytes": 63212,
+      "colorHash": "b79c4a570c9191cdac93973bb82e53abb40586cc356c94498fb92806dd71e8b2",
+      "depthHash": "38b2ca7165cbb8409587ea496e254cd2aa8427f4f5752ed0745a502678e91417",
+      "camera": "corridor",
+      "anchors": {
+        "front_door": {
+          "x": 0.4999999999999999,
+          "y": 0.4762425525000452
+        },
+        "peephole": {
+          "x": 0.4999999999999999,
+          "y": 0.4480502027656397
+        },
+        "corridor": {
+          "x": 0.4999999999999999,
+          "y": 0.4912702902209206
+        }
+      }
+    },
+    "corridor-off": {
+      "color": "/assets/stills/corridor-off.webp",
+      "depth": "/assets/stills/corridor-off.depth.webp",
+      "bytes": 43630,
+      "colorHash": "fefe5f6ddce7df5421921afac4fbd978ab9b06d00b9d08eb5b562e8a63500470",
+      "depthHash": "1c95cd49859cf2806b0b1cf7991607487723f98b59062edcbdbf9db59604320f",
+      "camera": "corridor",
+      "anchors": {
+        "front_door": {
+          "x": 0.4999999999999999,
+          "y": 0.4762425525000452
+        },
+        "peephole": {
+          "x": 0.4999999999999999,
+          "y": 0.4480502027656397
+        },
+        "corridor": {
+          "x": 0.4999999999999999,
+          "y": 0.4912702902209206
+        }
+      }
+    },
+    "corridor-changed": {
+      "color": "/assets/stills/corridor-changed.webp",
+      "depth": "/assets/stills/corridor-changed.depth.webp",
+      "bytes": 61094,
+      "colorHash": "5d71ec96a2221ec54c5d053b085f9958d69e6ab7c968b7f82f79dc4f442aa662",
+      "depthHash": "4d38587ef18bc29b65a89548d3f1585eb8b49aba608e43169ec8b1e453ccc18d",
+      "camera": "corridor_changed",
+      "anchors": {
+        "front_door": {
+          "x": 0.4999999999999999,
+          "y": 0.4762425525000452
+        },
+        "peephole": {
+          "x": 0.4999999999999999,
+          "y": 0.4480502027656397
+        },
+        "corridor": {
+          "x": 0.4999999999999999,
+          "y": 0.4912702902209206
+        }
+      }
+    },
+    "coat-changed": {
+      "color": "/assets/stills/coat-changed.webp",
+      "depth": "/assets/stills/coat-changed.depth.webp",
+      "bytes": 47912,
+      "colorHash": "cd507c2e7c4830f2ab7946c00f26f9964d780c600793bbf2c90ef6eab0f06af9",
+      "depthHash": "39093db1bb7d374f21f95329616303cb898f99c126a46fc7418b873516362928",
+      "camera": "coat",
+      "anchors": {}
+    },
+    "stairwell-on": {
+      "color": "/assets/stills/stairwell-on.webp",
+      "depth": "/assets/stills/stairwell-on.depth.webp",
+      "bytes": 45980,
+      "colorHash": "ee838dc4ebc48f00f63f68643c1daaa0b7b15bf06f866d56d63720adc84a4db1",
+      "depthHash": "6e343883b7641d8b16d4ae9bccee0a82b924e29c039188f1ff99aad1ff7b4ab9",
+      "camera": "stairwell",
+      "anchors": {
+        "front_door": {
+          "x": 0.15029401025417705,
+          "y": 0.48150053753769295
+        },
+        "peephole": {
+          "x": 0.14916229033923883,
+          "y": 0.46261961769370014
+        }
+      }
+    },
+    "stairwell-off": {
+      "color": "/assets/stills/stairwell-off.webp",
+      "depth": "/assets/stills/stairwell-off.depth.webp",
+      "bytes": 29404,
+      "colorHash": "ed55fb210d5d4c5a1bc2b207a3eab6dea8bc60275666aa36298c4a03c4239bed",
+      "depthHash": "fc7d0b5016710693dea2cf62be082cb5ed69d6f903486b413443d3d188b6f5e6",
+      "camera": "stairwell",
+      "anchors": {
+        "front_door": {
+          "x": 0.15029401025417705,
+          "y": 0.48150053753769295
+        },
+        "peephole": {
+          "x": 0.14916229033923883,
+          "y": 0.46261961769370014
+        }
+      }
+    },
+    "stairwell-figure": {
+      "color": "/assets/stills/stairwell-figure.webp",
+      "depth": "/assets/stills/stairwell-figure.depth.webp",
+      "bytes": 31470,
+      "colorHash": "5099458f33478af8fbbb3f367302834839f76d87851514a68368e57ae740e823",
+      "depthHash": "ffda9c593b5a76c69d43a26b1af96277fa9eb89960d3ae298c1ec0b24611a64b",
+      "camera": "stairwell",
+      "anchors": {
+        "front_door": {
+          "x": 0.15029401025417705,
+          "y": 0.48150053753769295
+        },
+        "peephole": {
+          "x": 0.14916229033923883,
+          "y": 0.46261961769370014
+        }
+      }
+    },
+    "landing48-on": {
+      "color": "/assets/stills/landing48-on.webp",
+      "depth": "/assets/stills/landing48-on.depth.webp",
+      "bytes": 39938,
+      "colorHash": "aef3ca0b95daf07ab4759fbadf629e3ae44227544596bfe571e62de17488cb09",
+      "depthHash": "74670a7fb046a7eea101ead9744d597eb6b69076b9e94f0b283e4607e9167f96",
+      "camera": "landing48",
+      "anchors": {
+        "vent": {
+          "x": 0.9469875274441737,
+          "y": 0.24061772973719303
+        },
+        "belongings": {
+          "x": 0.9686388970461158,
+          "y": 0.4319774832742539
+        },
+        "door48": {
+          "x": 0.5446003768810256,
+          "y": 0.3825386842501706
+        }
+      }
+    },
+    "landing48-off": {
+      "color": "/assets/stills/landing48-off.webp",
+      "depth": "/assets/stills/landing48-off.depth.webp",
+      "bytes": 37532,
+      "colorHash": "efb2e9d932bd14d49a43dbc25d16a773e60fab3fc95a8881d375830a8b17e07e",
+      "depthHash": "ce99c0b6fec1c3d844adc980ebea56971e1ce91a4588c29213f1b64ccc1f1e6a",
+      "camera": "landing48",
+      "anchors": {
+        "vent": {
+          "x": 0.9469875274441737,
+          "y": 0.24061772973719303
+        },
+        "belongings": {
+          "x": 0.9686388970461158,
+          "y": 0.4319774832742539
+        },
+        "door48": {
+          "x": 0.5446003768810256,
+          "y": 0.3825386842501706
+        }
+      }
+    },
+    "landing48-changed": {
+      "color": "/assets/stills/landing48-changed.webp",
+      "depth": "/assets/stills/landing48-changed.depth.webp",
+      "bytes": 35600,
+      "colorHash": "d91297a2fa54dceacf0cafef12f2d6512469b7c3b22c55ac52e2c5ae05d3c8bf",
+      "depthHash": "5bf2ead503a1e9d1427930507a135af1176c27464f7454bda41e8304eff3ef46",
+      "camera": "landing48",
+      "anchors": {
+        "vent": {
+          "x": 0.9469875274441737,
+          "y": 0.24061772973719303
+        },
+        "belongings": {
+          "x": 0.9686388970461158,
+          "y": 0.4319774832742539
+        },
+        "door48": {
+          "x": 0.5446003768810256,
+          "y": 0.3825386842501706
+        }
+      }
+    },
+    "flat48-on": {
+      "color": "/assets/stills/flat48-on.webp",
+      "depth": "/assets/stills/flat48-on.depth.webp",
+      "bytes": 119644,
+      "colorHash": "37dcece0cd531ac2f185cc822c0577f17f9ab6c919fac1c69a2ce5c65da44467",
+      "depthHash": "39cf98975e97ff235901fecb66e5d854e1326f3b92e02364afb9cb4595fa4aa1",
+      "camera": "flat48",
+      "anchors": {
+        "chair": {
+          "x": 0.6824863457359115,
+          "y": 0.8847518596265699
+        }
+      }
+    },
+    "flat48-off": {
+      "color": "/assets/stills/flat48-off.webp",
+      "depth": "/assets/stills/flat48-off.depth.webp",
+      "bytes": 116198,
+      "colorHash": "91db28fbbde5aad68139bfae0b8f10a99945343e31961cd1cc95c84311bc2e2d",
+      "depthHash": "39cf98975e97ff235901fecb66e5d854e1326f3b92e02364afb9cb4595fa4aa1",
+      "camera": "flat48",
+      "anchors": {
+        "chair": {
+          "x": 0.6824863457359115,
+          "y": 0.8847518596265699
+        }
+      }
+    },
+    "flat48-changed": {
+      "color": "/assets/stills/flat48-changed.webp",
+      "depth": "/assets/stills/flat48-changed.depth.webp",
+      "bytes": 118744,
+      "colorHash": "5ac8706a29c73b59291b1323c1c4ba3c5bf7d4f62e86123d44f976bb51061839",
+      "depthHash": "39cf98975e97ff235901fecb66e5d854e1326f3b92e02364afb9cb4595fa4aa1",
+      "camera": "flat48",
+      "anchors": {
+        "chair": {
+          "x": 0.6824863457359115,
+          "y": 0.8847518596265699
+        }
+      }
+    },
+    "wall-on": {
+      "color": "/assets/stills/wall-on.webp",
+      "depth": "/assets/stills/wall-on.depth.webp",
+      "bytes": 67768,
+      "colorHash": "55469042815beae227e5ad0e00f8930f4fdc10ab99078fe5bc514c063a941d39",
+      "depthHash": "b01ff5eaae19c7a580004d2c9eadc9f64d5cd909aa0f155643314e3bd7588e2d",
+      "camera": "wall",
+      "anchors": {
+        "shared_wall": {
+          "x": 0.49999999999999983,
+          "y": 0.5026135143821264
+        },
+        "belongings": {
+          "x": 0.5783123998760881,
+          "y": 0.5943194063338902
+        },
+        "chair": {
+          "x": 0.779208780662441,
+          "y": 0.5994412211462202
+        }
+      }
+    },
+    "wall-off": {
+      "color": "/assets/stills/wall-off.webp",
+      "depth": "/assets/stills/wall-off.depth.webp",
+      "bytes": 45994,
+      "colorHash": "a5fe5b2215a550fec3e89279499e7bffb60d3eceaa468f5194da618ec209c71b",
+      "depthHash": "b01ff5eaae19c7a580004d2c9eadc9f64d5cd909aa0f155643314e3bd7588e2d",
+      "camera": "wall",
+      "anchors": {
+        "shared_wall": {
+          "x": 0.49999999999999983,
+          "y": 0.5026135143821264
+        },
+        "belongings": {
+          "x": 0.5783123998760881,
+          "y": 0.5943194063338902
+        },
+        "chair": {
+          "x": 0.779208780662441,
+          "y": 0.5994412211462202
+        }
+      }
+    },
+    "peephole-on": {
+      "color": "/assets/stills/peephole-on.webp",
+      "depth": "/assets/stills/peephole-on.depth.webp",
+      "bytes": 23910,
+      "colorHash": "571c9bd6dcc11443c7e7af235402efb5640eae2e69939ec0d1acf1ebaf4b9bc4",
+      "depthHash": "5e47c1e44664c8e7309fc4414ab5966c9859a3af7da7696188238aa6e0ccd077",
+      "camera": "peephole",
+      "anchors": {}
+    },
+    "peephole-off": {
+      "color": "/assets/stills/peephole-off.webp",
+      "depth": "/assets/stills/peephole-off.depth.webp",
+      "bytes": 18042,
+      "colorHash": "94c1841e48007a277d19f09e518e40716839d32b8e4f66b7ff4fdc47e915c200",
+      "depthHash": "b50a98f5d91a6b582da581f01142962a2114dc1749b8ebf8082e423a743aefdb",
+      "camera": "peephole",
+      "anchors": {}
+    },
+    "peephole-figure": {
+      "color": "/assets/stills/peephole-figure.webp",
+      "depth": "/assets/stills/peephole-figure.depth.webp",
+      "bytes": 21784,
+      "colorHash": "61cf27fb502f26e69224b492cda3db096bf02723734151582aa6541dbc7bdd6f",
+      "depthHash": "7da5dc633d990209ca1bd2782e47f18630e88db085ba0360c98e9a269460ed7c",
+      "camera": "peephole",
+      "anchors": {}
+    },
+    "peephole-close": {
+      "color": "/assets/stills/peephole-close.webp",
+      "depth": "/assets/stills/peephole-close.depth.webp",
+      "bytes": 16410,
+      "colorHash": "2968e7428a5266a424bc9742fc99efbf80af6c323fb2de88371db802645ec8e9",
+      "depthHash": "a9039d3063b2e64e43d1913dd24028d005bf0141d7d42b54289689b51a9d1093",
+      "camera": "peephole_close",
+      "anchors": {}
+    },
+    "window-on": {
+      "color": "/assets/stills/window-on.webp",
+      "depth": "/assets/stills/window-on.depth.webp",
+      "bytes": 49732,
+      "colorHash": "a7001941fb9dccf47cb346f49a34bb8c66d4d593fb07f857c3efae2c8dc8f942",
+      "depthHash": "7fe457e7e17f0cb15e014ca2f33807b600647ff9d2447920831fd5a288b3be1b",
+      "camera": "window",
+      "anchors": {
+        "note": {
+          "x": 0.32371229923346145,
+          "y": 0.8169212140530446
+        },
+        "phone": {
+          "x": 0.7138957435967335,
+          "y": 0.8681217731444263
+        },
+        "radiator": {
+          "x": 0.3569259240155629,
+          "y": 0.7897250038684851
+        },
+        "window": {
+          "x": 0.3739730479626448,
+          "y": 0.49881849732464983
+        }
+      }
+    },
+    "window-off": {
+      "color": "/assets/stills/window-off.webp",
+      "depth": "/assets/stills/window-off.depth.webp",
+      "bytes": 49430,
+      "colorHash": "544fd4b723c58fc4751ad2cc1f81e76b44e11331d757825e9107b5c5676f8fef",
+      "depthHash": "810bec33f3dc6916e24aab1a97ec48c59232f4f6f981d25fa0df9c2611afd042",
+      "camera": "window",
+      "anchors": {
+        "note": {
+          "x": 0.32371229923346145,
+          "y": 0.8169212140530446
+        },
+        "phone": {
+          "x": 0.7138957435967335,
+          "y": 0.8681217731444263
+        },
+        "radiator": {
+          "x": 0.3569259240155629,
+          "y": 0.7897250038684851
+        },
+        "window": {
+          "x": 0.3739730479626448,
+          "y": 0.49881849732464983
+        }
+      }
+    },
+    "ending_a-on": {
+      "color": "/assets/stills/ending_a-on.webp",
+      "depth": "/assets/stills/ending_a-on.depth.webp",
+      "bytes": 57456,
+      "colorHash": "1099c796e2d8c70cfe6513f59079566860c7b69b2526bf5f967c14d65ff0072a",
+      "depthHash": "71d562ad6f19fa6d51eaeae2940d76f0d9fca504f637e90eb1e7ba12f7eca9a6",
+      "camera": "ending_a",
+      "anchors": {
+        "clock": {
+          "x": 0.14180068295942283,
+          "y": 0.3836187771556972
+        },
+        "note": {
+          "x": 0.7333771022707709,
+          "y": 0.6397139438689683
+        },
+        "radiator": {
+          "x": 0.6606978517427761,
+          "y": 0.6442784163559985
+        },
+        "window": {
+          "x": 0.6516795391710877,
+          "y": 0.4471927215232382
+        }
+      }
+    },
+    "ending_b-on": {
+      "color": "/assets/stills/ending_b-on.webp",
+      "depth": "/assets/stills/ending_b-on.depth.webp",
+      "bytes": 24114,
+      "colorHash": "2b9085aa444762da3bdb555d523614257141c18ea63b5472d2b7e846a7f2759a",
+      "depthHash": "a587c7bd7f335d02c3e4fef9938502456d13fcfc5fd5027704863a38a5f66652",
+      "camera": "ending_b",
+      "anchors": {}
+    },
+    "ending_c-on": {
+      "color": "/assets/stills/ending_c-on.webp",
+      "depth": "/assets/stills/ending_c-on.depth.webp",
+      "bytes": 24718,
+      "colorHash": "6e4a70f8997516d6bf52d2dad768bf7718e43308134f40af599db5dc422c73c6",
+      "depthHash": "1d87bc88a5c0305fb0d9289c8ae9658ae318875aef26e7d308121f7da1064fb7",
+      "camera": "ending_c",
+      "anchors": {
+        "clock": {
+          "x": 0.49919905950964577,
+          "y": 0.5054342536982677
+        }
+      }
+    },
+    "room-return": {
+      "color": "/assets/stills/room-return.webp",
+      "depth": "/assets/stills/room-return.depth.webp",
+      "bytes": 65762,
+      "colorHash": "11540cbd20c4a53b41f2569ddb2ea49183d9406fb125e7e60ff37cd0412419d0",
+      "depthHash": "bb7ccbcb3dafe29ce980cdb1c7818280092977ba6b9309c4b99abe81133b5bba",
+      "camera": "room",
+      "anchors": {
+        "note": {
+          "x": 0.39259739515008596,
+          "y": 0.6223009774845087
+        },
+        "phone": {
+          "x": 0.6240042150726408,
+          "y": 0.6428642756468095
+        },
+        "radiator": {
+          "x": 0.40471278981124825,
+          "y": 0.6221731094273497
+        },
+        "window": {
+          "x": 0.408592786672305,
+          "y": 0.4261585337768006
+        }
+      }
+    },
+    "corridor-cleared": {
+      "color": "/assets/stills/corridor-cleared.webp",
+      "depth": "/assets/stills/corridor-cleared.depth.webp",
+      "bytes": 39944,
+      "colorHash": "cccfdb0d8cd922f0a1ce4a36b878876fce7c16229fc551f5889fd5eade29d74c",
+      "depthHash": "5ac38746de05a8d21a1cc1a81da3b4256cf8f10f90a6b1f67ec0cc3660e8c6e6",
+      "camera": "corridor",
+      "anchors": {
+        "front_door": {
+          "x": 0.4999999999999999,
+          "y": 0.4762425525000452
+        },
+        "peephole": {
+          "x": 0.4999999999999999,
+          "y": 0.4480502027656397
+        },
+        "corridor": {
+          "x": 0.4999999999999999,
+          "y": 0.4912702902209206
+        }
+      }
+    },
+    "corridor-cold": {
+      "color": "/assets/stills/corridor-cold.webp",
+      "depth": "/assets/stills/corridor-cold.depth.webp",
+      "bytes": 62654,
+      "colorHash": "63f561c24814fc677d8083d31aaf0b19b105c90a1c53d841ce6e95822209488a",
+      "depthHash": "38b2ca7165cbb8409587ea496e254cd2aa8427f4f5752ed0745a502678e91417",
+      "camera": "corridor",
+      "anchors": {
+        "front_door": {
+          "x": 0.4999999999999999,
+          "y": 0.4762425525000452
+        },
+        "peephole": {
+          "x": 0.4999999999999999,
+          "y": 0.4480502027656397
+        },
+        "corridor": {
+          "x": 0.4999999999999999,
+          "y": 0.4912702902209206
+        }
+      }
+    },
+    "tv-figure": {
+      "color": "/assets/stills/tv-figure.webp",
+      "depth": "/assets/stills/tv-figure.depth.webp",
+      "bytes": 32620,
+      "colorHash": "00486963f9e4ccaada12b2b20b21333d3c176dbca76e82fcd7daab1d8ddb1ebc",
+      "depthHash": "66b36fbe2f601f8071f926eeed17ceb10fb18e4cc9e5f8338857ce72cad3f8ff",
+      "camera": "tv",
+      "anchors": {
+        "tv": {
+          "x": 0.4888824635335936,
+          "y": 0.5402290058903124
+        }
+      }
+    },
+    "phone-night1": {
+      "color": "/assets/stills/phone-night1.webp",
+      "depth": "/assets/stills/phone-night1.depth.webp",
+      "bytes": 40120,
+      "colorHash": "bc1046735a4b2b097f01164df5aba23035f4e0d14eba402ca34f1033c51da4cd",
+      "depthHash": "da8ff2b67716af18953a52cf70da97795d07901133a7a8134661d221bb652a35",
+      "camera": "phone",
+      "anchors": {
+        "note": {
+          "x": 0.20356891235529123,
+          "y": 0.5523308081453956
+        },
+        "phone": {
+          "x": 0.8393291057182661,
+          "y": 0.606917832660141
+        },
+        "radiator": {
+          "x": 0.23699330516473865,
+          "y": 0.5519884298364154
+        }
+      }
+    },
+    "phone-night2": {
+      "color": "/assets/stills/phone-night2.webp",
+      "depth": "/assets/stills/phone-night2.depth.webp",
+      "bytes": 39562,
+      "colorHash": "d81f549cd135b8094a2114362b54101958ef49ebd703d2fcf73d36f898cbb80f",
+      "depthHash": "301b75ad4386cc94b0210b43674b2718fc01065befa834da6592aee1acc057c0",
+      "camera": "phone",
+      "anchors": {
+        "note": {
+          "x": 0.20356891235529123,
+          "y": 0.5523308081453956
+        },
+        "phone": {
+          "x": 0.8393291057182661,
+          "y": 0.606917832660141
+        },
+        "radiator": {
+          "x": 0.23699330516473865,
+          "y": 0.5519884298364154
+        }
+      }
+    },
+    "phone-night3": {
+      "color": "/assets/stills/phone-night3.webp",
+      "depth": "/assets/stills/phone-night3.depth.webp",
+      "bytes": 40224,
+      "colorHash": "52acf54307c76df90fe1cde3534241062fd3da0033e72b4941dbd86cba2c826b",
+      "depthHash": "e8e55dec9b784f2936be4e3c4da6de6f684c55b177e7460cb1205468c54462c1",
+      "camera": "phone",
+      "anchors": {
+        "note": {
+          "x": 0.20356891235529123,
+          "y": 0.5523308081453956
+        },
+        "phone": {
+          "x": 0.8393291057182661,
+          "y": 0.606917832660141
+        },
+        "radiator": {
+          "x": 0.23699330516473865,
+          "y": 0.5519884298364154
+        }
+      }
+    },
+    "phone-night4": {
+      "color": "/assets/stills/phone-night4.webp",
+      "depth": "/assets/stills/phone-night4.depth.webp",
+      "bytes": 39946,
+      "colorHash": "aa1c15084af2e4e62fae08e6b4efc05beec943d4967c5778dc72207bb7c5a558",
+      "depthHash": "073506d7c442b1e47cea89d17280ceeb82d9371a1c34245bc8277615a19beaf6",
+      "camera": "phone",
+      "anchors": {
+        "note": {
+          "x": 0.20356891235529123,
+          "y": 0.5523308081453956
+        },
+        "phone": {
+          "x": 0.8393291057182661,
+          "y": 0.606917832660141
+        },
+        "radiator": {
+          "x": 0.23699330516473865,
+          "y": 0.5519884298364154
+        }
+      }
+    },
+    "phone-night5": {
+      "color": "/assets/stills/phone-night5.webp",
+      "depth": "/assets/stills/phone-night5.depth.webp",
+      "bytes": 40304,
+      "colorHash": "8b1e61077e529e24b2dfaaebbfef42bbdfd5288b9baf80f456a298410dadd5ec",
+      "depthHash": "bb814cd34a2585e423797eafb3ad683dd85e11d1e46a451747f44871c1d31631",
+      "camera": "phone",
+      "anchors": {
+        "note": {
+          "x": 0.20356891235529123,
+          "y": 0.5523308081453956
+        },
+        "phone": {
+          "x": 0.8393291057182661,
+          "y": 0.606917832660141
+        },
+        "radiator": {
+          "x": 0.23699330516473865,
+          "y": 0.5519884298364154
+        }
+      }
+    },
+    "phone-dead": {
+      "color": "/assets/stills/phone-dead.webp",
+      "depth": "/assets/stills/phone-dead.depth.webp",
+      "bytes": 41690,
+      "colorHash": "f881fb09dd37876e172a48ed375f693a9b49735237c04e38d30d60b1a8a579ea",
+      "depthHash": "ef533a5aac2dba17bed844310b9d92f9c0cee875f4c609ea9d0ef650a9c0885a",
+      "camera": "phone",
+      "anchors": {
+        "note": {
+          "x": 0.20356891235529123,
+          "y": 0.5523308081453956
+        },
+        "phone": {
+          "x": 0.8393291057182661,
+          "y": 0.606917832660141
+        },
+        "radiator": {
+          "x": 0.23699330516473865,
+          "y": 0.5519884298364154
+        }
+      }
+    }
+  },
+  "credit": {
+    "author": "3:17 project",
+    "sourceUrl": "https://github.com/nazarovdev1/3-17/blob/main/scripts/render-stills.ts",
+    "license": "CC-BY-4.0"
+  }
+}
