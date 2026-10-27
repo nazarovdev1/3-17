@@ -18,7 +18,7 @@ export interface ManifestAsset {
   purpose: string
   title: string
   author: string
-  source: 'polyhaven' | 'ambientcg' | 'sketchfab'
+  source: 'polyhaven' | 'ambientcg' | 'sketchfab' | 'original'
   sourceUrl: string
   license: 'CC0-1.0' | 'CC-BY-4.0'
   /** Real-world size in metres (width, height, depth) when the source publishes it. */

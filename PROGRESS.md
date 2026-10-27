@@ -18,12 +18,70 @@ Fix phases (FIX_PROMPT.md):
 - [x] F0 — Audit and plan (`AUDIT.md`), approved by the owner
 - [x] F1 — Story and language, reviewed by the owner (8 fixes applied in `9c4dbb7`)
 - [x] F2 — Asset pipeline
-- [ ] F3 — Desktop flat rebuild (verified; awaiting owner review — see HANDOFF.md)
-- [ ] F4 — Desktop horror
+- [x] F3 — Desktop flat rebuild, reviewed by the owner ("f3 qilindi")
+- [ ] F4 — Desktop horror (verified; awaiting owner review)
 - [ ] F5 — Audio
 - [ ] F6 — Mobile
 - [ ] F7 — Fear pass
 - [ ] F8 — Full QA
+
+## F4 — Desktop horror
+
+Done (2026-10-27; see DECISIONS 33–41):
+
+- **The figure**, original work: `scripts/figure/figure.ts` builds a ~2.03 m man in a long
+  coat from a blended signed distance field (surface nets, vertices projected onto the
+  field, gradient normals), plus the same coat hanging empty. Through the asset pipeline as
+  source `original` (CC0, credited): `public/assets/models/figure.glb`, 427 KB. The head
+  turns from a neck pivot; it breathes and sways; it never walks on screen.
+- **Where it may be** (`src/presenters/desktop/figure.ts`, unit-tested): night 2 at the far end
+  of the landing as the timer light clicks off; night 3 behind the kitchen's frosted glass
+  (real rough transmission, only during that beat) and only in the dark TV glass (a convex
+  cube-camera mirror, reflection-only layer); night 4 as feet shadows in the light under the
+  entrance door (14 mm gap + shader decal) and through the peephole, back turned; night 5
+  right behind the door, head bowed to the lens. Each appearance ends once seen and looked
+  away from, approached, or waited out. Night 1 has none.
+- **Phone** as an object (`phone.ts`, `world/Phone.tsx`): dark screen and blinking LED on the
+  room table, buzzes and lights up "Onam" now and then, held up at the phone beats with the
+  missed calls (3/11/24/40/52) and a playing voice message; face down after the kitchen on
+  night 1 (only while unobserved), under the pillow on night 4, dead at 3:17 on night 5;
+  lock screen shows the player's real time until the story sets one. New UI text in
+  `ui.yaml` (`phone.*`, `desktop.peek`, `desktop.unpeek`).
+- **Changes while unobserved** (`changes.ts`, `world/Changes.tsx`): the coat on the hooks
+  (night 2), the chair turned to the wall of 48 (night 3), the loose door chain (night 4),
+  the bundle outside 47, wet prints to door 48, visible breath (night 5).
+- **Sounds from the wrong place** (`events.ts`): a step on the landing after the night-4
+  cut, steps across the empty flat above (night 2), a knock inside the wardrobe (night 3).
+  The wall's knocks now come from the real party wall (they pointed at the east wall).
+- **Interaction feel**: prompts within 1.5 m only; eased walking; footsteps by floor
+  (parquet / painted boards / tiles / concrete — new synth placeholders until F5); doors on a
+  damped spring with hinge sounds; diary pages and the note held up in HD and turned with the
+  mouse; the peephole usable at any time (E at the door); the torch follows power changes even
+  after a manual switch.
+- Audit: `audit/f4.spec.ts` (12 HD shots, `figureHold=1`), `audit/f4-contact-sheet.mjs`,
+  figure bench `audit/figure.html` + `audit/figure-shots.mjs`. Rubric scores in QA.md.
+
+Fixed while verifying: a resource leak on night transitions (new meshes now disposed; the
+figure, coat and the shared sprite quad are uploaded at load), SwiftShader slowdowns from
+the phone screen (smaller canvas, no mipmaps, fewer redraws), a merged door chain (one
+draw), and a race in the resource test (it now waits for the world before measuring).
+Measured against the F3 commit under the same machine load: 56.5 FPS (F3) vs 56.8 FPS (F4)
+in the steady-render test, 61 → 64 draw calls.
+
+Verification (2026-10-27):
+
+- `npm run check` green: 256 unit tests in 22 files, 90 story nodes / 0 warnings, 73 objects
+  in `validate:world`, production build, budgets (desktop 3D JS 408 KB / 700 KB, desktop
+  assets 20.3 MB / 60 MB, mobile initial JS 110.9 KB / 250 KB).
+- Full `npx playwright test`, best run: **169 passed, 3 failed, 5 skipped**. The failures are
+  the long software-rendered desktop routes (real-input endings, the shell full flow) and the
+  55 FPS steady-render gate, where the quality governor drops to "low" or falls back to the
+  light mode. They are load-dependent: during these runs other processes held ~1.5 CPU
+  cores, and the **unchanged F3 commit fails the same tests on the same machine** (control
+  run: steady-render and ending A). Night-4 draw calls / triangles are identical between F3
+  and F4 (e.g. 56 / 22.3k at 3:17, 41 / 21.4k inside 48). In isolation the same tests pass
+  (steady render 56.8–58.1 FPS; endings 27/27 in a focused run). A quiet-machine rerun is
+  still owed before F8.
 
 ## F3 — Desktop flat rebuild
 
@@ -74,11 +132,7 @@ Verified on the final source:
   final 12-shot contact sheet was opened and inspected. Native HD laptop performance and
   physical Telegram/sensor/audio verification remain F8 work.
 
-F3 implementation and verification are complete. STOP for owner review before F4; the
-checkbox remains open until that review is approved.
-
-Open / next (F4, only after owner approval): the figure, the TV glow and on-screen picture, the phone as an object,
-interaction prompt only within 1.5 m, inspection in hand, the mirror's lagging reflection.
+F3 was approved by the owner on 2026-10-27.
 
 ## F2 — Asset pipeline
 

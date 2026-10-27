@@ -259,6 +259,21 @@ test('repeated night transitions do not grow resources', async ({ page }, info) 
     await cdp.detach()
   }
 
+  if (isDesktop) {
+    // Measure the flat, not its loading: wait until every world asset is on the GPU.
+    await expect
+      .poll(
+        () =>
+          page.evaluate(
+            () =>
+              (
+                window as unknown as { __game: { getDesktopState: () => { worldReady: boolean } } }
+              ).__game.getDesktopState().worldReady,
+          ),
+        { timeout: 60_000 },
+      )
+      .toBe(true)
+  }
   await cycle() // warm-up: first-use caches, lazy chunks, audio buffers
   await gc()
   const baseline = await sample()

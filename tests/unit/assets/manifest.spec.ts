@@ -22,7 +22,12 @@ describe('asset manifest (FIX_PROMPT §3)', () => {
     expect(ALLOWED_LICENSES).toContain(a.license)
     for (const p of FORBIDDEN_PATTERNS) expect(`${a.id} ${a.title} ${a.author}`).not.toMatch(p)
     expect(a.author).not.toBe('')
-    expect(a.sourceUrl).toMatch(/^https:\/\/(polyhaven\.com|ambientcg\.com|sketchfab\.com)\//)
+    if (a.source === 'original') {
+      expect(a.license).toBe('CC0-1.0')
+      expect(existsSync(join(PUBLIC, '..', a.sourceUrl)), a.sourceUrl).toBe(true)
+    } else {
+      expect(a.sourceUrl).toMatch(/^https:\/\/(polyhaven\.com|ambientcg\.com|sketchfab\.com)\//)
+    }
     expect(a.purpose.length).toBeGreaterThan(5)
     expect(CREDITS).toContain(a.sourceUrl)
 

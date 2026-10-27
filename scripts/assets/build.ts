@@ -35,6 +35,7 @@ const SOURCE_NAMES = {
   polyhaven: 'Poly Haven',
   ambientcg: 'ambientCG',
   sketchfab: 'Sketchfab',
+  original: 'this repository',
 } as const
 
 function fileEntry(path: string): ManifestFile {
@@ -155,6 +156,7 @@ function credits(assets: ManifestAsset[]): string {
     'Poly Haven and ambientCG assets are CC0 (public domain); CC0 needs no attribution but the',
     'authors are credited anyway. Sketchfab assets are CC-BY-4.0',
     '(https://creativecommons.org/licenses/by/4.0/): credited here and in Settings → Mualliflar.',
+    'Assets from "this repository" were generated for the game by the linked script (CC0).',
     'They were optimised (re-compressed, resized and in some cases simplified) for the web.',
     '',
     '## Fonts',

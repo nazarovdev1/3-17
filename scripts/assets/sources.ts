@@ -6,7 +6,7 @@
 // flat47 must be loaded before play starts, the others stream in the background.
 
 export type AssetKind = 'model' | 'texture' | 'hdri'
-export type AssetSource = 'polyhaven' | 'ambientcg' | 'sketchfab'
+export type AssetSource = 'polyhaven' | 'ambientcg' | 'sketchfab' | 'original'
 export type AssetTier = 'hero' | 'normal' | 'small'
 export type AssetGroup = 'flat47' | 'stairwell' | 'flat48'
 export type AssetLicense = 'CC0-1.0' | 'CC-BY-4.0'
@@ -92,6 +92,26 @@ const sf = (
   ...options,
 })
 
+/** Made for this game from code in this repository (CC0); `remoteId` is the generator. */
+const original = (
+  id: string,
+  generator: string,
+  tier: AssetTier,
+  group: AssetGroup,
+  purpose: string,
+  options: Pick<AssetSourceEntry, 'simplify'> = {},
+): AssetSourceEntry => ({
+  id,
+  kind: 'model',
+  source: 'original',
+  remoteId: generator,
+  tier,
+  group,
+  license: 'CC0-1.0',
+  purpose,
+  ...options,
+})
+
 export const ASSET_SOURCES: AssetSourceEntry[] = [
   // Room (flat 47)
   ph('sofa_03', 'model', 'hero', 'flat47', 'room: the sofa-bed the player sleeps on'),
@@ -167,6 +187,10 @@ export const ASSET_SOURCES: AssetSourceEntry[] = [
   }),
   sf('coat_hooks', 'a8bdbea2931841b0b1a8163e7abdae53', 'small', 'flat47', 'corridor: coat hooks'),
   sf('shoe_rack', '6f13df8908214ad69675300e83289ebf', 'small', 'flat47', 'corridor: shoe rack'),
+  // The figure (FIX_PROMPT §4.4): never seen clearly, so it streams in with the stairwell.
+  original('figure', 'scripts/figure/figure.ts', 'hero', 'stairwell', 'the tall man in the coat', {
+    simplify: 0.25,
+  }),
   // Surfaces
   acg('WoodFloor014', 'hero', 'flat47', 'room floor: herringbone parquet'),
   acg('Wallpaper001C', 'hero', 'flat47', 'flat 47 walls: cracked pale wallpaper'),

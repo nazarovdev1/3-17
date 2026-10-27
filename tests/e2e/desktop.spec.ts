@@ -153,21 +153,28 @@ test('rejected pointer lock uses drag look; E interacts with the clock; corridor
   })
   await boot(page)
   await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
-  // Walk toward the new facade-wall clock, then aim at its actual plan anchor.
-  // Poll distance rather than assuming a fixed number of software-rendered frames.
-  await page.keyboard.down('w')
-  await expect
-    .poll(async () => (await inspect(page)).position[2], { timeout: 10_000 })
-    .toBeLessThan(-1.5)
-  await page.keyboard.up('w')
-  const view = await inspect(page)
+  // The prompt only appears within reach (1.5 m): walk to the end of the sofa, the
+  // nearest free spot to the facade-wall clock, then aim at its plan anchor. Poll
+  // distances rather than assuming a fixed number of software-rendered frames.
+  const turnTo = async (x: number, z: number) => {
+    const view = await inspect(page)
+    const yaw = Math.atan2(view.position[0]! - x, view.position[2]! - z)
+    await page.mouse.move(720, 350)
+    await page.mouse.down()
+    await page.mouse.move(720 - (yaw - view.yaw) / 0.0024, 350, { steps: 8 })
+    await page.mouse.up()
+  }
   const clock = OBJECTS.clock!
-  const yaw = Math.atan2(view.position[0]! - clock[0], view.position[2]! - clock[2])
-  await page.mouse.move(720, 350)
-  await page.mouse.down()
-  await page.mouse.move(720 - (yaw - view.yaw) / 0.0024, 350, { steps: 8 })
-  await page.mouse.up()
-  await expect.poll(async () => (await inspect(page)).yaw).toBeGreaterThan(0.3)
+  const reach = async () => {
+    const p = (await inspect(page)).position
+    return Math.hypot(p[0]! - clock[0], p[2]! - clock[2])
+  }
+  await turnTo(-0.86, -1.95)
+  await page.keyboard.down('w')
+  await expect.poll(reach, { timeout: 15_000 }).toBeLessThan(1.45)
+  await page.keyboard.up('w')
+  await turnTo(clock[0], clock[2])
+  await expect.poll(async () => (await inspect(page)).yaw).toBeGreaterThan(0.2)
   await expect
     .poll(async () => await page.locator('.interaction-prompt').textContent())
     .toContain('soat')

@@ -13,6 +13,7 @@ import {
   SRGBColorSpace,
 } from 'three'
 import { audio } from '@/audio/engine'
+import { ui } from '@/content/text'
 import { useGame } from '@/ui/gameStore'
 import { useSettings } from '@/ui/settingsStore'
 import { desktopRuntime } from '@/platform/device/desktopRuntime'
@@ -23,6 +24,9 @@ import {
   AUDIT_VIEWS,
   walk,
   SWITCHES,
+  REACH,
+  OBJECTS,
+  footstepAt,
   type Point,
 } from './layout'
 import type { Choice, Step } from '@/core/engine/types'
@@ -41,7 +45,17 @@ export interface RigProps {
   extension: number
   /** The torch casts shadows (and projects its cookie) where the GPU allows. */
   shadows: boolean
+  /** Looking through the entrance peephole by choice (E at the door), not by the story. */
+  peeking: boolean
+  onPeek: (on: boolean) => void
 }
+
+/** Prompts for the peephole, which is not a story choice. */
+const PEEK: Choice = { id: '__peek', label: ui('desktop.peek'), to: '' }
+const UNPEEK: Choice = { id: '__unpeek', label: ui('desktop.unpeek'), to: '' }
+
+/** The peephole lens, on the landing side of the entrance leaf. */
+export const PEEPHOLE_EYE: Point = [0, 1.6, 4.75]
 export function CameraRig({
   step,
   choices,
@@ -54,6 +68,8 @@ export function CameraRig({
   onExtend,
   extension,
   shadows,
+  peeking,
+  onPeek,
 }: RigProps) {
   const cookie = useMemo(() => makeCookie(), [])
   useEffect(() => () => cookie.dispose(), [cookie])
@@ -67,6 +83,8 @@ export function CameraRig({
   const lamp = useRef<SpotLight>(null)
   const forward = useRef(new Vector3())
   const moved = useRef(0)
+  /** Walking velocity (m/s, world x/z): eased toward the keys for a little weight. */
+  const velocity = useRef({ x: 0, z: 0 })
   const bob = useRef(0)
   const stepDistance = useRef(0)
   const wasLooking = useRef(false)
@@ -76,7 +94,9 @@ export function CameraRig({
   const mirrorHistory = useRef<{ time: number; x: number; yaw: number; pitch: number }[]>([])
 
   const viewpoint = step.node.mobile?.vignette === 'window' ? 'balcony' : step.node.location
-  const peephole = step.node.mobile?.vignette === 'peephole'
+  const peephole = step.node.mobile?.vignette === 'peephole' || peeking
+  /** Where the player stood before stepping up to the peephole. */
+  const beforePeek = useRef<{ position: Vector3; yaw: number; pitch: number } | null>(null)
   const turnedBack = step.node.id === 'n3_corridor_stop'
   const params = new URLSearchParams(window.location.search)
   const auditView =
@@ -84,17 +104,35 @@ export function CameraRig({
       ? AUDIT_VIEWS[params.get('auditView') ?? '']
       : undefined
   useLayoutEffect(() => {
-    const view = auditView ?? VIEWS[viewpoint]
-    const spawn: Point = peephole ? [0, 1.62, 4.42] : view.position
-    camera.position.set(...spawn)
-    mirrorHistory.current = []
-    angles.current = { yaw: peephole ? Math.PI : turnedBack ? 0 : view.yaw, pitch: view.pitch ?? 0 }
-    camera.rotation.set(angles.current.pitch, angles.current.yaw, 0, 'YXZ')
     const perspective = camera as PerspectiveCamera
+    if (peeking && !beforePeek.current) {
+      beforePeek.current = { position: camera.position.clone(), ...angles.current }
+    } else if (!peeking && beforePeek.current) {
+      // Back from the peephole to where the player stood.
+      const { position, yaw, pitch } = beforePeek.current
+      beforePeek.current = null
+      camera.position.copy(position)
+      angles.current = { yaw, pitch }
+      camera.rotation.set(pitch, yaw, 0, 'YXZ')
+      perspective.fov = 66
+      perspective.updateProjectionMatrix()
+      return
+    }
+    const view = auditView ?? VIEWS[viewpoint]
+    const spawn: Point = peephole ? PEEPHOLE_EYE : view.position
+    camera.position.set(...spawn)
+    velocity.current = { x: 0, z: 0 }
+    mirrorHistory.current = []
+    angles.current = {
+      yaw: peephole ? Math.PI : turnedBack ? 0 : view.yaw,
+      // At the lens the eye rises a little: whoever stands there is taller than the door's eye.
+      pitch: peeking ? 0.32 : (view.pitch ?? 0),
+    }
+    camera.rotation.set(angles.current.pitch, angles.current.yaw, 0, 'YXZ')
     // R3F owns a mutable Three camera; this is imperative scene synchronization.
     perspective.fov = peephole ? 110 : 66
     perspective.updateProjectionMatrix()
-  }, [viewpoint, peephole, turnedBack, camera, auditView])
+  }, [viewpoint, peephole, peeking, turnedBack, camera, auditView])
 
   useEffect(() => {
     const stopListening = () => {
@@ -128,9 +166,25 @@ export function CameraRig({
           onSwitch(lightSwitch)
           return
         }
-        if (near.current && choices.some((choice) => choice.id === near.current?.id))
+        if (peeking) {
+          onPeek(false)
+          return
+        }
+        if (near.current && choices.some((choice) => choice.id === near.current?.id)) {
           useGame.getState().choose(near.current.id)
-        else if (step.phase === 'next') useGame.getState().advance()
+          return
+        }
+        // Any time at the door: put an eye to the peephole.
+        const lens = new Vector3(...OBJECTS.peephole!).sub(camera.position)
+        if (
+          !peephole &&
+          Math.hypot(lens.x, lens.z) < REACH &&
+          lens.normalize().dot(forward.current) > 0.85
+        ) {
+          onPeek(true)
+          return
+        }
+        if (step.phase === 'next') useGame.getState().advance()
       }
       if (key === ' ') {
         document.querySelector<HTMLElement>('.desktop-hud .narration')?.click()
@@ -173,6 +227,13 @@ export function CameraRig({
       const dx = locked ? event.movementX : event.clientX - mouse.current.x
       const dy = locked ? event.movementY : event.clientY - mouse.current.y
       mouse.current = { x: event.clientX, y: event.clientY }
+      if (desktopRuntime.inspecting) {
+        // Turning the paper over in the hand, not the head.
+        const clampTo = (v: number, m: number) => Math.max(-m, Math.min(m, v))
+        desktopRuntime.inspectYaw = clampTo(desktopRuntime.inspectYaw + dx * 0.004, 1.1)
+        desktopRuntime.inspectPitch = clampTo(desktopRuntime.inspectPitch + dy * 0.004, 0.7)
+        return
+      }
       angles.current.yaw -= dx * 0.0024
       angles.current.pitch = Math.max(-1.2, Math.min(1.2, angles.current.pitch - dy * 0.0024))
     }
@@ -206,18 +267,42 @@ export function CameraRig({
       document.removeEventListener('pointerlockerror', lockerror)
       if (document.pointerLockElement === gl.domElement) document.exitPointerLock()
     }
-  }, [paused, choices, step.phase, gl, camera, onControl, onFlashlight, onSwitch])
+  }, [
+    paused,
+    choices,
+    step.phase,
+    gl,
+    camera,
+    onControl,
+    onFlashlight,
+    onSwitch,
+    peeking,
+    peephole,
+    onPeek,
+  ])
 
   useFrame(({ clock }, rawDelta) => {
     if (paused || document.hidden) return
     const delta = Math.min(rawDelta, 0.05)
     const settings = useSettings.getState().settings
     const { yaw, pitch } = angles.current
-    const sideways = (keys.current.has('d') ? 1 : 0) - (keys.current.has('a') ? 1 : 0)
-    const ahead = (keys.current.has('w') ? 1 : 0) - (keys.current.has('s') ? 1 : 0)
-    const speed = (1.7 * delta) / Math.max(1, Math.hypot(sideways, ahead))
-    const dx = (sideways * Math.cos(yaw) - ahead * Math.sin(yaw)) * speed
-    const dz = (-sideways * Math.sin(yaw) - ahead * Math.cos(yaw)) * speed
+    // At the peephole the body stays put; only the eye turns.
+    const sideways = peephole
+      ? 0
+      : (keys.current.has('d') ? 1 : 0) - (keys.current.has('a') ? 1 : 0)
+    const ahead = peephole ? 0 : (keys.current.has('w') ? 1 : 0) - (keys.current.has('s') ? 1 : 0)
+    const speed = 1.6 / Math.max(1, Math.hypot(sideways, ahead))
+    const targetX = (sideways * Math.cos(yaw) - ahead * Math.sin(yaw)) * speed
+    const targetZ = (-sideways * Math.sin(yaw) - ahead * Math.cos(yaw)) * speed
+    // Slight inertia: about a fifth of a second to reach walking pace or to stop.
+    const ease = 1 - Math.exp(-delta * (sideways || ahead ? 9 : 12))
+    const v = velocity.current
+    v.x += (targetX - v.x) * ease
+    v.z += (targetZ - v.z) * ease
+    if (Math.hypot(v.x, v.z) < 0.01) v.x = v.z = 0
+    const dx = v.x * delta
+    const dz = v.z * delta
+    const walking = Math.hypot(v.x, v.z) > 0.25
     const before = camera.position.clone()
     const next = walk(
       [camera.position.x, 1.6, camera.position.z] as Point,
@@ -228,23 +313,24 @@ export function CameraRig({
     )
     camera.position.set(...next)
     const distance = before.distanceTo(camera.position)
-    if (sideways || ahead) {
-      bob.current += delta * 9
+    // Pushing into a wall stops the body too.
+    if (distance < Math.hypot(dx, dz) * 0.3) v.x = v.z = 0
+    if (walking) {
+      bob.current += delta * 9 * Math.min(1, Math.hypot(v.x, v.z) / 1.6)
       stepDistance.current += distance
     }
     if (stepDistance.current > 0.72) {
-      audio.play(
-        ['kitchen', 'bathroom', 'stairwell'].includes(step.node.location)
-          ? 'step_tile'
-          : 'step_wood',
-      )
+      // The sound of the floor actually underfoot: parquet, painted boards, tiles, concrete.
+      audio.play(footstepAt(camera.position.x, camera.position.z, extension), [
+        camera.position.x,
+        0.05,
+        camera.position.z,
+      ])
       stepDistance.current = 0
     }
     camera.position.y =
       1.6 +
-      (settings.headBob && !settings.reduceFlashing && (sideways || ahead)
-        ? Math.sin(bob.current) * 0.018
-        : 0)
+      (settings.headBob && !settings.reduceFlashing && walking ? Math.sin(bob.current) * 0.018 : 0)
     camera.quaternion.setFromEuler(new Euler(pitch, yaw, 0, 'YXZ'))
     camera.getWorldDirection(forward.current)
     softwareLight.torchPosition.value.copy(camera.position)
@@ -263,16 +349,29 @@ export function CameraRig({
     if (moved.current > 0.12) {
       moved.current = 0
       let best: Choice | null = null
-      let bestDistance = 3.2
+      let bestDistance = REACH
       for (const choice of choices) {
-        const point = interactionPoint(choice, extension, desktopRuntime.clockShifted)
+        const point = interactionPoint(
+          choice,
+          extension,
+          desktopRuntime.clockShifted,
+          step.state.night,
+        )
         if (!point) continue
         const vector = new Vector3(...point).sub(camera.position)
-        const length = vector.length()
-        if (length < bestDistance && vector.normalize().dot(forward.current) > 0.92) {
+        // Reach is measured on the floor plane: a low table and a high clock count alike.
+        const length = Math.hypot(vector.x, vector.z)
+        if (length < bestDistance && vector.normalize().dot(forward.current) > 0.88) {
           best = choice
           bestDistance = length
         }
+      }
+      // The peephole is always there to look through (or to step back from).
+      if (peeking) best = UNPEEK
+      else if (!best && !peephole) {
+        const lens = new Vector3(...OBJECTS.peephole!).sub(camera.position)
+        if (Math.hypot(lens.x, lens.z) < REACH && lens.normalize().dot(forward.current) > 0.85)
+          best = PEEK
       }
       if (near.current?.id !== best?.id) {
         near.current = best
@@ -309,7 +408,7 @@ export function CameraRig({
       target &&
       step.phase === 'next' &&
       step.node.desktop?.trigger === 'zone' &&
-      (sideways || ahead) &&
+      walking &&
       camera.position.distanceTo(new Vector3(...target)) < 0.6
     )
       useGame.getState().advance()
@@ -319,8 +418,9 @@ export function CameraRig({
       ref={lamp}
       color="#e6e9dc"
       intensity={flashlight ? 160 : 0}
-      angle={0.42}
-      penumbra={0.55}
+      // A wide spill around the hot centre, as a cheap torch has.
+      angle={0.6}
+      penumbra={0.75}
       distance={14}
       decay={2}
       castShadow={shadows}
@@ -350,7 +450,8 @@ function makeCookie(): CanvasTexture {
   g.addColorStop(1, '#000000')
   ctx.fillStyle = g
   ctx.fillRect(0, 0, size, size)
-  ctx.globalAlpha = 0.08
+  // Faint smudges on the lens: barely there, or they read as bubbles on the wall.
+  ctx.globalAlpha = 0.025
   for (let i = 0; i < 40; i++) {
     const a = (i * 2.399) % (Math.PI * 2)
     const r = (((i * 37) % 100) / 100) * c * 0.7

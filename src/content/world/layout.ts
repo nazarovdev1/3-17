@@ -423,6 +423,17 @@ const OBJECTS_47: WorldObject[] = [
     interaction: 'note',
   },
   {
+    id: 'phone',
+    room: 'room',
+    asset: 'proc:phone',
+    position: [0.86, 0.8, -2.3],
+    rotation: -0.35,
+    size: [0.075, 0.009, 0.155],
+    support: on('table'),
+    purpose: "the player's phone: the mother's missed calls and voice messages",
+    interaction: 'phone',
+  },
+  {
     id: 'clock',
     room: 'room',
     asset: 'wall_clock',

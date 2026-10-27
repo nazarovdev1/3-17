@@ -10,6 +10,8 @@ export const SOUND_IDS = [
   'fridge_stop',
   'step_wood',
   'step_tile',
+  'step_board',
+  'step_concrete',
   'chain',
   'kettle',
   'page',
@@ -23,6 +25,7 @@ export const SOUND_IDS = [
   'static',
   'tea',
   'pen',
+  'phone_buzz',
 ] as const satisfies readonly SfxId[]
 
 const DURATIONS: Record<SfxId, number> = {
@@ -33,6 +36,8 @@ const DURATIONS: Record<SfxId, number> = {
   fridge_stop: 0.12,
   step_wood: 0.3,
   step_tile: 0.25,
+  step_board: 0.3,
+  step_concrete: 0.28,
   chain: 0.7,
   kettle: 2.4,
   page: 0.55,
@@ -46,6 +51,7 @@ const DURATIONS: Record<SfxId, number> = {
   static: 0.8,
   tea: 1.2,
   pen: 0.5,
+  phone_buzz: 0.9,
 }
 
 function random(seed: number) {
@@ -99,6 +105,17 @@ export function synthSound(id: SfxId, sampleRate = SAMPLE_RATE): Float32Array {
       case 'step_wood':
         value = hit(t, 64, 20) * 0.28 + low * Math.exp(-t * 24) * 0.3
         break
+      case 'step_board':
+        // Painted boards over joists: a hollow knock and a faint creak.
+        value =
+          hit(t, 92, 26) * 0.24 +
+          low * Math.exp(-t * 30) * 0.22 +
+          sine(410 + 60 * t, t) * 0.02 * Math.exp(-t * 14)
+        break
+      case 'step_concrete':
+        // Grit under a sole on bare concrete: dull thud and a scrape.
+        value = hit(t, 71, 34) * 0.2 + high * Math.exp(-t * 28) * 0.05
+        break
       case 'step_tile':
         value = hit(t, 182, 32) * 0.2 + high * Math.exp(-t * 45) * 0.07
         break
@@ -143,6 +160,13 @@ export function synthSound(id: SfxId, sampleRate = SAMPLE_RATE): Float32Array {
         break
       case 'tea':
         value = low * 0.28 * (0.5 + 0.5 * sine(13, t) ** 2)
+        break
+      case 'phone_buzz':
+        // Two vibration bursts muffled by a pillow or a tabletop.
+        value =
+          (t < 0.32 || (t > 0.5 && t < 0.82) ? 1 : 0) *
+          (sine(152, t) * 0.12 + low * 0.08) *
+          (0.7 + 0.3 * sine(31, t))
         break
       case 'pen':
         value = high * 0.06 * Math.sin(t * 37) ** 4

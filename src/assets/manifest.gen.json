@@ -857,6 +857,28 @@
       "bytes": 38344
     },
     {
+      "id": "figure",
+      "kind": "model",
+      "group": "stairwell",
+      "tier": "hero",
+      "purpose": "the tall man in the coat",
+      "title": "The figure (tall man in a coat)",
+      "author": "3:17",
+      "source": "original",
+      "sourceUrl": "scripts/figure/figure.ts",
+      "license": "CC0-1.0",
+      "boundsM": [0.593, 2.032, 0.349],
+      "nodes": ["figure_head", "figure_body", "hanging_coat"],
+      "files": {
+        "model": {
+          "path": "assets/models/figure.glb",
+          "bytes": 427200,
+          "sha256": "1e343982d829e1db"
+        }
+      },
+      "bytes": 427200
+    },
+    {
       "id": "WoodFloor014",
       "kind": "texture",
       "group": "flat47",

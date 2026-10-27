@@ -27,7 +27,10 @@ import { desktopRuntime } from '@/platform/device/desktopRuntime'
 import { renderDpr, renderProfile } from './quality'
 import { World } from './World'
 import { CameraRig } from './CameraRig'
-import { interactionPoint } from './layout'
+import { REACH, interactionPoint } from './layout'
+import { figureAppearance } from './figure'
+import { SCRIPTED_SOUNDS } from './events'
+import { Inspect, readableOf } from './Inspect'
 import { PeepholeEffect } from './PeepholeEffect'
 import type { Choice } from '@/core/engine/types'
 import './desktop.css'
@@ -187,16 +190,18 @@ function Interactor({
   choice,
   onSelect,
   extension,
+  night,
 }: {
   choice: Choice
   onSelect: (id: string) => void
   extension: number
+  night: number
 }) {
   const mesh = useRef<Mesh>(null)
-  const point = interactionPoint(choice, extension)
+  const point = interactionPoint(choice, extension, false, night)
   useFrame(({ clock }) => {
     if (mesh.current) mesh.current.scale.setScalar(0.8 + Math.sin(clock.elapsedTime * 2) * 0.15)
-    const target = interactionPoint(choice, extension, desktopRuntime.clockShifted)
+    const target = interactionPoint(choice, extension, desktopRuntime.clockShifted, night)
     if (mesh.current && target) mesh.current.position.set(...target)
   })
   if (!point) return null
@@ -206,7 +211,7 @@ function Interactor({
       position={point}
       onClick={(event) => {
         event.stopPropagation()
-        if (event.distance < 3.2) onSelect(choice.id)
+        if (event.distance < REACH + 0.6) onSelect(choice.id)
       }}
     >
       <sphereGeometry args={[0.035, 6, 4]} />
@@ -233,13 +238,24 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
   const [lost, setLost] = useState(false)
   // The torch follows the power: off while the bulbs burn, on after 3:17, unless the
   // player has switched it by hand (F).
-  const [torchOverride, setTorchOverride] = useState<boolean | null>(null)
+  // A hand switch holds until the power changes: a cut turns the torch on again.
+  const [torchOverride, setTorchOverride] = useState<{ on: boolean; needed: boolean } | null>(null)
   const outage =
     !!step &&
     (step.state.visitedNodes.includes(`n${step.state.night}_317`) ||
       step.node.mobile?.vignette === 'room_dark')
   const torchNeeded = outage || step?.node.location === 'flat48'
-  const flashlight = torchOverride ?? torchNeeded
+  // An eye to the peephole by choice; it lasts for the current beat only.
+  const [peek, setPeek] = useState({ node: '', on: false })
+  const peeking = peek.on && peek.node === step?.node.id
+  const onPeek = useCallback(
+    (on: boolean) => setPeek({ node: useGame.getState().currentStep?.node.id ?? '', on }),
+    [],
+  )
+  const peepholeView = step?.node.mobile?.vignette === 'peephole' || peeking
+  // An eye at the peephole holds no torch: the landing is lit only by what is out there.
+  const manual = torchOverride?.needed === torchNeeded ? torchOverride.on : null
+  const flashlight = !peepholeView && (manual ?? torchNeeded)
   const [lightsOff, setLightsOff] = useState<Set<number>>(() => new Set())
   const [near, setNear] = useState<Choice | null>(null)
   const [control, setControl] = useState<'lock' | 'drag'>('drag')
@@ -256,8 +272,13 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
     () => new URLSearchParams(window.location.search).get('render') === 'still',
   )
   const choices = useMemo(() => (step ? visibleChoices(step.node, step.state) : []), [step])
+  const paper = useMemo(() => (step ? readableOf(step) : null), [step])
   const toggleFlashlight = useCallback(
-    () => setTorchOverride((value) => !(value ?? torchNeeded)),
+    () =>
+      setTorchOverride((value) => ({
+        on: !(value?.needed === torchNeeded ? value.on : torchNeeded),
+        needed: torchNeeded,
+      })),
     [torchNeeded],
   )
   const toggleSwitch = useCallback((index: number) => {
@@ -278,6 +299,16 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
   useEffect(() => {
     desktopRuntime.control = control
   }, [control])
+  // Sounds from the wrong place, timed from the start of the beat.
+  const nodeId = step?.node.id
+  useEffect(() => {
+    const cues = nodeId ? SCRIPTED_SOUNDS[nodeId] : undefined
+    if (!cues || paused) return
+    const timers = cues.map((cue) =>
+      setTimeout(() => audio.play(cue.id, cue.position), cue.at * 1000),
+    )
+    return () => timers.forEach(clearTimeout)
+  }, [nodeId, paused])
   useEffect(() => {
     if (!step || paused || step.phase !== 'next' || step.node.desktop?.trigger !== 'timed') return
     const characters = resolveAllLines(step.state).reduce(
@@ -290,7 +321,8 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
   }, [step, paused])
   if (!step || !supported) return null
   const corridorExtension = step.node.id === 'n3_corridor_loop' ? extension : 0
-  const peephole = step.node.mobile?.vignette === 'peephole'
+  const appearance = figureAppearance(step.node.id, step.state)
+  const peephole = peepholeView
   return (
     <div
       className={`game-area desktop-game sanity-${sanityBand(step.state.sanity)} ${settings.reduceFlashing ? 'reduce-flashing' : ''}`}
@@ -328,6 +360,10 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
             lightsOff={lightsOff}
             clockRequested={!!step.state.flags['clock_shifted']}
             shadows={profile.shadows}
+            appearance={appearance}
+            node={step.node.id}
+            state={step.state}
+            peephole={peephole}
           />
           <CameraRig
             step={step}
@@ -341,6 +377,8 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
             onExtend={extend}
             extension={corridorExtension}
             shadows={profile.shadows}
+            peeking={peeking}
+            onPeek={onPeek}
           />
           {!still &&
             choices.map((choice) => (
@@ -349,8 +387,10 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
                 choice={choice}
                 onSelect={choose}
                 extension={corridorExtension}
+                night={step.state.night}
               />
             ))}
+          <Inspect paper={paper} />
           <PostEffects
             peephole={peephole}
             tier={tier}

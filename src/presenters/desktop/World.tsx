@@ -7,8 +7,13 @@ import { manifest } from '@/assets/loader'
 import { desktopRuntime } from '@/platform/device/desktopRuntime'
 import { loadHdri, loadModel } from './assets'
 import { CLOCK_SHIFTED } from './layout'
+import type { Appearance } from './figure'
 import { Architecture } from './world/Architecture'
 import { Doors } from './world/Doors'
+import { Figure } from './world/Figure'
+import { Phone } from './world/Phone'
+import { Changes } from './world/Changes'
+import type { GameState } from '@/core/state/types'
 import { Furniture, placeClock, type Models } from './world/Furniture'
 import { Lighting } from './world/Lighting'
 import { loadSurfaces, type SurfaceMaterials } from './world/materials'
@@ -52,7 +57,7 @@ function useWorldAssets(detailed: boolean): Loaded | null {
   return loaded
 }
 
-const SKIP = new Set(['clock'])
+const SKIP = new Set(['clock', 'phone', 'room_chair'])
 
 function Clock({
   models,
@@ -111,6 +116,10 @@ export function World({
   lightsOff,
   clockRequested,
   shadows,
+  appearance,
+  node,
+  state,
+  peephole,
 }: {
   outage: boolean
   doorAjar: boolean
@@ -119,10 +128,24 @@ export function World({
   lightsOff: Set<number>
   clockRequested: boolean
   shadows: boolean
+  /** Where the figure may be at this beat (see ./figure.ts). */
+  appearance: Appearance | null
+  node: string
+  state: GameState
+  /** An eye at the entrance peephole: the door stays shut. */
+  peephole: boolean
 }) {
   const assets = useWorldAssets(shadows)
   const scene = useThree((s) => s.scene)
   const extension = corridorLength - 1
+  const closed = useMemo(
+    () => new Set([...(appearance?.closedDoors ?? []), ...(peephole ? ['front_door'] : [])]),
+    [appearance, peephole],
+  )
+  const dark = useMemo(
+    () => new Set([...lightsOff, ...(appearance?.darkCircuits ?? [])]),
+    [lightsOff, appearance],
+  )
   useEffect(() => {
     if (!assets) return
     scene.environment = shadows ? assets.environment : null
@@ -146,8 +169,24 @@ export function World({
         mirrors={shadows}
       />
       <Clock models={assets.models} requested={clockRequested} detailed={shadows} />
-      <Doors surfaces={assets.surfaces} extension={extension} doorAjar={doorAjar} />
-      <Lighting outage={outage} lightsOff={lightsOff} extension={extension} shadows={shadows} />
+      <Doors
+        surfaces={assets.surfaces}
+        extension={extension}
+        doorAjar={doorAjar}
+        closed={closed}
+        // Blurring glass costs a second scene pass; only while something stands behind it.
+        frosted={shadows && appearance?.id === 'frosted'}
+      />
+      <Lighting
+        outage={outage}
+        lightsOff={dark}
+        extension={extension}
+        shadows={shadows}
+        landingDark={!!appearance?.landingDark}
+      />
+      <Figure appearance={appearance} node={node} detailed={shadows} outage={outage} />
+      <Phone state={state} node={node} detailed={shadows} />
+      <Changes state={state} node={node} models={assets.models} detailed={shadows} />
     </>
   )
 }

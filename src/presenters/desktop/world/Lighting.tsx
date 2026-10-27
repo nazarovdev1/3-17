@@ -21,7 +21,10 @@ export function Lighting({
   lightsOff,
   extension,
   shadows,
+  landingDark = false,
 }: {
+  /** The landing's timer bulb is off (the figure stands out there). */
+  landingDark?: boolean
   outage: boolean
   lightsOff: Set<number>
   extension: number
@@ -56,7 +59,7 @@ export function Lighting({
     if (stairWindowFill.current) stairWindowFill.current.intensity = stairFill * 16
     if (fill.current)
       fill.current.intensity =
-        px! < PARTY_X && pz! < 4.69 ? 2.5 : outage ? 1.2 : 0.14 + stairFill * 0.9
+        px! < PARTY_X && pz! < 4.69 ? 2.5 : outage ? 2.0 : 0.14 + stairFill * 0.9
     const on = (circuit: number | null) => !outage && (circuit === null || !lightsOff.has(circuit))
     // The fixture of the room the player stands in casts the shadows.
     let current = 0
@@ -155,7 +158,8 @@ export function Lighting({
           shiftZ(landing.position[0], landing.position[2], extension),
         ]}
         color="#ffd9a0"
-        intensity={outage ? 0 : 9}
+        // The timer bulb clicked off: only a glow from the stairwell window is left.
+        intensity={outage ? 0 : landingDark ? 0.9 : 9}
         distance={8}
         decay={2}
       />

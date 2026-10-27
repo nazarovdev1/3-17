@@ -127,3 +127,46 @@ Android phones"), recorded here.
     forced a second full-scene transmission pass and made the software renderer fall back
     mid-story. The existing 55 FPS browser assertion stays in force. Static architecture is
     batched by finish in both profiles, preserving the plan's openings and metric UVs.
+33. **The figure is original work, made from a signed distance field.** No Mixamo model was
+    supplied, so `scripts/figure/figure.ts` builds a thin man of ~2.03 m in a long coat from
+    smoothly blended anatomical parts (skull, jaw, neck, shoulders, chest, sleeves, long
+    hands and fingers, trousers, shoes), meshes it with surface nets, projects every vertex
+    onto the field and takes normals from its gradient. No primitive is ever visible. It
+    goes through the normal asset pipeline as source `original` (CC0, credited to "3:17"),
+    simplified to a quarter and meshopt-compressed: 427 KB with its empty coat.
+34. **No skeleton.** The figure never walks on screen. It breathes, sways slightly and turns
+    its head (the head hangs from a pivot at the neck), and every appearance is a pose.
+    A rig would add size and risk for motion the horror rules forbid.
+35. **Where it may be is data** (`src/presenters/desktop/figure.ts`): under the entrance door
+    (night 4 after 3:17, night 5 while the voice speaks), behind the kitchen's frosted glass
+    (night 3 corridor), at the far end of the landing with the timer light off (night 2
+    morning), through the peephole with its back turned (night 4), and only in the dark TV
+    glass, in the doorway behind the player (night 3). Each appearance ends once it has been seen and the
+    player looks away, comes too close, or waits it out. Night 1 has none.
+36. **The door gap is a light, not a model.** The entrance leaf hangs 14 mm above the floor;
+    a shader decal on the hall floor carries the light from the landing with two foot
+    shadows that spread inward and shift weight. The body is really out there (seen through
+    the peephole); the decal makes it legible from inside.
+37. **Frosted glass is real transmission, but only while needed.** The kitchen door's pane
+    becomes a rough `MeshPhysicalMaterial` (blurred second scene pass) only during the
+    frosted appearance; otherwise it is a plain translucent pane. Software GL keeps a
+    near-opaque pane.
+38. **The TV is a convex mirror.** A cube camera at the tube renders the room plus a
+    reflection-only layer; the bulged glass bends its normals for a wide view. The figure
+    stands in the room's doorway, dark against the lit corridor, on that layer only: it is
+    in the glass and not in the room when the player turns around.
+39. **The phone is an object.** It lies on the room table with its screen dark and a green
+    notification LED; it buzzes now and then and lights up with "Onam". At the phone beats
+    it is held up with the missed calls and a playable voice message (canvas screen, HD);
+    face down after the kitchen on night 1 (turned while unobserved), under the pillow on
+    night 4, dead at 3:17 on night 5. Its lock screen shows the player's real time until
+    the story sets one.
+40. **Changes while unobserved are frustum-gated.** The coat on the hooks (night 2), the
+    chair turned to the wall of 48 (night 3), the loose chain (night 4) wait until their
+    spot is out of view; on later nights they are simply so. The bundle, the wet prints to
+    48 and visible breath (night 5) are placed directly.
+41. **Interaction feel.** Prompts within 1.5 m (on the floor plane) only; walking eases in
+    and out (~0.2 s); footsteps follow the floor underfoot (parquet, painted boards,
+    tiles, concrete); doors swing on a damped spring with hinge sounds; papers are held up
+    unlit (the torch would burn them white) and turn with the mouse; the peephole can be
+    used at any time (E at the door).

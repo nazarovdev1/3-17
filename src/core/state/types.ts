@@ -19,6 +19,8 @@ export type SfxId =
   | 'fridge_stop'
   | 'step_wood'
   | 'step_tile'
+  | 'step_board'
+  | 'step_concrete'
   | 'chain'
   | 'kettle'
   | 'page'
@@ -32,6 +34,7 @@ export type SfxId =
   | 'static'
   | 'tea'
   | 'pen'
+  | 'phone_buzz'
 
 /** Screen effect ids (spec section 6). */
 export type FxId =

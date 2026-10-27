@@ -212,6 +212,20 @@ export function readMeta(id: string): CacheMeta | null {
   return existsSync(path) ? (JSON.parse(readFileSync(path, 'utf8')) as CacheMeta) : null
 }
 
+async function generateOriginal(entry: AssetSourceEntry, dir: string): Promise<CacheMeta> {
+  mkdirSync(dir, { recursive: true })
+  if (entry.remoteId !== 'scripts/figure/figure.ts') throw new Error(`no generator: ${entry.id}`)
+  const { writeFigure } = await import('../figure/figure')
+  await writeFigure(join(dir, `${entry.id}.glb`))
+  return {
+    id: entry.id,
+    title: 'The figure (tall man in a coat)',
+    author: '3:17',
+    sourceUrl: entry.remoteId,
+    files: [`${entry.id}.glb`],
+  }
+}
+
 async function main() {
   const force = process.argv.includes('--force')
   let fetched = 0
@@ -219,7 +233,8 @@ async function main() {
     if (FORBIDDEN_PATTERNS.some((p) => p.test(entry.remoteId))) {
       throw new Error(`forbidden asset: ${entry.remoteId}`)
     }
-    if (!force && readMeta(entry.id)) continue
+    // Generated assets are rebuilt every time: they are cheap and follow their code.
+    if (!force && entry.source !== 'original' && readMeta(entry.id)) continue
     const dir = join(CACHE, entry.id)
     process.stdout.write(`↓ ${entry.id} (${entry.source}) … `)
     const meta =
@@ -227,7 +242,9 @@ async function main() {
         ? await fetchPolyHaven(entry, dir)
         : entry.source === 'sketchfab'
           ? await fetchSketchfab(entry, dir)
-          : await fetchAmbientCg(entry, dir)
+          : entry.source === 'original'
+            ? await generateOriginal(entry, dir)
+            : await fetchAmbientCg(entry, dir)
     if (FORBIDDEN_PATTERNS.some((p) => p.test(meta.author))) {
       throw new Error(`forbidden author for ${entry.id}: ${meta.author}`)
     }

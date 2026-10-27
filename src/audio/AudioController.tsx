@@ -6,7 +6,8 @@ import { useGame, onEngineEvents } from '@/ui/gameStore'
 import { useSettings } from '@/ui/settingsStore'
 import { getWebApp } from '@/platform/telegram/adapter'
 import type { GameMode } from '@/platform/device/mode'
-const SHARED_WALL = [3, 1.5, -1] as const
+/** The party wall with 48, at the listening spot above the sofa (world/layout PARTY_X). */
+const SHARED_WALL = [-1.99, 1.5, -0.45] as const
 
 /** One audio owner across presenters; all hooks/listeners are cleaned up. */
 export function AudioController({ mode }: { mode: GameMode }) {

@@ -1,6 +1,14 @@
 import type { LocationId } from '@/core/state/types'
 import type { Choice, StoryNode } from '@/core/engine/types'
-import { CORRIDOR_SPLIT_Z, PARTY_X, WORLD, mirrorX, objectById } from '@/content/world/layout'
+import {
+  CORRIDOR_SPLIT_Z,
+  PARTY_X,
+  WORLD,
+  inRect,
+  mirrorX,
+  objectById,
+} from '@/content/world/layout'
+import type { SfxId } from '@/core/state/types'
 import { walk as walkWorld } from '@/content/world/walk'
 
 /**
@@ -34,6 +42,13 @@ export const AUDIT_VIEWS: Record<string, Viewpoint> = {
   'bath-inspect': { position: [-0.92, EYE, 2.75], yaw: 1.65, pitch: -0.55 },
   neighbours: { position: [-5.3, EYE, 5.6], yaw: 1.9 },
   stairs: { position: [1.1, EYE, 6.65], yaw: Math.PI, pitch: -0.5 },
+  // F4 figure evidence.
+  'door-gap': { position: [0.12, EYE, 3.25], yaw: Math.PI, pitch: -0.62 },
+  'kitchen-glass': { position: [-0.32, EYE, 1.62], yaw: -1.42, pitch: -0.06 },
+  'tv-screen': { position: [1.85, EYE, -1.5], yaw: -1.42, pitch: -0.62 },
+  prints: { position: [0.4, EYE, 6.4], yaw: 1.264, pitch: -0.5 },
+  'door-front': { position: [0, EYE, 4.0], yaw: Math.PI, pitch: 0 },
+  'hall-coat': { position: [0.3, EYE, 2.95], yaw: -1.82, pitch: -0.15 },
 }
 
 /** Centre of an object's bounding box (its interaction anchor). */
@@ -48,6 +63,7 @@ const FRONT_DOOR_Z = 4.69
 export const OBJECTS: Record<string, Point> = {
   clock: anchor('clock'),
   note: anchor('note'),
+  phone: anchor('phone'),
   radiator: anchor('room_radiator'),
   tv: anchor('tv'),
   window: anchor('room_window'),
@@ -106,8 +122,11 @@ export function interactionPoint(
   choice: Choice,
   extension = 0,
   clockShifted = false,
+  night = 0,
 ): Point | null {
   const clock = clockShifted ? CLOCK_SHIFTED : OBJECTS.clock!
+  // Night 4: the phone is under the pillow.
+  if (choice.id === 'phone' && night === 4) return OBJECTS.bed!
   // Diary 7 is behind the clock; diary 6 under the rug's corner.
   if (choice.to === 'n5_diary7') return [clock[0], clock[1], clock[2]]
   if (choice.to === 'n4_diary6') {
@@ -150,3 +169,19 @@ export function walk(
 ): Point {
   return walkWorld(position, dx, dz, { flat48, extension })
 }
+
+/** Footstep sound for the floor under a point (corridor stretch undone first). */
+const STEP: Record<string, SfxId> = {
+  parquet: 'step_wood',
+  boards: 'step_board',
+  tiles: 'step_tile',
+  concrete: 'step_concrete',
+}
+export function footstepAt(x: number, z: number, extension = 0): SfxId {
+  const pz = extension > 0 && z >= CORRIDOR_SPLIT_Z + extension && x > -2.2 ? z - extension : z
+  const room = WORLD.rooms.find((r) => r.floor && r.rects.some((rect) => inRect(rect, x, pz)))
+  return STEP[room?.floor ?? ''] ?? 'step_wood'
+}
+
+/** Interaction reach (FIX_PROMPT §4.5): prompts only for objects within 1.5 m. */
+export const REACH = 1.5

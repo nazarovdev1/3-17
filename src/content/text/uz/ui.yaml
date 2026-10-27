@@ -119,6 +119,16 @@ desktop:
   control_lock: Sichqoncha oʻyinga ulangan.
   control_drag: Sichqonchani bosib, sudrab ham qarash mumkin.
   got_it: Tushunarli
+  peek: Eshik koʻzidan qarash
+  unpeek: Koʻzni olish
+
+phone:
+  mother: Onam
+  missed: '{count} ta javobsiz qoʻngʻiroq'
+  voice: Ovozli xabar
+  voice_heard: Ovozli xabar · tinglangan
+  incoming: qoʻngʻiroq qilyapti…
+  unlock: Ochish uchun suring
 
 mobile:
   scene_label: Xonadon manzarasi

@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { WORLD, type DoorDef, type Opening, type Wall } from '@/content/world/layout'
 import { desktopRuntime } from '@/platform/device/desktopRuntime'
+import { audio } from '@/audio/engine'
 import { metricBox, type SurfaceMaterials } from './materials'
 import { splitWall } from './stretch'
 import { softwareMaterial } from './softwareMaterial'
@@ -79,11 +80,23 @@ function rest(def: DoorDef, doorAjar: boolean): number {
   return 1.45
 }
 
-function Leaf({ p, surfaces }: { p: Placed; surfaces: SurfaceMaterials }) {
+/** The entrance leaf hangs this far above the floor: light (and shadows) show under it. */
+export const DOOR_GAP = 0.014
+
+function Leaf({
+  p,
+  surfaces,
+  frosted,
+}: {
+  p: Placed
+  surfaces: SurfaceMaterials
+  /** Real blurring glass (GPU transmission) instead of a plain translucent pane. */
+  frosted: boolean
+}) {
   const { def, opening } = p
   const parts = useMemo(() => {
     const width = opening.width - 0.01
-    const height = opening.top - opening.bottom - 0.01
+    const height = opening.top - opening.bottom - 0.01 - (def.kind === 'entrance' ? DOOR_GAP : 0)
     const thick = def.kind === 'entrance' ? 0.07 : def.kind === 'metal' ? 0.06 : 0.04
     const brass = new THREE.MeshStandardMaterial({
       color: '#8f7440',
@@ -96,15 +109,25 @@ function Leaf({ p, surfaces }: { p: Placed; surfaces: SurfaceMaterials }) {
       roughness: 0.5,
       metalness: 0.8,
     })
-    // Kitchen door: ribbed frosted glass (shapes behind it blur to shadows). Balcony: clear.
-    const frosted = new THREE.MeshStandardMaterial({
-      color: def.kind === 'balcony' ? '#1c2228' : '#7f8885',
-      roughness: def.kind === 'balcony' ? 0.05 : 0.85,
-      metalness: def.kind === 'balcony' ? 0.6 : 0,
-      transparent: true,
-      opacity: def.kind === 'balcony' ? 0.18 : 0.62,
-      depthWrite: false,
-    })
+    // Kitchen door: ribbed frosted glass — what stands behind it blurs into a shadow
+    // (rough transmission on the GPU; a near-opaque pane on software GL). Balcony: clear.
+    const pane =
+      def.kind === 'glass' && frosted
+        ? new THREE.MeshPhysicalMaterial({
+            color: '#c9d0cc',
+            roughness: 0.38,
+            transmission: 1,
+            thickness: 0.004,
+            ior: 1.5,
+          })
+        : new THREE.MeshStandardMaterial({
+            color: def.kind === 'balcony' ? '#1c2228' : '#7f8885',
+            roughness: def.kind === 'balcony' ? 0.05 : 0.85,
+            metalness: def.kind === 'balcony' ? 0.6 : 0,
+            transparent: true,
+            opacity: def.kind === 'balcony' ? 0.18 : 0.9,
+            depthWrite: false,
+          })
     const list: {
       geometry: THREE.BufferGeometry
       material: THREE.Material
@@ -142,7 +165,7 @@ function Leaf({ p, surfaces }: { p: Placed; surfaces: SurfaceMaterials }) {
       })
       list.push({
         geometry: new THREE.BoxGeometry(width - rail * 2, height - bottom - rail, 0.006),
-        material: frosted,
+        material: pane,
         position: [width / 2, bottom + (height - bottom - rail) / 2, 0],
       })
     } else {
@@ -207,7 +230,7 @@ function Leaf({ p, surfaces }: { p: Placed; surfaces: SurfaceMaterials }) {
               : part.material,
         }))
       : list
-  }, [def.kind, def.label, opening, surfaces])
+  }, [def.kind, def.label, opening, surfaces, frosted])
   return (
     <>
       {parts.map((part, i) => (
@@ -228,10 +251,15 @@ export function Doors({
   surfaces,
   extension,
   doorAjar,
+  closed,
+  frosted,
 }: {
   surfaces: SurfaceMaterials
   extension: number
   doorAjar: boolean
+  /** Doors held shut for the current beat (they neither open for the player nor stand ajar). */
+  closed: Set<string>
+  frosted: boolean
 }) {
   const placed = useMemo(
     () =>
@@ -243,7 +271,11 @@ export function Doors({
   )
   const pivots = useRef<(THREE.Group | null)[]>([])
   const angles = useRef<number[]>([])
-  useFrame(() => {
+  /** Angular velocity of each leaf (rad/s): doors swing on a damped spring, not a lerp. */
+  const speeds = useRef<number[]>([])
+  const opening = useRef<boolean[]>([])
+  useFrame((_, rawDelta) => {
+    const delta = Math.min(rawDelta, 0.05)
     const [px, , pz] = desktopRuntime.position
     placed.forEach((p, i) => {
       const pivot = pivots.current[i]
@@ -260,11 +292,33 @@ export function Doors({
       const kitchenInside =
         p.def.id.startsWith('kitchen_door') &&
         (px! - p.hinge.x) * (p.def.id.endsWith('48') ? -1 : 1) > 0.37
-      const target = near && opensForPlayer && !kitchenInside ? 1.4 : rest(p.def, doorAjar)
-      const current = angles.current[i] ?? rest(p.def, doorAjar)
-      const next = current + (target - current) * 0.1
+      const shut = closed.has(p.def.id)
+      const target = shut
+        ? 0
+        : near && opensForPlayer && !kitchenInside
+          ? 1.4
+          : rest(p.def, doorAjar)
+      // A door the story holds shut is shut (it does not swing closed in front of you).
+      const current = shut ? 0 : (angles.current[i] ?? rest(p.def, doorAjar))
+      // A heavy leaf: pushed open, it swings and settles with a small overshoot; it
+      // falls shut a little faster. Hinge sounds follow the movement.
+      let speed = speeds.current[i] ?? 0
+      const stiffness = target > current ? 14 : 22
+      speed += ((target - current) * stiffness - speed * 6.5) * delta
+      const next = Math.max(0, current + speed * delta)
+      speeds.current[i] = next === 0 ? 0 : speed
       angles.current[i] = next
       pivot.rotation.y = p.base + p.sign * next
+      const hinge: [number, number, number] = [p.hinge.x, 1.0, p.hinge.z]
+      const wasOpening = opening.current[i] ?? false
+      if (target > current + 0.5 && !wasOpening) {
+        opening.current[i] = true
+        audio.play('door_open', hinge)
+      } else if (target < current - 0.5 && wasOpening) {
+        opening.current[i] = false
+      } else if (!wasOpening && current > 0.12 && next <= 0.12 && target < 0.1) {
+        audio.play('door_close', hinge)
+      }
     })
   })
   return (
@@ -275,10 +329,14 @@ export function Doors({
           ref={(g) => {
             pivots.current[i] = g
           }}
-          position={[p.hinge.x, p.opening.bottom, p.hinge.z]}
+          position={[
+            p.hinge.x,
+            p.opening.bottom + (p.def.kind === 'entrance' ? DOOR_GAP : 0),
+            p.hinge.z,
+          ]}
           rotation-y={p.base + p.sign * rest(p.def, doorAjar)}
         >
-          <Leaf p={p} surfaces={surfaces} />
+          <Leaf p={p} surfaces={surfaces} frosted={frosted} />
         </group>
       ))}
     </group>

@@ -17,7 +17,7 @@ import { softwareMaterial } from './softwareMaterial'
 export type Models = Map<string, GLTF>
 
 /** Places a model so its footprint centre is at (x, z) and its base at y. */
-function placeModel(o: WorldObject, gltf: GLTF, detailed = true): THREE.Object3D {
+export function placeModel(o: WorldObject, gltf: GLTF, detailed = true): THREE.Object3D {
   const inner = gltf.scene.clone(true)
   const s = uniformScale(o) ?? 1
   inner.scale.setScalar(s)

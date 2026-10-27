@@ -26,5 +26,15 @@ export const desktopRuntime = {
   windowsLit: 0,
   renderHeight: 0,
   lastInteraction: '',
+  /** The figure's current appearance id ('' when it is nowhere). */
+  figure: '',
+  /** Where the phone is and what its screen shows, e.g. 'table:off:down', 'hand:playing'. */
+  phone: '',
+  /** A paper is held up for reading; mouse drags turn it instead of the head. */
+  inspecting: false,
+  /** Unobserved changes now in place, comma-separated (e.g. 'chair,coat'). */
+  changes: '',
+  inspectYaw: 0,
+  inspectPitch: 0,
 }
 export const getDesktopState = () => ({ ...desktopRuntime, position: [...desktopRuntime.position] })

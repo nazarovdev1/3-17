@@ -3,6 +3,48 @@
 Manual checklist (spec 12). Executed in a real browser where possible; every item gets an
 honest ✅ / ❌ / not-verified note with a date.
 
+## F4 — Desktop horror review (2026-10-27)
+
+All 12 HD captures (`audit/f4.spec.ts`, 1440×900, `quality=ultra`) were opened one by one,
+several of them cropped to check details (TV glass, door gap). The owner sheet is
+`audit/screenshots/f4-contact-sheet.jpg`; `audit/f4-contact-sheet.mjs` rebuilds it and the
+near-black table (`darkness.json`). For peephole shots only the lens is measured: the black
+around it is the door, by design. Captures use `?figureHold=1` so a figure does not vanish
+during the slow software render.
+
+R = readability, S = spatial logic, L = lighting/mood, F = fear, P = polish (1–5).
+
+| Capture                                    | R   | S   | L   | F   | P   | Near-black % |
+| ------------------------------------------ | --- | --- | --- | --- | --- | ------------ |
+| 01 Night 4 / feet in the light under door  | 5   | 5   | 5   | 5   | 4   | 38.1         |
+| 02 Night 3 / shape behind kitchen glass    | 5   | 5   | 4   | 5   | 4   | 9.7          |
+| 03 Night 4 / peephole, back turned         | 5   | 5   | 5   | 5   | 4   | 49.9 (lens)  |
+| 11 Night 5 / peephole, right at the door   | 4   | 5   | 4   | 5   | 4   | 63.4 (lens)  |
+| 04 Night 2 / end of the landing, light off | 4   | 4   | 4   | 4   | 4   | 42.7         |
+| 05 Night 3 / in the dark TV glass          | 4   | 4   | 4   | 4   | 4   | 39.1         |
+| 06 Phone / missed calls from Onam          | 5   | 4   | 4   | 4   | 4   | 26.5         |
+| 07 Phone / voice message playing           | 5   | 4   | 4   | 4   | 4   | 26.5         |
+| 08 Diary page held up                      | 5   | 4   | 4   | 4   | 4   | 21.0         |
+| 09 Night 3 / a coat that isn't yours       | 4   | 4   | 4   | 4   | 4   | 2.9          |
+| 09b Night 4–5 / chair turned to 48's wall  | 4   | 4   | 4   | 4   | 4   | 27.2         |
+| 10 Night 4 / wet prints to door 48         | 5   | 5   | 4   | 5   | 4   | 49.7         |
+
+One deliberate exception: shot 11 is 63.4 % near-black inside the lens, above the 60 %
+guide. The dark mass is the subject itself — a man's chest and collar filling the lens,
+the face cut off above the nose — against a legible lit landing. Lightening it would show
+the figure in good light, which FIX_PROMPT §4.4 forbids. Flagged for the owner's judgement.
+
+Fixed during review: the entrance door swinging open in front of the gap light (doors the
+story holds shut are now shut), a blown-out diary page (papers are drawn unlit), a torch
+override that survived power changes, a coat placed off its hook (meshopt node transforms
+are now wrapped, and the head turns from a neck pivot), a TV reflection that showed only the
+floor (flat mirror → convex tube), a stairwell figure lit from the front (timer light off,
+light from the stairwell behind it), and a peephole view that saw through an open door (the
+eye is now at the lens and the door stays shut).
+
+Not verified here: how it plays with real sound (F5), native-GPU frame rate with the
+transmission and cube-camera passes (only during their beats), and real hardware (F8).
+
 ## F3 — Desktop rebuild review (2026-10-27)
 
 All 16 HD captures were opened and inspected individually at 1440×900, including the
