@@ -179,3 +179,57 @@ Android phones"), recorded here.
     AAC overshoot after encoding. Files decode asynchronously from the local manifest;
     synth remains an immediate fallback, never a delayed replay. Desktop panning is HRTF.
     This does not certify the sound selection or mix: no Freesound key is available yet.
+43. **F5 final formats replace decision 42's provisional all-AAC choice.** Transient
+    recordings and the sparse clock use mono 32 kHz FLAC; continuous ambience uses AAC-LC
+    at 96 kbps. AAC introduced coarse peak changes in the pen/footfall recordings, so
+    lossless effects preserve the -6 ±0.5 dBFS target and true tick gaps within the existing
+    budgets. Loops target -23 LUFS in two passes; the encoded decode is measured again.
+    Source ReplayGain/metadata is stripped and gain processing uses floating point.
+44. **Recordings are pinned data, never runtime API calls.** Twenty-nine Freesound CC0
+    assets yield 41 local files and cover every SfxId, including new `cloth`, plus fridge,
+    wind, winter city, neighbour TV and the clock. The drone is the only intentional synth
+    layer. Four independently recorded footfalls per floor avoid adjacent repeats and use
+    slight random pitch/gain. Freesound API license URLs and original version are checked
+    before download; author, URL and license evidence are retained. All 22 authors are
+    credited from the manifest. The neighbour-TV source explicitly identifies its underlying
+    public-domain 1955 programme; no unlicensed commercial broadcast or ripped game audio.
+45. **Silence belongs to the audio clock.** At the cut, remove every ambient source, play
+    the ≤350 ms compressor-stop recording, then hold wall knocks/breath for four seconds
+    plus 100 ms of panner-tail headroom. Drop incidental phone buzzes in that gap; retain
+    player actions. Web Audio schedules the onset; pause and scene changes cancel pending
+    sources. No delayed scares replay after a pause or a finished download. HRTF uses the
+    plan's actual wall, hinges, phone and scripted-event coordinates.
+46. **Audio is optional to loading, but mandatory in the shipped manifest.** The world
+    loading gate excludes recordings, so a broken file leaves a playable synth fallback.
+    Decoding is bounded to four workers with separate decoded/synth diagnostics. Asset
+    builds finish in staging before replacing the working set, roll back failed moves,
+    and retry Windows directory locks. Sound-only rebuilds copy/recheck other asset hashes.
+47. **F4's software performance carry-over was profiled during F5.** Chrome's JS profile
+    was mostly idle while the CPU rasterizer missed 55 FPS. The regular software output
+    now uses the specification's allowed ACES filmic curve instead of per-fragment AgX
+    logarithms/powers; the native/ultra compositor keeps AgX. Resolution remains 336/320,
+    geometry and materials are retained, and the 55 FPS/governor/test limits are unchanged.
+    Listener parameters update only when the head moves or turns, instead of about 2,500
+    redundant native writes per five seconds at rest. Breathing remains one layer rather
+    than overlapping across rapid voice beats. Regression tests cover both audio changes.
+    Bright/dark software captures were compared by eye. The focused unchanged benchmark
+    measured 59.90 FPS; Ending C and resource stability passed after the change.
+48. **Narration timing follows elapsed time under renderer load.** A full F5 sweep's
+    reload/resume test restored the correct clock node, but its typewriter had only
+    displayed part of the line after five seconds. Chaining one timeout per character
+    compounded render delays. The animation now catches up to elapsed time at the same
+    authored 24 ms per character; click-to-skip remains available. A blocked-renderer
+    unit test covers this. The E2E assertion and its five-second limit are unchanged.
+49. **The phone's hidden LED is uploaded with its body.** The repeated-night resource
+    gate found one extra geometry after warm-up (187 → 188): the notification circle was
+    only uploaded on its first four-second blink. Prime the entire phone on mount so its
+    body, glass and hidden LED exist on the GPU before play. Dispose all three meshes'
+    owned geometry/materials and the screen texture on unmount. Resource assertions,
+    warm-up duration and tolerances remain unchanged.
+    Repeating the gate then exposed the night-5 breath texture alternating between
+    allocated/disposed on node changes (40/41 textures). Keep one primed breath sprite
+    for the world's lifetime, resetting only its timing and visibility. All three
+    repetitions of the original resource gate pass with both fixes.
+    The final uninterrupted suite passes 177 cases with five expected skips; the
+    unchanged desktop benchmark measures 59.71 FPS with 225 geometries / 45 textures
+    stable across room tours. F5 ends here; F6 is not started.

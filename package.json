@@ -27,6 +27,7 @@
     "prebuild": "npm run text:build",
     "assets:fetch": "tsx scripts/assets/fetch.ts",
     "assets:build": "tsx scripts/assets/build.ts",
+    "assets:verify-sounds": "tsx scripts/assets/verify-sounds.ts",
     "assets": "npm run assets:fetch && npm run assets:build",
     "validate:world": "tsx scripts/validate-world.ts"
   },

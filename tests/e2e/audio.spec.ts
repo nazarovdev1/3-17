@@ -2,6 +2,7 @@ import { expect, type Page } from '@playwright/test'
 import { test } from './fixtures'
 import type { AudioEngine } from '../../src/audio/engine'
 import { ui } from '../../src/content/text'
+import { manifest } from '../../src/assets/loader'
 
 type AudioInfo = ReturnType<AudioEngine['inspect']>
 interface DebugAudioApi {
@@ -60,6 +61,7 @@ test('native suspended context unlocks on a tap; mixer is audible, muted and per
   await expect.poll(async () => (await state(page)).contextState).toBe('suspended')
   await expect.poll(async () => (await state(page)).recordingsReady).toBe(true)
   expect((await state(page)).missingRecordings).toEqual([])
+  expect((await state(page)).recordingCount).toBe(41)
   expect((await state(page)).status).toBe('locked')
   const unlock = page.getByRole('button', { name: ui('shell.audio_unlock_label'), exact: true })
   await expect(unlock).toHaveText(ui('shell.audio_unlock'))
@@ -131,12 +133,32 @@ test('outage silence, native cue output, clock ending, spatial panner and bounde
   expect((await state(page)).layers).toEqual([])
   await expect.poll(async () => (await state(page)).voices).toBe(0)
   await expect.poll(async () => (await state(page)).peak).toBeLessThan(0.00001)
-  await jump(page, 'n1_knocks')
+  const quiet = await page.evaluate(async () => {
+    const api = (window as unknown as { __game: DebugAudioApi }).__game
+    // Start the cut and measurement atomically; slow CDP round trips cannot consume the gap.
+    api.goTo('n1_317')
+    const begin = api.getAudioState().contextTime
+    api.goTo('n1_knocks')
+    let peak = 0
+    let observedAt: number | null = null
+    while (api.getAudioState().silenceRemaining > 0.08) {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+      const audio = api.getAudioState()
+      if (audio.contextTime - begin >= 0.45 && audio.silenceRemaining > 0.08) {
+        observedAt ??= audio.contextTime
+        peak = Math.max(peak, audio.peak)
+      }
+    }
+    return { peak, seconds: observedAt === null ? 0 : api.getAudioState().contextTime - observedAt }
+  })
+  expect(quiet.seconds).toBeGreaterThan(3)
+  expect(quiet.peak).toBeLessThan(0.00001)
   await expect.poll(async () => (await state(page)).peak).toBeGreaterThan(0.001)
   expect((await state(page)).recent).toContain('knock_triple')
   const spatialExpected = info.project.name !== 'no-webgl'
   expect((await state(page)).spatial).toBe(spatialExpected)
   const playback = (await state(page)).playbacks.filter((p) => p.id === 'knock_triple').at(-1)
+  expect(playback?.kind).toBe('recording')
   expect(playback?.panner).toBe(spatialExpected ? 'HRTF' : null)
   expect(playback?.position).toEqual(spatialExpected ? [-1.99, 1.5, -0.45] : null)
   const panners = await page.evaluate(
@@ -157,6 +179,24 @@ test('outage silence, native cue output, clock ending, spatial panner and bounde
   await expect
     .poll(async () => (await state(page)).peak, { intervals: [100, 150, 200, 250] })
     .toBeGreaterThan(0.001)
+  expect((await state(page)).failures).toEqual([])
+})
+
+test('an undecodable local recording uses the audible synth fallback without blocking play', async ({
+  page,
+}) => {
+  const recording = manifest.assets.find((a) => a.id === 'sound_knock_triple')!.files.v1!
+  await page.route('**/assets/sounds/sound_knock_triple-1.flac?*', (route) =>
+    route.fulfill({ body: Buffer.alloc(recording.bytes), contentType: 'audio/flac' }),
+  )
+  await boot(page)
+  await start(page)
+  await expect.poll(async () => (await state(page)).recordingsReady).toBe(true)
+  expect((await state(page)).missingRecordings).toEqual([recording.path])
+  await jump(page, 'n1_knocks')
+  const playback = (await state(page)).playbacks.filter((p) => p.id === 'knock_triple').at(-1)
+  expect(playback?.kind).toBe('synth')
+  await expect.poll(async () => (await state(page)).peak).toBeGreaterThan(0.001)
   expect((await state(page)).failures).toEqual([])
 })
 

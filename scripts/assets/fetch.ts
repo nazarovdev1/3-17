@@ -258,13 +258,23 @@ async function generateOriginal(entry: AssetSourceEntry, dir: string): Promise<C
 
 async function main() {
   const force = process.argv.includes('--force')
+  const entries = process.argv.includes('--sounds-only')
+    ? ASSET_SOURCES.filter((a) => a.kind === 'sound')
+    : ASSET_SOURCES
   let fetched = 0
-  for (const entry of ASSET_SOURCES) {
+  for (const entry of entries) {
     if (FORBIDDEN_PATTERNS.some((p) => p.test(entry.remoteId))) {
       throw new Error(`forbidden asset: ${entry.remoteId}`)
     }
     // Generated assets are rebuilt every time: they are cheap and follow their code.
-    if (!force && entry.source !== 'original' && readMeta(entry.id)) continue
+    const cached = readMeta(entry.id)
+    if (
+      !force &&
+      entry.source !== 'original' &&
+      cached &&
+      (entry.source !== 'freesound' || cached.remoteId === entry.remoteId)
+    )
+      continue
     const dir = join(CACHE, entry.id)
     process.stdout.write(`↓ ${entry.id} (${entry.source}) … `)
     const meta =
@@ -284,7 +294,7 @@ async function main() {
     fetched++
     console.log(`${meta.files.length} file(s)`)
   }
-  console.log(`✓ assets:fetch — ${fetched} downloaded, ${ASSET_SOURCES.length - fetched} cached`)
+  console.log(`✓ assets:fetch — ${fetched} downloaded, ${entries.length - fetched} cached`)
 }
 
 if (process.argv[1] && basename(process.argv[1]).startsWith('fetch')) {

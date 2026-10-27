@@ -11,11 +11,38 @@ function context() {
   })
   const node = () => ({ connect: vi.fn(), disconnect: vi.fn(), gain: param() })
   const panners: { panningModel: string }[] = []
-  const sources: { stop: ReturnType<typeof vi.fn> }[] = []
+  const listenerWrites = vi.fn()
+  const listenerParam = () => {
+    let value = 0
+    return {
+      ...param(),
+      get value() {
+        return value
+      },
+      set value(next: number) {
+        value = next
+        listenerWrites(next)
+      },
+    }
+  }
+  const sources: { stop: ReturnType<typeof vi.fn>; start: ReturnType<typeof vi.fn> }[] = []
   const ctx = {
     state: 'running',
     currentTime: 0,
     destination: {},
+    listener: Object.fromEntries(
+      [
+        'positionX',
+        'positionY',
+        'positionZ',
+        'forwardX',
+        'forwardY',
+        'forwardZ',
+        'upX',
+        'upY',
+        'upZ',
+      ].map((key) => [key, listenerParam()]),
+    ),
     onstatechange: null,
     createGain: node,
     createDynamicsCompressor: () => ({
@@ -62,7 +89,7 @@ function context() {
     resume: vi.fn(() => Promise.resolve()),
     close: vi.fn(() => Promise.resolve()),
   }
-  return { ctx: ctx as unknown as AudioContext, panners, sources }
+  return { ctx: ctx as unknown as AudioContext, panners, sources, listenerWrites }
 }
 const noFiles: typeof loadRecordings = (_ctx, _accept, failed) => {
   failed('assets/sounds/missing.m4a')
@@ -70,6 +97,49 @@ const noFiles: typeof loadRecordings = (_ctx, _accept, failed) => {
 }
 
 describe('recorded playback with procedural fallback', () => {
+  it('keeps recorded breathing as one layer across rapid voice beats', () => {
+    const { ctx, sources } = context()
+    const engine = new AudioEngine(() => ctx, noFiles)
+    engine.initialize()
+    engine.unlock()
+    for (let i = 0; i < 20; i++) engine.play('whisper')
+    expect(engine.inspect().voices).toBe(1)
+    expect(sources.slice(0, -1).every((s) => s.stop.mock.calls.length === 1)).toBe(true)
+    engine.dispose()
+    expect(sources.every((s) => s.stop.mock.calls.length === 1)).toBe(true)
+  })
+  it('writes listener parameters only when the head moves or turns', () => {
+    const { ctx, listenerWrites } = context()
+    const engine = new AudioEngine(() => ctx, noFiles)
+    engine.initialize()
+    engine.setListener([0, 1.6, 0])
+    expect(listenerWrites).toHaveBeenCalledTimes(9)
+    for (let i = 0; i < 120; i++) engine.setListener([0, 1.6, 0])
+    expect(listenerWrites).toHaveBeenCalledTimes(9)
+    engine.setListener([1, 1.6, 0], [1, 0, 0])
+    expect(listenerWrites).toHaveBeenCalledTimes(15)
+    expect(ctx.listener.positionX.value).toBe(1)
+    expect(ctx.listener.forwardX.value).toBe(1)
+    engine.dispose()
+  })
+  it('preserves four seconds of actual silence after the fridge stop and cancels scheduled scares on pause', async () => {
+    const { ctx, sources } = context()
+    const engine = new AudioEngine(() => ctx, noFiles)
+    engine.initialize()
+    engine.unlock()
+    await Promise.resolve()
+    engine.setScene('silence')
+    engine.play('fridge_stop')
+    engine.play('knock_triple')
+    engine.play('whisper')
+    expect(sources[1]!.start.mock.calls[0]![0]).toBeCloseTo(4.45)
+    expect(sources[2]!.start.mock.calls[0]![0]).toBeCloseTo(4.45)
+    expect(engine.play('phone_buzz')).toBe(false)
+    engine.setPaused('menu', true)
+    expect(sources.every((s) => s.stop.mock.calls.length === 1)).toBe(true)
+    expect(engine.inspect().silenceRemaining).toBe(0)
+    engine.dispose()
+  })
   it('plays the synth immediately if a file is absent; never queues paused scares', async () => {
     const { ctx } = context()
     const engine = new AudioEngine(() => ctx, noFiles)

@@ -6,6 +6,7 @@ import {
   preloadGroup,
   resetAssetCache,
   cachedBuffer,
+  manifest,
   type LoadProgress,
 } from '@/assets/loader'
 
@@ -37,6 +38,11 @@ function streamingFetch(fail: (url: string, call: number) => boolean = () => fal
 
 beforeEach(() => resetAssetCache())
 afterEach(() => vi.unstubAllGlobals())
+
+it('keeps optional sounds out of the mandatory world loading gate', () => {
+  expect(manifest.assets.some((a) => a.kind === 'sound')).toBe(true)
+  expect(filesIn('flat47').every((f) => !f.path.startsWith('assets/sounds/'))).toBe(true)
+})
 
 it('preloads a group with monotonic byte progress ending at the exact total', async () => {
   vi.stubGlobal('fetch', streamingFetch())

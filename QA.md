@@ -3,31 +3,57 @@
 Manual checklist (spec 12). Executed in a real browser where possible; every item gets an
 honest ✅ / ❌ / not-verified note with a date.
 
-## F5 — Audio infrastructure (in progress, 2026-10-27)
+## F5 — Recorded audio verification (completed 2026-10-28)
 
-- `npm run check`: 269 unit tests in 25 files; lint, formatting, strict types, 90-node
-  story validation, 73-object world validation, production build and all budgets pass.
-- New unit checks reject NC/ND/SA/unknown licenses and mismatched pinned ids/licenses;
-  validate excerpts/attribution; isolate missing/corrupt recordings; check immediate synth
-  fallback, no paused cue queue, decoded variation, pitch/gain bounds, HRTF and clean
-  synchronous outage cancellation even when decoding completes late.
-- Native FFmpeg smoke test on a generated, unshipped fixture: 120 ms AAC cue decodes at
-  -5.5 dBFS peak (target -6 ±0.5); four-second AAC loop measures -23.0 LUFS. The first
-  fixture exposed codec overshoot, now corrected by measuring the encoded file.
-- Full Playwright rerun reported all 177 cases: **169 passed, 3 failed, 5 skipped**;
-  **20/20 audio cases passed**. The runner stalled in server teardown after the last case
-  and was interrupted, so the suite has no successful exit. Desktop failures: 49.19 FPS
-  against the unchanged 55 gate; 41 → 40 textures after automatic quality reduction;
-  clock narration absent in the shell flow. CPU sampling found unrelated apps using
-  about 1.6 cores alongside the renderer: a quiet-machine rerun is still owed. No rendering
-  code or assertions were changed. The first run was stopped after the new assertion read
-  the following whisper instead of the knock; the corrected check reads the knock's own
-  record from the bounded playback history.
+- `npm run check`: **309 tests / 27 files**; lint, formatting, strict types, 90-node story,
+  73-object world, production build and budgets pass (22.8 MB desktop total / 60 MB;
+  18.3 MB flat 47 playable / 25 MB; mobile initial JS 120.4 KB / 250 KB).
+- **29 Freesound CC0 assets, 22 authors, 41 files / 2,556,600 bytes**. Every SfxId and
+  every ambient cue except the intentional low drone has a recording. Manifest unit tests
+  enforce complete cue coverage, ≥3 separate variants per floor (four ship), hashes,
+  local FLAC/AAC formats, source identity, license and credits. CREDITS and Settings use
+  the same manifest. Credentials remain only in ignored `.env.local`.
+- Unit checks reject NC/ND/SA/unknown licenses, changed ids/licenses and invalid excerpts;
+  isolate decode/download failures; exercise synth fallback, bounded voices, random
+  recorded variation/pitch/gain, HRTF, actual plan positions and late-decode silence.
+- Native FFmpeg measurements of **all shipped files** pass in `verify-sounds.ts`: mono,
+  32 kHz; effects -6 ±0.5 dBFS peak; loops -23 ±0.75 LUFS; 320 ms fridge stop; exact zero
+  gaps between clock ticks. Lossless FLAC preserves transient peaks and clock gaps;
+  continuous ambience is AAC-LC/96 kbps. Measurements are cached in
+  `.asset-cache/sound-verification.json` (not shipped). Build staging preserves existing
+  assets if a clip fails; retries handle Windows directory locks.
+- Focused native-audio small-Android run **5/5 passed**: 41 decoded files, actual recorded
+  knock/HRTF position, corrupted-file audible synth fallback, measured post-cut silence,
+  mixer persistence/mute, C-only ticks, bounded voices, pause/hidden/Telegram overlap,
+  unavailable Web Audio and zero console/page errors. Silence is measured atomically
+  inside the page; earlier CDP round trips consumed part of the gap before sampling.
+- First 182-case sweep: **175 passed / 2 failed / 5 skipped**, all **25 audio cases green**.
+  The two desktop failures (54.50 FPS, Ending C falling back to mobile) were profiled.
+  Regular software output now uses ACES filmic mapping; native/ultra remains AgX. High/low
+  resolution, geometry, 55 FPS, governor thresholds and assertions stay unchanged. Audio
+  listener writes are skipped at rest; transient breathing is one layer across rapid beats.
+- Focused rerun of the two failed cases: **2/2 passed**. The benchmark measured **59.90
+  FPS**, with exactly 225 geometries / 44 textures before and after tours. Both baseline
+  and optimised bright/night-5 software captures were opened: shapes and lighting remain
+  readable. The 1440×900 and 360×640 credits captures were opened; long sound titles wrap,
+  source links/author/CC0 are legible, and the scrollable list contains every sound.
+- Final uninterrupted full suite: **177 passed / 5 expected skips / 0 failures** in
+  13.2 minutes, including all 25 audio cases. Desktop default measured **59.71 FPS**;
+  repeated room tours retained **225 geometries / 45 textures**. The original 55 FPS
+  gate, resource equality, real-input endings and repeated-night heap limits all pass.
+- Intermediate full rerun: 58.77 FPS passed; reload/resume exposed a partial typewriter
+  line after five seconds despite the correct saved node. Elapsed-time catch-up now
+  avoids compounding render delays; blocked-renderer unit coverage and 3× unchanged
+  desktop save/reload E2E pass. Assertions/timeouts remain unchanged.
+- Resource follow-up: phone notification geometry was uploaded on its first blink;
+  breath textures were recreated per node. Phone priming/complete owned-resource
+  cleanup and a persistent primed breath sprite remove those fluctuations. The
+  original repeated-night GPU/heap test passes 3×; no tolerance or warm-up change.
 
-No real recordings are shipped yet: Freesound credential absent, requested from the owner.
-Actual recorded-file decoding in the browser, source suitability, loop seams, mix balance,
-headphone direction/distance and the authored silence still need validation after acquisition.
-F5 remains open; F6 is untouched.
+Not measurable by graph tests: how natural the cuts/loops sound, subjective mix balance,
+headphone direction/distance, and whether the silence creates tension. The owner should
+listen with headphones. Physical iOS interruptions/autoplay and real Telegram clients
+remain hardware checks. F6 is untouched.
 
 ## F4 — Desktop horror review (2026-10-27)
 

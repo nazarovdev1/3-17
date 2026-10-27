@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useGame } from './gameStore'
 import { StaticNarrationProvider } from './narrationProvider'
 import { useSettings } from './settingsStore'
@@ -36,6 +36,7 @@ export function NarrationText({
     useSettings.getState().settings.reduceFlashing ? Number.MAX_SAFE_INTEGER : 0,
   )
   const [corruptionTick, setCorruptionTick] = useState(0)
+  const typingStarted = useRef<number | null>(null)
   const reduceFlashing = useSettings((s) => s.settings.reduceFlashing)
   useEffect(() => {
     if (state.sanity >= 15 || reduceFlashing) return
@@ -53,7 +54,12 @@ export function NarrationText({
 
   useEffect(() => {
     if (typed >= fullText.length) return
-    const timer = window.setTimeout(() => setTyped((t) => t + 1), TYPEWRITER_MS_PER_CHAR)
+    typingStarted.current ??= performance.now()
+    // Delayed rendering must not multiply the authored duration of the narration.
+    const timer = window.setTimeout(() => {
+      const elapsed = performance.now() - typingStarted.current!
+      setTyped((t) => Math.max(t + 1, Math.floor(elapsed / TYPEWRITER_MS_PER_CHAR)))
+    }, TYPEWRITER_MS_PER_CHAR)
     return () => window.clearTimeout(timer)
   }, [typed, fullText])
 

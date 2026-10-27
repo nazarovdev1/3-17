@@ -9,6 +9,7 @@ import { audio } from '@/audio/engine'
 import { desktopRuntime } from '@/platform/device/desktopRuntime'
 import type { GameState } from '@/core/state/types'
 import { phoneState, phoneTime, type PhoneState } from '../phone'
+import { primeUpload } from './prime'
 
 /**
  * The player's phone (fear-design.md): on the room table, screen dark, its notification
@@ -186,10 +187,21 @@ export function Phone({
     body.add(glass, led)
     return { canvas, texture, body, glass, led }
   }, [detailed])
+  const gl = useThree((s) => s.gl)
+  useEffect(() => {
+    // Upload the hidden notification LED before its first four-second blink.
+    primeUpload(gl, body)
+  }, [gl, body])
   useEffect(
     () => () => {
       texture.dispose()
-      body.geometry.dispose()
+      body.traverse((object) => {
+        const mesh = object as THREE.Mesh
+        if (!mesh.isMesh) return
+        mesh.geometry.dispose()
+        const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+        materials.forEach((material) => material.dispose())
+      })
     },
     [texture, body],
   )
@@ -246,6 +258,7 @@ export function Phone({
       audio.play(
         'phone_buzz',
         phone.place === 'pillow' ? [sofa.position[0], 0.5, sofa.position[2]] : position,
+        phone.place === 'pillow' ? 0.3 : 1,
       )
     }
     let screen: Screen = phone.screen

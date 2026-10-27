@@ -18,13 +18,38 @@ interface Track {
 const LAYERS: Record<AudioScene, readonly AmbientId[]> = {
   off: [],
   title: ['drone'],
-  flat: ['drone', 'wind', 'fridge', 'traffic'],
+  flat: ['drone', 'wind', 'fridge', 'traffic', 'neighbour'],
   day: ['wind', 'traffic'],
   silence: [],
   street: ['wind', 'traffic'],
   clock: ['clock'],
 }
 const clamp = (n: number) => (Number.isFinite(n) ? Math.max(0, Math.min(1, n)) : 0)
+const LAYER_GAIN: Record<AmbientId, number> = {
+  drone: 0.12,
+  wind: 0.16,
+  fridge: 0.6,
+  traffic: 0.12,
+  neighbour: 0.06,
+  clock: 0.35,
+}
+const CUE_GAIN: Partial<Record<SfxId, number>> = {
+  whisper: 0.18,
+  heartbeat: 0.3,
+  knock: 0.5,
+  knock_soft: 0.18,
+  knock_triple: 0.4,
+  static: 0.2,
+  window_dark: 0.08,
+  fridge_stop: 0.22,
+  pen: 0.3,
+  cloth: 0.2,
+  kettle: 0.3,
+  tea: 0.35,
+  page: 0.35,
+  switch: 0.35,
+  phone_buzz: 0.4,
+}
 
 /** Owns one bounded Web Audio graph. No story or rendering dependencies. */
 export class AudioEngine {
@@ -39,6 +64,7 @@ export class AudioEngine {
   private ambience = new Map<AmbientId, Track>()
   private voices = new Set<Track>()
   private listening: Track | null = null
+  private breathing: Track | null = null
   private subscribers = new Set<() => void>()
   private blocked = new Set<string>()
   private unlocked = false
@@ -52,6 +78,8 @@ export class AudioEngine {
   private recordings = new Map<string, Recording[]>()
   private missingRecordings: string[] = []
   private recordingsReady = false
+  private hushUntil = 0
+  private listenerPose: number[] | null = null
   private lastVariation = new Map<string, number>()
   private lastPlayback: {
     id: string
@@ -205,11 +233,21 @@ export class AudioEngine {
   setListener(position: Position, forward: Position = [0, 0, -1]) {
     const listener = this.context?.listener
     if (!listener) return
+    const previous = this.listenerPose
+    if (
+      previous &&
+      position.every((n, i) => Math.abs(n - previous[i]!) < 0.00001) &&
+      forward.every((n, i) => Math.abs(n - previous[i + 3]!) < 0.00001)
+    )
+      return
+    this.listenerPose = [...position, ...forward]
     ;[listener.positionX.value, listener.positionY.value, listener.positionZ.value] = position
     ;[listener.forwardX.value, listener.forwardY.value, listener.forwardZ.value] = forward
-    listener.upX.value = 0
-    listener.upY.value = 1
-    listener.upZ.value = 0
+    if (!previous) {
+      listener.upX.value = 0
+      listener.upY.value = 1
+      listener.upZ.value = 0
+    }
   }
   setVolumes(volumes: Volumes) {
     this.volumes = {
@@ -259,7 +297,13 @@ export class AudioEngine {
     this.buffers.set(key, result)
     return result
   }
-  private track(buffer: AudioBuffer, loop: boolean, bus: GainNode, position?: Position): Track {
+  private track(
+    buffer: AudioBuffer,
+    loop: boolean,
+    bus: GainNode,
+    position?: Position,
+    delay = 0,
+  ): Track {
     const ctx = this.context!
     const source = ctx.createBufferSource()
     const gain = ctx.createGain()
@@ -280,6 +324,7 @@ export class AudioEngine {
       gain.disconnect()
       panner?.disconnect()
       this.voices.delete(result)
+      if (this.breathing === result) this.breathing = null
     }
     const result: Track = {
       source,
@@ -293,7 +338,7 @@ export class AudioEngine {
       },
     }
     source.onended = cleanup
-    source.start()
+    source.start(ctx.currentTime + delay)
     return result
   }
   private refreshAmbience() {
@@ -313,20 +358,35 @@ export class AudioEngine {
         layer.gain.gain.value = 0
         this.ambience.set(id, layer)
       }
-      this.gainTo(layer.gain.gain, id === 'drone' ? 0.12 + (100 - this.sanity) / 1200 : 0.7)
+      this.gainTo(
+        layer.gain.gain,
+        LAYER_GAIN[id] + (id === 'drone' ? (100 - this.sanity) / 1200 : 0),
+      )
     }
   }
   /** Never queue sounds while locked/paused: old scares must not replay on return. */
-  play(id: SfxId, position?: Position): boolean {
+  play(id: SfxId, position?: Position, level = 1): boolean {
     if (!this.canPlay || !this.effects) return false
+    if (id === 'phone_buzz' && this.context!.currentTime < this.hushUntil) return false
+    if (id === 'whisper') this.breathing?.stop()
     if (this.voices.size >= 8) this.voices.values().next().value?.stop()
     const buffer = this.buffer(id, false)
-    const track = this.track(buffer, false, this.effects, this.spatial ? position : undefined)
+    const now = this.context!.currentTime
+    // Leave headroom for the HRTF impulse tail before the four-second silent interval.
+    if (id === 'fridge_stop') this.hushUntil = now + Math.min(buffer.duration || 0.35, 0.35) + 4.1
+    const delay = id.startsWith('knock') || id === 'whisper' ? Math.max(0, this.hushUntil - now) : 0
+    const track = this.track(
+      buffer,
+      false,
+      this.effects,
+      this.spatial ? position : undefined,
+      delay,
+    )
     const step = id.startsWith('step_')
     const rate = step ? 0.96 + Math.random() * 0.08 : 1
     const volume = step ? 0.84 + Math.random() * 0.16 : 1
     track.source.playbackRate.value = rate
-    track.gain.gain.value = volume
+    track.gain.gain.value = volume * (CUE_GAIN[id] ?? (step ? 0.45 : 0.6)) * clamp(level)
     const recording = this.recordings.get(`sfx:${id}`)?.find((r) => r.buffer === buffer)
     this.lastPlayback = {
       id,
@@ -339,22 +399,29 @@ export class AudioEngine {
     }
     this.playbacks = [...this.playbacks.slice(-31), this.lastPlayback]
     this.voices.add(track)
+    if (id === 'whisper') this.breathing = track
     this.recent = [...this.recent.slice(-31), id]
     return true
   }
-  setListening(active: boolean) {
+  setListening(active: boolean, position?: Position) {
     if (!active) {
       this.listening?.stop()
       this.listening = null
       return
     }
     if (!this.canPlay || !this.effects || this.listening) return
-    this.listening = this.track(this.buffer('whisper', false), true, this.effects)
+    this.listening = this.track(
+      this.buffer('whisper', false),
+      true,
+      this.effects,
+      this.spatial ? position : undefined,
+    )
     this.listening.gain.gain.value = 0
-    this.gainTo(this.listening.gain.gain, 0.65, 0.25)
+    this.gainTo(this.listening.gain.gain, 0.18, 0.25)
     this.play('heartbeat')
   }
   private stopTransients() {
+    this.hushUntil = 0
     for (const track of this.voices) track.stop()
     this.setListening(false)
   }
@@ -369,6 +436,7 @@ export class AudioEngine {
       contextTime: this.context?.currentTime ?? 0,
       contextState: this.context?.state ?? 'unavailable',
       scene: this.scene,
+      silenceRemaining: Math.max(0, this.hushUntil - (this.context?.currentTime ?? 0)),
       layers: [...this.ambience.keys()],
       voices: this.voices.size,
       listening: !!this.listening,
@@ -396,6 +464,7 @@ export class AudioEngine {
     this.missingRecordings = []
     this.recordingsReady = false
     this.lastPlayback = null
+    this.listenerPose = null
     this.playbacks = []
     const ctx = this.context
     if (ctx) {

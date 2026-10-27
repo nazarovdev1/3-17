@@ -21,6 +21,7 @@ const info: FreesoundInfo = {
   url: 'https://freesound.org/s/123/',
   license: 'https://creativecommons.org/publicdomain/zero/1.0/',
   previews: {},
+  duration: 10,
 }
 
 describe('Freesound license gate', () => {

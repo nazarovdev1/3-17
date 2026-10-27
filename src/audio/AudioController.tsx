@@ -6,8 +6,7 @@ import { useGame, onEngineEvents } from '@/ui/gameStore'
 import { useSettings } from '@/ui/settingsStore'
 import { getWebApp } from '@/platform/telegram/adapter'
 import type { GameMode } from '@/platform/device/mode'
-/** The party wall with 48, at the listening spot above the sofa (world/layout PARTY_X). */
-const SHARED_WALL = [-1.99, 1.5, -0.45] as const
+import { cuePosition, SHARED_WALL } from './positions'
 
 /** One audio owner across presenters; all hooks/listeners are cleaned up. */
 export function AudioController({ mode }: { mode: GameMode }) {
@@ -59,13 +58,18 @@ export function AudioController({ mode }: { mode: GameMode }) {
         // Ticking exists only in Ending C's loop. The authored inspection cues
         // stay silent and the winding cue is represented by that same loop.
         if (event.id === 'clock_tick') continue
-        audio.play(event.id, event.id.startsWith('knock') ? SHARED_WALL : undefined)
+        audio.play(
+          event.id,
+          cuePosition(event.id, step.state),
+          event.id === 'phone_buzz' && step.state.night === 4 ? 0.3 : 1,
+        )
       }
       if (
+        previous?.node.id !== step.node.id &&
         step.node.lines.some((line) => line.speaker === 'voice') &&
         !events.some((event) => event.kind === 'sfx' && event.id === 'whisper')
       )
-        audio.play('whisper')
+        audio.play('whisper', SHARED_WALL)
       const before = previous?.node.location
       if (
         before &&
@@ -74,11 +78,16 @@ export function AudioController({ mode }: { mode: GameMode }) {
         !events.some((event) => event.kind === 'sfx' && event.id.startsWith('step_'))
       ) {
         audio.play(
-          ['kitchen', 'bathroom', 'stairwell'].includes(step.node.location)
-            ? 'step_tile'
-            : 'step_wood',
+          step.node.location === 'stairwell'
+            ? 'step_concrete'
+            : step.node.location === 'kitchen'
+              ? 'step_board'
+              : step.node.location === 'bathroom'
+                ? 'step_tile'
+                : 'step_wood',
         )
       }
+      if (step.node.id.endsWith('_message') || step.node.id === 'n2_wardrobe') audio.play('cloth')
       if (step.node.ending === 'A') audio.play('knock_triple', SHARED_WALL)
     })
     audio.setVolumes(useSettings.getState().settings)

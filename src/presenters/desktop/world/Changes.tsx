@@ -138,7 +138,7 @@ export function Changes({
       <DoorChain loose={chainLoose} detailed={detailed} />
       {c.bundle && <Bundle detailed={detailed} />}
       {c.footprints && <Footprints detailed={detailed} />}
-      {c.breath && <Breath key={node} />}
+      <Breath active={c.breath} node={node} />
     </group>
   )
 }
@@ -307,8 +307,9 @@ function Footprints({ detailed }: { detailed: boolean }) {
 }
 
 /** Night 5: breath shows in the cold that comes in from 48. */
-function Breath() {
+function Breath({ active, node }: { active: boolean; node: string }) {
   const camera = useThree((s) => s.camera)
+  const gl = useThree((s) => s.gl)
   const sprite = useMemo(() => {
     const canvas = document.createElement('canvas')
     canvas.width = canvas.height = 128
@@ -329,6 +330,7 @@ function Breath() {
       }),
     )
   }, [])
+  useEffect(() => primeUpload(gl, sprite), [gl, sprite])
   useEffect(
     () => () => {
       sprite.material.map?.dispose()
@@ -339,7 +341,14 @@ function Breath() {
   const origin = useRef(new THREE.Vector3())
   const forward = useMemo(() => new THREE.Vector3(), [])
   const last = useRef(-10)
+  const previousNode = useRef(node)
   useFrame(({ clock }) => {
+    sprite.visible = active
+    if (previousNode.current !== node) {
+      previousNode.current = node
+      last.current = -10
+    }
+    if (!active) return
     const t = clock.elapsedTime
     const [x, , z] = desktopRuntime.position
     // Only where the cold is: corridor, hall and landing.

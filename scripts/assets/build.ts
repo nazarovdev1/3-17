@@ -7,8 +7,16 @@
 // KTX2 needs the native `toktx` binary, which is not part of this toolchain; WebP is the
 // fallback FIX_PROMPT §3 allows.
 import { createHash } from 'node:crypto'
-import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
-import { join, relative } from 'node:path'
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
+import { dirname, join, relative } from 'node:path'
 import { getBounds, Logger, NodeIO } from '@gltf-transform/core'
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions'
 import { dedup, meshopt, prune, simplify, textureCompress, weld } from '@gltf-transform/functions'
@@ -28,9 +36,23 @@ import { encodeSound, freesoundLicense } from './sound'
 
 const ROOT = join(import.meta.dirname, '..', '..')
 const PUBLIC = join(ROOT, 'public')
-const OUT = join(PUBLIC, 'assets')
+const STAGING = join(CACHE, 'build-output')
+const OUT = join(STAGING, 'assets')
 const MANIFEST = join(ROOT, 'src', 'assets', 'manifest.gen.json')
 const CREDITS = join(ROOT, 'CREDITS.md')
+
+async function moveDirectory(from: string, to: string) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      renameSync(from, to)
+      return
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code
+      if (attempt >= 7 || !['EPERM', 'EBUSY', 'EACCES'].includes(code ?? '')) throw error
+      await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)))
+    }
+  }
+}
 
 const SOURCE_NAMES = {
   polyhaven: 'Poly Haven',
@@ -43,7 +65,7 @@ const SOURCE_NAMES = {
 function fileEntry(path: string): ManifestFile {
   const data = readFileSync(path)
   return {
-    path: relative(PUBLIC, path).replaceAll('\\', '/'),
+    path: relative(STAGING, path).replaceAll('\\', '/'),
     bytes: data.length,
     sha256: createHash('sha256').update(data).digest('hex').slice(0, 16),
   }
@@ -65,8 +87,11 @@ function buildSound(entry: AssetSourceEntry): Record<string, ManifestFile> {
   mkdirSync(dir, { recursive: true })
   return Object.fromEntries(
     entry.sound.clips.map((clip, index) => {
-      const out = join(dir, `${entry.id}-${index + 1}.m4a`)
-      encodeSound(input, out, clip.start, clip.duration, entry.sound!.loop)
+      const out = join(
+        dir,
+        `${entry.id}-${index + 1}.${entry.sound!.loop && !entry.sound!.repeat ? 'm4a' : 'flac'}`,
+      )
+      encodeSound(input, out, clip.start, clip.duration, entry.sound!.loop, entry.sound)
       return [`v${index + 1}`, fileEntry(out)]
     }),
   )
@@ -184,7 +209,7 @@ function credits(assets: ManifestAsset[]): string {
     'Assets from "this repository" were generated for the game by the linked script (CC0).',
     'They were optimised (re-compressed, resized and in some cases simplified) for the web.',
     assets.some((a) => a.kind === 'sound')
-      ? 'Freesound recordings are excerpted, mixed to mono, loudness-normalised and AAC encoded.'
+      ? 'Freesound recordings are excerpted, mixed to mono, filtered and loudness-normalised; effects use FLAC and ambience uses AAC.'
       : 'F5 audio is in progress: no external sound recordings are bundled yet; synth fallbacks remain.',
     '',
     '## Fonts',
@@ -204,14 +229,41 @@ function credits(assets: ManifestAsset[]): string {
 }
 
 async function main() {
+  const soundsOnly = process.argv.includes('--sounds-only')
+  const only = process.argv.find((arg) => arg.startsWith('--only='))?.slice(7)
+  if (only && (!soundsOnly || !ASSET_SOURCES.some((a) => a.id === only && a.kind === 'sound')))
+    throw new Error('--only requires --sounds-only and a known sound id')
+  const previous = soundsOnly ? (JSON.parse(readFileSync(MANIFEST, 'utf8')) as AssetManifest) : null
   // Refuse incomplete inputs before replacing any shipped assets.
   for (const entry of ASSET_SOURCES) {
+    if (previous && (entry.kind !== 'sound' || (only && entry.id !== only))) continue
     if (!readMeta(entry.id))
       throw new Error(`${entry.id} is not downloaded — run npm run assets:fetch`)
   }
+  if (relative(ROOT, OUT).startsWith('..')) throw new Error('Asset staging escaped workspace')
   rmSync(OUT, { recursive: true, force: true })
   const assets: ManifestAsset[] = []
   for (const entry of ASSET_SOURCES) {
+    if (previous && (entry.kind !== 'sound' || (only && entry.id !== only))) {
+      const existing = previous.assets.find(
+        (a) => a.id === entry.id && a.kind === entry.kind && a.source === entry.source,
+      )
+      if (!existing) throw new Error(`${entry.id}: cannot reuse unbuilt asset`)
+      for (const file of Object.values(existing.files)) {
+        const src = join(PUBLIC, file.path)
+        const data = readFileSync(src)
+        if (
+          data.length !== file.bytes ||
+          !createHash('sha256').update(data).digest('hex').startsWith(file.sha256)
+        )
+          throw new Error(`${entry.id}: cannot reuse changed asset`)
+        const dest = join(STAGING, file.path)
+        mkdirSync(dirname(dest), { recursive: true })
+        copyFileSync(src, dest)
+      }
+      assets.push(existing)
+      continue
+    }
     if (!ALLOWED_LICENSES.includes(entry.license)) throw new Error(`license: ${entry.id}`)
     const meta = readMeta(entry.id)
     if (!meta) throw new Error(`${entry.id} is not downloaded — run npm run assets:fetch`)
@@ -248,6 +300,18 @@ async function main() {
     })
   }
   const manifest: AssetManifest = { assets }
+  // A failed download/encode must never destroy the last working local asset set.
+  const destination = join(PUBLIC, 'assets')
+  const backup = join(CACHE, 'previous-assets')
+  if (relative(ROOT, backup).startsWith('..')) throw new Error('Asset backup escaped workspace')
+  rmSync(backup, { recursive: true, force: true })
+  if (existsSync(destination)) await moveDirectory(destination, backup)
+  try {
+    await moveDirectory(OUT, destination)
+  } catch (error) {
+    if (existsSync(backup)) await moveDirectory(backup, destination)
+    throw error
+  }
   writeFileSync(
     MANIFEST,
     await format(JSON.stringify(manifest), { ...(await resolveConfig(MANIFEST)), parser: 'json' }),

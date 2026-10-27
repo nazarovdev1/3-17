@@ -27,7 +27,10 @@ export function asset(id: string): ManifestAsset {
 }
 
 export function filesIn(group: AssetGroup): ManifestFile[] {
-  return assetsIn(group).flatMap((a) => Object.values(a.files))
+  // Recordings load independently: missing audio must leave the synth fallback playable.
+  return assetsIn(group)
+    .filter((a) => a.kind !== 'sound')
+    .flatMap((a) => Object.values(a.files))
 }
 
 export const bytesIn = (group: AssetGroup) => filesIn(group).reduce((sum, f) => sum + f.bytes, 0)

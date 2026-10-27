@@ -9,11 +9,29 @@ import {
   ASSET_SOURCES,
   FORBIDDEN_PATTERNS,
 } from '../../../scripts/assets/sources'
+import { SOUND_IDS } from '@/audio/synthesis'
 
 const PUBLIC = join(import.meta.dirname, '..', '..', '..', 'public')
 const CREDITS = readFileSync(join(import.meta.dirname, '..', '..', '..', 'CREDITS.md'), 'utf8')
 
 describe('asset manifest (FIX_PROMPT §3)', () => {
+  it('has recorded files for every sound and ambience except the deliberately procedural drone', () => {
+    const sounds = manifest.assets.filter((a) => a.kind === 'sound')
+    expect(
+      sounds
+        .filter((a) => !a.audio!.loop)
+        .map((a) => a.audio!.cue)
+        .sort(),
+    ).toEqual([...SOUND_IDS].sort())
+    expect(
+      sounds
+        .filter((a) => a.audio!.loop)
+        .map((a) => a.audio!.cue)
+        .sort(),
+    ).toEqual(['clock', 'fridge', 'neighbour', 'traffic', 'wind'])
+    for (const a of sounds.filter((a) => a.audio!.cue.startsWith('step_')))
+      expect(Object.keys(a.files).length).toBeGreaterThanOrEqual(3)
+  })
   it('matches sources.ts one to one, in order', () => {
     expect(manifest.assets.map((a) => a.id)).toEqual(ASSET_SOURCES.map((s) => s.id))
   })
@@ -63,11 +81,16 @@ describe('asset manifest (FIX_PROMPT §3)', () => {
     expect(a.bytes).toBe(total)
   })
 
-  it('ships optimised formats only (meshopt GLB, WebP, HDR, AAC/M4A)', () => {
+  it('ships optimised formats only (meshopt GLB, WebP, HDR, FLAC effects and AAC/M4A ambience)', () => {
     for (const a of manifest.assets) {
       for (const file of Object.values(a.files)) {
-        expect(file.path).toMatch(/\.(glb|webp|hdr|m4a)$/)
-        if (a.kind === 'sound') expect(file.path).toMatch(/^assets\/sounds\/.+\.m4a$/)
+        expect(file.path).toMatch(/\.(glb|webp|hdr|m4a|flac)$/)
+        if (a.kind === 'sound') {
+          expect(file.path).toMatch(/^assets\/sounds\//)
+          expect(
+            file.path.endsWith(a.audio!.loop && a.audio!.cue !== 'clock' ? '.m4a' : '.flac'),
+          ).toBe(true)
+        }
         if (file.path.endsWith('.glb')) {
           const glb = readFileSync(join(PUBLIC, file.path))
           expect(glb.toString('utf8', 0, 4)).toBe('glTF')

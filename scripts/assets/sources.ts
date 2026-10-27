@@ -4,6 +4,7 @@
 // Rules: CC0 or CC-BY only; no stylised / low-poly packs; every entry says why it exists.
 // `tier` sets the texture size (hero 2K, normal 1K, small 512). `group` sets load order:
 // flat47 must be loaded before play starts, the others stream in the background.
+import { SOUND_SOURCES } from './sound-sources'
 
 export type AssetKind = 'model' | 'texture' | 'hdri' | 'sound'
 export type AssetSource = 'polyhaven' | 'ambientcg' | 'sketchfab' | 'original' | 'freesound'
@@ -29,6 +30,10 @@ export interface AssetSourceEntry {
     loop: boolean
     /** Reproducible excerpts in seconds; separate footfalls become separate files. */
     clips: { start: number; duration: number }[]
+    lowpassHz?: number
+    highpassHz?: number
+    /** Repeat one recorded tick, preserving exact silence between clock beats. */
+    repeat?: { every: number; count: number }
   }
   /** Keep this fraction of triangles (meshopt simplifier) for over-detailed source meshes. */
   simplify?: number
@@ -217,4 +222,5 @@ export const ASSET_SOURCES: AssetSourceEntry[] = [
   acg('Wallpaper002C', 'normal', 'flat48', 'flat 48 walls: stained wallpaper'),
   // Environment
   ph('dikhololo_night', 'hdri', 'small', 'flat47', 'night sky for window light and reflections'),
+  ...SOUND_SOURCES,
 ]

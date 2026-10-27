@@ -30,6 +30,7 @@ export interface FreesoundInfo {
   username: string
   url: string
   license: string
+  duration: number
   previews: Record<string, string>
 }
 
@@ -50,19 +51,35 @@ export function validateSound(entry: AssetSourceEntry, info: FreesoundInfo) {
         c.start < 0 ||
         !Number.isFinite(c.duration) ||
         c.duration <= 0 ||
-        c.duration > 60,
+        c.duration > 60 ||
+        c.start + c.duration > info.duration + 0.025,
     )
   )
     throw new Error(`${entry.id}: invalid sound excerpts`)
+  if (!Number.isFinite(info.duration) || info.duration <= 0)
+    throw new Error(`${entry.id}: invalid source duration`)
+  const repeat = entry.sound.repeat
+  if (
+    repeat &&
+    (!entry.sound.loop ||
+      !Number.isInteger(repeat.count) ||
+      repeat.count < 1 ||
+      !Number.isFinite(repeat.every) ||
+      repeat.every <= 0 ||
+      repeat.count * repeat.every > 60 ||
+      entry.sound.clips.some((c) => c.duration > repeat.every))
+  )
+    throw new Error(`${entry.id}: invalid repeat timing`)
 }
 
-/** AAC-LC/M4A decodes in Chromium and Safari; mono preserves positional HRTF cues. */
+/** Lossless short effects preserve transients; long ambience uses compact AAC-LC/M4A. */
 export function encodeSound(
   input: string,
   output: string,
   start: number,
   duration: number,
   loop: boolean,
+  eq: { lowpassHz?: number; highpassHz?: number; repeat?: { every: number; count: number } } = {},
 ) {
   const run = (args: string[]) => {
     const result = spawnSync(process.env.FFMPEG_PATH ?? 'ffmpeg', args, {
@@ -85,19 +102,35 @@ export function encodeSound(
     '-ac',
     '1',
   ]
+  const preprocessing = [
+    'aformat=sample_fmts=dblp:channel_layouts=mono',
+    'asidedata=mode=delete',
+    'aresample=32000',
+    ...(eq.highpassHz ? [`highpass=f=${eq.highpassHz}`] : []),
+    ...(eq.lowpassHz ? [`lowpass=f=${eq.lowpassHz}`] : []),
+    ...(eq.repeat
+      ? [
+          `afade=t=in:d=0.004,afade=t=out:st=${Math.max(0, duration - 0.004)}:d=0.004`,
+          `apad=whole_dur=${eq.repeat.every},atrim=duration=${eq.repeat.every}`,
+          `aloop=loop=${eq.repeat.count - 1}:size=${Math.round(32000 * eq.repeat.every)}`,
+        ]
+      : []),
+  ].join(',')
+  const outputDuration = eq.repeat ? eq.repeat.every * eq.repeat.count : duration
+  const lossless = !loop || !!eq.repeat
   let norm: string
   if (!loop) {
     // Integrated LUFS is undefined for very short switches/footfalls. Match their peaks.
-    const analysis = run([...base, '-af', 'volumedetect', '-f', 'null', '-'])
+    const analysis = run([...base, '-af', `${preprocessing},volumedetect`, '-f', 'null', '-'])
     const peak = /max_volume:\s*(-?[\d.]+) dB/.exec(analysis)?.[1]
     if (!peak || !Number.isFinite(Number(peak))) throw new Error('Sound excerpt is silent')
-    norm = `volume=${-6 - Number(peak)}dB`
+    norm = `volume=${-6 - Number(peak)}dB:precision=double`
   } else {
     const target = -23
     const analysis = run([
       ...base,
       '-af',
-      `loudnorm=I=${target}:TP=-3:LRA=7:print_format=json`,
+      `${preprocessing},loudnorm=I=${target}:TP=-3:LRA=7:print_format=json`,
       '-f',
       'null',
       '-',
@@ -115,46 +148,54 @@ export function encodeSound(
   }
   // A short edge fade avoids loop clicks without carrying a tail into outage silence.
   const fade = loop ? 0.08 : 0.004
+  const edgeFade = eq.repeat
+    ? ''
+    : `afade=t=in:d=${fade},afade=t=out:st=${Math.max(0, outputDuration - fade)}:d=${fade},`
   const encode = (correction = 0) =>
     run([
       ...base,
       '-af',
-      `${norm},afade=t=in:d=${fade},afade=t=out:st=${Math.max(0, duration - fade)}:d=${fade},volume=${correction}dB`,
+      `${preprocessing},${norm},${edgeFade}volume=${correction}dB:precision=double`,
       '-ar',
       '32000',
       '-c:a',
-      'aac',
-      '-b:a',
-      '64k',
+      lossless ? 'flac' : 'aac',
+      ...(!lossless
+        ? ['-aac_pns', '0', '-b:a', '96k', '-movflags', '+faststart']
+        : ['-compression_level', '8', '-sample_fmt', 's16']),
       '-map_metadata',
       '-1',
-      '-movflags',
-      '+faststart',
+      '-map_metadata:s:a',
+      '-1',
       '-y',
       output,
     ])
   encode()
-  if (!loop) {
-    // Lossy codecs can overshoot on short transients. Match the *decoded* shipped peak.
+  {
+    // Measure the actual shipped decode, including resampling and codec changes.
     let correction = 0
-    for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt < 12; attempt++) {
       const analysis = run([
         '-hide_banner',
         '-nostdin',
         '-i',
         output,
         '-af',
-        'volumedetect',
+        loop ? 'loudnorm=print_format=json' : 'volumedetect',
         '-f',
         'null',
         '-',
       ])
-      const peak = Number(/max_volume:\s*(-?[\d.]+) dB/.exec(analysis)?.[1])
+      const peak = Number(
+        (loop ? /"input_i"\s*:\s*"([\d.-]+)"/ : /max_volume:\s*(-?[\d.]+) dB/).exec(analysis)?.[1],
+      )
       if (!Number.isFinite(peak)) throw new Error('Encoded sound has no measurable peak')
-      if (Math.abs(peak + 6) <= 0.5) return
-      correction += -6 - peak
+      const target = loop ? -23 : -6
+      if (Math.abs(peak - target) <= 0.5) return
+      if (attempt === 11)
+        throw new Error(`Encoded sound peak did not converge (${peak} dBFS): ${output}`)
+      correction += (target - peak) * 0.5
       encode(correction)
     }
-    throw new Error('Encoded sound did not meet the -6 dBFS peak target')
   }
 }

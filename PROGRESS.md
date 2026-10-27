@@ -20,53 +20,88 @@ Fix phases (FIX_PROMPT.md):
 - [x] F2 — Asset pipeline
 - [x] F3 — Desktop flat rebuild, reviewed by the owner ("f3 qilindi")
 - [ ] F4 — Desktop horror (verified; awaiting owner review)
-- [ ] F5 — Audio
+- [x] F5 — Audio
 - [ ] F6 — Mobile
 - [ ] F7 — Fear pass
 - [ ] F8 — Full QA
 
-## F5 — Audio (in progress, 2026-10-27)
+## F5 — Audio (completed, 2026-10-28)
 
-Prepared while waiting for the Freesound credential:
+Implemented after the owner supplied the credential (kept only in ignored `.env.local`):
 
-- Asset schema supports `sound` / `freesound`, pinned numeric ids, reproducible excerpts
-  and variations. The fetcher checks the API's exact CC0/CC-BY URL and declared version
-  before downloading its HQ preview; cached attribution, license evidence and raw SHA-256
-  are checked again by the builder. Credentials are read only from the environment or
-  `.env.local`, sent in an Authorization header and omitted from metadata/errors.
-- Mono AAC-LC/M4A at 32 kHz / 64 kbps. Ambience uses two-pass -23 LUFS normalization;
-  short one-shots use a -6 dBFS decoded-peak target (±0.5 dB), measured after encoding
-  and corrected for codec overshoot. Finite edge fades and metadata stripping.
-- Engine decodes same-origin manifest sound files with four bounded workers; missing or
-  corrupt files retain immediate synth playback. Async completion never replays a cue or
-  restarts outage ambience. Desktop panners now use HRTF; step variation avoids adjacent
-  repeats and applies ±4% pitch and 0.84–1.0 gain. The procedural drone is a low layer.
-- Audio diagnostics expose decoded count/readiness, failed recording paths and a bounded
-  playback history (recorded/synth, variation, position, HRTF, pitch and gain).
-- Unit coverage added for licenses, source identity/excerpts, decode/download failures,
-  fallback, variation, spatial playback, voice bounds and late-decode outage silence.
-  E2E audio checks now inspect readiness and the actual spatial knock playback record.
+- `scripts/assets/sound-sources.ts`: 29 pinned Freesound CC0 assets, 22 authors, **41
+  shipped files / 2,556,600 bytes**. All 24 SfxIds have real recorded files; five ambience
+  cues cover fridge, wind/window frame, winter city, muffled neighbour TV and Ending C's
+  clock. Only the quiet drone deliberately stays procedural. Credits and source URLs
+  come from the API into the manifest, `CREDITS.md` and Settings → Mualliflar.
+- Four separate recorded footfalls for each floor: old parquet (evghenifloca), boards
+  (ftpalad), tile (Nox_Sound), concrete (florianreichelt). No adjacent variation repeat;
+  ±4% pitch and 0.84–1.0 gain jitter. Other sources/authors are listed in CREDITS.
+- Recorded hinge, door close, security chain, radiator, compressor and shutdown, kettle,
+  tea pouring, paper, pen, light switch/relay, single/soft/triple panel-wall knocks,
+  calm breathing, contact-microphone heartbeat, phone vibration, CRT static, cloth,
+  winter-city ambience and wind rattling an old window frame. Neighbour TV is a CC0
+  muffled public-domain 1955 programme, identified by its uploader (no ripped game audio).
+- Pipeline checks exact API CC0/CC-BY license URLs/versions before download; rejects NC,
+  ND, SA and unknown licenses; stores author, URL, license evidence and raw SHA-256.
+  Original downloads remain ignored; optimised files ship locally in `public/assets/sounds`.
+- Mono/32 kHz. FLAC for transient effects and the sparse clock (exact peaks/zero gaps);
+  AAC-LC/M4A at 96 kbps for continuous ambience. Two-pass -23 LUFS loops; -6 dBFS effects
+  (±0.5 dB), checked against the actual encoded decode. Fades, filtering and metadata
+  stripping are deterministic. Staging/rollback preserves existing assets on build errors;
+  `assets:build -- --sounds-only [--only=<id>]` reuses hash-checked existing files.
+- Engine decodes with four bounded workers; failed or missing recordings fall back
+  immediately to synth. Optional audio cannot block the world's loading screen.
+  Async completion never replays a transient or revives outage ambience. Desktop HRTF
+  positions follow the actual party wall, door hinges (including 48), phone table/pillow,
+  radiator and kettle; scripted landing/overhead/wardrobe positions are unit-tested.
+  Pillow vibration is quieter; wall listening uses the wall's real breathing emitter.
+- At 3:17 all ambience stops synchronously. The 320 ms recorded compressor stop is
+  followed by at least four seconds of actual silence (plus HRTF-tail headroom).
+  Knocks/breath are scheduled after that gap; incidental phone buzzes are dropped;
+  actions remain possible. Pause/scene changes cancel scheduled scares. C alone ticks,
+  with exact silent gaps between recorded ticks. Existing headphone hint remains visible.
+- Diagnostics expose decoded count/readiness, failed paths, remaining silence and a
+  bounded playback history including recorded/synth origin, variation, position and HRTF.
 
-Verification so far: `npm run check` green (269 tests, 25 files; story/world/build/budgets
-pass). Native FFmpeg fixture smoke test: 120 ms one-shot decodes at -5.5 dBFS peak;
-four-second loop measures -23.0 LUFS. Fixtures are ignored in `.asset-cache/`, never shipped.
-Full Playwright rerun reported all 177 cases: **169 passed, 3 failed, 5 skipped**;
-all 20 audio cases passed. Failures: desktop steady FPS (49.19, gate unchanged at 55),
-desktop resource stability (41 → 40 textures after an automatic tier drop), and the
-desktop shell flow (clock narration absent). The runner stalled in server teardown after
-the final case and was interrupted; no successful full-suite exit is claimed. A two-second
-CPU sample showed unrelated Telegram/ChatGPT/Explorer processes using ~1.6 cores in
-addition to the test renderer. This was not a quiet-machine validation; the F4 performance
-item stays open. No renderer code, assertions or test thresholds were changed.
+Verified:
 
-**Not complete:** neither `.env.local` nor the process environment contains
-`FREESOUND_API_KEY`. The owner was asked to add it locally. No real sounds have been
-downloaded, pinned, credited or shipped yet; the current manifest still has only F4 assets.
-Do not mark F5 complete. Next: acquire/audition CC0/CC-BY recordings for every SfxId and
-ambience (including cloth and muffled neighbour TV), pin excerpt timings and footstep
-variants, build assets/credits, finish listening positions and enforce the authored
-post-fridge silence, extend recorded-file E2E coverage, rerun all checks, then commit F5.
-F6 has not been started.
+- Final recorded-audio `npm run check` green: **309 tests / 27 files**, story/world/build/budgets. Desktop
+  total 22.8 MB / 60 MB; flat 47 playable 18.3 MB / 25 MB; mobile JS 120.4 KB / 250 KB.
+- `scripts/assets/verify-sounds.ts` verifies every shipped file: 41 mono/32 kHz decodes,
+  loops -23 ±0.75 LUFS, effects -6 ±0.5 dBFS, fridge stop ≤350 ms, exact clock gaps.
+  Machine-readable measurements are in ignored `.asset-cache/sound-verification.json`.
+- Focused small-Android native-audio E2E **5/5 passed**, including all 41 decoded files,
+  real recorded playback, corrupted-file synth fallback, spatial knock, measured outage
+  silence, bounded voices, pause/lifecycle and unavailable Web Audio. The silence window
+  is measured within one page call so CDP latency cannot consume it before sampling.
+- First recorded-audio full sweep: **175 passed / 2 desktop failures / 5 skips**; all 25
+  audio cases passed. Desktop C fell back to mobile and steady rendering measured 54.50
+  FPS. Profiling showed a GPU/backend limit rather than JS work. The regular software
+  output now uses permitted ACES filmic mapping; native/ultra stays AgX. Resolution
+  (336/320), geometry, the 55 FPS gate, governor and assertions are unchanged. Listener
+  writes are cached at rest; breath is kept to one layer across rapid voice beats.
+- After that fix, the two failed desktop cases **both passed**: default **59.90 FPS**,
+  225 geometries / 44 textures unchanged across tours, real-input Ending C finished in
+  desktop. Separate measurements at the night-5 cut improved from 55.87 to 59.91 FPS;
+  stationary native audio writes fell from ~2,500 to zero per five seconds. The warm/dark
+  before/after software captures and 1440×900 / 360×640 credits screens were opened.
+- Final uninterrupted full sweep: **177 passed / 5 expected skips / 0 failures** (13.2 min).
+  All 25 audio cases pass across five browser profiles. Default desktop measured
+  **59.71 FPS** against the unchanged 55 FPS gate; room tours retained **225 geometries /
+  45 textures**. Real-input endings and the repeated-night GPU/heap checks pass.
+- An intermediate rerun passed the unchanged FPS gate at 58.77 FPS, but exposed a
+  reload/resume typewriter delay. The saved node was correct; per-character callbacks
+  accumulated render delays. Elapsed-time catch-up preserves the authored 24 ms rate.
+  A blocked-renderer unit regression and the unchanged desktop E2E repeated 3× pass.
+- The repeated-night GPU gate exposed the phone LED's delayed first upload and the
+  night-5 breath sprite's per-node texture churn. Prime the entire phone; keep one
+  primed breath sprite with per-node timing/visibility. Owned phone resources are
+  disposed on unmount. The unchanged resource test passes 3× after both fixes.
+
+F5's automated exit checks are complete. Real headphone judgement (balance, loop seams, direction and
+the emotional effect of the silence) and physical iOS/Telegram audio remain owner/hardware
+checks. F6 has not been started.
 
 ## F4 — Desktop horror
 

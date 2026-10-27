@@ -34,7 +34,14 @@ describe('procedural sound library', () => {
     }
     expect(rms(triple.slice(0.35 * SAMPLE_RATE, 0.5 * SAMPLE_RATE))).toBeLessThan(0.001)
   })
-  for (const id of ['drone', 'wind', 'fridge', 'traffic', 'clock'] satisfies AmbientId[]) {
+  for (const id of [
+    'drone',
+    'wind',
+    'fridge',
+    'traffic',
+    'clock',
+    'neighbour',
+  ] satisfies AmbientId[]) {
     it(`${id}: bounded four-second ambience loop`, () => {
       const pcm = synthAmbience(id)
       expect(pcm.length).toBe(SAMPLE_RATE * 4)

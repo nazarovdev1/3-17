@@ -7,7 +7,7 @@ authors are credited anyway. Sketchfab assets are CC-BY-4.0
 (https://creativecommons.org/licenses/by/4.0/): credited here and in Settings → Mualliflar.
 Assets from "this repository" were generated for the game by the linked script (CC0).
 They were optimised (re-compressed, resized and in some cases simplified) for the web.
-F5 audio is in progress: no external sound recordings are bundled yet; synth fallbacks remain.
+Freesound recordings are excerpted, mixed to mono, filtered and loudness-normalised; effects use FLAC and ambience uses AAC.
 
 ## Fonts
 
@@ -63,3 +63,32 @@ F5 audio is in progress: no external sound recordings are bundled yet; synth fal
 | Concrete 034 | texture | ambientCG (Lennart Demes) | [ambientCG](https://ambientcg.com/view?id=Concrete034) | CC0-1.0 |
 | Wallpaper 002 C | texture | ambientCG (Lennart Demes) | [ambientCG](https://ambientcg.com/view?id=Wallpaper002C) | CC0-1.0 |
 | Dikhololo Night | hdri | Greg Zaal | [Poly Haven](https://polyhaven.com/a/dikhololo_night) | CC0-1.0 |
+| FEETHmn_Squeaky Wooden Parquet Footsteps | sound | evghenifloca | [Freesound](https://freesound.org/people/evghenifloca/sounds/817482/) | CC0-1.0 |
+| Footsteps on Wooden Floor.aif | sound | ftpalad | [Freesound](https://freesound.org/people/ftpalad/sounds/119914/) | CC0-1.0 |
+| Footsteps_Boots_Tile_Mono.wav | sound | Nox_Sound | [Freesound](https://freesound.org/people/Nox_Sound/sounds/530588/) | CC0-1.0 |
+| Footsteps on concrete | sound | florianreichelt | [Freesound](https://freesound.org/people/florianreichelt/sounds/459964/) | CC0-1.0 |
+| Ungreased Door Hinges Creak.wav | sound | FullMetalJedi | [Freesound](https://freesound.org/people/FullMetalJedi/sounds/530126/) | CC0-1.0 |
+| dorm door close.wav | sound | pagancow | [Freesound](https://freesound.org/people/pagancow/sounds/15418/) | CC0-1.0 |
+| door chain apartment front door rattle against wall close.flac | sound | kyles | [Freesound](https://freesound.org/people/kyles/sounds/451804/) | CC0-1.0 |
+| Metal Radiator Tapped Deep.aif | sound | RutgerMuller | [Freesound](https://freesound.org/people/RutgerMuller/sounds/104369/) | CC0-1.0 |
+| fridge refrigerator compressor on off nice soft smooth.flac | sound | kyles | [Freesound](https://freesound.org/people/kyles/sounds/637571/) | CC0-1.0 |
+| fridge refrigerator compressor on off nice soft smooth.flac | sound | kyles | [Freesound](https://freesound.org/people/kyles/sounds/637571/) | CC0-1.0 |
+| water boiling inside electric kettle 1 | sound | FOSSarts | [Freesound](https://freesound.org/people/FOSSarts/sounds/740168/) | CC0-1.0 |
+| tea pour.wav | sound | fryzu82 | [Freesound](https://freesound.org/people/fryzu82/sounds/142330/) | CC0-1.0 |
+| Page Turn Free | sound | AardsReal | [Freesound](https://freesound.org/people/AardsReal/sounds/842183/) | CC0-1.0 |
+| writing - pen 01.wav | sound | Anthousai | [Freesound](https://freesound.org/people/Anthousai/sounds/337086/) | CC0-1.0 |
+| Switch Light 02.wav | sound | tbrook | [Freesound](https://freesound.org/people/tbrook/sounds/348221/) | CC0-1.0 |
+| Switch Light 02.wav | sound | tbrook | [Freesound](https://freesound.org/people/tbrook/sounds/348221/) | CC0-1.0 |
+| KnockingWall.WAV | sound | jrsevers3 | [Freesound](https://freesound.org/people/jrsevers3/sounds/452864/) | CC0-1.0 |
+| KnockingWall.WAV | sound | jrsevers3 | [Freesound](https://freesound.org/people/jrsevers3/sounds/452864/) | CC0-1.0 |
+| KnockingWall.WAV | sound | jrsevers3 | [Freesound](https://freesound.org/people/jrsevers3/sounds/452864/) | CC0-1.0 |
+| Breathing, nose, calm | sound | giddster | [Freesound](https://freesound.org/people/giddster/sounds/336531/) | CC0-1.0 |
+| Hearthbeat sound recorded by a contact microphone. | sound | felix.blume | [Freesound](https://freesound.org/people/felix.blume/sounds/153483/) | CC0-1.0 |
+| Smart Phone Vibration - Long - Wood Surface - MONO | sound | metaxis | [Freesound](https://freesound.org/people/metaxis/sounds/708213/) | CC0-1.0 |
+| Analog CRT TV Electronic Static Noise | sound | grcekh | [Freesound](https://freesound.org/people/grcekh/sounds/546047/) | CC0-1.0 |
+| Cloth Rustle 4.wav | sound | zazz.sound.design | [Freesound](https://freesound.org/people/zazz.sound.design/sounds/435295/) | CC0-1.0 |
+| ambience, city, sokolniki park, late winter, Moscow | sound | AlexanderChe | [Freesound](https://freesound.org/people/AlexanderChe/sounds/727869/) | CC0-1.0 |
+| wind gusty through quiet studio full of junk wood rattle metal window frame trees hiss outside.flac | sound | kyles | [Freesound](https://freesound.org/people/kyles/sounds/637990/) | CC0-1.0 |
+| Muffled TV Program #6 | sound | milcahrawr | [Freesound](https://freesound.org/people/milcahrawr/sounds/872726/) | CC0-1.0 |
+| Cuckoo Clock Ticking.aif | sound | DiArchangeli | [Freesound](https://freesound.org/people/DiArchangeli/sounds/462929/) | CC0-1.0 |
+| Cuckoo Clock Ticking.aif | sound | DiArchangeli | [Freesound](https://freesound.org/people/DiArchangeli/sounds/462929/) | CC0-1.0 |

@@ -26,6 +26,7 @@ export const SOUND_IDS = [
   'tea',
   'pen',
   'phone_buzz',
+  'cloth',
 ] as const satisfies readonly SfxId[]
 
 const DURATIONS: Record<SfxId, number> = {
@@ -52,6 +53,7 @@ const DURATIONS: Record<SfxId, number> = {
   tea: 1.2,
   pen: 0.5,
   phone_buzz: 0.9,
+  cloth: 0.7,
 }
 
 function random(seed: number) {
@@ -168,6 +170,9 @@ export function synthSound(id: SfxId, sampleRate = SAMPLE_RATE): Float32Array {
           (sine(152, t) * 0.12 + low * 0.08) *
           (0.7 + 0.3 * sine(31, t))
         break
+      case 'cloth':
+        value = low * 0.2 * Math.sin(t * 13) ** 2
+        break
       case 'pen':
         value = high * 0.06 * Math.sin(t * 37) ** 4
         break
@@ -179,7 +184,7 @@ export function synthSound(id: SfxId, sampleRate = SAMPLE_RATE): Float32Array {
   return pcm
 }
 
-export type AmbientId = 'drone' | 'wind' | 'fridge' | 'traffic' | 'clock'
+export type AmbientId = 'drone' | 'wind' | 'fridge' | 'traffic' | 'clock' | 'neighbour'
 export function synthAmbience(id: AmbientId, sampleRate = SAMPLE_RATE): Float32Array {
   const pcm = new Float32Array(sampleRate * 4)
   const noise = random(4718)
@@ -198,6 +203,9 @@ export function synthAmbience(id: AmbientId, sampleRate = SAMPLE_RATE): Float32A
         break
       case 'fridge':
         pcm[i] = (sine(50, t) * 0.035 + sine(100, t) * 0.015) * seam
+        break
+      case 'neighbour':
+        pcm[i] = low * 0.3 * (0.6 + 0.4 * sine(2.5, t)) * seam
         break
       case 'traffic':
         pcm[i] = low * 0.3 * Math.sin((Math.PI * t) / 4) ** 2

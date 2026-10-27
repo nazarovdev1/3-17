@@ -33,7 +33,15 @@ export function CreditsList() {
       <ul>
         {manifest.assets.map((a) => (
           <li key={a.id}>
-            <span>{a.title}</span> — {a.author} · {SOURCE[a.source]} · {a.license}
+            <span>{a.title}</span> — {a.author} ·{' '}
+            {a.source === 'original' ? (
+              SOURCE[a.source]
+            ) : (
+              <a href={a.sourceUrl} target="_blank" rel="noreferrer">
+                {SOURCE[a.source]}
+              </a>
+            )}{' '}
+            · {a.license}
           </li>
         ))}
       </ul>

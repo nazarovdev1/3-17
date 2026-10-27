@@ -1167,6 +1167,675 @@
         }
       },
       "bytes": 1745132
+    },
+    {
+      "id": "sound_step_wood",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "room: shoes on old parquet; separate recorded footfalls",
+      "title": "FEETHmn_Squeaky Wooden Parquet Footsteps",
+      "author": "evghenifloca",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/evghenifloca/sounds/817482/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "step_wood", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_step_wood-1.flac",
+          "bytes": 25246,
+          "sha256": "5190747c0444de87"
+        },
+        "v2": {
+          "path": "assets/sounds/sound_step_wood-2.flac",
+          "bytes": 27644,
+          "sha256": "4331131205ba9397"
+        },
+        "v3": {
+          "path": "assets/sounds/sound_step_wood-3.flac",
+          "bytes": 23521,
+          "sha256": "84416b56162e8c50"
+        },
+        "v4": {
+          "path": "assets/sounds/sound_step_wood-4.flac",
+          "bytes": 25721,
+          "sha256": "a80dcf268f321041"
+        }
+      },
+      "bytes": 102132
+    },
+    {
+      "id": "sound_step_board",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "kitchen: footfalls on domestic wooden floorboards",
+      "title": "Footsteps on Wooden Floor.aif",
+      "author": "ftpalad",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/ftpalad/sounds/119914/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "step_board", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_step_board-1.flac",
+          "bytes": 24106,
+          "sha256": "e9a45e5729be9375"
+        },
+        "v2": {
+          "path": "assets/sounds/sound_step_board-2.flac",
+          "bytes": 24045,
+          "sha256": "19da1799aa9cdf1d"
+        },
+        "v3": {
+          "path": "assets/sounds/sound_step_board-3.flac",
+          "bytes": 23388,
+          "sha256": "b0618b71b83a1427"
+        },
+        "v4": {
+          "path": "assets/sounds/sound_step_board-4.flac",
+          "bytes": 23713,
+          "sha256": "f1d4e8f6068f1e44"
+        }
+      },
+      "bytes": 95252
+    },
+    {
+      "id": "sound_step_tile",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "bathroom: boot footfalls on tile",
+      "title": "Footsteps_Boots_Tile_Mono.wav",
+      "author": "Nox_Sound",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/Nox_Sound/sounds/530588/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "step_tile", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_step_tile-1.flac",
+          "bytes": 24022,
+          "sha256": "215a40801b92bc3e"
+        },
+        "v2": {
+          "path": "assets/sounds/sound_step_tile-2.flac",
+          "bytes": 24495,
+          "sha256": "683548093c236a2d"
+        },
+        "v3": {
+          "path": "assets/sounds/sound_step_tile-3.flac",
+          "bytes": 24344,
+          "sha256": "ba36276e802db590"
+        },
+        "v4": {
+          "path": "assets/sounds/sound_step_tile-4.flac",
+          "bytes": 25614,
+          "sha256": "9c923be68800f983"
+        }
+      },
+      "bytes": 98475
+    },
+    {
+      "id": "sound_step_concrete",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "landing: footfalls on concrete",
+      "title": "Footsteps on concrete",
+      "author": "florianreichelt",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/florianreichelt/sounds/459964/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "step_concrete", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_step_concrete-1.flac",
+          "bytes": 24099,
+          "sha256": "5a77886ed4670926"
+        },
+        "v2": {
+          "path": "assets/sounds/sound_step_concrete-2.flac",
+          "bytes": 25301,
+          "sha256": "a7bde2f43ea736ee"
+        },
+        "v3": {
+          "path": "assets/sounds/sound_step_concrete-3.flac",
+          "bytes": 22477,
+          "sha256": "9d8ed1ae5af216ee"
+        },
+        "v4": {
+          "path": "assets/sounds/sound_step_concrete-4.flac",
+          "bytes": 26530,
+          "sha256": "d368b35501b951a2"
+        }
+      },
+      "bytes": 98407
+    },
+    {
+      "id": "sound_door_open",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "old ungreased door hinge",
+      "title": "Ungreased Door Hinges Creak.wav",
+      "author": "FullMetalJedi",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/FullMetalJedi/sounds/530126/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "door_open", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_door_open-1.flac",
+          "bytes": 103136,
+          "sha256": "0b97649e61ced258"
+        }
+      },
+      "bytes": 103136
+    },
+    {
+      "id": "sound_door_close",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "heavy apartment door closing",
+      "title": "dorm door close.wav",
+      "author": "pagancow",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/pagancow/sounds/15418/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "door_close", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_door_close-1.flac",
+          "bytes": 52497,
+          "sha256": "30d5f37c6b0279b9"
+        }
+      },
+      "bytes": 52497
+    },
+    {
+      "id": "sound_chain",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "front-door security chain rattling against the wall",
+      "title": "door chain apartment front door rattle against wall close.flac",
+      "author": "kyles",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/kyles/sounds/451804/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "chain", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_chain-1.flac",
+          "bytes": 37236,
+          "sha256": "0308095e1eb2795e"
+        }
+      },
+      "bytes": 37236
+    },
+    {
+      "id": "sound_radiator",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "cast-iron radiator resonant knock",
+      "title": "Metal Radiator Tapped Deep.aif",
+      "author": "RutgerMuller",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/RutgerMuller/sounds/104369/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "radiator", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_radiator-1.flac",
+          "bytes": 41306,
+          "sha256": "aa832f067fa744ce"
+        }
+      },
+      "bytes": 41306
+    },
+    {
+      "id": "sound_loop_fridge",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "kitchen: refrigerator compressor hum",
+      "title": "fridge refrigerator compressor on off nice soft smooth.flac",
+      "author": "kyles",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/kyles/sounds/637571/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "fridge", "loop": true },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_loop_fridge-1.m4a",
+          "bytes": 146121,
+          "sha256": "eabbf50ae1594756"
+        }
+      },
+      "bytes": 146121
+    },
+    {
+      "id": "sound_fridge_stop",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "compressor relay stopping; no tail after the cut",
+      "title": "fridge refrigerator compressor on off nice soft smooth.flac",
+      "author": "kyles",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/kyles/sounds/637571/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "fridge_stop", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_fridge_stop-1.flac",
+          "bytes": 20775,
+          "sha256": "5ea9ad609cd7a316"
+        }
+      },
+      "bytes": 20775
+    },
+    {
+      "id": "sound_kettle",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "water boiling in a steel kettle",
+      "title": "water boiling inside electric kettle 1",
+      "author": "FOSSarts",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/FOSSarts/sounds/740168/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "kettle", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_kettle-1.flac",
+          "bytes": 162278,
+          "sha256": "cb45afeced203011"
+        }
+      },
+      "bytes": 162278
+    },
+    {
+      "id": "sound_tea",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "tea poured from teapot into porcelain cup",
+      "title": "tea pour.wav",
+      "author": "fryzu82",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/fryzu82/sounds/142330/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "tea", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_tea-1.flac",
+          "bytes": 220422,
+          "sha256": "35d939575c5fef52"
+        }
+      },
+      "bytes": 220422
+    },
+    {
+      "id": "sound_page",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "paper page turned by hand",
+      "title": "Page Turn Free",
+      "author": "AardsReal",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/AardsReal/sounds/842183/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "page", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_page-1.flac",
+          "bytes": 47048,
+          "sha256": "a52d28c095842d7b"
+        }
+      },
+      "bytes": 47048
+    },
+    {
+      "id": "sound_pen",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "pen writing on paper",
+      "title": "writing - pen 01.wav",
+      "author": "Anthousai",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/Anthousai/sounds/337086/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "pen", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_pen-1.flac",
+          "bytes": 55350,
+          "sha256": "bd3b50900fc76adf"
+        }
+      },
+      "bytes": 55350
+    },
+    {
+      "id": "sound_switch",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "mechanical light switch",
+      "title": "Switch Light 02.wav",
+      "author": "tbrook",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/tbrook/sounds/348221/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "switch", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_switch-1.flac",
+          "bytes": 17245,
+          "sha256": "380805a87d5c9bd8"
+        }
+      },
+      "bytes": 17245
+    },
+    {
+      "id": "sound_window_dark",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "distant light relay as opposite windows go dark",
+      "title": "Switch Light 02.wav",
+      "author": "tbrook",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/tbrook/sounds/348221/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "window_dark", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_window_dark-1.flac",
+          "bytes": 17245,
+          "sha256": "380805a87d5c9bd8"
+        }
+      },
+      "bytes": 17245
+    },
+    {
+      "id": "sound_knock",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "single knock on the panel party wall",
+      "title": "KnockingWall.WAV",
+      "author": "jrsevers3",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/jrsevers3/sounds/452864/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "knock", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_knock-1.flac",
+          "bytes": 23440,
+          "sha256": "b739801317b65b71"
+        }
+      },
+      "bytes": 23440
+    },
+    {
+      "id": "sound_knock_soft",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "soft panel-wall knock; reduced in the mixer",
+      "title": "KnockingWall.WAV",
+      "author": "jrsevers3",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/jrsevers3/sounds/452864/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "knock_soft", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_knock_soft-1.flac",
+          "bytes": 22360,
+          "sha256": "0d3d1750d370af5b"
+        }
+      },
+      "bytes": 22360
+    },
+    {
+      "id": "sound_knock_triple",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "three recorded panel-wall knocks",
+      "title": "KnockingWall.WAV",
+      "author": "jrsevers3",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/jrsevers3/sounds/452864/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "knock_triple", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_knock_triple-1.flac",
+          "bytes": 57638,
+          "sha256": "1bed271d5166991f"
+        }
+      },
+      "bytes": 57638
+    },
+    {
+      "id": "sound_whisper",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "real calm nasal breathing behind the party wall",
+      "title": "Breathing, nose, calm",
+      "author": "giddster",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/giddster/sounds/336531/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "whisper", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_whisper-1.flac",
+          "bytes": 127723,
+          "sha256": "3014854090c18215"
+        }
+      },
+      "bytes": 127723
+    },
+    {
+      "id": "sound_heartbeat",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "real heartbeat captured with a contact microphone",
+      "title": "Hearthbeat sound recorded by a contact microphone.",
+      "author": "felix.blume",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/felix.blume/sounds/153483/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "heartbeat", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_heartbeat-1.flac",
+          "bytes": 27317,
+          "sha256": "2d3db8c0f4ce8d2e"
+        }
+      },
+      "bytes": 27317
+    },
+    {
+      "id": "sound_phone_buzz",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "smartphone vibrating against a wooden surface",
+      "title": "Smart Phone Vibration - Long - Wood Surface - MONO",
+      "author": "metaxis",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/metaxis/sounds/708213/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "phone_buzz", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_phone_buzz-1.flac",
+          "bytes": 105940,
+          "sha256": "94aa4e959e4f9499"
+        }
+      },
+      "bytes": 105940
+    },
+    {
+      "id": "sound_static",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "real analog CRT electronic static recorded on a microphone",
+      "title": "Analog CRT TV Electronic Static Noise",
+      "author": "grcekh",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/grcekh/sounds/546047/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "static", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_static-1.flac",
+          "bytes": 58652,
+          "sha256": "3a3b5f4ab66a715f"
+        }
+      },
+      "bytes": 58652
+    },
+    {
+      "id": "sound_cloth",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "coat and clothing rustle",
+      "title": "Cloth Rustle 4.wav",
+      "author": "zazz.sound.design",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/zazz.sound.design/sounds/435295/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "cloth", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_cloth-1.flac",
+          "bytes": 79783,
+          "sha256": "9779f69a023e7b91"
+        }
+      },
+      "bytes": 79783
+    },
+    {
+      "id": "sound_loop_traffic",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "distant late-winter city ambience",
+      "title": "ambience, city, sokolniki park, late winter, Moscow",
+      "author": "AlexanderChe",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/AlexanderChe/sounds/727869/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "traffic", "loop": true },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_loop_traffic-1.m4a",
+          "bytes": 242275,
+          "sha256": "7854e57204dbbc2f"
+        }
+      },
+      "bytes": 242275
+    },
+    {
+      "id": "sound_loop_wind",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "wind rattling wood and an old metal window frame",
+      "title": "wind gusty through quiet studio full of junk wood rattle metal window frame trees hiss outside.flac",
+      "author": "kyles",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/kyles/sounds/637990/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "wind", "loop": true },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_loop_wind-1.m4a",
+          "bytes": 243595,
+          "sha256": "a89e9bba59b4965c"
+        }
+      },
+      "bytes": 243595
+    },
+    {
+      "id": "sound_loop_neighbour",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "muffled neighbour TV; uploader identifies a public-domain 1955 programme",
+      "title": "Muffled TV Program #6",
+      "author": "milcahrawr",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/milcahrawr/sounds/872726/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "neighbour", "loop": true },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_loop_neighbour-1.m4a",
+          "bytes": 186992,
+          "sha256": "1d8340a8d2e2bc01"
+        }
+      },
+      "bytes": 186992
+    },
+    {
+      "id": "sound_clock_tick",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "recorded clock tick; inspection remains silent",
+      "title": "Cuckoo Clock Ticking.aif",
+      "author": "DiArchangeli",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/DiArchangeli/sounds/462929/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "clock_tick", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_clock_tick-1.flac",
+          "bytes": 16373,
+          "sha256": "b6d6e71bfde749a1"
+        }
+      },
+      "bytes": 16373
+    },
+    {
+      "id": "sound_loop_clock",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "real clock tick repeated over a silent bed; only Ending C",
+      "title": "Cuckoo Clock Ticking.aif",
+      "author": "DiArchangeli",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/DiArchangeli/sounds/462929/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "clock", "loop": true },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_loop_clock-1.flac",
+          "bytes": 49587,
+          "sha256": "2db822bcd0d63493"
+        }
+      },
+      "bytes": 49587
     }
   ]
 }

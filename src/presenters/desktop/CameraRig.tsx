@@ -13,6 +13,7 @@ import {
   SRGBColorSpace,
 } from 'three'
 import { audio } from '@/audio/engine'
+import { SHARED_WALL } from '@/audio/positions'
 import { ui } from '@/content/text'
 import { useGame } from '@/ui/gameStore'
 import { useSettings } from '@/ui/settingsStore'
@@ -197,7 +198,7 @@ export function CameraRig({
         choices.some((choice) => choice.id === 'listen') &&
         !timer.current
       ) {
-        audio.setListening(true)
+        audio.setListening(true, SHARED_WALL)
         timer.current = setTimeout(() => {
           timer.current = null
           audio.setListening(false)

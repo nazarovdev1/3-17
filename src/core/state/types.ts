@@ -35,6 +35,7 @@ export type SfxId =
   | 'tea'
   | 'pen'
   | 'phone_buzz'
+  | 'cloth'
 
 /** Screen effect ids (spec section 6). */
 export type FxId =

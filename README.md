@@ -12,9 +12,10 @@ presented two ways:
 - **Mobile** (everything else): vertical Canvas 2D pixel-art scenes with gyroscope parallax,
   hotspots, typewriter narration and a chat-style overlay for the voice.
 
-The game is a fully static site: no backend, no database, no AI APIs, no paid services. All
-sound and textures are generated procedurally; fonts are bundled. The only external request
-at runtime is Telegram's official `telegram-web-app.js`.
+The game is a fully static site: no backend, no database, no AI APIs, no paid services.
+Assets, recorded sounds and fonts are bundled locally and credited in Settings. The low
+audio drone and missing-file fallbacks remain procedural. The only automatic external
+request at runtime is Telegram's official `telegram-web-app.js`.
 
 ## Requirements
 
@@ -71,6 +72,28 @@ The Playwright web server builds a separate test variant into `dist-e2e/` (with 
 `window.__game` API compiled in via `.env.e2e`) and serves it on port 4174. The production
 `dist/` is never used by the tests. WebGL runs on SwiftShader, so no GPU is required.
 Screenshots of every location in both modes are written to `tests/screenshots/`.
+
+## Recorded sound assets
+
+Optimised sounds and the manifest are committed; normal builds/tests need no Freesound
+credential or FFmpeg. To rebuild recordings, install FFmpeg (including ffprobe), put
+`FREESOUND_API_KEY` in ignored `.env.local`, then run:
+
+```sh
+npm run assets:fetch -- --sounds-only
+npm run assets:build -- --sounds-only
+npm run assets:verify-sounds
+```
+
+Set `FFMPEG_PATH` to the executable's full path if it is not on PATH. Pinned ids and
+excerpts live in `scripts/assets/sound-sources.ts`. The API must report CC0 or CC-BY with
+the pinned version; NC, ND, SA and unknown licenses are refused. Sources/authors/licenses
+are generated into `CREDITS.md` and Settings. API credentials never belong in git.
+
+Effects and the sparse clock use mono/32 kHz FLAC; continuous ambience uses 96 kbps AAC.
+The verification command measures the shipped decode: -6 ±0.5 dBFS effect peaks,
+-23 ±0.75 LUFS loops, a short fridge stop and silent clock gaps. Raw downloads and reports
+stay in ignored `.asset-cache/`. A targeted rebuild may add `--only=sound_loop_clock`.
 
 ## Debug mode
 

@@ -4,6 +4,7 @@ import { MemoryStorage } from '@/core/save/memory'
 import { configureSaveService, useGame } from '@/ui/gameStore'
 import { takeMetaComments } from '@/ui/metaHorror'
 import { HorrorEffects } from '@/ui/HorrorEffects'
+import { NarrationText, resolveAllLines } from '@/ui/NarrationText'
 import { DEFAULT_SETTINGS, useSettings } from '@/ui/settingsStore'
 import { story } from '@/content/story'
 
@@ -24,7 +25,23 @@ beforeEach(() => {
 })
 afterEach(() => {
   cleanup()
+  vi.restoreAllMocks()
   vi.useRealTimers()
+})
+
+it('catches narration up to elapsed time after a blocked renderer', () => {
+  const now = vi.spyOn(performance, 'now').mockReturnValue(0)
+  const state = useGame.getState().run!
+  const fullText = resolveAllLines(state)
+    .map((line) => line.text)
+    .join('\n')
+  const { container } = render(<NarrationText state={state} />)
+  expect(container.querySelector('.narration')?.textContent).toBe('')
+  now.mockReturnValue((fullText.length + 1) * 24)
+  act(() => {
+    vi.advanceTimersByTime(24)
+  })
+  expect(container.querySelector('.narration')?.textContent).toBe(fullText.replaceAll('\n', ''))
 })
 
 it('uses the player name at most once per night in narration', () => {

@@ -12,7 +12,7 @@ import {
   Vignette,
 } from '@react-three/postprocessing'
 import { BlendFunction, ToneMappingMode } from 'postprocessing'
-import { AgXToneMapping, NoToneMapping, PCFSoftShadowMap, type Mesh } from 'three'
+import { ACESFilmicToneMapping, NoToneMapping, PCFSoftShadowMap, type Mesh } from 'three'
 import { visibleChoices } from '@/core/engine'
 import { useGame } from '@/ui/gameStore'
 import { useSettings } from '@/ui/settingsStore'
@@ -132,7 +132,8 @@ function SoftwareOutput() {
   const gl = useThree((s) => s.gl)
   useEffect(() => {
     const previous = gl.toneMapping
-    gl.toneMapping = AgXToneMapping
+    // The CPU rasterizer avoids AgX's per-fragment logarithms/powers; native/ultra keep AgX.
+    gl.toneMapping = ACESFilmicToneMapping
     return () => {
       gl.toneMapping = previous
     }

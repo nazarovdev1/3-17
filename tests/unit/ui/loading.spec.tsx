@@ -30,7 +30,17 @@ it('lists every asset and font in the settings credits', () => {
   render(<SettingsScreen onBack={() => {}} mode="desktop" />)
   fireEvent.click(screen.getByRole('button', { name: ui('settings.credits') }))
   const credits = screen.getByRole('region', { name: ui('settings.credits_title') })
-  for (const a of manifest.assets) expect(credits.textContent).toContain(a.title)
+  for (const a of manifest.assets) {
+    expect(credits.textContent).toContain(a.title)
+    expect(credits.textContent).toContain(a.author)
+    expect(credits.textContent).toContain(a.license)
+    if (a.kind === 'sound')
+      expect(
+        [...credits.querySelectorAll('a')].some(
+          (link) => link.getAttribute('href') === a.sourceUrl,
+        ),
+      ).toBe(true)
+  }
   expect(credits.textContent).toContain('Literata')
   expect(credits.textContent).toContain('Inter')
 })
