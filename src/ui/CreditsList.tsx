@@ -12,6 +12,7 @@ const SOURCE = {
   ambientcg: 'ambientCG',
   sketchfab: 'Sketchfab',
   original: '3:17',
+  freesound: 'Freesound',
 } as const
 
 /** Credits for every bundled third-party asset (FIX_PROMPT §3), shown in Settings. */

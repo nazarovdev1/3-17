@@ -24,6 +24,7 @@ import {
   type AssetSourceEntry,
 } from './sources'
 import type { AssetManifest, ManifestAsset, ManifestFile } from '../../src/assets/types'
+import { encodeSound, freesoundLicense } from './sound'
 
 const ROOT = join(import.meta.dirname, '..', '..')
 const PUBLIC = join(ROOT, 'public')
@@ -36,6 +37,7 @@ const SOURCE_NAMES = {
   ambientcg: 'ambientCG',
   sketchfab: 'Sketchfab',
   original: 'this repository',
+  freesound: 'Freesound',
 } as const
 
 function fileEntry(path: string): ManifestFile {
@@ -45,6 +47,29 @@ function fileEntry(path: string): ManifestFile {
     bytes: data.length,
     sha256: createHash('sha256').update(data).digest('hex').slice(0, 16),
   }
+}
+
+function buildSound(entry: AssetSourceEntry): Record<string, ManifestFile> {
+  const meta = readMeta(entry.id)!
+  if (
+    !entry.sound ||
+    !meta.licenseUrl ||
+    freesoundLicense(meta.licenseUrl) !== entry.license ||
+    meta.remoteId !== entry.remoteId
+  )
+    throw new Error(`${entry.id}: missing or mismatched API license evidence`)
+  const input = join(CACHE, entry.id, 'source.mp3')
+  if (createHash('sha256').update(readFileSync(input)).digest('hex') !== meta.rawSha256)
+    throw new Error(`${entry.id}: cached sound integrity mismatch`)
+  const dir = join(OUT, 'sounds')
+  mkdirSync(dir, { recursive: true })
+  return Object.fromEntries(
+    entry.sound.clips.map((clip, index) => {
+      const out = join(dir, `${entry.id}-${index + 1}.m4a`)
+      encodeSound(input, out, clip.start, clip.duration, entry.sound!.loop)
+      return [`v${index + 1}`, fileEntry(out)]
+    }),
+  )
 }
 
 async function buildModel(entry: AssetSourceEntry) {
@@ -158,6 +183,9 @@ function credits(assets: ManifestAsset[]): string {
     '(https://creativecommons.org/licenses/by/4.0/): credited here and in Settings → Mualliflar.',
     'Assets from "this repository" were generated for the game by the linked script (CC0).',
     'They were optimised (re-compressed, resized and in some cases simplified) for the web.',
+    assets.some((a) => a.kind === 'sound')
+      ? 'Freesound recordings are excerpted, mixed to mono, loudness-normalised and AAC encoded.'
+      : 'F5 audio is in progress: no external sound recordings are bundled yet; synth fallbacks remain.',
     '',
     '## Fonts',
     '',
@@ -166,7 +194,7 @@ function credits(assets: ManifestAsset[]): string {
     '| Literata | TypeTogether | [Fontsource](https://fontsource.org/fonts/literata) | OFL-1.1 |',
     '| Inter | Rasmus Andersson | [Fontsource](https://fontsource.org/fonts/inter) | OFL-1.1 |',
     '',
-    '## Models, textures and HDRIs',
+    '## Models, textures, HDRIs and sounds',
     '',
     '| Asset | Type | Author | Source | License |',
     '| --- | --- | --- | --- | --- |',
@@ -176,6 +204,11 @@ function credits(assets: ManifestAsset[]): string {
 }
 
 async function main() {
+  // Refuse incomplete inputs before replacing any shipped assets.
+  for (const entry of ASSET_SOURCES) {
+    if (!readMeta(entry.id))
+      throw new Error(`${entry.id} is not downloaded — run npm run assets:fetch`)
+  }
   rmSync(OUT, { recursive: true, force: true })
   const assets: ManifestAsset[] = []
   for (const entry of ASSET_SOURCES) {
@@ -189,9 +222,11 @@ async function main() {
     const model = entry.kind === 'model' ? await buildModel(entry) : null
     const files = model
       ? model.files
-      : entry.kind === 'texture'
-        ? await buildTexture(entry)
-        : buildHdri(entry)
+      : entry.kind === 'sound'
+        ? buildSound(entry)
+        : entry.kind === 'texture'
+          ? await buildTexture(entry)
+          : buildHdri(entry)
     const bytes = Object.values(files).reduce((sum, f) => sum + f.bytes, 0)
     console.log(`${(bytes / 1024).toFixed(0)} KB`)
     assets.push({
@@ -205,6 +240,7 @@ async function main() {
       source: entry.source,
       sourceUrl: meta.sourceUrl,
       license: entry.license,
+      ...(entry.sound ? { audio: { cue: entry.sound.cue, loop: entry.sound.loop } } : {}),
       ...(meta.dimensionsM ? { dimensionsM: meta.dimensionsM } : {}),
       ...(model ? { boundsM: model.boundsM, nodes: model.nodes } : {}),
       files,

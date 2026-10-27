@@ -3,6 +3,32 @@
 Manual checklist (spec 12). Executed in a real browser where possible; every item gets an
 honest ✅ / ❌ / not-verified note with a date.
 
+## F5 — Audio infrastructure (in progress, 2026-10-27)
+
+- `npm run check`: 269 unit tests in 25 files; lint, formatting, strict types, 90-node
+  story validation, 73-object world validation, production build and all budgets pass.
+- New unit checks reject NC/ND/SA/unknown licenses and mismatched pinned ids/licenses;
+  validate excerpts/attribution; isolate missing/corrupt recordings; check immediate synth
+  fallback, no paused cue queue, decoded variation, pitch/gain bounds, HRTF and clean
+  synchronous outage cancellation even when decoding completes late.
+- Native FFmpeg smoke test on a generated, unshipped fixture: 120 ms AAC cue decodes at
+  -5.5 dBFS peak (target -6 ±0.5); four-second AAC loop measures -23.0 LUFS. The first
+  fixture exposed codec overshoot, now corrected by measuring the encoded file.
+- Full Playwright rerun reported all 177 cases: **169 passed, 3 failed, 5 skipped**;
+  **20/20 audio cases passed**. The runner stalled in server teardown after the last case
+  and was interrupted, so the suite has no successful exit. Desktop failures: 49.19 FPS
+  against the unchanged 55 gate; 41 → 40 textures after automatic quality reduction;
+  clock narration absent in the shell flow. CPU sampling found unrelated apps using
+  about 1.6 cores alongside the renderer: a quiet-machine rerun is still owed. No rendering
+  code or assertions were changed. The first run was stopped after the new assertion read
+  the following whisper instead of the knock; the corrected check reads the knock's own
+  record from the bounded playback history.
+
+No real recordings are shipped yet: Freesound credential absent, requested from the owner.
+Actual recorded-file decoding in the browser, source suitability, loop seams, mix balance,
+headphone direction/distance and the authored silence still need validation after acquisition.
+F5 remains open; F6 is untouched.
+
 ## F4 — Desktop horror review (2026-10-27)
 
 All 12 HD captures (`audit/f4.spec.ts`, 1440×900, `quality=ultra`) were opened one by one,

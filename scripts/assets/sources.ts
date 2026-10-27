@@ -5,11 +5,12 @@
 // `tier` sets the texture size (hero 2K, normal 1K, small 512). `group` sets load order:
 // flat47 must be loaded before play starts, the others stream in the background.
 
-export type AssetKind = 'model' | 'texture' | 'hdri'
-export type AssetSource = 'polyhaven' | 'ambientcg' | 'sketchfab' | 'original'
+export type AssetKind = 'model' | 'texture' | 'hdri' | 'sound'
+export type AssetSource = 'polyhaven' | 'ambientcg' | 'sketchfab' | 'original' | 'freesound'
 export type AssetTier = 'hero' | 'normal' | 'small'
 export type AssetGroup = 'flat47' | 'stairwell' | 'flat48'
-export type AssetLicense = 'CC0-1.0' | 'CC-BY-4.0'
+export type AssetLicense =
+  'CC0-1.0' | 'CC-BY-4.0' | 'CC-BY-3.0' | 'CC-BY-2.5' | 'CC-BY-2.0' | 'CC-BY-1.0'
 
 export interface AssetSourceEntry {
   /** Local id, also the output file name. */
@@ -23,6 +24,12 @@ export interface AssetSourceEntry {
   license: AssetLicense
   /** Why the asset is in the game (where it goes, what it is for). */
   purpose: string
+  sound?: {
+    cue: string
+    loop: boolean
+    /** Reproducible excerpts in seconds; separate footfalls become separate files. */
+    clips: { start: number; duration: number }[]
+  }
   /** Keep this fraction of triangles (meshopt simplifier) for over-detailed source meshes. */
   simplify?: number
   /**
@@ -32,7 +39,14 @@ export interface AssetSourceEntry {
   keep?: { name?: RegExp; x?: [number, number] }
 }
 
-export const ALLOWED_LICENSES: readonly AssetLicense[] = ['CC0-1.0', 'CC-BY-4.0']
+export const ALLOWED_LICENSES: readonly AssetLicense[] = [
+  'CC0-1.0',
+  'CC-BY-4.0',
+  'CC-BY-3.0',
+  'CC-BY-2.5',
+  'CC-BY-2.0',
+  'CC-BY-1.0',
+]
 
 /** Stylised packs FIX_PROMPT §3 forbids; the pipeline refuses any id or author matching these. */
 export const FORBIDDEN_PATTERNS = [/kenney/i, /quaternius/i, /low.?poly/i, /toon/i, /cartoon/i]

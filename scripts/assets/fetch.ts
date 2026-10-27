@@ -6,6 +6,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { basename, dirname, join, normalize } from 'node:path'
 import { unzipSync } from 'fflate'
 import { ASSET_SOURCES, FORBIDDEN_PATTERNS, type AssetSourceEntry } from './sources'
+import { freesoundKey, validateSound, type FreesoundInfo } from './sound'
 
 export const CACHE = join(import.meta.dirname, '..', '..', '.asset-cache')
 const UA = { 'User-Agent': 'game-3-17-asset-pipeline' }
@@ -15,10 +16,39 @@ export interface CacheMeta {
   title: string
   author: string
   sourceUrl: string
+  /** Sound license as verified from the API, retained for offline rebuilds. */
+  licenseUrl?: string
+  remoteId?: string
+  rawSha256?: string
   /** Real-world size in metres (models only, when the source publishes it). */
   dimensionsM?: [number, number, number]
   /** Files in the cache folder, relative to it. */
   files: string[]
+}
+
+async function fetchFreesound(entry: AssetSourceEntry, dir: string): Promise<CacheMeta> {
+  const response = await fetch(`https://freesound.org/apiv2/sounds/${entry.remoteId}/`, {
+    headers: { ...UA, Authorization: `Token ${freesoundKey()}` },
+  })
+  if (!response.ok) throw new Error(`${entry.id}: Freesound API status ${response.status}`)
+  const info = (await response.json()) as FreesoundInfo
+  validateSound(entry, info)
+  // The original-file endpoint needs OAuth. API-published HQ previews need only a key.
+  const url = info.previews['preview-hq-mp3']
+  if (!url || !/^https:\/\/(?:cdn\.)?freesound\.org\//.test(url))
+    throw new Error(`${entry.id}: no trusted HQ preview`)
+  const data = await get(url)
+  writeInside(dir, 'source.mp3', data)
+  return {
+    id: entry.id,
+    title: info.name,
+    author: info.username,
+    sourceUrl: info.url,
+    licenseUrl: info.license,
+    remoteId: entry.remoteId,
+    rawSha256: createHash('sha256').update(data).digest('hex'),
+    files: ['source.mp3'],
+  }
 }
 
 async function get(url: string): Promise<Buffer> {
@@ -174,7 +204,7 @@ async function fetchSketchfab(entry: AssetSourceEntry, dir: string): Promise<Cac
   const api = `https://api.sketchfab.com/v3/models/${entry.remoteId}`
   const model = (await (await fetch(api, { headers: auth })).json()) as SfModel
   // The API's license slug must match what sources.ts declares.
-  const slug = { 'CC0-1.0': 'cc0', 'CC-BY-4.0': 'by' }[entry.license]
+  const slug = entry.license === 'CC0-1.0' ? 'cc0' : 'by'
   if (model.license?.slug !== slug) {
     throw new Error(`${entry.id}: license is ${model.license?.slug}, expected ${slug}`)
   }
@@ -238,13 +268,15 @@ async function main() {
     const dir = join(CACHE, entry.id)
     process.stdout.write(`↓ ${entry.id} (${entry.source}) … `)
     const meta =
-      entry.source === 'polyhaven'
-        ? await fetchPolyHaven(entry, dir)
-        : entry.source === 'sketchfab'
-          ? await fetchSketchfab(entry, dir)
-          : entry.source === 'original'
-            ? await generateOriginal(entry, dir)
-            : await fetchAmbientCg(entry, dir)
+      entry.source === 'freesound'
+        ? await fetchFreesound(entry, dir)
+        : entry.source === 'polyhaven'
+          ? await fetchPolyHaven(entry, dir)
+          : entry.source === 'sketchfab'
+            ? await fetchSketchfab(entry, dir)
+            : entry.source === 'original'
+              ? await generateOriginal(entry, dir)
+              : await fetchAmbientCg(entry, dir)
     if (FORBIDDEN_PATTERNS.some((p) => p.test(meta.author))) {
       throw new Error(`forbidden author for ${entry.id}: ${meta.author}`)
     }

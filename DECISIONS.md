@@ -170,3 +170,12 @@ Android phones"), recorded here.
     tiles, concrete); doors swing on a damped spring with hinge sounds; papers are held up
     unlit (the torch would burn them white) and turn with the mouse; the peephole can be
     used at any time (E at the door).
+42. **F5 recording infrastructure (acquisition pending).** Freesound numeric ids and
+    exact API license URLs are checked before using HQ previews (original downloads
+    require OAuth). Preserve the actual CC-BY version; refuse SA, NC, ND and unknown
+    licenses. Ship mono AAC-LC/M4A at 32 kHz / 64 kbps for Chromium/Safari decoding.
+    Ambience targets -23 LUFS in two passes; sub-400 ms cues cannot be measured reliably
+    with integrated LUFS, so one-shots target -6 dBFS decoded peaks (±0.5 dB), correcting
+    AAC overshoot after encoding. Files decode asynchronously from the local manifest;
+    synth remains an immediate fallback, never a delayed replay. Desktop panning is HRTF.
+    This does not certify the sound selection or mix: no Freesound key is available yet.

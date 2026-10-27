@@ -58,6 +58,8 @@ test('native suspended context unlocks on a tap; mixer is audible, muted and per
 }, info) => {
   await boot(page)
   await expect.poll(async () => (await state(page)).contextState).toBe('suspended')
+  await expect.poll(async () => (await state(page)).recordingsReady).toBe(true)
+  expect((await state(page)).missingRecordings).toEqual([])
   expect((await state(page)).status).toBe('locked')
   const unlock = page.getByRole('button', { name: ui('shell.audio_unlock_label'), exact: true })
   await expect(unlock).toHaveText(ui('shell.audio_unlock'))
@@ -134,6 +136,9 @@ test('outage silence, native cue output, clock ending, spatial panner and bounde
   expect((await state(page)).recent).toContain('knock_triple')
   const spatialExpected = info.project.name !== 'no-webgl'
   expect((await state(page)).spatial).toBe(spatialExpected)
+  const playback = (await state(page)).playbacks.filter((p) => p.id === 'knock_triple').at(-1)
+  expect(playback?.panner).toBe(spatialExpected ? 'HRTF' : null)
+  expect(playback?.position).toEqual(spatialExpected ? [-1.99, 1.5, -0.45] : null)
   const panners = await page.evaluate(
     () => (window as unknown as { pannerCount: number }).pannerCount,
   )

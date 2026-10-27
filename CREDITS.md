@@ -7,6 +7,7 @@ authors are credited anyway. Sketchfab assets are CC-BY-4.0
 (https://creativecommons.org/licenses/by/4.0/): credited here and in Settings → Mualliflar.
 Assets from "this repository" were generated for the game by the linked script (CC0).
 They were optimised (re-compressed, resized and in some cases simplified) for the web.
+F5 audio is in progress: no external sound recordings are bundled yet; synth fallbacks remain.
 
 ## Fonts
 
@@ -15,7 +16,7 @@ They were optimised (re-compressed, resized and in some cases simplified) for th
 | Literata | TypeTogether | [Fontsource](https://fontsource.org/fonts/literata) | OFL-1.1 |
 | Inter | Rasmus Andersson | [Fontsource](https://fontsource.org/fonts/inter) | OFL-1.1 |
 
-## Models, textures and HDRIs
+## Models, textures, HDRIs and sounds
 
 | Asset | Type | Author | Source | License |
 | --- | --- | --- | --- | --- |

@@ -1,5 +1,6 @@
 import type { SfxId } from '@/core/state/types'
 import { SAMPLE_RATE, synthAmbience, synthSound, type AmbientId } from './synthesis'
+import { loadRecordings, type Recording } from './recordings'
 
 export type AudioScene = 'off' | 'title' | 'flat' | 'day' | 'silence' | 'street' | 'clock'
 export type AudioStatus = 'locked' | 'running' | 'paused' | 'unavailable'
@@ -48,9 +49,24 @@ export class AudioEngine {
   private volumes: Volumes = { masterVolume: 0.8, musicVolume: 0.7, effectsVolume: 0.8 }
   private recent: SfxId[] = []
   private failures: string[] = []
+  private recordings = new Map<string, Recording[]>()
+  private missingRecordings: string[] = []
+  private recordingsReady = false
+  private lastVariation = new Map<string, number>()
+  private lastPlayback: {
+    id: string
+    kind: 'recording' | 'synth'
+    variation: string | null
+    position: Position | null
+    panner: 'HRTF' | null
+    rate: number
+    volume: number
+  } | null = null
+  private playbacks: NonNullable<AudioEngine['lastPlayback']>[] = []
 
   constructor(
     private factory: () => AudioContext = () => new AudioContext({ latencyHint: 'interactive' }),
+    private load: typeof loadRecordings = loadRecordings,
   ) {}
   subscribe = (callback: () => void) => {
     this.subscribers.add(callback)
@@ -102,6 +118,28 @@ export class AudioEngine {
         this.publish()
       }
       this.setVolumes(this.volumes)
+      void this.load(
+        ctx,
+        (recording) => {
+          if (this.context !== ctx) return
+          const key = `${recording.loop ? 'loop' : 'sfx'}:${recording.cue}`
+          const list = this.recordings.get(key) ?? []
+          list.push(recording)
+          this.recordings.set(key, list)
+        },
+        (path) => {
+          if (this.context === ctx) this.missingRecordings.push(path)
+        },
+      )
+        .then(() => {
+          if (this.context !== ctx) return
+          this.recordingsReady = true
+          // Replace provisional ambience, never replay a transient after an async load.
+          for (const track of this.ambience.values()) track.stop()
+          this.ambience.clear()
+          this.refreshAmbience()
+        })
+        .catch((error: unknown) => this.record(error))
       // Headless browsers and previously trusted origins may start running.
       // Keep startup silent and inexpensive until the first explicit gesture.
       void ctx.suspend().catch((error: unknown) => this.record(error))
@@ -205,6 +243,14 @@ export class AudioEngine {
   private buffer(id: SfxId | AmbientId, loop: boolean) {
     const ctx = this.context!
     const key = `${loop ? 'loop' : 'sfx'}:${id}`
+    const variations = this.recordings.get(key)
+    if (variations?.length) {
+      const previous = this.lastVariation.get(key) ?? -1
+      let index = Math.floor(Math.random() * variations.length)
+      if (variations.length > 1 && index === previous) index = (index + 1) % variations.length
+      this.lastVariation.set(key, index)
+      return variations[index]!.buffer
+    }
     const cached = this.buffers.get(key)
     if (cached) return cached
     const pcm = loop ? synthAmbience(id as AmbientId) : synthSound(id as SfxId)
@@ -222,7 +268,7 @@ export class AudioEngine {
     source.connect(gain)
     const panner = position ? ctx.createPanner() : null
     if (panner && position) {
-      panner.panningModel = 'equalpower'
+      panner.panningModel = 'HRTF'
       panner.distanceModel = 'inverse'
       ;[panner.positionX.value, panner.positionY.value, panner.positionZ.value] = position
       gain.connect(panner)
@@ -267,19 +313,31 @@ export class AudioEngine {
         layer.gain.gain.value = 0
         this.ambience.set(id, layer)
       }
-      this.gainTo(layer.gain.gain, id === 'drone' ? 0.65 + (100 - this.sanity) / 240 : 0.7)
+      this.gainTo(layer.gain.gain, id === 'drone' ? 0.12 + (100 - this.sanity) / 1200 : 0.7)
     }
   }
   /** Never queue sounds while locked/paused: old scares must not replay on return. */
   play(id: SfxId, position?: Position): boolean {
     if (!this.canPlay || !this.effects) return false
     if (this.voices.size >= 8) this.voices.values().next().value?.stop()
-    const track = this.track(
-      this.buffer(id, false),
-      false,
-      this.effects,
-      this.spatial ? position : undefined,
-    )
+    const buffer = this.buffer(id, false)
+    const track = this.track(buffer, false, this.effects, this.spatial ? position : undefined)
+    const step = id.startsWith('step_')
+    const rate = step ? 0.96 + Math.random() * 0.08 : 1
+    const volume = step ? 0.84 + Math.random() * 0.16 : 1
+    track.source.playbackRate.value = rate
+    track.gain.gain.value = volume
+    const recording = this.recordings.get(`sfx:${id}`)?.find((r) => r.buffer === buffer)
+    this.lastPlayback = {
+      id,
+      kind: recording ? 'recording' : 'synth',
+      variation: recording?.variation ?? null,
+      position: this.spatial && position ? position : null,
+      panner: this.spatial && position ? 'HRTF' : null,
+      rate,
+      volume,
+    }
+    this.playbacks = [...this.playbacks.slice(-31), this.lastPlayback]
     this.voices.add(track)
     this.recent = [...this.recent.slice(-31), id]
     return true
@@ -315,6 +373,11 @@ export class AudioEngine {
       voices: this.voices.size,
       listening: !!this.listening,
       bufferCount: this.buffers.size,
+      recordingCount: [...this.recordings.values()].reduce((sum, list) => sum + list.length, 0),
+      recordingsReady: this.recordingsReady,
+      missingRecordings: [...this.missingRecordings],
+      lastPlayback: this.lastPlayback,
+      playbacks: [...this.playbacks],
       spatial: this.spatial,
       recent: [...this.recent],
       blocked: [...this.blocked],
@@ -328,6 +391,12 @@ export class AudioEngine {
     for (const layer of this.ambience.values()) layer.stop()
     this.ambience.clear()
     this.buffers.clear()
+    this.recordings.clear()
+    this.lastVariation.clear()
+    this.missingRecordings = []
+    this.recordingsReady = false
+    this.lastPlayback = null
+    this.playbacks = []
     const ctx = this.context
     if (ctx) {
       ctx.onstatechange = null

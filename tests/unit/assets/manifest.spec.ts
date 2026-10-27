@@ -26,7 +26,9 @@ describe('asset manifest (FIX_PROMPT §3)', () => {
       expect(a.license).toBe('CC0-1.0')
       expect(existsSync(join(PUBLIC, '..', a.sourceUrl)), a.sourceUrl).toBe(true)
     } else {
-      expect(a.sourceUrl).toMatch(/^https:\/\/(polyhaven\.com|ambientcg\.com|sketchfab\.com)\//)
+      expect(a.sourceUrl).toMatch(
+        /^https:\/\/(polyhaven\.com|ambientcg\.com|sketchfab\.com|freesound\.org)\//,
+      )
     }
     expect(a.purpose.length).toBeGreaterThan(5)
     expect(CREDITS).toContain(a.sourceUrl)
@@ -40,6 +42,14 @@ describe('asset manifest (FIX_PROMPT §3)', () => {
     }
     if (a.kind === 'texture') expect(keys).toEqual(['color', 'normal', 'orm'])
     if (a.kind === 'hdri') expect(keys).toEqual(['hdr'])
+    if (a.kind === 'sound') {
+      const source = ASSET_SOURCES.find((s) => s.id === a.id)!
+      expect(a.source).toBe('freesound')
+      expect(a.audio).toEqual({ cue: source.sound!.cue, loop: source.sound!.loop })
+      expect(keys).toHaveLength(source.sound!.clips.length)
+      expect(CREDITS).toContain(a.author)
+      expect(CREDITS).toContain(a.license)
+    }
 
     let total = 0
     for (const file of Object.values(a.files)) {
@@ -53,10 +63,11 @@ describe('asset manifest (FIX_PROMPT §3)', () => {
     expect(a.bytes).toBe(total)
   })
 
-  it('ships optimised formats only (meshopt GLB, WebP, HDR)', () => {
+  it('ships optimised formats only (meshopt GLB, WebP, HDR, AAC/M4A)', () => {
     for (const a of manifest.assets) {
       for (const file of Object.values(a.files)) {
-        expect(file.path).toMatch(/\.(glb|webp|hdr)$/)
+        expect(file.path).toMatch(/\.(glb|webp|hdr|m4a)$/)
+        if (a.kind === 'sound') expect(file.path).toMatch(/^assets\/sounds\/.+\.m4a$/)
         if (file.path.endsWith('.glb')) {
           const glb = readFileSync(join(PUBLIC, file.path))
           expect(glb.toString('utf8', 0, 4)).toBe('glTF')
