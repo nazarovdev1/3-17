@@ -22,8 +22,40 @@ Fix phases (FIX_PROMPT.md):
 - [ ] F4 — Desktop horror (verified; awaiting owner review)
 - [x] F5 — Audio
 - [ ] F6 — Mobile (verified; awaiting owner visual review)
-- [ ] F7 — Fear pass
-- [ ] F8 — Full QA
+- [ ] F7 — Fear pass (superseded by REDESIGN R6)
+- [ ] F8 — Full QA (superseded by REDESIGN R7)
+
+Redesign phases (REDESIGN_PROMPT.md, overrides FIX_PROMPT and PROMPT; based on `DIAGNOSIS.md`):
+
+- [ ] R0 — Design (written; awaiting owner review)
+- [ ] R1 — Engine (Director, clock, triggers, ambient, save v2, metrics:design)
+- [ ] R2 — Night 1 vertical slice on desktop
+- [ ] R3 — Nights 2–5 on desktop
+- [ ] R4 — Endings as set pieces
+- [ ] R5 — Mobile magic window + stills fallback
+- [ ] R6 — Fear pass
+- [ ] R7 — Full QA
+
+## R0 — Design (written, awaiting owner review, 2026-10-28)
+
+No code changed. Deliverables:
+
+- `docs/BEATS.md`:
+  - beats for all five nights and three endings (clock, trigger, world action, text ID);
+  - tension curves; data model sketch (Director, Beat, Trigger, Action, PlayerResponse, save v2);
+  - shared systems; flags; deletion list; new world/asset needs; eight owner decisions.
+- `SCRIPT_UZ.md` rewritten: only in-world words (subtitles, phone, paper, diary) in play order,
+  no narrator and no choice labels. Worst-case playthrough: **661 words** (limit 900).
+  - Rental form 33; nights 91 / 160 / 96 / 82 / 57; diary pages 126; endings 16.
+  - No subtitle over 10 words; no diary page over 35.
+  - All five mother messages, Rustam's note and rule, Muhabbat's 48/Sardor story, the voice's quoting lines and the diary pages are kept word for word.
+- Beats without text per night (counted from the tables): 73% / 70% / 70% / 70% / 73%; endings 78–88%.
+- 3:17 arrives for an idle player at 5:56 / 6:58 / 5:47 / 4:08 / 3:48. Silence before the knocks is 7–8 s.
+
+Open: owner decisions in BEATS §11 (Ending C timing, night 5 idle loop, recorded voices, Rustam model,
+voice lint exemption, rental form, replacing graph-based tests, night 2 day scope).
+**`npm run text:build` (also run by dev/build/check) regenerates `SCRIPT_UZ.md` from the old graph and
+would overwrite the new script until R1 replaces the generator.**
 
 ## F6 — Mobile (verified, awaiting owner review, 2026-10-28)
 

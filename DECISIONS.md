@@ -272,3 +272,24 @@ Android phones"), recorded here.
 58. **Five-size E2E starts each viewport from a fresh run.** Storage is cleared from a
     static same-origin document; clearing inside the app was overwritten by its unload
     save, and the warning screen no longer appeared.
+59. **R0: the story is a timeline of world beats, not a text graph.** `DIAGNOSIS.md` showed
+    83–90% of a night was reading, 0 events without text and 100% button transitions.
+    `docs/BEATS.md` replaces nodes with clock / zone / gaze / notLooking / interact / idle
+    triggers and world actions. Every night reaches 3:17 by itself (3:48–6:58 idle). At
+    least 70% of beats per night carry no text, and every text beat also has a non-text
+    carrier (BEATS §8).
+60. **R0: only in-world words remain.** `SCRIPT_UZ.md` keeps only subtitles, phone screens,
+    papers and diary pages: 661 words worst case (was 2,426). The kept material is word for
+    word: the mother's five messages, Rustam's rule and note, Muhabbat's story, the voice's
+    quoting lines and the diary pages. Variants are lettered IDs so budgets are counted
+    mechanically.
+61. **R0: choices are physical.** Answering, knocking and silence at the wall work through
+    interact, a three-knock gesture and a 20 s window. The night-4 question is chosen from
+    what the player knows, and walking away is silence. The endings are entering 48,
+    leaving by the stairs, and winding the clock with a circular gesture. The wall clock
+    never shows anything but 3:17 until ending C. On night 5 the world holds at 3:17 until
+    the player acts (pending owner decision).
+62. **R0 open conflicts recorded, not resolved alone.** (a) The required voice lines use
+    second-person forms, so the new lint must exempt the `voice` speaker from the -dingiz
+    and -yapsiz ban. (b) Replacing the graph-based tests conflicts with "do not delete
+    tests", so it waits for the owner's approval (BEATS §9, §11).
