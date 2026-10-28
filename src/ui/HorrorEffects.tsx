@@ -1,30 +1,30 @@
 import { ui } from '@/content/text'
 import { useEffect, useState } from 'react'
-import { onEngineEvents, useGame } from './gameStore'
+import { onDirectorEvents, useGame } from './gameStore'
 import { useSettings } from './settingsStore'
 import './horror.css'
 
-/** A finite visual cue, never a modal or an input blocker. */
+/**
+ * The night-4 fake glitch (REDESIGN §5): a short picture tear with no words, never a modal
+ * or an input blocker. Reduce flashing removes it entirely.
+ */
 export function HorrorEffects() {
-  const [active, setActive] = useState<{ node: string } | null>(null)
+  const [active, setActive] = useState(false)
   const screen = useGame((state) => state.screen)
-  const node = useGame((state) => state.currentStep?.node.id)
   const reduced = useSettings((state) => state.settings.reduceFlashing)
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined
-    const unsubscribe = onEngineEvents((events, step, previous) => {
-      if (step.state.night !== 4 || previous?.state.flags['glitch_done']) return
-      const event = events.find((event) => event.kind === 'fx' && event.id === 'glitch_fake')
-      if (!event || event.kind !== 'fx' || useSettings.getState().settings.reduceFlashing) return
-      const duration = Math.min(3000, Math.max(0, event.durationMs ?? 2500))
+    const unsubscribe = onDirectorEvents((events) => {
+      const event = events.find((e) => e.type === 'fx' && e.id === 'glitch_fake')
+      if (!event || event.type !== 'fx' || useSettings.getState().settings.reduceFlashing) return
       if (timer) clearTimeout(timer)
-      setActive({ node: step.node.id })
-      timer = setTimeout(() => setActive(null), duration)
+      setActive(true)
+      timer = setTimeout(() => setActive(false), Math.min(3000, Math.max(0, event.ms ?? 2500)))
     })
     const hide = () => {
       if (document.hidden) {
         if (timer) clearTimeout(timer)
-        setActive(null)
+        setActive(false)
       }
     }
     document.addEventListener('visibilitychange', hide)
@@ -34,12 +34,6 @@ export function HorrorEffects() {
       if (timer) clearTimeout(timer)
     }
   }, [])
-  if (!active || reduced || screen !== 'game' || node !== active.node) return null
-  return (
-    <div className="signal-loss" role="status" aria-label={ui('shell.glitch_label')}>
-      <span>47 / 48</span>
-      <strong>{ui('shell.glitch_text')}</strong>
-      <span>3:17</span>
-    </div>
-  )
+  if (!active || reduced || screen !== 'game') return null
+  return <div className="signal-loss" role="presentation" aria-label={ui('shell.glitch_label')} />
 }

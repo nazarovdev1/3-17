@@ -34,6 +34,12 @@ const LAYER_GAIN: Record<AmbientId, number> = {
   clock: 0.35,
 }
 const CUE_GAIN: Partial<Record<SfxId, number>> = {
+  // Untold sounds of the building sit low: heard, never announced.
+  cough: 0.32,
+  drip: 0.22,
+  crows: 0.3,
+  pipes: 0.2,
+  car_pass: 0.25,
   whisper: 0.18,
   heartbeat: 0.3,
   knock: 0.5,

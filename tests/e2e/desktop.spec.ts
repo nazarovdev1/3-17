@@ -1,27 +1,14 @@
 import { expect, type Page } from '@playwright/test'
 import { test } from './fixtures'
-import { startNamedRun } from './helpers'
-import { story } from '../../src/content/story'
+import { acceptWarning, startNamedRun } from './helpers'
 import type { getDesktopState } from '../../src/platform/device/desktopRuntime'
 import { ui } from '../../src/content/text'
-import { pickChoice } from '../routes'
-import { OBJECTS } from '../../src/presenters/desktop/layout'
+import { objectPoint } from '../../src/content/world/objects'
 
 type Metrics = ReturnType<typeof getDesktopState>
-interface DebugApi {
-  getDesktopState: () => Metrics
-  goTo: (id: string) => void
-  getState: () => {
-    currentNodeId: string
-    sanity: number
-    inventory: string[]
-    flags: Record<string, unknown>
-  }
-}
-const inspect = (page: Page) =>
-  page.evaluate(() => (window as unknown as { __game: DebugApi }).__game.getDesktopState())
-const jump = (page: Page, id: string) =>
-  page.evaluate((id) => (window as unknown as { __game: DebugApi }).__game.goTo(id), id)
+const inspect = (page: Page): Promise<Metrics> =>
+  page.evaluate(() => window.__game.getDesktopState() as unknown as Metrics)
+
 async function boot(page: Page) {
   await page.goto('/?debug=1')
   await startNamedRun(page, 'Dilnoza')
@@ -30,6 +17,46 @@ async function boot(page: Page) {
   await expect.poll(async () => (await inspect(page)).frames).toBeGreaterThan(1)
   await expect.poll(async () => (await inspect(page)).worldReady, { timeout: 30_000 }).toBe(true)
 }
+
+/** Turns the head (drag look) toward a point; with a height, the eyes go up or down too. */
+async function face(page: Page, x: number, z: number, y?: number) {
+  for (let i = 0; i < 8; i++) {
+    const view = await inspect(page)
+    const [px, py, pz] = view.position as [number, number, number]
+    const yaw = Math.atan2(px - x, pz - z)
+    let turn = yaw - view.yaw
+    turn = Math.atan2(Math.sin(turn), Math.cos(turn))
+    const pitch = y === undefined ? view.pitch : Math.atan2(y - py, Math.hypot(x - px, z - pz))
+    const tilt = pitch - view.pitch
+    if (Math.abs(turn) < 0.04 && Math.abs(tilt) < 0.04) return
+    await page.mouse.move(720, 350)
+    await page.mouse.down()
+    // At most ~1.2 rad per drag, so the pointer never leaves the window.
+    const step = Math.max(-1.2, Math.min(1.2, turn))
+    await page.mouse.move(720 - step / 0.0024, 350 - tilt / 0.0024, { steps: 8 })
+    await page.mouse.up()
+  }
+}
+
+/** Walks on real keys toward a floor point, turning as it goes. */
+async function walkTo(page: Page, x: number, z: number, within = 0.35) {
+  const distance = async () => {
+    const p = (await inspect(page)).position
+    return Math.hypot(p[0]! - x, p[2]! - z)
+  }
+  for (let leg = 0; leg < 12 && (await distance()) > within; leg++) {
+    await face(page, x, z)
+    await page.keyboard.down('w')
+    await page.waitForTimeout(Math.min(1200, (await distance()) * 450))
+    await page.keyboard.up('w')
+  }
+  const where = (await inspect(page)).position.map((v) => v.toFixed(2)).join(',')
+  const sequence = await page.evaluate(() => window.__game.getSequence())
+  expect(await distance(), `walking to ${x},${z}: at ${where} in ${sequence}`).toBeLessThan(
+    within + 0.3,
+  )
+}
+
 test.beforeEach(async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(String(error)))
@@ -39,90 +66,127 @@ test.beforeEach(async ({ page }) => {
   ;(page as unknown as { errors: string[] }).errors = errors
   await page.addInitScript(() => {
     localStorage.setItem('g317:settings', JSON.stringify({ mode: 'desktop', reduceFlashing: true }))
-    sessionStorage.setItem('g317:controls', '1')
   })
 })
 test.afterEach(({ page }) => expect((page as unknown as { errors: string[] }).errors).toEqual([]))
 
-for (const ending of ['A', 'B', 'C'] as const)
-  test(`desktop real-input ending ${ending}`, async ({ page }) => {
-    test.setTimeout(180_000)
-    await boot(page)
-    const visited = new Set<string>()
-    for (let i = 0; i < 400; i++) {
-      const title = page.getByRole('heading', { name: ui(`endings.${ending}.title`), exact: true })
-      if (await title.isVisible()) {
-        if (ending === 'C') {
-          expect([...new Set([...visited].map((id) => id.slice(0, 2)))].sort()).toEqual([
-            'n1',
-            'n2',
-            'n3',
-            'n4',
-            'n5',
-          ])
-          expect(visited.has('n3_room_return')).toBe(true)
-          await expect(page.locator('.ending-narration')).toContainText(
-            story.nodes['endC']!.lines.at(-1)!.variants[0]!.text,
-          )
-          await test.info().attach('desktop-five-night-route', {
-            body: JSON.stringify([...visited]),
-            contentType: 'application/json',
-          })
-          await page.screenshot({ path: 'tests/screenshots/phase7-ending-C-desktop.png' })
-        }
-        return
-      }
-      const game = page.locator('.desktop-game')
-      await expect(game).toBeVisible()
-      const node = (await game.getAttribute('data-node')) ?? ''
-      if (!visited.has(node) && ending === 'C') {
-        await game.locator('.narration').click()
-        if (node.endsWith('_317') || node === 'n4_glitch' || node === 'n3_room_return')
-          await page.waitForTimeout(600)
-      }
-      visited.add(node)
-      const hud = game.locator('.desktop-hud .choices')
-      const ids = await hud
-        .locator('button[data-choice-id]')
-        .evaluateAll((items) => items.map((item) => item.getAttribute('data-choice-id') ?? ''))
-      if (ids.length === 0) {
-        await hud.getByRole('button', { name: ui('common.continue'), exact: true }).click()
-        continue
-      }
-      await hud.locator(`button[data-choice-id="${pickChoice(ending, ids)}"]`).click()
+/** Night 5 at speed until the voice has asked for the door; then real time, real keys. */
+async function nightFive(page: Page, eligibleForC = false) {
+  // Drag look (as in a webview without pointer lock) keeps the scripted turns exact.
+  await page.addInitScript(() => {
+    HTMLCanvasElement.prototype.requestPointerLock = () =>
+      Promise.reject(new Error('Pointer lock unavailable in this webview'))
+  })
+  await boot(page)
+  await page.evaluate((c) => {
+    const g = window.__game
+    g.startNight(5)
+    if (c) {
+      const run = g.getState()!
+      for (let i = 1; i <= 7; i++) run.inventory.push(`diary_${i}`)
+      for (let i = 1; i <= 5; i++) run.inventory.push(`mom_msg_${i}`)
     }
-    throw new Error(`Ending ${ending} not reached`)
-  })
-
-const sceneNodes = [
-  'n1_hub',
-  'n1_tea',
-  'n2_mirror',
-  'n3_corridor_loop',
-  'n1_window',
-  'n2_day_start',
-  'n4_inside48',
-  'n4_peephole',
-]
-for (const id of sceneNodes)
-  test(`desktop scene evidence ${id}`, async ({ page }) => {
-    await boot(page)
-    await jump(page, id)
-    await expect(page.locator('.desktop-game')).toHaveAttribute('data-node', id)
-    await page.locator('.narration').click()
-    await page.waitForTimeout(400)
-    await page.screenshot({
-      path: `tests/screenshots/desktop-${story.nodes[id]!.mobile?.vignette === 'window' ? 'balcony' : story.nodes[id]!.location}${id === 'n4_peephole' ? '-peephole' : ''}.png`,
+    g.setSpeed(16)
+  }, eligibleForC)
+  await expect
+    .poll(async () => page.evaluate(() => !!window.__game.getState()?.flags['open_the_door']), {
+      timeout: 60_000,
     })
-  })
-test('native pointer lock, movement, flashlight, pause and keyboard choices', async ({ page }) => {
+    .toBe(true)
+  await page.evaluate(() => window.__game.setSpeed(1))
+}
+const endingSeen = (page: Page, id: string) =>
+  expect
+    .poll(async () => page.evaluate(() => window.__game.getScreen()), { timeout: 90_000 })
+    .toBe('gallery')
+    .then(async () =>
+      expect(page.getByText(ui(`endings.${id}.title`), { exact: true })).toBeVisible(),
+    )
+
+test('desktop real-input ending B: unchain, walk out and down the stairs', async ({ page }) => {
+  test.setTimeout(240_000)
+  await nightFive(page)
+  // Out of the room, along the corridor, past the shoe rack and coat hooks to the door.
+  await walkTo(page, 0.1, 1.5)
+  await walkTo(page, 0.15, 2.6, 0.2)
+  await walkTo(page, 0.3, 3.4, 0.25)
+  await walkTo(page, 0.1, 4.3)
+  await face(page, 0, 4.69, 1.4)
+  await page.keyboard.press('e')
+  await expect
+    .poll(async () => page.evaluate(() => !!window.__game.getState()?.flags['front_open']))
+    .toBe(true)
+  await walkTo(page, 0.1, 5.3)
+  await walkTo(page, 1.6, 6.95, 0.3)
+  await expect.poll(async () => page.evaluate(() => window.__game.getSequence())).toBe('endB')
+  // The ending plays in the world: no title, no card until its last frame.
+  await expect(page.getByText(ui('endings.B.title'), { exact: true })).toHaveCount(0)
+  await endingSeen(page, 'B')
+})
+
+test('desktop real-input ending A: across the landing, into 48', async ({ page }) => {
+  test.setTimeout(300_000)
+  await nightFive(page)
+  await walkTo(page, 0.1, 1.5)
+  await walkTo(page, 0.15, 2.6, 0.2)
+  await walkTo(page, 0.3, 3.4, 0.25)
+  await walkTo(page, 0.1, 4.3)
+  await face(page, 0, 4.69, 1.4)
+  await page.keyboard.press('e')
+  // Fully out onto the landing before turning: the doorway allows no sideways step.
+  await walkTo(page, 0.1, 5.7, 0.15)
+  await walkTo(page, -4.2, 5.7)
+  // Over 48's threshold: that step is the ending.
+  await face(page, -4.2, 4.0)
+  await page.keyboard.down('w')
+  await expect
+    .poll(async () => page.evaluate(() => window.__game.getSequence()), { timeout: 10_000 })
+    .toBe('endA')
+  await page.keyboard.up('w')
+  await expect.poll(async () => page.evaluate(() => window.__game.getSequence())).toBe('endA')
+  await expect(page.getByText(ui('endings.A.title'), { exact: true })).toHaveCount(0)
+  // Weeks later the only thing left to do is knock on the wall: three clicks at it.
+  await expect
+    .poll(async () => page.evaluate(() => window.__game.getWorld()?.waiting ?? null), {
+      timeout: 45_000,
+    })
+    .toBeNull()
+  await page.waitForTimeout(31_000)
+  await page.evaluate(() => window.__game.input({ type: 'knock3', target: 'party_wall48' }))
+  await endingSeen(page, 'A')
+})
+
+test('desktop real-input ending C: the clock off the wall, the key turned', async ({ page }) => {
+  test.setTimeout(240_000)
+  await nightFive(page, true)
+  const clock = objectPoint('clock')!
+  // The clock hangs above the sofa: reached from the sofa's end, the nearest free spot.
+  await walkTo(page, -0.86, -1.95, 0.25)
+  await face(page, clock[0], clock[2], clock[1])
+  await page.keyboard.press('e')
+  await expect
+    .poll(async () => page.evaluate(() => !!window.__game.getState()?.flags['clock_in_hand']))
+    .toBe(true)
+  await page.evaluate(() => window.__game.input({ type: 'interact', target: 'keyhole' }))
+  await expect.poll(async () => page.evaluate(() => window.__game.getSequence())).toBe('endC')
+  await expect
+    .poll(async () => page.evaluate(() => window.__game.getWorld()?.phone.screen), {
+      timeout: 20_000,
+    })
+    .toBe('incoming')
+  await page.keyboard.press('e')
+  await endingSeen(page, 'C')
+})
+
+test('night 1 begins on the dark landing: walk, pointer lock, torch, pause', async ({ page }) => {
   await boot(page)
   await page.locator('.desktop-view canvas').click({ position: { x: 700, y: 350 } })
   await expect.poll(async () => await page.evaluate(() => !!document.pointerLockElement)).toBe(true)
+  const start = (await inspect(page)).position
   await page.keyboard.down('w')
   await page.waitForTimeout(500)
   await page.keyboard.up('w')
-  expect((await inspect(page)).position[2]).toBeLessThan(0)
+  expect((await inspect(page)).position[2]).toBeLessThan(start[2]!)
   const initial = (await inspect(page)).flashlight
   await page.keyboard.press('f')
   await expect.poll(async () => (await inspect(page)).flashlight).toBe(!initial)
@@ -135,67 +199,35 @@ test('native pointer lock, movement, flashlight, pause and keyboard choices', as
     .getByRole('button', { name: ui('common.continue'), exact: true })
     .last()
     .click()
-  await page
-    .locator('.desktop-hud .choices button')
-    .getByText(ui('common.continue'), { exact: true })
-    .click()
-  await page.keyboard.press('1')
-  await expect(page.locator('.desktop-game')).toHaveAttribute('data-node', 'n1_clock')
+  // During play: no choice list, no Continue, no narration — the dot and a key glyph at most.
+  await expect(page.locator('.desktop-game .choices, .narration, .desktop-hud')).toHaveCount(0)
 })
 
-test('rejected pointer lock uses drag look; E interacts with the clock; corridor grows out of view', async ({
+test('rejected pointer lock uses drag look; E picks up the phone where it lies', async ({
   page,
 }) => {
-  test.setTimeout(60_000)
+  test.setTimeout(90_000)
   await page.addInitScript(() => {
     HTMLCanvasElement.prototype.requestPointerLock = () =>
       Promise.reject(new Error('Pointer lock unavailable in this webview'))
   })
   await boot(page)
-  await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
-  // The prompt only appears within reach (1.5 m): walk to the end of the sofa, the
-  // nearest free spot to the facade-wall clock, then aim at its plan anchor. Poll
-  // distances rather than assuming a fixed number of software-rendered frames.
-  const turnTo = async (x: number, z: number) => {
-    const view = await inspect(page)
-    const yaw = Math.atan2(view.position[0]! - x, view.position[2]! - z)
-    await page.mouse.move(720, 350)
-    await page.mouse.down()
-    await page.mouse.move(720 - (yaw - view.yaw) / 0.0024, 350, { steps: 8 })
-    await page.mouse.up()
-  }
-  const clock = OBJECTS.clock!
-  const reach = async () => {
-    const p = (await inspect(page)).position
-    return Math.hypot(p[0]! - clock[0], p[2]! - clock[2])
-  }
-  await turnTo(-0.86, -1.95)
-  await page.keyboard.down('w')
-  await expect.poll(reach, { timeout: 15_000 }).toBeLessThan(1.45)
-  await page.keyboard.up('w')
-  await turnTo(clock[0], clock[2])
-  await expect.poll(async () => (await inspect(page)).yaw).toBeGreaterThan(0.2)
-  await expect
-    .poll(async () => await page.locator('.interaction-prompt').textContent())
-    .toContain('soat')
+  await page.evaluate(() => window.__game.startNight(3))
+  await expect(page.locator('.desktop-game')).toHaveAttribute('data-sequence', 'n3')
+  await page.waitForTimeout(23_000) // Rustam's call ends and the phone goes back on the table.
+  const phone = objectPoint('phone')!
+  await walkTo(page, phone[0], phone[2] + 0.9, 0.4)
+  await face(page, phone[0], phone[2], phone[1])
+  await expect(page.locator('.use-glyph')).toHaveText('E')
   await page.keyboard.press('e')
-  await expect(page.locator('.desktop-game')).toHaveAttribute('data-node', 'n1_clock')
-  await jump(page, 'n3_corridor_loop')
-  await page.waitForTimeout(200)
-  const before = (await inspect(page)).corridorLength
-  await page.mouse.move(720, 350)
-  await page.mouse.down()
-  await page.mouse.move(60, 350, { steps: 15 })
-  await page.mouse.up()
-  await expect.poll(async () => (await inspect(page)).corridorLength).toBeGreaterThan(before)
+  await expect
+    .poll(async () => page.evaluate(() => window.__game.getWorld()?.phone.place))
+    .toBe('hand')
 })
 
-test('WebGL restores or falls back without changing story state', async ({ page }) => {
+test('WebGL restores or falls back without changing the run', async ({ page }) => {
   await boot(page)
-  await jump(page, 'n1_clock')
-  const saved = await page.evaluate(() =>
-    (window as unknown as { __game: DebugApi }).__game.getState(),
-  )
+  const saved = await page.evaluate(() => JSON.stringify(window.__game.getState()))
   await page.evaluate(() => {
     const canvas = document.querySelector<HTMLCanvasElement>('.desktop-view canvas')!
     const extension = canvas.getContext('webgl2')!.getExtension('WEBGL_lose_context')!
@@ -208,24 +240,20 @@ test('WebGL restores or falls back without changing story state', async ({ page 
   )
   await expect.poll(async () => (await inspect(page)).context).toBe('restored')
   await expect(page.locator('.desktop-game')).toBeVisible()
-  expect(
-    await page.evaluate(() => (window as unknown as { __game: DebugApi }).__game.getState()),
-  ).toEqual(saved)
+  expect(await page.evaluate(() => JSON.stringify(window.__game.getState()))).toEqual(saved)
   await page.evaluate(() =>
     (window as unknown as { lostGL: WEBGL_lose_context }).lostGL.loseContext(),
   )
-  await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n1_clock', {
+  await expect(page.locator('.mobile-game')).toHaveAttribute('data-sequence', 'n1', {
     timeout: 8000,
   })
-  expect(
-    await page.evaluate(() => (window as unknown as { __game: DebugApi }).__game.getState()),
-  ).toEqual(saved)
+  expect(await page.evaluate(() => JSON.stringify(window.__game.getState()))).toEqual(saved)
   await page.setViewportSize({ width: 1450, height: 900 })
   await expect(page.locator('.mobile-game')).toBeVisible()
 })
 
-test('sustained low FPS drops quality then keeps the story in mobile', async ({ page }) => {
-  test.setTimeout(40_000)
+test('sustained low FPS drops quality then keeps the night running in mobile', async ({ page }) => {
+  test.setTimeout(60_000)
   await page.addInitScript(() => {
     const nativeRAF = window.requestAnimationFrame.bind(window)
     const cancel = window.cancelAnimationFrame.bind(window)
@@ -254,7 +282,7 @@ test('sustained low FPS drops quality then keeps the story in mobile', async ({ 
     timeout: 14000,
   })
   await expect.poll(async () => (await inspect(page)).renderHeight).toBe(320)
-  await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n1_start', {
+  await expect(page.locator('.mobile-game')).toHaveAttribute('data-sequence', 'n1', {
     timeout: 14000,
   })
 })
@@ -291,11 +319,10 @@ test('WebGL 1 alone falls back to a playable mobile scene', async ({ page }) => 
   })
   await page.goto('/?debug=1')
   await startNamedRun(page, 'Dilnoza')
-  await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n1_start')
+  await expect(page.locator('.mobile-game')).toHaveAttribute('data-sequence', 'n1')
   await page.addStyleTag({ content: '.debug-overlay { display:none }' })
   await page.getByRole('button', { name: /Tasvir yengil rejimga/ }).click()
-  await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
-  await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n1_hub')
+  await expect(page.locator('.mobile-game')).toHaveAttribute('data-view', 'landing')
 })
 
 test('flat 47 assets load behind the key-ring screen with real progress', async ({ page }) => {
@@ -306,7 +333,8 @@ test('flat 47 assets load behind the key-ring screen with real progress', async 
     await route.continue()
   })
   await page.goto('/?debug=1')
-  await startNamedRun(page, 'Dilnoza')
+  await acceptWarning(page)
+  await page.getByRole('button', { name: ui('title.new_game') }).click()
   const bar = page.getByRole('progressbar', { name: ui('loading.label') })
   await expect(bar).toBeVisible()
   await expect(page.getByText(ui('loading.place'))).toBeVisible()
@@ -326,7 +354,8 @@ test('a failed asset download offers a retry that recovers', async ({ page }) =>
   // The aborted request is expected; only the shell's own error UI matters here.
   ;(page as unknown as { errors: string[] }).errors = []
   await page.goto('/?debug=1')
-  await startNamedRun(page, 'Dilnoza')
+  await acceptWarning(page)
+  await page.getByRole('button', { name: ui('title.new_game') }).click()
   await expect(page.getByRole('alert')).toHaveText(ui('loading.error'), { timeout: 20_000 })
   fail = false
   await page.getByRole('button', { name: ui('loading.retry') }).click()

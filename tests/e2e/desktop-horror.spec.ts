@@ -1,28 +1,19 @@
 import { expect, type Page } from '@playwright/test'
 import { test } from './fixtures'
 import { startNamedRun } from './helpers'
-import type { GameState } from '../../src/core/state/types'
 import type { getDesktopState } from '../../src/platform/device/desktopRuntime'
 import { ui } from '../../src/content/text'
+import { objectPoint } from '../../src/content/world/objects'
 
-interface Api {
-  getState: () => GameState
-  getDesktopState: typeof getDesktopState
-  goTo: (id: string) => void
-  setFlag: (key: string, value: boolean) => void
-  getAudioState: () => { recent: string[] }
-}
-const state = (page: Page) =>
-  page.evaluate(() => (window as unknown as { __game: Api }).__game.getState())
-const inspect = (page: Page) =>
-  page.evaluate(() => (window as unknown as { __game: Api }).__game.getDesktopState())
-const jump = (page: Page, id: string) =>
-  page.evaluate((id) => (window as unknown as { __game: Api }).__game.goTo(id), id)
+type Metrics = ReturnType<typeof getDesktopState>
+const inspect = (page: Page): Promise<Metrics> =>
+  page.evaluate(() => window.__game.getDesktopState() as unknown as Metrics)
+const run = (page: Page) => page.evaluate(() => window.__game.getState()!)
+
 async function boot(page: Page, mode: 'mobile' | 'desktop', reduced = true) {
   await page.addInitScript(
     ({ mode, reduced }) => {
       localStorage.setItem('g317:settings', JSON.stringify({ mode, reduceFlashing: reduced }))
-      sessionStorage.setItem('g317:controls', '1')
     },
     { mode, reduced },
   )
@@ -45,63 +36,71 @@ test.beforeEach(({ page }) => {
 })
 test.afterEach(({ page }) => expect((page as unknown as { errors: string[] }).errors).toEqual([]))
 
-test('late-night launch adds one line and consumes it across reload', async ({ page }) => {
+test('a late-night launch is recorded on the run for night 1 (no narrator line), across reload', async ({
+  page,
+}) => {
+  // 00:20 in Tashkent.
   await page.clock.setFixedTime(new Date('2026-10-25T19:20:00Z'))
   await boot(page, 'mobile')
-  await expect(page.getByText(ui('meta.late_night'))).toBeVisible()
-  expect((await state(page)).metaHints.lateNightCommentFired).toBe(true)
-  await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
+  expect((await run(page)).flags['late_night']).toBe(true)
+  await expect(page.locator('.narration')).toHaveCount(0)
   await page.reload()
   await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
-  await expect(page.getByText(ui('meta.late_night'))).toHaveCount(0)
+  expect((await run(page)).flags['late_night']).toBe(true)
 })
 
-test('saved absence is acknowledged once at the actual resumed node', async ({ page }) => {
+test('a long absence is recorded when the run is continued, at the same night', async ({
+  page,
+}) => {
   await boot(page, 'mobile')
-  await jump(page, 'n2_mirror')
+  await page.evaluate(() => window.__game.startNight(2))
+  await page.waitForTimeout(500)
+  await page.evaluate(() => {
+    window.__game.setTime(new Date(Date.now() - 150 * 60_000).toISOString())
+  })
   await page.addInitScript(() => {
-    const saved = JSON.parse(localStorage.getItem('g317:run')!) as { state: GameState }
+    const raw = localStorage.getItem('g317:run')
+    if (!raw) return
+    const saved = JSON.parse(raw) as { state: { lastPlayedAt: string } }
     saved.state.lastPlayedAt = new Date(Date.now() - 150 * 60_000).toISOString()
     localStorage.setItem('g317:run', JSON.stringify(saved))
   })
   await page.reload()
   await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
-  await expect(page.getByText(ui('meta.return_long'))).toBeVisible()
-  expect((await state(page)).currentNodeId).toBe('n2_mirror')
-  expect((await state(page)).metaHints.returnCommentFired).toBe(true)
-  await page.reload()
-  await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
-  await expect(page.getByText(ui('meta.return_long'))).toHaveCount(0)
+  await expect(page.locator('.mobile-game')).toHaveAttribute('data-sequence', 'n2')
+  expect((await run(page)).flags['returned']).toBe(true)
 })
 
-test('real 3:17 adds a knock without moving the story and stays consumed on reload', async ({
+test('real 3:17 knocks once on the wall without moving the night, and stays spent on reload', async ({
   page,
 }) => {
   await page.clock.setFixedTime(new Date('2026-10-25T22:16:59Z'))
   await boot(page, 'mobile')
-  const previous = await state(page)
+  const before = await run(page)
+  const sequence = await page.evaluate(() => window.__game.getSequence())
   await page.clock.setFixedTime(new Date('2026-10-25T22:17:00Z'))
-  const banner = page.getByRole('button', { name: ui('shell.real_317') })
-  await expect(banner).toBeVisible()
-  expect((await state(page)).currentNodeId).toBe(previous.currentNodeId)
-  expect((await state(page)).sanity).toBe(previous.sanity)
-  expect((await state(page)).metaHints.realClock317Fired).toBe(true)
+  await expect.poll(async () => (await run(page)).metaHints.realClock317Fired).toBe(true)
+  expect(await page.evaluate(() => window.__game.getSequence())).toBe(sequence)
+  expect((await run(page)).sanity).toBe(before.sanity)
   expect(
-    await page.evaluate(() => (window as unknown as { __game: Api }).__game.getAudioState().recent),
+    await page.evaluate(() => (window.__game.getAudioState() as { recent: string[] }).recent),
   ).toContain('knock_soft')
-  await banner.click()
+  // Nothing written on screen about it.
+  await expect(page.locator('.realtime-banner')).toHaveCount(0)
   await page.reload()
   await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
-  await page.waitForTimeout(1200)
-  await expect(banner).toHaveCount(0)
+  expect((await run(page)).metaHints.realClock317Fired).toBe(true)
 })
 
 for (const mode of ['mobile', 'desktop'] as const) {
-  test(`${mode}: finite signal loss leaves pause and continuation available`, async ({ page }) => {
+  test(`${mode}: the fake glitch has no words, never blocks input, and pause stays reachable`, async ({
+    page,
+  }) => {
     await boot(page, mode, false)
-    await jump(page, 'n4_glitch')
-    const signal = page.getByRole('status', { name: ui('shell.glitch_label') })
+    await page.evaluate(() => window.__game.emit([{ type: 'fx', id: 'glitch_fake', ms: 2500 }]))
+    const signal = page.locator('.signal-loss')
     await expect(signal).toBeVisible()
+    expect(await signal.textContent()).toBe('')
     expect(await signal.evaluate((node) => getComputedStyle(node).pointerEvents)).toBe('none')
     await page.screenshot({ path: `tests/screenshots/phase7-signal-${mode}.png` })
     await page.getByRole('button', { name: ui('common.pause'), exact: true }).click()
@@ -111,107 +110,66 @@ for (const mode of ['mobile', 'desktop'] as const) {
       .last()
       .click()
     await expect(signal).toHaveCount(0, { timeout: 3100 })
-    await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
-    await expect(page.locator(`.${mode}-game`)).toHaveAttribute('data-node', 'n4_voice_identity')
-    await jump(page, 'n4_glitch')
-    await expect(signal).toHaveCount(0)
   })
-  test(`${mode}: Reduce flashing removes the signal-loss effect`, async ({ page }) => {
+  test(`${mode}: Reduce flashing removes the fake glitch`, async ({ page }) => {
     await boot(page, mode)
-    await jump(page, 'n4_glitch')
-    await expect(page.getByRole('status', { name: ui('shell.glitch_label') })).toHaveCount(0)
-    await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
-    await expect(page.locator(`.${mode}-game`)).toHaveAttribute('data-node', 'n4_voice_identity')
+    await page.evaluate(() => window.__game.emit([{ type: 'fx', id: 'glitch_fake', ms: 2500 }]))
+    await page.waitForTimeout(200)
+    await expect(page.locator('.signal-loss')).toHaveCount(0)
   })
 }
 
-test('mobile return puzzle exposes only the changed detail as the way forward', async ({
+test('desktop: the opposite windows go dark floor by floor before the power cut', async ({
   page,
 }) => {
-  await boot(page, 'mobile')
-  await jump(page, 'n3_corridor_loop')
-  await page.locator('[data-choice-id="stop"]').click()
-  await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
-  await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n3_room_return')
-  await expect(page.locator('.mobile-panel .choices button')).toHaveCount(0)
-  await page.screenshot({ path: 'tests/screenshots/phase7-shifted-mobile.png' })
-  await page.locator('[data-choice-id="shifted_clock"]').click()
-  await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n3_clock_close')
-  expect((await state(page)).flags['clock_shifted']).toBe(true)
+  await boot(page, 'desktop')
+  await expect.poll(async () => (await inspect(page)).windowsLit).toBe(5)
+  await page.evaluate(() => window.__game.setClock('03:16'))
+  await expect.poll(async () => (await inspect(page)).windowsLit, { timeout: 7000 }).toBe(0)
+  // The windows are out while the power is still on: 3:17 comes after them.
+  expect(await page.evaluate(() => window.__game.getWorld()?.power)).toBe(true)
+  await page.screenshot({ path: 'tests/screenshots/phase7-blackout-desktop.png' })
 })
 
-test('mobile voice reveal skips the pause without duplicating dialogue in narration', async ({
+test('desktop: the clock moves only while unseen; the mirror turns half a second late', async ({
   page,
 }) => {
-  await boot(page, 'mobile', false)
-  await jump(page, 'n3_voice_repeat')
-  await expect(page.locator('.chat-typing')).toBeVisible()
-  await expect(page.locator('.mobile-panel .speaker-voice')).toHaveCount(0)
-  await page.getByRole('button', { name: ui('mobile.reveal'), exact: true }).click()
-  await expect(page.locator('.chat-bubble')).toHaveCount(2)
-  await expect(page.locator('.chat-typing')).toHaveCount(0)
-  await page.screenshot({ path: 'tests/screenshots/phase7-voice-mobile.png' })
-})
-
-for (const mode of ['mobile', 'desktop'] as const) {
-  test(`${mode}: opposite windows go dark before the power cut`, async ({ page }) => {
-    await boot(page, mode)
-    if (mode === 'desktop') await expect.poll(async () => (await inspect(page)).windowsLit).toBe(5)
-    await jump(page, 'n1_316')
-    if (mode === 'desktop')
-      await expect.poll(async () => (await inspect(page)).windowsLit, { timeout: 5500 }).toBe(0)
-    else {
-      await expect(page.locator('.mobile-game')).toHaveAttribute('data-vignette', 'window_dark')
-      await page.waitForTimeout(3800)
-    }
-    await page.screenshot({ path: `tests/screenshots/phase7-blackout-${mode}.png` })
-  })
-}
-
-test('desktop clock waits outside the frustum; mirror head turn follows after half a second', async ({
-  page,
-}) => {
-  test.setTimeout(60_000)
+  test.setTimeout(90_000)
   await page.addInitScript(() => {
     HTMLCanvasElement.prototype.requestPointerLock = () => Promise.reject(new Error('Drag test'))
   })
   await boot(page, 'desktop')
-  await jump(page, 'n3_hub')
-  // The clock may only move unobserved, so wait until the camera has settled facing it.
-  await expect
-    .poll(async () => {
-      const a = await inspect(page)
-      await page.waitForTimeout(300)
-      const b = await inspect(page)
-      return a.yaw === b.yaw && a.position.every((v, i) => v === b.position[i])
-    })
-    .toBe(true)
-  await page.evaluate(() =>
-    (window as unknown as { __game: Api }).__game.setFlag('clock_shifted', true),
+  await page.evaluate(() => window.__game.startNight(3))
+  await expect(page.locator('.desktop-game')).toHaveAttribute('data-sequence', 'n3')
+  const clock = objectPoint('clock')!
+  // Facing the clock from the room: it stays where it is, however long the player looks.
+  await page.evaluate(
+    ([x, z]) => window.__game.teleport(x!, z!, Math.atan2(x! - -1.3, z! - -3.28)),
+    [0.4, -0.8],
   )
-  await page.waitForTimeout(250)
+  await page.waitForTimeout(9500)
   expect((await inspect(page)).clockShifted).toBe(false)
-  await page.mouse.move(720, 350)
-  await page.mouse.down()
-  await page.mouse.move(1400, 350)
-  await page.mouse.up()
-  await expect.poll(async () => (await inspect(page)).clockShifted).toBe(true)
-  await page.mouse.move(720, 350)
-  await page.mouse.down()
-  await page.mouse.move(40, 350)
-  await page.mouse.up()
+  // Turned away from it: after a few seconds unseen, it hangs on another wall.
+  await page.evaluate(() => window.__game.teleport(0.4, -0.8, Math.PI))
+  await expect.poll(async () => (await inspect(page)).clockShifted, { timeout: 15_000 }).toBe(true)
+  expect(clock).toBeTruthy()
+  await page.evaluate(() => window.__game.teleport(0.4, -0.8, 0.6))
+  await page.waitForTimeout(800)
   await page.screenshot({ path: 'tests/screenshots/phase7-shifted-desktop.png' })
-  await jump(page, 'n2_mirror')
+  // In the bathroom the reflection's head turns half a second after the player's.
+  const mirror = objectPoint('mirror_cabinet')!
+  await page.evaluate(
+    ([x, z, mx, mz]) => window.__game.teleport(x!, z!, Math.atan2(x! - mx!, z! - mz!)),
+    [-1.3, 3.1, mirror[0], mirror[2]],
+  )
   await page.waitForTimeout(700)
   const before = await inspect(page)
-  // Sample the reflection gap every frame in the page: the lag lasts half a second,
-  // shorter than a round trip on a loaded software renderer.
   await page.evaluate(() => {
-    const w = window as unknown as { __game: Api; __mirrorGap: number }
+    const w = window as unknown as { __mirrorGap: number }
     w.__mirrorGap = 0
     const start = performance.now()
     const sample = () => {
-      const view = w.__game.getDesktopState()
+      const view = window.__game.getDesktopState() as { yaw: number; mirrorYaw: number }
       w.__mirrorGap = Math.max(w.__mirrorGap, Math.abs(view.yaw - view.mirrorYaw))
       if (performance.now() - start < 3000) requestAnimationFrame(sample)
     }

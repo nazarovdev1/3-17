@@ -33,41 +33,28 @@ test('HD stills, depth fallback, readable layout and disjoint 48 px targets at f
       await startNamedRun(page, 'Dilnoza')
       await page.addStyleTag({ content: '.debug-overlay{display:none!important}' })
     }
-    for (const node of ['n1_hub', 'n1_tea', 'n2_mirror', 'n4_317', 'n4_phone']) {
-      await page.evaluate(
-        (id) => (window as unknown as { __game: { goTo: (id: string) => void } }).__game.goTo(id),
-        node,
-      )
+    // Night 1's landing, then nights 2, 3 and 5 from the room through the wall and entry
+    // viewpoints (power on and off).
+    const shots: [number, string[]][] = [
+      [1, []],
+      [2, []],
+      [3, ['left']],
+      [5, ['right']],
+    ]
+    for (const [night, exits] of shots) {
+      if (night !== 1) await page.evaluate((n) => window.__game.startNight(n), night)
+      await expect(page.locator('.mobile-game')).toHaveAttribute('data-sequence', `n${night}`)
+      for (const exit of exits) await page.locator(`.view-exit-${exit}`).click()
+      const node = `n${night}-${await page.locator('.mobile-game').getAttribute('data-view')}`
       const canvas = page.locator('.mobile-scene canvas')
-      await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', node)
       await expect(canvas).toHaveAttribute('data-ready', 'true')
-      if (node === 'n4_phone') {
-        await page.evaluate(() =>
-          (
-            window as unknown as { __game: { setFlag: (key: string, value: string) => void } }
-          ).__game.setFlag('time', '3:16'),
-        )
-        await expect(page.locator('.phone-clock')).toHaveText('3:16')
-        await page.evaluate(() =>
-          (
-            window as unknown as { __game: { setFlag: (key: string, value: string) => void } }
-          ).__game.setFlag('time', '3:17'),
-        )
-        await expect(page.locator('.phone-clock')).toHaveText('3:17')
-      }
       await expect(canvas).toHaveAttribute(
         'data-renderer',
         info.project.name === 'no-webgl' ? 'canvas' : 'webgl2',
       )
       const scene = (await page.locator('.mobile-scene').boundingBox())!
-      const panel = (await page.locator('.mobile-panel').boundingBox())!
-      expect(panel.y).toBeGreaterThanOrEqual(scene.y + scene.height - 1)
-      expect(
-        await page
-          .locator('.mobile-panel .line')
-          .first()
-          .evaluate((p) => parseFloat(getComputedStyle(p).fontSize)),
-      ).toBeGreaterThanOrEqual(17)
+      // No text panel under the scene: the still is the whole screen.
+      await expect(page.locator('.mobile-panel, .narration')).toHaveCount(0)
       const boxes = await page.locator('.hotspot').evaluateAll((elements) =>
         elements.map((element) => {
           const r = element.getBoundingClientRect()
@@ -96,7 +83,6 @@ test('HD stills, depth fallback, readable layout and disjoint 48 px targets at f
         true,
       )
       if (info.project.name === 'small-android') {
-        await page.locator('.narration').click()
         await page.screenshot({ path: `audit/screenshots/f6/${width}x${height}-${node}.png` })
       }
     }
@@ -110,7 +96,7 @@ test('a damaged still can be retried; context loss retains the scene through Can
     localStorage.setItem('g317:settings', JSON.stringify({ mode: 'mobile', reduceFlashing: true })),
   )
   let damaged = true
-  await page.route('**/assets/stills/room_entry-on.webp', (route) => {
+  await page.route('**/assets/stills/stairwell-on.webp', (route) => {
     if (damaged) {
       damaged = false
       return route.fulfill({ status: 200, contentType: 'image/webp', body: 'invalid image' })
@@ -129,8 +115,8 @@ test('a damaged still can be retried; context loss retains the scene through Can
   })
   await expect(canvas).toHaveAttribute('data-renderer', 'canvas')
   await expect(canvas).toHaveAttribute('data-ready', 'true')
-  await expect(canvas).toHaveAttribute('data-still', 'room_entry-on')
-  await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n1_start')
+  await expect(canvas).toHaveAttribute('data-still', 'stairwell-on')
+  await expect(page.locator('.mobile-game')).toHaveAttribute('data-view', 'landing')
 })
 
 test('orientation reaches the depth renderer and Reduce flashing freezes motion', async ({

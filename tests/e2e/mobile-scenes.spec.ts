@@ -1,11 +1,10 @@
 import { expect } from '@playwright/test'
 import { test } from './fixtures'
-import { story } from '../../src/content/story'
 import { startNamedRun } from './helpers'
 import { ui } from '../../src/content/text'
 
 // Scene evidence is written once; the interaction checks run at every viewport.
-test('mobile scenes, hotspot bounds, peephole, hold cancellation, and glyph evidence', async ({
+test('mobile viewpoints, hotspot bounds, wall listening, pause and glyph evidence', async ({
   page,
 }, info) => {
   test.setTimeout(120_000)
@@ -23,56 +22,63 @@ test('mobile scenes, hotspot bounds, peephole, hold cancellation, and glyph evid
   await page.goto('/?debug=1')
   await startNamedRun(page, 'Dilnoza')
   await page.addStyleTag({ content: '.debug-overlay { display: none }' })
-  const scenes = new Set<string>()
-  for (const node of Object.values(story.nodes)) {
-    if (node.ending) continue
-    await page.evaluate(
-      (id) => (window as unknown as { __game: { goTo: (id: string) => void } }).__game.goTo(id),
-      node.id,
-    )
-    await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', node.id)
+  const game = page.locator('.mobile-game')
+  const scene = (await page.locator('.mobile-scene').boundingBox())!
+  // Walk every viewpoint by its edge arrows: landing → hall → room → wall / entry …
+  const route: [string, string][] = [
+    ['landing', 'forward'],
+    ['hall', 'back'],
+    ['room', 'left'],
+    ['wall', 'back'],
+    ['room', 'right'],
+    ['entry', 'back'],
+    ['hall', 'right'],
+    ['kitchen', 'back'],
+    ['hall', 'left'],
+    ['bathroom', 'back'],
+  ]
+  for (const [view, exit] of route) {
+    await expect(game).toHaveAttribute('data-view', view)
     for (const hotspot of await page.locator('.hotspot').all()) {
-      const box = await hotspot.boundingBox()
-      expect(box).not.toBeNull()
-      expect(box!.x).toBeGreaterThanOrEqual(0)
-      expect(box!.x + box!.width).toBeLessThanOrEqual(360)
-      expect(box!.y).toBeGreaterThanOrEqual(0)
-      expect(box!.y + box!.height).toBeLessThanOrEqual(352)
+      const box = (await hotspot.boundingBox())!
+      expect(box.x).toBeGreaterThanOrEqual(scene.x)
+      expect(box.x + box.width).toBeLessThanOrEqual(scene.x + scene.width)
+      expect(box.y).toBeGreaterThanOrEqual(scene.y)
+      expect(box.y + box.height).toBeLessThanOrEqual(scene.y + scene.height)
+      expect(box.width).toBeGreaterThanOrEqual(48)
     }
-    const scene = node.mobile?.vignette ?? node.location
-    if (!scenes.has(scene) && info.project.name === 'small-android') {
-      scenes.add(scene)
-      await page.locator('.narration').click()
+    // No panel, no choices, no narration: the still, its objects and the way on.
+    await expect(page.locator('.mobile-panel, .choices, .narration')).toHaveCount(0)
+    if (info.project.name === 'small-android') {
       await page.evaluate(() => document.fonts.ready)
-      await page.screenshot({ path: `tests/screenshots/mobile-${scene}.png` })
+      await page.screenshot({ path: `tests/screenshots/mobile-${view}.png` })
     }
+    await page.locator(`.view-exit-${exit}`).click()
   }
-  await page.evaluate(() =>
-    (window as unknown as { __game: { goTo: (id: string) => void } }).__game.goTo('n4_peephole'),
-  )
-  await expect(page.locator('.peephole-panel .narration')).toBeVisible()
-  await page.locator('.narration').click()
-  await expect(page.locator('.narration')).toContainText(/kimdir/i)
-
-  await page.evaluate(() =>
-    (window as unknown as { __game: { goTo: (id: string) => void } }).__game.goTo('n2_night_hub'),
-  )
-  await page.evaluate(() =>
-    (
-      window as unknown as { __game: { setFlag: (key: string, value: boolean) => void } }
-    ).__game.setFlag('listened_n2', false),
-  )
-  const listen = page.locator('[data-choice-id="listen"]')
-  const box = (await listen.boundingBox())!
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+  // Hold the shared wall to listen; letting go stops.
+  await expect(game).toHaveAttribute('data-view', 'hall')
+  await page.locator('.view-exit-back').click()
+  await page.locator('.view-exit-left').click()
+  await expect(game).toHaveAttribute('data-view', 'wall')
+  const wall = (await page.locator('[data-object="party_wall"]').boundingBox())!
+  await page.mouse.move(wall.x + wall.width / 2, wall.y + wall.height / 2)
   await page.mouse.down()
-  await page.waitForTimeout(200)
+  await expect.poll(() => page.evaluate(() => window.__game.getWorld()?.waiting ?? null)).toBeNull()
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window.__game.getWorld() as unknown as { listening: boolean }).listening,
+      ),
+    )
+    .toBe(true)
   await page.mouse.up()
-  await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n2_night_hub')
-  await page.mouse.down()
-  await page.waitForTimeout(800)
-  await page.mouse.up()
-  await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n2_listen')
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window.__game.getWorld() as unknown as { listening: boolean }).listening,
+      ),
+    )
+    .toBe(false)
   await page.getByRole('button', { name: ui('common.pause') }).click()
   await expect(page.getByText(ui('pause.title'), { exact: true })).toBeVisible()
   await page

@@ -36,5 +36,11 @@ export const desktopRuntime = {
   changes: '',
   inspectYaw: 0,
   inspectPitch: 0,
+  /** Whether each flat's entrance leaf stands open at all (Doors writes it every frame). */
+  entrances: { front_door: false, front_door48: false } as Record<string, boolean>,
+  /** Flats whose furniture is drawn this frame (out of sight behind shut doors otherwise). */
+  flatsDrawn: '',
+  /** Debug/test builds only: a requested jump [x, z, yaw], consumed by the camera rig. */
+  teleport: null as number[] | null,
 }
 export const getDesktopState = () => ({ ...desktopRuntime, position: [...desktopRuntime.position] })

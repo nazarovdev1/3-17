@@ -7,13 +7,16 @@ import { manifest } from '@/assets/loader'
 import { desktopRuntime } from '@/platform/device/desktopRuntime'
 import { loadHdri, loadModel } from './assets'
 import { CLOCK_SHIFTED } from './layout'
-import type { Appearance } from './figure'
+import { appearanceFor } from './figure'
 import { Architecture } from './world/Architecture'
 import { Doors } from './world/Doors'
 import { Figure } from './world/Figure'
 import { Phone } from './world/Phone'
 import { Changes } from './world/Changes'
-import type { GameState } from '@/core/state/types'
+import type { WorldState } from '@/core/director/types'
+import { formatClock } from '@/core/director/clock'
+import { phoneTime } from './phone'
+import { Rustam } from './world/Rustam'
 import { Furniture, placeClock, type Models } from './world/Furniture'
 import { Lighting } from './world/Lighting'
 import { loadSurfaces, type SurfaceMaterials } from './world/materials'
@@ -123,38 +126,39 @@ function Clock({
 }
 
 export function World({
-  outage,
-  doorAjar,
+  world,
+  flags,
+  lateNight,
   corridorLength,
-  windowsDark,
   lightsOff,
-  clockRequested,
   shadows,
-  appearance,
-  node,
-  state,
   peephole,
 }: {
-  outage: boolean
-  doorAjar: boolean
+  world: WorldState
+  flags: Record<string, unknown>
+  lateNight: boolean
   corridorLength: number
-  windowsDark: boolean
   lightsOff: Set<number>
-  clockRequested: boolean
   shadows: boolean
-  /** Where the figure may be at this beat (see ./figure.ts). */
-  appearance: Appearance | null
-  node: string
-  state: GameState
   /** An eye at the entrance peephole: the door stays shut. */
   peephole: boolean
 }) {
   const assets = useWorldAssets(shadows)
   const scene = useThree((s) => s.scene)
   const extension = corridorLength - 1
+  const appearance = useMemo(() => appearanceFor(world.figure), [world.figure])
+  const outage = !world.power
   const closed = useMemo(
-    () => new Set([...(appearance?.closedDoors ?? []), ...(peephole ? ['front_door'] : [])]),
-    [appearance, peephole],
+    () =>
+      new Set([
+        ...(appearance?.closedDoors ?? []),
+        ...(peephole || world.doors['front_door'] === 'closed' ? ['front_door'] : []),
+      ]),
+    [appearance, peephole, world.doors],
+  )
+  const held = useMemo(
+    () => new Set(Object.entries(world.doors).flatMap(([id, s]) => (s === 'open' ? [id] : []))),
+    [world.doors],
   )
   const dark = useMemo(
     () => new Set([...lightsOff, ...(appearance?.darkCircuits ?? [])]),
@@ -171,9 +175,10 @@ export function World({
     }
   }, [assets, scene, shadows])
   if (!assets) return null
+  const door48 = world.doors['door48']
   return (
     <>
-      <Outside surfaces={assets.surfaces} windowsDark={windowsDark} />
+      <Outside surfaces={assets.surfaces} windowsDark={world.windows !== 'lit'} />
       <Architecture surfaces={assets.surfaces} extension={extension} />
       <Furniture
         models={assets.models}
@@ -182,25 +187,53 @@ export function World({
         skip={SKIP}
         mirrors={shadows}
       />
-      <Clock models={assets.models} requested={clockRequested} detailed={shadows} />
+      <Clock
+        models={assets.models}
+        requested={world.objects['clock'] === 'shifted'}
+        detailed={shadows}
+      />
       <Doors
         surfaces={assets.surfaces}
         extension={extension}
-        doorAjar={doorAjar}
+        doorAjar={door48 === 'ajar' || door48 === 'open'}
         closed={closed}
+        held={held}
         // Blurring glass costs a second scene pass; only while something stands behind it.
         frosted={shadows && appearance?.id === 'frosted'}
       />
       <Lighting
         outage={outage}
+        daylight={world.daylight}
         lightsOff={dark}
         extension={extension}
         shadows={shadows}
         landingDark={!!appearance?.landingDark}
+        landingDead={world.lights['landing'] === 'off'}
       />
-      <Figure appearance={appearance} node={node} detailed={shadows} outage={outage} />
-      <Phone state={state} node={node} detailed={shadows} />
-      <Changes state={state} node={node} models={assets.models} detailed={shadows} />
+      <Figure
+        appearance={appearance}
+        node={`${world.sequence}:${world.figure ?? ''}`}
+        detailed={shadows}
+        outage={outage}
+      />
+      <Phone
+        phone={world.phone}
+        time={phoneTime(world.phone, formatClock(world.clock), lateNight && world.night === 1)}
+        night={world.night}
+        detailed={shadows}
+      />
+      <Changes
+        night={world.night}
+        flags={flags}
+        daylight={world.daylight}
+        node={world.sequence}
+        models={assets.models}
+        detailed={shadows}
+      />
+      <Rustam
+        state={world.objects['rustam'] ?? 'gone'}
+        keysInLock={world.objects['key_ring'] === 'in_lock'}
+      />
     </>
   )
 }

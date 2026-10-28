@@ -1,6 +1,4 @@
-import type { StoryNode } from '../engine/types'
-
-/** Night 0 is the prologue (rental form + arrival), 1–5 are the game nights. */
+/** Night 0 is before the first night starts, 1–5 are the game nights. */
 export type Night = 0 | 1 | 2 | 3 | 4 | 5
 
 export type EndingId = 'A' | 'B' | 'C'
@@ -36,6 +34,11 @@ export type SfxId =
   | 'pen'
   | 'phone_buzz'
   | 'cloth'
+  | 'cough'
+  | 'drip'
+  | 'crows'
+  | 'pipes'
+  | 'car_pass'
 
 /** Screen effect ids (spec section 6). */
 export type FxId =
@@ -70,15 +73,17 @@ export interface MetaHints {
   lateNightCommentFired: boolean
 }
 
-/** Complete mutable run state. Serialized by the save system. */
+/**
+ * Complete mutable run state, serialized by the save system (v2). A run resumes at the
+ * start of `night`; flags, items, sanity and the profile carry what the player has done.
+ */
 export interface GameState {
   profile: PlayerProfile | null
-  currentNodeId: string | null
   night: Night
   sanity: number
   flags: Record<string, boolean | number | string>
+  /** 'diary_1'…'diary_7', 'mom_msg_1'…'mom_msg_5', 'key_ring', 'parcel'. */
   inventory: ItemId[]
-  visitedNodes: string[]
   finished: boolean
   startedAt: string
   lastPlayedAt: string
@@ -91,5 +96,3 @@ export interface MetaState {
   chaptersUnlocked: Night[]
   contentWarningAccepted: boolean
 }
-
-export type Speaker = StoryNode['lines'][number]['speaker']

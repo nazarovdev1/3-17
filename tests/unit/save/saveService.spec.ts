@@ -8,12 +8,10 @@ import type { GameState, MetaState } from '@/core/state/types'
 function makeState(overrides: Partial<GameState> = {}): GameState {
   return {
     profile: { name: 'Ali', livesAlone: 'ha', fear: 'qorongʻulik', doorAtNight: 'yopiq' },
-    currentNodeId: 'n2_start',
     night: 2,
     sanity: 63,
-    flags: { answered_n1: true, time: '3:17' },
-    inventory: ['diary_1'],
-    visitedNodes: ['n1_start', 'n1_clock', 'n2_start'],
+    flags: { n1_response: 'answer', heard_48: true },
+    inventory: ['diary_1', 'key_ring'],
     finished: false,
     startedAt: '2026-01-09T20:00:00.000Z',
     lastPlayedAt: '2026-01-09T23:00:00.000Z',
@@ -103,35 +101,75 @@ describe('corrupted save recovery (spec 4.3)', () => {
 })
 
 describe('migrations', () => {
-  it('walks registered migrations up to SAVE_VERSION', () => {
-    // Simulate a v1 payload predating a (future) v2 schema: register a fake v1→v2
-    // migration that adds a field, run through the validator with SAVE_VERSION=2
-    // semantics by calling the walk directly.
-    migrations.set(1, (data) => {
-      const state = data as GameState
-      return { ...state, migrated: true }
+  it('migrates a v1 story-graph save to the start of its night with its meaning kept', () => {
+    const legacy = {
+      profile: { name: 'Ali', livesAlone: 'ha', fear: 'qorongʻulik', doorAtNight: 'yopiq' },
+      currentNodeId: 'n3_hub',
+      night: 3,
+      sanity: 58,
+      flags: {
+        n1_reaction: 'urdi',
+        knows_sardor: true,
+        answered_n3: true,
+        took_bundle: true,
+        inspected_clock: true,
+        time: '3:17',
+      },
+      inventory: ['landlord_note', 'diary_1', 'diary_2', 'mom_msg_1'],
+      visitedNodes: ['n1_start', 'n3_hub'],
+      finished: false,
+      startedAt: '2026-01-09T20:00:00.000Z',
+      lastPlayedAt: '2026-01-09T23:00:00.000Z',
+      metaHints: {
+        realClock317Fired: false,
+        returnCommentFired: false,
+        lateNightCommentFired: false,
+      },
+    }
+    const migrated = validateRunSave(JSON.stringify({ kind: 'run', saveVersion: 1, state: legacy }))
+    expect(migrated?.saveVersion).toBe(SAVE_VERSION)
+    const state = migrated!.state as GameState & Record<string, unknown>
+    expect(state.night).toBe(3)
+    expect(state.flags).toEqual({
+      n1_response: 'knock',
+      heard_sardor: true,
+      n3_answered: true,
+      took_parcel: true,
     })
-    try {
-      // Direct walk: version 1 -> 2 via the registry.
-      const raw = JSON.stringify({
+    expect(state.inventory).toEqual(['diary_1', 'diary_2', 'mom_msg_1'])
+    expect(state['currentNodeId']).toBeUndefined()
+    expect(state['visitedNodes']).toBeUndefined()
+    expect(state.sanity).toBe(58)
+    expect(state.profile?.name).toBe('Ali')
+  })
+
+  it('takes the night from the old node id, and a start node to night 1', () => {
+    const raw = (node: string | null, night: number) =>
+      JSON.stringify({
         kind: 'run',
         saveVersion: 1,
-        state: makeState(),
+        state: { ...makeState(), currentNodeId: node, visitedNodes: [], night },
       })
-      // With SAVE_VERSION still 1, no migration should run (version == target).
-      expect(validateRunSave(raw)?.state).toEqual(makeState())
-    } finally {
-      migrations.delete(1)
-    }
+    expect(validateRunSave(raw('n5_hub', 4))?.state.night).toBe(5)
+    expect(validateRunSave(raw(null, 0))?.state.night).toBe(1)
   })
 
   it('rejects a payload older than the registry can migrate', () => {
-    migrations.clear()
     const raw = JSON.stringify({ kind: 'run', saveVersion: 0, state: makeState() })
     expect(validateRunSave(raw)).toBeNull()
+    expect(migrations.has(1)).toBe(true)
+  })
+
+  it('accepts meta progress saved by v1 and v2 alike', () => {
+    const meta = { endingsSeen: ['B'], chaptersUnlocked: [1], contentWarningAccepted: true }
+    expect(validateMetaSave(JSON.stringify({ kind: 'meta', saveVersion: 1, meta }))?.meta).toEqual(
+      meta,
+    )
+    expect(validateMetaSave(JSON.stringify({ kind: 'meta', saveVersion: 2, meta }))?.meta).toEqual(
+      meta,
+    )
   })
 })
-
 describe('SaveService.meta', () => {
   it('round-trips meta progression', async () => {
     const service = new SaveService(new MemoryStorage())

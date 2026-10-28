@@ -293,3 +293,104 @@ Android phones"), recorded here.
     second-person forms, so the new lint must exempt the `voice` speaker from the -dingiz
     and -yapsiz ban. (b) Replacing the graph-based tests conflicts with "do not delete
     tests", so it waits for the owner's approval (BEATS §9, §11).
+63. **R0 owner decisions applied.** (1) Ending C: the clock comes off the wall any time on
+    night 5; the key turns only after "Eshikni och". (2) Night 5 never ends by itself: time
+    holds at 3:17 and the wall knocks every 45 s. (3) Voices are the owner's own recordings
+    (`RECORDING.md`); until they arrive, silence and subtitles, never TTS. (4) Rustam is a
+    hand, a sleeve, keys and breath in 47's dark doorway; no face, no body model. (5) The
+    second-person lint ban covers narration only; spoken lines are exempt. (6) The rental
+    form is paper Rustam hands over (≤ 33 words). (7) Graph tests replaced; mapping below.
+    (8) Night 2's day walk goes down to the 3rd floor only.
+64. **R1: one Director drives both presenters.** `src/core/director` owns the clock, beats,
+    response windows, ambient events (3-minute cooldown, 10 s quiet after speech) and the
+    subtitle queue (0.6 s + 0.35 s per word, 300 ms gap). Presenters only report sensors
+    (zones, gaze, unseen time, movement) and inputs (interact, hold, three knocks). The story
+    graph, narration providers and the text presenter are deleted. Saves are version 2; a v1
+    save restarts its night with its meaning kept.
+65. **`text:build` never writes `SCRIPT_UZ.md`.** It only generates `uz.gen.json` from the
+    YAML; `script.yaml` is generated once from `SCRIPT_UZ.md`, and the lint checks every
+    script line is used.
+66. **Night 1 arrival: Rustam in 47's doorway, the phone torch on.** The landing bulb is
+    dead and the flat's circuits are off until the player switches them on. Rustam offers
+    the form at 3.5 s and presses it into the player's hands after 25 s. When he hands the
+    keys over, the camera looks down at the palm while his steps go down and stop too
+    early.
+67. **Desktop input details.** Pointer lock is released while the paper form is open, and
+    focus moves to the name field after the paper settles. Light switches rank below story
+    objects for the use glyph. Rustam blocks movement while he stands in the doorway.
+68. **Mobile is a temporary viewpoint fallback until R5.** Stills of the real flat linked by
+    edge arrows, on the same Director; holding the wall listens, three taps knock. R5
+    replaces it with the magic window.
+69. **New CC0 sounds for the beats:** cough, drip, crows, pipes and a passing car (Freesound,
+    `CREDITS.md`). The neighbour-TV ambience is dropped; the TV is now an object beat.
+70. **Deferred, not dropped:** the corridor stretch, the mobile return puzzle and the
+    voice-reveal chat move to R3 and R5, where their nights and the magic window are built.
+71. **Test mapping (owner decision 7).** Each deleted graph test, and the test that now
+    covers its behaviour. "Removed" means the behaviour no longer exists in the game.
+
+    | Old test (file › title)                                                         | New test                                                                                                                                                                  |
+    | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | engine/conditions › all ten cases                                               | director/conditions.spec › same ten cases (moved)                                                                                                                         |
+    | engine/effects › sanity clamps, flag values, item without duplicates            | director.spec › applies actions in order: sanity clamps, items once, cues reach the presenter                                                                             |
+    | engine/effects › sfx / fx / haptic emit events; applies in order                | same director.spec test                                                                                                                                                   |
+    | engine/effects › handles undefined effect lists                                 | Removed: actions are always arrays (typed)                                                                                                                                |
+    | storyRunner › nodePhase, advance, choose, hidden/unknown choices                | Removed: no nodes or choice buttons; physical choices → director.spec › a response window resolves by answer, knock or silence                                            |
+    | storyRunner › startGame: sanity 100, profile, night event                       | director.spec › a new run starts at full sanity with the form profile; the next night announces itself                                                                    |
+    | storyRunner › resume never re-applies onEnter                                   | save.spec › migrates a v1 save to the start of its night; e2e shell › reload resumes; qa › closing the tab mid-night keeps the night                                      |
+    | storyRunner › goTo / getNode errors                                             | Removed: no node ids; debug uses startNight / setClock / playSequence                                                                                                     |
+    | storyRunner › ending handling (effects before ending, finished once)            | audio/transitions.spec › an ending plays out, then commits to the gallery and clears the run in one step                                                                  |
+    | storyRunner › isLateNight / is317                                               | ui/horror.spec › records a late-night start…; plays the real-clock 3:17 knock once; e2e desktop-horror › late-night launch, real 3:17                                     |
+    | storyRunner › createInitialState timestamps, meta hints                         | director.spec › new run test; ui/horror.spec › records a late-night start and a long absence                                                                              |
+    | narration/static › placeholders {name}                                          | ui/horror.spec › names the player only in the voice's mouth                                                                                                               |
+    | narration/static › {fear}/{door}/{time}, variants, fallbacks                    | Removed: no narrator; variants are lettered lines chosen by `if` actions → director.spec › answering chooses the voice reply by the form                                  |
+    | story/playthrough › ending C route meets every requirement                      | director.spec › ending C needs all 7 diary pages, all 5 messages, sanity 40 and no answer on night 3; e2e qa › fast route reaches ending C; desktop › real-input ending C |
+    | story/playthrough › the voice says the mother's words, admits a skipped message | director.spec › in 48 the voice says the mother's words, then answers by what the player knows                                                                            |
+    | story/playthrough › hidden-choice cases, voice on the wall                      | validate/beats.spec › every static check; director.spec › night 1 tests                                                                                                   |
+    | validate/validate.spec › structure (edges, exits, cycles, reachability)         | validate/beats.spec › rejects a narrator, unknown text/object/zone and a dangling "after"                                                                                 |
+    | validate/validate.spec › line rules, placeholders                               | validate/beats.spec › rejects a subtitle over 10 words…; textLint › ignores {placeholders}, every word a night asks for exists                                            |
+    | validate/validate.spec › endings missing / unreachable                          | `npm run metrics:design` gate (all endings reached) and qa fast routes A/B/C                                                                                              |
+    | validate/validate.spec › exactly 7 diary pages, none twice                      | director.spec › ending C test (7 pages)                                                                                                                                   |
+    | validate/validate.spec › flags read but never set (warning)                     | Removed: flags are now set and read inside typed beats; validate:beats checks "after" targets                                                                             |
+    | ui/horror › narration catch-up after a blocked renderer                         | Removed: no typed narration; ui/horror › shows a spoken line whole at once                                                                                                |
+    | ui/horror › player name at most once per night                                  | ui/horror › names the player only in the voice's mouth                                                                                                                    |
+    | ui/horror › pending comments once; absence timestamp; real clock once           | ui/horror › records a late-night start and a long absence…; plays the real-clock 3:17 knock once                                                                          |
+    | ui/horror › glitch duration, Reduce flashing                                    | ui/horror › limits the fake glitch…; e2e desktop-horror › glitch has no words / Reduce flashing                                                                           |
+    | desktop/horror › figure only at its beats, after the night-4 cut                | desktop/horror › never appears on night 1 (other beats arrive with R3)                                                                                                    |
+    | desktop/horror › phone held up and plays the message; face down / pillow / dies | desktop/horror › is picked up, plays tonight's message…; lies under the pillow on night 4 and dies at 3:17 on night 5                                                     |
+    | desktop/horror › shows the story's 3:17                                         | desktop/horror › shows the night's clock, or the player's own after midnight on night 1                                                                                   |
+    | audio/transitions › ending commit + atomic save                                 | audio/transitions › an ending plays out, then commits…                                                                                                                    |
+    | audio/controller › no stacked breathing on a refreshed voice node               | audio/engine › keeps recorded breathing as one layer across rapid voice beats; controller › listening once per hold                                                       |
+    | audio/positions › landing step, overhead, wardrobe                              | audio/positions › every sound a night names plays from a real place; night-4 step and wardrobe                                                                            |
+    | mobile/stills › resolves every story scene                                      | mobile/stills › resolves every viewpoint on every night before and after the cut                                                                                          |
+    | save › walks migrations up to SAVE_VERSION                                      | save › migrates a v1 story-graph save…; takes the night from the old node id                                                                                              |
+    | e2e text-presenter (whole file)                                                 | Removed with the text presenter (REDESIGN §2); the debug overlay is its replacement                                                                                       |
+    | e2e mobile-playthrough                                                          | e2e qa › fast route plays every night and reaches ending A/B/C (runs on small-android)                                                                                    |
+    | e2e mobile-scenes › scenes, hotspot bounds, peephole, hold cancel, glyphs       | e2e mobile-scenes › viewpoints, hotspot bounds, wall listening, pause and glyph evidence                                                                                  |
+    | e2e desktop › pointer lock, movement, flashlight, pause, keyboard choices       | e2e desktop › night 1 begins on the dark landing: walk, pointer lock, torch, pause; real-input endings A/B/C                                                              |
+    | e2e desktop › drag look, E on the clock, corridor grows                         | e2e desktop › drag look, E picks up the phone; corridor stretch deferred to R3 (item 70); unit quality.spec › grows the corridor                                          |
+    | e2e desktop-horror › late-night line, absence line, real 3:17                   | e2e desktop-horror › same three, without narrator lines                                                                                                                   |
+    | e2e desktop-horror › mobile return puzzle, voice-reveal chat                    | Deferred to R3/R5 (item 70)                                                                                                                                               |
+    | e2e desktop-horror › clock outside the frustum, mirror lag                      | e2e desktop-horror › the clock moves only while unseen; the mirror turns half a second late                                                                               |
+    | e2e qa › closing the tab keeps the exact node                                   | e2e qa › closing the tab mid-night keeps the night, the profile and what the player did                                                                                   |
+    | e2e audio, mobile-hd, desktop-performance, shell, boot, mode-routing            | Same titles, driven through the Director (setClock, startNight, playSequence, emit) instead of goTo                                                                       |
+
+72. **Furniture is culled by flat and room; heavy multi-part models get a software LOD.**
+    three.js has no occlusion culling. From night 1's landing, both flats' furniture was drawn
+    through the walls: 379 calls, 231k triangles, 34 FPS on software GL, and the quality
+    monitor dropped to the low tier. Now a flat's furniture is drawn whole from inside it.
+    From outside, only its hall, corridor and room are drawn, and only while its entrance
+    leaf is open (Doors reports the real angle). The software LOD also reduces the parts of
+    models over 30k triangles in total (the shelf of books was 67k). The landing now runs at
+    60 FPS at the high tier. The furniture and Rustam's parts are drawn once, unculled,
+    in their first frames, so nothing uploads to the GPU later (no hitch when a room or his
+    keys first appear, and no resource growth across night transitions).
+73. **One kitchen chair, not two.** With two chairs on the table's side, the strip in front of
+    the fridge and washer was 14 cm wide for a 20 cm player radius. The stove, and night 1's
+    kettle, could not be reached. The R2 playthrough found it. The one chair is centred on
+    the table's side (z 1.5), which suits a renter living alone. The mobile kitchen still
+    still shows two chairs until the stills are rendered again (R5).
+74. **The player gets up from the sofa when the night takes time back.** Lying down blocks
+    movement, so the "any movement wakes" rule never fired, and the 3:16 beat reset the time
+    scale without a sit-up. The player stayed on the sofa through 3:17. Now any return to
+    normal time sends `sitUp`, and a movement key counts as moving while lying. Found by
+    the R2 playthrough; a unit test covers it.

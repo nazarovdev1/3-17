@@ -6,7 +6,6 @@ import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { mirrorX, objectById } from '@/content/world/layout'
 import { desktopRuntime } from '@/platform/device/desktopRuntime'
-import type { GameState } from '@/core/state/types'
 import { loadModel } from '../assets'
 import { softwareModel } from './software'
 import { placeModel, type Models } from './Furniture'
@@ -54,17 +53,22 @@ function useUnobserved(
 const COAT_AT: THREE.Vector3Tuple = [1.43, 0.09, 3.24]
 
 export function Changes({
-  state,
+  night,
+  flags,
+  daylight,
   node,
   models,
   detailed,
 }: {
-  state: GameState
+  night: number
+  flags: Record<string, unknown>
+  daylight: boolean
+  /** Changes when a new night (or ending) begins: restarts the breath cycle. */
   node: string
   models: Models
   detailed: boolean
 }) {
-  const c = changesFor(node, state)
+  const c = changesFor(night, flags, daylight)
   const chairObject = objectById('room_chair')!
   const chairModel = models.get(chairObject.asset)
   const chair = useMemo(

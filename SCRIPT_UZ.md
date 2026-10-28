@@ -57,10 +57,10 @@ Voqealar, tovushlar va vaqt jadvali: `docs/BEATS.md`.
 | N1-13b | 20 s hech narsa qilmasa | sub | ovoz | Eshigingiz yopiq ekan. Yaxshi, men ham yopib yotaman. | sukut + zanjir taqilgan |
 | N1-13c | 20 s hech narsa qilmasa | sub | ovoz | Mayli. Ertaga gaplasharmiz. | sukut + zanjir taqilmagan |
 | N1-13d | devorni 3 marta urganda | sub | ovoz | Rahmat. Javob berganingiz uchun. | urdi |
+| N1-13e | N1-13a dagi 3-qator oʻrniga | sub | ovoz | Yaxshi tush koʻring, qoʻshni. | javob + anketa: Yoʻq |
 | N1-14 | tong | tel | — | 07:40 · Shanba, 13-dekabr · Onam — 4 ta javobsiz qoʻngʻiroq | |
 
-*Izoh: N1-13a dagi uchinchi qator anketada «Yoʻq» deganlarga chiqmaydi; ular «Yaxshi tush koʻring, qoʻshni.» ni
-eshitadi (N1-13a', 4 soʻz).*
+*Izoh: N1-13a dagi uchinchi qator anketada «Yoʻq» deganlarga chiqmaydi; ular uning oʻrniga N1-13e ni eshitadi.*
 
 ---
 

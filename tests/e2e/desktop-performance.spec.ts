@@ -5,20 +5,11 @@ import type { getDesktopState } from '../../src/platform/device/desktopRuntime'
 import { QUALITY_HEIGHT } from '../../src/platform/device/mode'
 
 type Metrics = ReturnType<typeof getDesktopState>
-interface DebugApi {
-  getDesktopState: () => Metrics
-  goTo: (id: string) => void
-  getState: () => {
-    currentNodeId: string
-    sanity: number
-    inventory: string[]
-    flags: Record<string, unknown>
-  }
-}
 const inspect = (page: Page) =>
-  page.evaluate(() => (window as unknown as { __game: DebugApi }).__game.getDesktopState())
-const jump = (page: Page, id: string) =>
-  page.evaluate((id) => (window as unknown as { __game: DebugApi }).__game.goTo(id), id)
+  page.evaluate(() => window.__game.getDesktopState() as unknown as Metrics)
+/** Every night and the 48 ending: each rebuilds the lights, changes and figure. */
+const SEQUENCES = ['n2', 'n3', 'n4', 'endA', 'n1']
+const play = (page: Page, id: string) => page.evaluate((id) => window.__game.playSequence(id), id)
 async function boot(page: Page) {
   await page.goto('/?debug=1')
   await startNamedRun(page, 'Dilnoza')
@@ -45,17 +36,21 @@ test.use({ trace: 'off' })
 test('desktop steady rendering and resource stability', async ({ page }, info) => {
   test.setTimeout(90_000)
   await boot(page)
-  await jump(page, 'n1_hub')
+  // Inside the flat, facing the room.
+  await page.evaluate(() => {
+    window.__game.setFlag('rustam_gone', true)
+    window.__game.teleport(0.4, -0.8, Math.PI)
+  })
   // Let the software GPU finish first-use uploads before measuring steady rendering.
   await page.waitForTimeout(5000)
   const start = await page.evaluate(() => ({
     time: performance.now(),
-    frames: (window as unknown as { __game: DebugApi }).__game.getDesktopState().frames,
+    frames: window.__game.getDesktopState().frames as number,
   }))
   await page.waitForTimeout(5000)
   const end = await page.evaluate(() => ({
     time: performance.now(),
-    frames: (window as unknown as { __game: DebugApi }).__game.getDesktopState().frames,
+    frames: window.__game.getDesktopState().frames as number,
   }))
   const defaultFps = ((end.frames - start.frames) * 1000) / (end.time - start.time)
   console.log(
@@ -72,15 +67,15 @@ test('desktop steady rendering and resource stability', async ({ page }, info) =
   )
   expect((await inspect(page)).tier).toBe('high')
   expect(defaultFps).toBeGreaterThanOrEqual(55)
-  for (const id of ['n1_tea', 'n2_mirror', 'n2_day_start', 'n4_inside48', 'n1_hub']) {
-    await jump(page, id)
+  for (const id of SEQUENCES) {
+    await play(page, id)
     await page.waitForTimeout(120)
   }
   await page.waitForTimeout(1000)
   const before = await inspect(page)
   for (let i = 0; i < 3; i++)
-    for (const id of ['n1_tea', 'n2_mirror', 'n2_day_start', 'n4_inside48', 'n1_hub']) {
-      await jump(page, id)
+    for (const id of SEQUENCES) {
+      await play(page, id)
       await page.waitForTimeout(80)
     }
   await page.waitForTimeout(4000)

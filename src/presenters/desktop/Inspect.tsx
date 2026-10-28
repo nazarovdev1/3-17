@@ -3,30 +3,33 @@ import { useEffect, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { desktopRuntime } from '@/platform/device/desktopRuntime'
-import type { Step } from '@/core/engine/types'
-import { resolveAllLines } from '@/ui/NarrationText'
+import { line } from '@/content/text'
+import { READABLES } from '@/content/nights'
 
 /**
  * Picking up a paper (FIX_PROMPT §4.5): diary pages and the landlord's note are held in
  * front of the eyes, readable in HD, and turn with the mouse (CameraRig routes the drag
- * here while `desktopRuntime.inspecting` is set). Put down when the beat moves on.
+ * here while `desktopRuntime.inspecting` is set). Put down by moving away.
  */
 export interface Readable {
   kind: 'diary' | 'note'
   lines: string[]
+  /** First line written later, in another pen (the landlord's afterthought). */
+  otherInkFrom?: number
+  /** The player's own handwriting. */
+  ownHand?: boolean
 }
 
-/** The paper this beat hands the player, if any, with the words written on it. */
-export function readableOf(step: Step): Readable | null {
-  const items = (step.node.onEnter ?? []).flatMap((e) => (e.type === 'item' ? [e.id] : []))
-  const diary = items.some((id) => id.startsWith('diary_'))
-  const note = items.includes('landlord_note')
-  if (!diary && !note) return null
-  const speaker = diary ? 'diary' : 'landlord'
-  const lines = resolveAllLines(step.state)
-    .filter((line) => line.speaker === speaker)
-    .map((line) => line.text.replace(/^«|»$/g, ''))
-  return lines.length ? { kind: diary ? 'diary' : 'note', lines } : null
+/** The paper the Director put in the player's hand, with its words. */
+export function readableOf(id: string | null, name: string): Readable | null {
+  const paper = id ? READABLES[id] : undefined
+  if (!paper) return null
+  return {
+    kind: paper.kind,
+    lines: paper.lines.map((key) => line(key, name)),
+    otherInkFrom: paper.otherInkFrom,
+    ownHand: paper.ownHand,
+  }
 }
 
 const PAGE = { w: 1024, h: 1440 }
@@ -77,10 +80,14 @@ function drawPage(canvas: HTMLCanvasElement, paper: Readable) {
     c.stroke()
   }
   // Ink: dark blue ballpoint for the diary, pencil-grey for the landlord.
-  c.fillStyle = paper.kind === 'diary' ? '#1f2c55' : '#3a3833'
-  c.font = 'italic 400 62px Literata, Georgia, serif'
+  const ink = paper.kind === 'diary' ? '#1f2c55' : '#3a3833'
+  c.font = paper.ownHand
+    ? '400 64px Literata, Georgia, serif'
+    : 'italic 400 62px Literata, Georgia, serif'
   let y = 190
   for (const [i, text] of paper.lines.entries()) {
+    // A later line in a different pen: blue ballpoint under the landlord's pencil.
+    c.fillStyle = paper.otherInkFrom !== undefined && i >= paper.otherInkFrom ? '#22346b' : ink
     for (const row of wrap(c, text, w - left - 80)) {
       c.save()
       c.translate(left, y)

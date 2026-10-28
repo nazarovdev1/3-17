@@ -27,16 +27,44 @@ Fix phases (FIX_PROMPT.md):
 
 Redesign phases (REDESIGN_PROMPT.md, overrides FIX_PROMPT and PROMPT; based on `DIAGNOSIS.md`):
 
-- [ ] R0 — Design (written; awaiting owner review)
-- [ ] R1 — Engine (Director, clock, triggers, ambient, save v2, metrics:design)
-- [ ] R2 — Night 1 vertical slice on desktop
+- [x] R0 — Design (approved by the owner with eight decisions, BEATS §11)
+- [x] R1 — Engine (Director, clock, triggers, ambient, save v2, metrics:design)
+- [ ] R2 — Night 1 vertical slice on desktop (built; ✋ awaiting owner review of the videos)
 - [ ] R3 — Nights 2–5 on desktop
 - [ ] R4 — Endings as set pieces
 - [ ] R5 — Mobile magic window + stills fallback
 - [ ] R6 — Fear pass
 - [ ] R7 — Full QA
 
-## R0 — Design (written, awaiting owner review, 2026-10-28)
+## R1 — Engine (done, 2026-10-29) and R2 — Night 1 slice (✋ awaiting owner review)
+
+- `src/core/director`: clock, seeded RNG, triggers (clock, zone dwell, gaze, notLooking,
+  interact, hold, three knocks, idle, after, every), world actions, response windows,
+  ambient events, the subtitle queue and night → dawn → next night. One Director drives both
+  presenters; `simulate()` runs it headless for tests and `npm run metrics:design`.
+- Story graph, narration, text presenter, node tests and `validate:story` deleted;
+  `validate:beats` and `metrics:design` gate `npm run check`. Save v2 with v1 migration.
+- Night 1 is complete on desktop: Rustam's hand in 47's doorway, the paper form, the keys,
+  the dark flat and its switches, phone + mother's message, Rustam's note, TV and the cough,
+  window, radiator, tea, drip, chain, the sofa (×8), the 02:35 call, 3:16 windows going dark
+  floor by floor, 3:17 power cut, 7 s of silence, knocks, the voice and a 20 s response
+  window (answer / three knocks / silence), dawn.
+- Nights 2–5 and the endings are R1 scaffolds on the same engine (all endings reachable).
+  Mobile is a temporary viewpoint fallback until R5.
+- Gates: reading 2–11% of each night; 3:17 by itself at 228–370 s; 7–8 s of silence before
+  the knocks; ≥ 72% wordless beats every night; 521 visible words in the game.
+- Recordings: `RECORDING.md` lists every spoken line for the owner; until they arrive,
+  silence and subtitles.
+- Tests: graph tests replaced; the old → new mapping is DECISIONS 71.
+- R2 evidence (`audit/screenshots/r2/`, ignored folder): `night1-playthrough.webm` (4:14, real time:
+  form, keys, light switches, chain, phone and message, note, window, radiator, TV, clock, tea,
+  sofa, 3:16 → 3:17, answer at the wall, dawn into night 2), `night1-idle.webm` (7:08: the form
+  signed, then no input; 3:17, silence answer and dawn come by themselves), and contact sheets
+  `contact-night1.jpg` and `contact-night1-idle.jpg`. Playwright video has no sound.
+- Fixed on the way (DECISIONS 72–74): furniture culling and software LOD (landing 34 → 60 FPS),
+  one kitchen chair so the kettle can be reached, getting up from the sofa at 3:16.
+
+## R0 — Design (approved, 2026-10-28)
 
 No code changed. Deliverables:
 
@@ -54,8 +82,7 @@ No code changed. Deliverables:
 
 Open: owner decisions in BEATS §11 (Ending C timing, night 5 idle loop, recorded voices, Rustam model,
 voice lint exemption, rental form, replacing graph-based tests, night 2 day scope).
-**`npm run text:build` (also run by dev/build/check) regenerates `SCRIPT_UZ.md` from the old graph and
-would overwrite the new script until R1 replaces the generator.**
+Resolved in R1: `text:build` no longer writes `SCRIPT_UZ.md`.
 
 ## F6 — Mobile (verified, awaiting owner review, 2026-10-28)
 

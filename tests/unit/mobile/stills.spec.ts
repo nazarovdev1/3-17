@@ -3,18 +3,12 @@ import { readFileSync } from 'node:fs'
 import sharp from 'sharp'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { createInitialState, goTo, visibleChoices } from '@/core/engine'
-import { story } from '@/content/story'
-import { STILL_CAMERAS, STILL_RECIPES, stillId } from '@/presenters/mobile/still-scenes'
+import { STILL_CAMERAS, STILL_RECIPES, stillFor } from '@/presenters/mobile/still-scenes'
+import { MOBILE_VIEWS } from '@/presenters/mobile/views'
 import { coverPoint } from '@/presenters/mobile/still-renderer'
 import { layoutHotspots } from '@/presenters/mobile/hotspots'
 import manifest from '@/presenters/mobile/stills.gen.json'
 
-const initial = () =>
-  createInitialState(
-    { name: 'Ali', livesAlone: 'ha', fear: 'qorongʻulik', doorAtNight: 'yopiq' },
-    '2026-10-28T00:00:00Z',
-  )
 const frames = manifest.frames as Record<
   string,
   {
@@ -43,7 +37,7 @@ describe('mobile renders from the credited desktop world', () => {
     const credits = readFileSync(resolve('CREDITS.md'), 'utf8')
     for (const recipe of STILL_RECIPES) {
       expect(STILL_CAMERAS[recipe.camera]).toBeDefined()
-      recipe.nodes.forEach((node) => expect(story.nodes[node], node).toBeDefined())
+      expect(Array.isArray(recipe.nodes)).toBe(true)
       const frame = frames[recipe.id]!
       expect(frame, recipe.id).toBeDefined()
       expect(credits).toContain(`| ${recipe.id} | still + depth |`)
@@ -74,53 +68,43 @@ describe('mobile renders from the credited desktop world', () => {
       credit: { author: '3:17 project', license: 'CC-BY-4.0' },
     })
   })
-  it('resolves every story scene before and after the cut, including persistent return changes', () => {
-    for (const node of Object.values(story.nodes).filter((n) => !n.ending)) {
-      const step = goTo(story, initial(), node.id)
-      for (const outage of [false, true]) {
-        const state = {
-          ...step.state,
-          visitedNodes: outage
-            ? [...step.state.visitedNodes, `n${step.state.night}_317`]
-            : step.state.visitedNodes,
-        }
-        expect(
-          frames[stillId(node.mobile?.vignette ?? node.location, node.id, state)],
-          node.id,
-        ).toBeDefined()
-      }
-    }
-    const returned = goTo(story, goTo(story, initial(), 'n1_tea').state, 'n1_hub')
-    expect(stillId('room', 'n1_hub', returned.state)).toBe('room-return')
-    expect(stillId('room', 'n3_tv', returned.state)).toBe('tv-figure')
-    const windows = goTo(story, initial(), 'n5_316')
-    expect(stillId('window_dark', 'n5_316', windows.state)).toBe('window-off')
-    for (const night of [1, 2, 3, 4, 5]) {
-      const phone = goTo(story, initial(), `n${night}_phone`)
-      expect(stillId('room', phone.node.id, phone.state)).toBe(`phone-night${night}`)
-    }
+  it('resolves every viewpoint on every night before and after the cut, with persistent changes', () => {
+    for (const view of Object.values(MOBILE_VIEWS))
+      for (const night of [1, 2, 3, 4, 5])
+        for (const power of [true, false])
+          expect(
+            frames[stillFor(view.still, night, power)],
+            `${view.still} n${night}`,
+          ).toBeDefined()
+    expect(stillFor('room', 3, true)).toBe('room-changed')
+    expect(stillFor('room', 1, false)).toBe('room-off')
+    expect(stillFor('corridor', 2, true)).toBe('coat-changed')
+    expect(stillFor('corridor', 5, true)).toBe('corridor-cold')
+    for (const night of [1, 2, 3, 4, 5])
+      expect(stillFor('phone', night, true)).toBe(`phone-night${night}`)
+    expect(stillFor('phone', 5, false)).toBe('phone-dead')
   })
   it('keeps every 48 px hotspot in its visible crop without overlaps at all five screen sizes', () => {
     let count = 0
-    for (const node of Object.values(story.nodes).filter((n) => !n.ending)) {
-      const step = goTo(story, initial(), node.id)
-      const frame = frames[stillId(node.mobile?.vignette ?? node.location, node.id, step.state)]!
-      for (const [width, height] of sizes) {
-        const sceneHeight = height! * 0.58
-        const spots = Object.values(
-          layoutHotspots(visibleChoices(node, step.state), frame.anchors, width!, sceneHeight),
-        )
-        count += spots.length
-        spots.forEach((p, i) => {
-          expect(p.x - 24).toBeGreaterThanOrEqual(0)
-          expect(p.x + 24).toBeLessThanOrEqual(width!)
-          expect(p.y - 24).toBeGreaterThanOrEqual(0)
-          expect(p.y + 24).toBeLessThanOrEqual(sceneHeight)
-          for (const q of spots.slice(i + 1))
-            expect(Math.abs(p.x - q.x) >= 48 || Math.abs(p.y - q.y) >= 48).toBe(true)
-        })
+    for (const view of Object.values(MOBILE_VIEWS))
+      for (const power of [true, false]) {
+        const frame = frames[stillFor(view.still, 1, power)]!
+        for (const [width, height] of sizes) {
+          const sceneHeight = height! * 0.58
+          const spots = Object.values(
+            layoutHotspots(view.objects, frame.anchors, width!, sceneHeight),
+          )
+          count += spots.length
+          spots.forEach((p, i) => {
+            expect(p.x - 24).toBeGreaterThanOrEqual(0)
+            expect(p.x + 24).toBeLessThanOrEqual(width!)
+            expect(p.y - 24).toBeGreaterThanOrEqual(0)
+            expect(p.y + 24).toBeLessThanOrEqual(sceneHeight)
+            for (const q of spots.slice(i + 1))
+              expect(Math.abs(p.x - q.x) >= 48 || Math.abs(p.y - q.y) >= 48).toBe(true)
+          })
+        }
       }
-    }
     expect(count).toBeGreaterThan(30)
     expect(coverPoint(0.5, 0.5, 360, 352)).toEqual({ x: 180, y: 176 })
   })

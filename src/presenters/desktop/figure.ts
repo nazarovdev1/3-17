@@ -1,8 +1,7 @@
-import type { GameState } from '@/core/state/types'
 import type { Point } from './layout'
 
 /**
- * Where the figure (FIX_PROMPT §4.4, fear-design.md) may be at each story beat. It is
+ * Where the figure (FIX_PROMPT §4.4, fear-design.md) may stand when a beat places it. It is
  * never in good light, never in the open, and gone within seconds: each appearance ends
  * for good once the player has seen it and looked away, walks too close, or waits it out.
  * Pure data so the rules can be tested; World/Figure.tsx renders it.
@@ -117,27 +116,7 @@ const APPEARANCES: Record<AppearanceId, Appearance> = {
   },
 }
 
-/** Which appearance (if any) belongs to this node in this state. */
-export function figureAppearance(nodeId: string, state: GameState): Appearance | null {
-  switch (nodeId) {
-    // Night 2, morning: something at the far end of the landing while Muhabbat talks.
-    case 'n2_day_start':
-      return APPEARANCES.stairwell
-    // Night 3: while the corridor stretches, someone is in the dark kitchen.
-    case 'n3_corridor_loop':
-      return APPEARANCES.frosted
-    case 'n3_tv':
-      return APPEARANCES.tv_reflection
-    // Night 4, after the power cut: one step on the landing, then feet under the door.
-    case 'n4_hub':
-      return state.flags['n4_dark'] && !state.flags['saw_figure'] ? APPEARANCES.under_door : null
-    case 'n4_peephole':
-      return APPEARANCES.peephole
-    // Night 5: the voice says "open the door" and someone is standing right behind it.
-    case 'n5_voice_final':
-    case 'n5_final_choice':
-      return APPEARANCES.under_door
-    default:
-      return null
-  }
+/** The appearance the Director placed with a figure action, or nowhere. */
+export function appearanceFor(id: string | null): Appearance | null {
+  return id && id in APPEARANCES ? APPEARANCES[id as AppearanceId] : null
 }

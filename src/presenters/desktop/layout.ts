@@ -1,5 +1,4 @@
 import type { LocationId } from '@/core/state/types'
-import type { Choice, StoryNode } from '@/core/engine/types'
 import {
   CORRIDOR_SPLIT_Z,
   PARTY_X,
@@ -12,8 +11,8 @@ import type { SfxId } from '@/core/state/types'
 import { walk as walkWorld } from '@/content/world/walk'
 
 /**
- * Desktop view of the world layout (src/content/world/layout.ts): spawn points, story
- * interaction anchors, light switches and movement. Everything is derived from the plan;
+ * Desktop view of the world layout (src/content/world/layout.ts): capture poses, light
+ * switches and movement. Object points for the Director live in content/world/objects.ts. Everything is derived from the plan;
  * no coordinates of furniture live here.
  */
 export type Point = [number, number, number]
@@ -88,66 +87,6 @@ export const OBJECTS: Record<string, Point> = {
 
 /** Where the clock hangs after it moves unobserved (night 3): on the shared wall. */
 export const CLOCK_SHIFTED: Point = [PARTY_X + 0.115, 1.95, -3.05]
-
-const CHOICE_OBJECT: Record<string, string> = {
-  tea: 'kettle',
-  sleep: 'bed',
-  wait317: 'bed',
-  wait: 'bed',
-  stay: 'bed',
-  bathroom: 'vent',
-  listen: 'shared_wall',
-  kitchen: 'bread_bin',
-  chain: 'front_door',
-  leave_early: 'front_door',
-  leave: 'front_door',
-  open48: 'door48',
-  wind: 'clock',
-  shifted_clock: 'clock',
-  enter: 'door48',
-  retreat: 'front_door',
-  diary: 'chair',
-  glitch: 'chair',
-  keep: 'front_door',
-  stop: 'corridor',
-}
-
-/** Corridor stretch: points beyond the split move with the entrance. */
-const stretch = (p: Point, extension: number): Point =>
-  extension > 0 && p[2] >= CORRIDOR_SPLIT_Z && p[0] > -2.2 && p[0] < 3.2
-    ? [p[0], p[1], p[2] + extension]
-    : p
-
-export function interactionPoint(
-  choice: Choice,
-  extension = 0,
-  clockShifted = false,
-  night = 0,
-): Point | null {
-  const clock = clockShifted ? CLOCK_SHIFTED : OBJECTS.clock!
-  // Night 4: the phone is under the pillow.
-  if (choice.id === 'phone' && night === 4) return OBJECTS.bed!
-  // Diary 7 is behind the clock; diary 6 under the rug's corner.
-  if (choice.to === 'n5_diary7') return [clock[0], clock[1], clock[2]]
-  if (choice.to === 'n4_diary6') {
-    const rug = objectById('floor_rug')!
-    return [rug.position[0] - 0.7, 0.05, rug.position[2] + 0.35]
-  }
-  const key = CHOICE_OBJECT[choice.id] ?? choice.id
-  if (key === 'clock') return clock
-  const point = OBJECTS[key]
-  return point ? stretch(point, extension) : null
-}
-
-export function nodePoint(node: StoryNode): Point | null {
-  const zones: Record<string, Point> = {
-    landing: [-1.6, EYE, 6.0],
-    corridor_loop: [0, EYE, 2.0],
-    landing_48: [mirrorX(0), EYE, 5.6],
-    flat48: [mirrorX(0.5), EYE, -1.2],
-  }
-  return OBJECTS[node.desktop?.objectId ?? ''] ?? zones[node.desktop?.zoneId ?? ''] ?? null
-}
 
 /** Light switches in circuit order: index i toggles circuit i (room, kitchen, bath, corridor). */
 export const SWITCHES: Point[] = [

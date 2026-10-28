@@ -27,6 +27,11 @@ export const SOUND_IDS = [
   'pen',
   'phone_buzz',
   'cloth',
+  'cough',
+  'drip',
+  'crows',
+  'pipes',
+  'car_pass',
 ] as const satisfies readonly SfxId[]
 
 const DURATIONS: Record<SfxId, number> = {
@@ -54,6 +59,11 @@ const DURATIONS: Record<SfxId, number> = {
   pen: 0.5,
   phone_buzz: 0.9,
   cloth: 0.7,
+  cough: 0.6,
+  drip: 0.3,
+  crows: 1.2,
+  pipes: 1.5,
+  car_pass: 2.5,
 }
 
 function random(seed: number) {
@@ -175,6 +185,20 @@ export function synthSound(id: SfxId, sampleRate = SAMPLE_RATE): Float32Array {
         break
       case 'pen':
         value = high * 0.06 * Math.sin(t * 37) ** 4
+        break
+      // Fallbacks for the recorded cues below: plain textures, never a voice or a creature.
+      case 'cough':
+        value = low * 0.3 * Math.exp(-((t - 0.1) ** 2) * 60)
+        break
+      case 'drip':
+        value = hit(t, 1320, 40) * 0.12
+        break
+      case 'crows':
+      case 'pipes':
+        value = low * 0.12 * Math.sin((Math.PI * t) / duration) ** 2
+        break
+      case 'car_pass':
+        value = low * 0.25 * Math.sin((Math.PI * t) / duration) ** 2
         break
     }
     // Short fades prevent discontinuities; ample headroom for simultaneous cues.

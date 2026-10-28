@@ -1,10 +1,7 @@
 import { expect } from '@playwright/test'
 import { test } from './fixtures'
-import { acceptWarning, startNamedRun } from './helpers'
-import { ui } from '../../src/content/text'
-import { story } from '../../src/content/story'
-
-const line = (node: string, index: number) => story.nodes[node]!.lines[index]!.variants.at(-1)!.text
+import { acceptWarning, signForm, startNamedRun, startRun } from './helpers'
+import { line, ui } from '../../src/content/text'
 
 // Collects console.error and pageerror; any of these fails the test (spec 12).
 test.beforeEach(({ page }) => {
@@ -26,7 +23,9 @@ test('boots to the content warning without Telegram', async ({ page }) => {
   await expect(page.getByText('OGOHLANTIRISH')).toBeVisible()
 })
 
-test('boots with a mocked Telegram WebApp object', async ({ page }) => {
+test('boots with a mocked Telegram WebApp object and fills its name into the rental form', async ({
+  page,
+}) => {
   await page.route('**/telegram-web-app.js', (route) =>
     route.fulfill({ body: '', contentType: 'application/javascript' }),
   )
@@ -46,49 +45,40 @@ test('boots with a mocked Telegram WebApp object', async ({ page }) => {
     }
     ;(window as unknown as { __tgCalls: string[] }).__tgCalls = calls
   })
-  await page.goto('/')
+  await page.goto('/?debug=1')
   await expect(page.getByText('OGOHLANTIRISH')).toBeVisible()
   const calls = await page.evaluate(() => (window as unknown as { __tgCalls: string[] }).__tgCalls)
   expect(calls).toContain('ready')
   expect(calls).toContain('expand')
-
-  // The pre-filled name from initDataUnsafe lands in the rental form.
-  await acceptWarning(page)
-  await page.getByRole('button', { name: ui('title.new_game') }).click()
-  await expect(page.getByText('IJARA ANKETASI')).toBeVisible()
+  // Rustam aka hands over the paper form; the Telegram first name is already written in.
+  await startRun(page)
+  await page.evaluate(() => window.__game.setSpeed(8))
+  await expect(page.getByText(ui('form.title'))).toBeVisible({ timeout: 45_000 })
   await expect(page.getByRole('textbox')).toHaveValue('Aziz')
 })
 
-test('accept warning → title → full flow: form, night 1, save → reload → resume', async ({
+test('accept warning → title → night 1 on the landing → form → Rustam speaks → reload resumes', async ({
   page,
 }) => {
-  await page.goto('/')
+  await page.goto('/?debug=1')
   await acceptWarning(page)
   await expect(page.getByRole('heading', { name: '3:17' })).toBeVisible()
-
   await page.getByRole('button', { name: ui('title.new_game') }).click()
-  await page.getByRole('textbox').fill('Dilnoza')
-  await page.getByRole('button', { name: ui('form.sign') }).click()
-
-  // Night 1: advance past the opening narration to the hub.
-  await page
-    .getByRole('button', { name: ui('common.continue') })
-    .first()
-    .click()
-  await expect(page.getByText(line('n1_hub', 0))).toBeVisible()
-
-  // Inspect the clock (panel button on desktop, shimmering hotspot on mobile).
-  await page.getByRole('button', { name: /Devordagi soatga qarash|^Soat$/ }).click()
-  await expect(page.getByText(line('n1_clock', 0))).toBeVisible()
-
-  // Reload: the run must resume at the same node (save → reload → resume).
+  await expect(page.locator('.game-area')).toBeVisible()
+  // No menus, no Continue, no narration while playing.
+  await expect(page.locator('.game-area .choices, .narration')).toHaveCount(0)
+  await signForm(page, 'Dilnoza')
+  await expect(page.getByText(line('N1-01'))).toBeVisible({ timeout: 10_000 })
+  expect(await page.evaluate(() => window.__game.getState()?.profile?.name)).toBe('Dilnoza')
+  // Reload: the run resumes at the start of its night with what the player has done.
   await page.reload()
-  await page.getByRole('button', { name: ui('common.continue') }).click() // continue run
-  await expect(page.getByText(line('n1_clock', 0))).toBeVisible()
+  await page.getByRole('button', { name: ui('common.continue') }).click()
+  await expect(page.locator('.game-area')).toHaveAttribute('data-sequence', 'n1')
+  expect(await page.evaluate(() => window.__game.getState()?.profile?.name)).toBe('Dilnoza')
 })
 
 test('pause menu is reachable and quit returns to title', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/?debug=1')
   await startNamedRun(page, 'Dilnoza')
   await page.getByRole('button', { name: ui('common.pause') }).click()
   await expect(page.getByRole('heading', { name: ui('pause.title'), exact: true })).toBeVisible()
@@ -106,24 +96,18 @@ test('settings persist across reload', async ({ page }) => {
   await expect(page.getByRole('button', { name: /^L$/ })).toHaveClass(/active/)
 })
 
-test('resizing / rotating does not break layout or state', async ({ page }) => {
+test('resizing / rotating does not break layout or the running night', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/')
-  await acceptWarning(page)
-  await page.getByRole('button', { name: ui('title.new_game') }).click()
-  await page.getByRole('textbox').fill('Dilnoza')
-  await page.getByRole('button', { name: ui('form.sign') }).click()
-  await page
-    .getByRole('button', { name: ui('common.continue') })
-    .first()
-    .click()
-  await expect(page.getByText(line('n1_hub', 0))).toBeVisible()
-
+  await page.goto('/?debug=1')
+  await startNamedRun(page, 'Dilnoza')
+  const clock = await page.evaluate(() => window.__game.getClock())
   await page.setViewportSize({ width: 390, height: 844 })
-  await expect(page.getByText(line('n1_hub', 0))).toBeVisible()
-
+  await expect(page.locator('.game-area')).toHaveAttribute('data-sequence', 'n1')
   await page.setViewportSize({ width: 800, height: 1200 })
-  await expect(page.getByText(line('n1_hub', 0))).toBeVisible()
+  await expect(page.locator('.game-area')).toHaveAttribute('data-sequence', 'n1')
+  expect(await page.evaluate(() => window.__game.getClock())).not.toBeNull()
+  expect(clock).not.toBeNull()
+  expect(await page.evaluate(() => window.__game.getState()?.profile?.name)).toBe('Dilnoza')
 })
 
 test('window.__game exists only in debug mode', async ({ page }) => {
@@ -134,9 +118,5 @@ test('window.__game exists only in debug mode', async ({ page }) => {
   expect(
     await page.evaluate(() => typeof (window as unknown as Record<string, unknown>)['__game']),
   ).toBe('object')
-  const state = await page.evaluate(() => {
-    const api = (window as unknown as { __game: { getState: () => unknown } }).__game
-    return api.getState()
-  })
-  expect(state).toBeNull()
+  expect(await page.evaluate(() => window.__game.getState())).toBeNull()
 })

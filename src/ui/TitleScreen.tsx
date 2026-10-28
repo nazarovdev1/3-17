@@ -7,6 +7,7 @@ export function TitleScreen({ mode }: { mode: GameMode }) {
   const setScreen = useGame((s) => s.setScreen)
   const hasRun = useGame((s) => s.run !== null)
   const continueRun = useGame((s) => s.continueRun)
+  const startRun = useGame((s) => s.startRun)
 
   return (
     <div className="screen">
@@ -14,7 +15,7 @@ export function TitleScreen({ mode }: { mode: GameMode }) {
       <p className="subtitle">{ui('title.tagline')}</p>
       <div className="menu">
         {hasRun && <button onClick={continueRun}>{ui('common.continue')}</button>}
-        <button onClick={() => setScreen('form')}>{ui('title.new_game')}</button>
+        <button onClick={startRun}>{ui('title.new_game')}</button>
         <button onClick={() => setScreen('settings')}>{ui('common.settings')}</button>
         <button onClick={() => setScreen('gallery')}>{ui('title.endings')}</button>
       </div>

@@ -1836,6 +1836,111 @@
         }
       },
       "bytes": 49587
+    },
+    {
+      "id": "sound_cough",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "one cough inside the TV static (night 1); filtered as heard through a set",
+      "title": "Double Cough",
+      "author": "qubodup",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/qubodup/sounds/743354/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "cough", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_cough-1.flac",
+          "bytes": 53054,
+          "sha256": "c7cbb6bc723f0e55"
+        }
+      },
+      "bytes": 53054
+    },
+    {
+      "id": "sound_drip",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "bathroom tap dripping on the first visit",
+      "title": "Dripping Kitchen Tap.wav",
+      "author": "eimear123",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/eimear123/sounds/323142/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "drip", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_drip-1.flac",
+          "bytes": 34705,
+          "sha256": "d8a2040590b128ef"
+        }
+      },
+      "bytes": 34705
+    },
+    {
+      "id": "sound_crows",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "crows at dawn over the courtyard",
+      "title": "Crows at Dawn 2",
+      "author": "silentseason",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/silentseason/sounds/335871/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "crows", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_crows-1.flac",
+          "bytes": 365908,
+          "sha256": "73923023f30ad5c1"
+        }
+      },
+      "bytes": 365908
+    },
+    {
+      "id": "sound_pipes",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "water moving through the building pipes (ambient)",
+      "title": "water drain though pipes under metal sink2.flac",
+      "author": "kyles",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/kyles/sounds/637942/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "pipes", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_pipes-1.flac",
+          "bytes": 290278,
+          "sha256": "8c2c0939391382b7"
+        }
+      },
+      "bytes": 290278
+    },
+    {
+      "id": "sound_car_pass",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "a car passing below at night; its lights sweep the ceiling (ambient)",
+      "title": "Car Passing Suburb",
+      "author": "robotjay",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/robotjay/sounds/275164/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "car_pass", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_car_pass-1.flac",
+          "bytes": 226805,
+          "sha256": "01228245b51bb10e"
+        }
+      },
+      "bytes": 226805
     }
   ]
 }

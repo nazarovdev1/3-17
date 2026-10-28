@@ -12,28 +12,22 @@ import {
   Vignette,
 } from '@react-three/postprocessing'
 import { BlendFunction, ToneMappingMode } from 'postprocessing'
-import { ACESFilmicToneMapping, NoToneMapping, PCFSoftShadowMap, type Mesh } from 'three'
+import { ACESFilmicToneMapping, NoToneMapping, PCFSoftShadowMap } from 'three'
 import { StillCapture } from './StillCapture'
-import { visibleChoices } from '@/core/engine'
 import { useGame } from '@/ui/gameStore'
 import { useSettings } from '@/ui/settingsStore'
 import { audio } from '@/audio/engine'
-import { NarrationText } from '@/ui/NarrationText'
-import { resolveAllLines } from '@/ui/NarrationText'
 import { sanityBand } from '@/core/state/sanity'
-import { PauseMenu } from '@/ui/GameScreen'
+import { PauseMenu } from '@/ui/PauseMenu'
+import { PlayOverlays } from '@/ui/play/Overlays'
 import { type QualityTier } from '@/platform/device/mode'
 import { QualityGovernor } from '@/platform/device/quality'
 import { desktopRuntime } from '@/platform/device/desktopRuntime'
 import { renderDpr, renderProfile } from './quality'
 import { World } from './World'
-import { CameraRig } from './CameraRig'
-import { REACH, interactionPoint } from './layout'
-import { figureAppearance } from './figure'
-import { SCRIPTED_SOUNDS } from './events'
+import { CameraRig, type Near } from './CameraRig'
 import { Inspect, readableOf } from './Inspect'
 import { PeepholeEffect } from './PeepholeEffect'
-import type { Choice } from '@/core/engine/types'
 import './desktop.css'
 
 interface Props {
@@ -188,39 +182,6 @@ function PostEffects({
     </EffectComposer>
   )
 }
-function Interactor({
-  choice,
-  onSelect,
-  extension,
-  night,
-}: {
-  choice: Choice
-  onSelect: (id: string) => void
-  extension: number
-  night: number
-}) {
-  const mesh = useRef<Mesh>(null)
-  const point = interactionPoint(choice, extension, false, night)
-  useFrame(({ clock }) => {
-    if (mesh.current) mesh.current.scale.setScalar(0.8 + Math.sin(clock.elapsedTime * 2) * 0.15)
-    const target = interactionPoint(choice, extension, desktopRuntime.clockShifted, night)
-    if (mesh.current && target) mesh.current.position.set(...target)
-  })
-  if (!point) return null
-  return (
-    <mesh
-      ref={mesh}
-      position={point}
-      onClick={(event) => {
-        event.stopPropagation()
-        if (event.distance < REACH + 0.6) onSelect(choice.id)
-      }}
-    >
-      <sphereGeometry args={[0.035, 6, 4]} />
-      <meshBasicMaterial color="#c5b88e" transparent opacity={0.65} />
-    </mesh>
-  )
-}
 export default function DesktopPresenter({ paused, onFallback }: Props) {
   const [supported] = useState(() => {
     try {
@@ -234,115 +195,79 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
   useEffect(() => {
     if (!supported) onFallback()
   }, [supported, onFallback])
-  const step = useGame((s) => s.currentStep)
+  const world = useGame((s) => s.world)
+  const sanity = useGame((s) => s.run?.sanity ?? 100)
+  const name = useGame((s) => s.run?.profile?.name ?? '')
+  const flags = useGame((s) => s.run?.flags ?? NO_FLAGS)
+  const lateNight = useGame((s) => !!s.run?.flags['late_night'])
+  const interactableList = useGame((s) => s.interactables)
+  const interactables = useMemo(
+    () => new Set(interactableList ? interactableList.split(',') : []),
+    [interactableList],
+  )
   const settings = useSettings((s) => s.settings)
   const [tier, setTier] = useState<QualityTier>('high')
   const [lost, setLost] = useState(false)
-  // The torch follows the power: off while the bulbs burn, on after 3:17, unless the
-  // player has switched it by hand (F).
-  // A hand switch holds until the power changes: a cut turns the torch on again.
-  const [torchOverride, setTorchOverride] = useState<{ on: boolean; needed: boolean } | null>(null)
-  const outage =
-    !!step &&
-    (step.state.visitedNodes.includes(`n${step.state.night}_317`) ||
-      step.node.mobile?.vignette === 'room_dark')
-  const torchNeeded = outage || step?.node.location === 'flat48'
-  // An eye to the peephole by choice; it lasts for the current beat only.
-  const [peek, setPeek] = useState({ node: '', on: false })
-  const peeking = peek.on && peek.node === step?.node.id
-  const onPeek = useCallback(
-    (on: boolean) => setPeek({ node: useGame.getState().currentStep?.node.id ?? '', on }),
-    [],
-  )
-  const peepholeView =
-    step?.node.mobile?.vignette === 'peephole' ||
-    peeking ||
-    ((import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1') &&
-      new URLSearchParams(window.location.search).get('cam')?.startsWith('peephole') === true)
-  // An eye at the peephole holds no torch: the landing is lit only by what is out there.
-  const manual = torchOverride?.needed === torchNeeded ? torchOverride.on : null
-  const flashlight = !peepholeView && (manual ?? torchNeeded)
-  const [lightsOff, setLightsOff] = useState<Set<number>>(() => new Set())
-  const [near, setNear] = useState<Choice | null>(null)
-  const [control, setControl] = useState<'lock' | 'drag'>('drag')
-  const [extension, setExtension] = useState(0)
-  const [hint, setHint] = useState(() => {
-    try {
-      return sessionStorage.getItem('g317:controls') !== '1'
-    } catch {
-      return true
-    }
+  // The torch follows the night (on the dark stairwell, off in the lit flat) until the
+  // player switches it by hand (F); a hand switch holds until the night changes it again.
+  const phoneTorch = world?.lights['phone_torch'] === 'on'
+  const torchWanted = world?.lights['torch'] === 'on' || phoneTorch
+  const [torchOverride, setTorchOverride] = useState<{ on: boolean; wanted: boolean } | null>(null)
+  const [peeking, setPeeking] = useState(false)
+  const manual = torchOverride?.wanted === torchWanted ? torchOverride.on : null
+  const flashlight = !peeking && (manual ?? torchWanted)
+  // Switch circuits (room, kitchen, bath, hall): where the night left them, then the player's hand.
+  const [switched, setSwitched] = useState<{ sequence: string; on: Record<number, boolean> }>({
+    sequence: '',
+    on: {},
   })
+  const sequence = world?.sequence ?? ''
+  const lightsOff = useMemo(() => {
+    const off = new Set<number>()
+    CIRCUITS.forEach((name, i) => {
+      const mine = switched.sequence === sequence ? switched.on[i] : undefined
+      const lit = mine ?? world?.lights[`flat_${name}`] !== 'off'
+      if (!lit) off.add(i)
+    })
+    return off
+  }, [switched, sequence, world?.lights])
+  const [near, setNear] = useState<Near | null>(null)
+  const [, setControl] = useState<'lock' | 'drag'>('drag')
   const [profile, setProfile] = useState(() => renderProfile())
   const [still] = useState(
     () =>
       (import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1') &&
       new URLSearchParams(window.location.search).get('render') === 'still',
   )
-  const choices = useMemo(() => (step ? visibleChoices(step.node, step.state) : []), [step])
-  const paper = useMemo(() => (step ? readableOf(step) : null), [step])
+  const paper = useMemo(() => readableOf(world?.readable ?? null, name), [world?.readable, name])
   const toggleFlashlight = useCallback(
     () =>
       setTorchOverride((value) => ({
-        on: !(value?.needed === torchNeeded ? value.on : torchNeeded),
-        needed: torchNeeded,
+        on: !(value?.wanted === torchWanted ? value.on : torchWanted),
+        wanted: torchWanted,
       })),
-    [torchNeeded],
+    [torchWanted],
   )
-  const toggleSwitch = useCallback((index: number) => {
-    setLightsOff((previous) => {
-      const next = new Set(previous)
-      if (next.has(index)) next.delete(index)
-      else next.add(index)
-      return next
-    })
-    audio.play('switch')
-  }, [])
-  const extend = useCallback(() => setExtension((length) => Math.min(6, length + 2)), [])
-  const choose = useCallback((id: string) => {
-    if (document.pointerLockElement) document.exitPointerLock()
-    desktopRuntime.lastInteraction = id
-    useGame.getState().choose(id)
-  }, [])
-  useEffect(() => {
-    desktopRuntime.control = control
-  }, [control])
-  // Sounds from the wrong place, timed from the start of the beat.
-  const nodeId = step?.node.id
-  useEffect(() => {
-    const cues = nodeId ? SCRIPTED_SOUNDS[nodeId] : undefined
-    if (!cues || paused) return
-    const timers = cues.map((cue) =>
-      setTimeout(() => audio.play(cue.id, cue.position), cue.at * 1000),
-    )
-    return () => timers.forEach(clearTimeout)
-  }, [nodeId, paused])
-  useEffect(() => {
-    if (!step || paused || still || step.phase !== 'next' || step.node.desktop?.trigger !== 'timed')
-      return
-    const characters = resolveAllLines(step.state).reduce(
-      (total, line) => total + line.text.length,
-      0,
-    )
-    const delay = Math.max(step.node.desktop.delayMs ?? 4000, characters * 24 + 1800)
-    const timer = setTimeout(() => useGame.getState().advance(), delay)
-    return () => clearTimeout(timer)
-  }, [step, paused, still])
-  if (!step || !supported) return null
-  const corridorExtension =
-    step.node.id === 'n3_corridor_loop'
-      ? (import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1') &&
-        still &&
-        new URLSearchParams(window.location.search).get('cam') === 'corridor_changed'
-        ? 2
-        : extension
-      : 0
-  const appearance = figureAppearance(step.node.id, step.state)
-  const peephole = peepholeView
+  const toggleSwitch = useCallback(
+    (index: number) => {
+      setSwitched((previous) => {
+        const on = previous.sequence === sequence ? previous.on : {}
+        return { sequence, on: { ...on, [index]: lightsOff.has(index) } }
+      })
+      audio.play('switch')
+    },
+    [sequence, lightsOff],
+  )
+  if (!world || !supported) return null
+  const peepholeView =
+    peeking ||
+    ((import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1') &&
+      new URLSearchParams(window.location.search).get('cam')?.startsWith('peephole') === true)
+  const glyph = near && !paused && !paper && !world.form ? (near.kind === 'hold' ? 'Q' : 'E') : null
   return (
     <div
-      className={`game-area desktop-game sanity-${sanityBand(step.state.sanity)} ${settings.reduceFlashing ? 'reduce-flashing' : ''}`}
-      data-node={step.node.id}
+      className={`game-area desktop-game sanity-${sanityBand(sanity)} ${settings.reduceFlashing ? 'reduce-flashing' : ''}`}
+      data-sequence={world.sequence}
       data-tier={tier}
     >
       <div className="desktop-view" aria-label={ui('desktop.scene_label')}>
@@ -379,124 +304,54 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
             onLost={setLost}
           />
           <World
-            outage={outage}
-            doorAjar={step.state.night >= 4}
-            corridorLength={corridorExtension + 1}
-            windowsDark={outage || step.node.id.endsWith('_316')}
+            world={world}
+            flags={flags}
+            lateNight={lateNight}
+            corridorLength={1}
             lightsOff={lightsOff}
-            clockRequested={!!step.state.flags['clock_shifted']}
             shadows={profile.shadows}
-            appearance={appearance}
-            node={step.node.id}
-            state={step.state}
-            peephole={peephole}
+            peephole={peepholeView}
           />
           <CameraRig
-            step={step}
-            choices={choices}
+            world={world}
+            interactables={interactables}
             paused={paused}
             flashlight={flashlight}
+            phoneTorch={phoneTorch}
             onNear={setNear}
             onControl={setControl}
             onFlashlight={toggleFlashlight}
             onSwitch={toggleSwitch}
-            onExtend={extend}
-            extension={corridorExtension}
             shadows={profile.shadows}
             peeking={peeking}
-            onPeek={onPeek}
+            onPeek={setPeeking}
           />
-          {!still &&
-            choices.map((choice) => (
-              <Interactor
-                key={choice.id}
-                choice={choice}
-                onSelect={choose}
-                extension={corridorExtension}
-                night={step.state.night}
-              />
-            ))}
           <Inspect paper={paper} />
           <PostEffects
-            peephole={peephole}
+            peephole={peepholeView}
             tier={tier}
-            sanity={step.state.sanity}
+            sanity={sanity}
             reduced={settings.reduceFlashing}
           />
         </Canvas>
         <span className="crosshair" aria-hidden="true">
           ·
         </span>
-        {near && !paused && (
-          <div className="interaction-prompt">
-            {near.id === 'listen' ? ui('desktop.hold_q') : 'E'} · {near.label}
-          </div>
+        {glyph && (
+          <span className="use-glyph" aria-hidden="true">
+            {glyph}
+          </span>
         )}
         {lost && <p className="desktop-recovering">{ui('desktop.recovering')}</p>}
       </div>
-      <div className="desktop-topline">
-        <span>
-          {ui('desktop.topline', {
-            night: step.state.night,
-            flat: step.node.location === 'flat48' ? '48' : '47',
-          })}
-        </span>
-        <button onClick={() => setTier(tier === 'high' ? 'low' : 'high')}>
-          {ui('desktop.quality', {
-            tier: tier === 'high' ? ui('desktop.quality_high') : ui('desktop.quality_low'),
-          })}
-        </button>
-        <button onClick={toggleFlashlight}>
-          {ui('desktop.flashlight', {
-            state: flashlight ? ui('desktop.flashlight_on') : ui('desktop.flashlight_off'),
-          })}
-        </button>
-        <button
-          aria-label={ui('common.pause')}
-          onClick={() => useGame.getState().setScreen('paused')}
-        >
-          II
-        </button>
-      </div>
-      {hint && (
-        <aside className="desktop-controls">
-          <p>
-            {ui('desktop.controls')
-              .split(' · ')
-              .map((row) => (
-                <span key={row} className="desktop-controls-row">
-                  {row}
-                </span>
-              ))}
-          </p>
-          <p>{control === 'lock' ? ui('desktop.control_lock') : ui('desktop.control_drag')}</p>
-          <button
-            onClick={() => {
-              setHint(false)
-              try {
-                sessionStorage.setItem('g317:controls', '1')
-              } catch {
-                /* Session-only hint still closes. */
-              }
-            }}
-          >
-            {ui('desktop.got_it')}
-          </button>
-        </aside>
-      )}
-      <div className="desktop-hud">
-        <NarrationText key={step.node.id} state={step.state} />
-        <div className="choices">
-          {step.phase === 'next' && (
-            <button onClick={() => useGame.getState().advance()}>{ui('common.continue')}</button>
-          )}
-          {choices.map((choice, i) => (
-            <button key={choice.id} data-choice-id={choice.id} onClick={() => choose(choice.id)}>
-              {i + 1}. {choice.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <PlayOverlays controls={world.night === 1 && world.sequence === 'n1'} />
+      <button
+        className="pause-corner"
+        aria-label={ui('common.pause')}
+        onClick={() => useGame.getState().setScreen('paused')}
+      >
+        II
+      </button>
       {paused && (
         <PauseMenu
           onResume={() => useGame.getState().setScreen('game')}
@@ -507,3 +362,7 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
     </div>
   )
 }
+
+const NO_FLAGS: Record<string, unknown> = {}
+/** Light-switch circuits in SWITCHES order (layout.ts). */
+const CIRCUITS = ['room', 'kitchen', 'bath', 'hall'] as const

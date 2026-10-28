@@ -13,3 +13,5 @@ src/content/text/uz/*.yaml
 CREDITS.md
 .asset-cache/
 public/assets/
+# Owner-authored prompts are kept exactly as written.
+REDESIGN_PROMPT.md

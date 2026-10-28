@@ -1,5 +1,3 @@
-import type { GameState } from '@/core/state/types'
-
 /**
  * What is different tonight (fear-design.md, "Things that change when not observed").
  * `…Tonight` marks the night a change first happens: then it waits until unobserved;
@@ -28,24 +26,21 @@ export const CHAIR_MOVED = {
   rotation: -Math.PI / 2,
 }
 
-export function changesFor(nodeId: string, state: GameState): NightChanges {
-  const night = state.night
-  const visited = (id: string) => state.visitedNodes.includes(id)
-  const afterOutage4 = night === 4 && visited('n4_317')
+export function changesFor(
+  night: number,
+  flags: Record<string, unknown>,
+  daylight: boolean,
+): NightChanges {
+  const afterOutage4 = night === 4 && !!flags['power_off']
   return {
     // Night 2's day is spent out; the coat is there when the night begins.
-    coat:
-      night > 2 ||
-      (night === 2 &&
-        !nodeId.startsWith('n2_day') &&
-        !nodeId.startsWith('n2_muhabbat') &&
-        !nodeId.startsWith('n2_ask')),
+    coat: night > 2 || (night === 2 && !daylight),
     coatTonight: night === 2,
     chairMoved: night >= 3,
     chairMovedTonight: night === 3,
     chainLoose: afterOutage4,
-    bundle: afterOutage4 && !state.flags['took_bundle'],
-    footprints: night === 4 && !!state.flags['saw_figure'],
+    bundle: afterOutage4 && !flags['took_parcel'],
+    footprints: night === 4 && !!flags['saw_figure'],
     breath: night === 5,
   }
 }

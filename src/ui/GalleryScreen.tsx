@@ -2,19 +2,12 @@ import { ui } from '@/content/text'
 import { useGame } from './gameStore'
 import type { Night } from '@/core/state/types'
 
-/** Endings gallery + chapter select (unlocked after finishing, spec 4.3). */
+/** Endings gallery + night select (unlocked after finishing). Ending titles live only here. */
 export function GalleryScreen() {
   const meta = useGame((s) => s.meta)
   const setScreen = useGame((s) => s.setScreen)
-  const goToNode = useGame((s) => s.goToNode)
-
-  const nightStarts: [Night, string][] = [
-    [1, 'n1_start'],
-    [2, 'n2_day_start'],
-    [3, 'n3_start'],
-    [4, 'n4_start'],
-    [5, 'n5_start'],
-  ]
+  const playNight = useGame((s) => s.playNight)
+  const nights: Night[] = [1, 2, 3, 4, 5]
 
   return (
     <div className="screen">
@@ -32,16 +25,10 @@ export function GalleryScreen() {
         {meta.chaptersUnlocked.length > 0 && (
           <>
             <h2 style={{ marginTop: 12 }}>{ui('gallery.chapters')}</h2>
-            {nightStarts
-              .filter(([n]) => meta.chaptersUnlocked.includes(n))
-              .map(([n, nodeId]) => (
-                <button
-                  key={n}
-                  onClick={() => {
-                    goToNode(nodeId)
-                    setScreen('game')
-                  }}
-                >
+            {nights
+              .filter((n) => meta.chaptersUnlocked.includes(n))
+              .map((n) => (
+                <button key={n} onClick={() => playNight(n)}>
                   {ui('gallery.night', { night: n })} · {ui(`nights.${n}`)}
                 </button>
               ))}

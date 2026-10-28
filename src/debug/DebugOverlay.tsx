@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useGame } from '@/ui/gameStore'
+import { emitDirectorEvents, getDirector, useGame } from '@/ui/gameStore'
 import { getLog } from '@/ui/errorLog'
-import { story } from '@/content/story'
-import { visibleChoices } from '@/core/engine'
 import { audio } from '@/audio/engine'
-import { getDesktopState } from '@/platform/device/desktopRuntime'
+import { formatClock } from '@/core/director/clock'
+import type { DirectorEvent, PlayerInput } from '@/core/director/types'
+import { desktopRuntime, getDesktopState } from '@/platform/device/desktopRuntime'
 
 const DEBUG_KEY = 'g317:debug'
 const GAME_API_KEY = '__game' as const
@@ -24,14 +24,15 @@ function isDebug(): boolean {
 }
 
 /**
- * Debug overlay (spec 11): FPS, node, sanity, flags, inventory, last errors,
- * node jumper — plus the window.__game test API, attached only when debug is
- * active in a test build.
+ * Debug view (REDESIGN §2): the night clock, the beats that fired, flags, sanity and items,
+ * with speed controls — the development view that replaces the text presenter. In a test
+ * build it also attaches the window.__game API.
  */
 export function DebugOverlay() {
   const [active] = useState(isDebug)
   const [fps, setFps] = useState(0)
   const [open, setOpen] = useState(true)
+  const [, refresh] = useState(0)
 
   useEffect(() => {
     if (!active) return
@@ -43,6 +44,7 @@ export function DebugOverlay() {
       const now = performance.now()
       if (now - last >= 1000) {
         setFps(Math.round((frames * 1000) / (now - last)))
+        refresh((n) => n + 1)
         frames = 0
         last = now
       }
@@ -52,40 +54,44 @@ export function DebugOverlay() {
     return () => cancelAnimationFrame(raf)
   }, [active])
 
-  const node = useGame((s) => s.currentStep?.node.id ?? '—')
-  const sanity = useGame((s) => s.run?.sanity ?? 0)
-  const flags = useGame((s) => s.run?.flags)
-  const inventory = useGame((s) => s.run?.inventory)
-  const mode = useGame((s) => s.screen)
-  const goToNode = useGame((s) => s.goToNode)
+  const screen = useGame((s) => s.screen)
+  const world = useGame((s) => s.world)
+  const run = useGame((s) => s.run)
+  const speed = useGame((s) => s.speed)
   const errors = getLog().slice(-5)
   const desktop = getDesktopState()
+  const director = getDirector()
 
   useEffect(() => {
     if (!GAME_API_ENABLED || !active) return
+    const game = () => useGame.getState()
     ;(window as unknown as Record<string, unknown>)[GAME_API_KEY] = {
-      getState: () => useGame.getState().run,
-      goTo: (nodeId: string) => useGame.getState().goToNode(nodeId),
-      choose: (choiceId: string) => useGame.getState().choose(choiceId),
-      setSanity: (n: number) => useGame.getState().setSanity(n),
-      setFlag: (k: string, v: boolean | number | string) => useGame.getState().setFlag(k, v),
-      setTime: (iso: string) => useGame.getState().debugSetTime(iso),
-      getScreen: () => useGame.getState().screen,
-      getNodeId: () => useGame.getState().run?.currentNodeId ?? null,
-      getStep: () => {
-        const step = useGame.getState().currentStep
-        if (!step) return null
-        return {
-          nodeId: step.node.id,
-          night: step.node.night,
-          phase: step.phase,
-          ending: step.node.ending ?? null,
-          choices: visibleChoices(step.node, step.state).map((c) => ({ id: c.id, label: c.label })),
-        }
+      getState: () => game().run,
+      getWorld: () => (getDirector() ? { ...getDirector()!.world } : null),
+      getSequence: () => getDirector()?.sequenceId ?? null,
+      getClock: () => (getDirector() ? formatClock(getDirector()!.world.clock) : null),
+      firedBeats: () => getDirector()?.firedBeats() ?? [],
+      interactables: () => [...(getDirector()?.interactables() ?? [])],
+      input: (input: PlayerInput) => game().input(input),
+      setClock: (clock: string) => game().debug.setClock(clock),
+      startNight: (night: number) => game().debug.startNight(night),
+      playSequence: (id: string) => game().debug.playSequence(id),
+      setSpeed: (value: number) => game().debug.setSpeed(value),
+      setSanity: (n: number) => game().debug.setSanity(n),
+      setFlag: (k: string, v: boolean | number | string) => game().debug.setFlag(k, v),
+      setTime: (iso: string) => {
+        const run = game().run
+        if (run) run.lastPlayedAt = iso
       },
+      getScreen: () => game().screen,
+      /** Test builds: place the desktop camera (x, z[, yaw]) without walking there. */
+      teleport: (x: number, z: number, yaw?: number) => {
+        desktopRuntime.teleport = yaw === undefined ? [x, z] : [x, z, yaw]
+      },
+      /** Test builds: deliver Director events (an effect) as the Director would. */
+      emit: (events: DirectorEvent[]) => emitDirectorEvents(events),
       getAudioState: () => audio.inspect(),
       getDesktopState,
-      advance: () => useGame.getState().advance(),
     }
     return () => {
       delete (window as unknown as Record<string, unknown>)[GAME_API_KEY]
@@ -103,60 +109,42 @@ export function DebugOverlay() {
     ) : null
   }
 
+  const fired = director?.firedBeats() ?? []
   return (
     <div className="debug-overlay">
       <div>
-        <button onClick={() => setOpen(false)}>—</button> FPS {fps} · ekran {mode}
+        <button onClick={() => setOpen(false)}>—</button> FPS {fps} · ekran {screen}
       </div>
-      <div>node: {node}</div>
+      <div>
+        {world
+          ? `${world.sequence} · ${formatClock(world.clock)}${world.frozen ? ' (to‘xtagan)' : ''} · ×${world.timeScale * speed}`
+          : '—'}
+      </div>
       <div>
         presenter: {desktop.mounted ? 'desktop' : 'mobile'}
         {desktop.mounted && ` · ${desktop.tier} · ${desktop.fps.toFixed(0)} FPS`}
       </div>
-      <div>es-hush: {sanity}</div>
-      <div>inv: {inventory && inventory.length > 0 ? inventory.join(', ') : '—'}</div>
-      <div>flags: {flags && Object.keys(flags).length > 0 ? JSON.stringify(flags) : '—'}</div>
+      <div>es-hush: {run?.sanity ?? '—'}</div>
+      <div>inv: {run && run.inventory.length > 0 ? run.inventory.join(', ') : '—'}</div>
+      <div>flags: {run && Object.keys(run.flags).length > 0 ? JSON.stringify(run.flags) : '—'}</div>
+      <div>beats: {fired.slice(-8).join(' · ') || '—'}</div>
       {errors.map((e, i) => (
         <div key={i} style={{ color: '#e8a0a0' }}>
           {e.kind}: {e.message.slice(0, 90)}
         </div>
       ))}
-      <NodeJumper onJump={goToNode} />
-    </div>
-  )
-}
-
-function NodeJumper({ onJump }: { onJump: (id: string) => void }) {
-  const [value, setValue] = useState('')
-  const ids = Object.keys(story.nodes)
-  return (
-    <div style={{ marginTop: 6, display: 'flex', gap: 4 }}>
-      <input
-        list="g317-nodes"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        style={{
-          flex: 1,
-          fontSize: 11,
-          padding: 2,
-          background: '#111',
-          color: '#9fe8a0',
-          border: '1px solid #333',
-        }}
-        placeholder="node id"
-      />
-      <datalist id="g317-nodes">
-        {ids.map((id) => (
-          <option key={id} value={id} />
+      <div style={{ marginTop: 6, display: 'flex', gap: 4 }}>
+        {[1, 8, 60].map((value) => (
+          <button key={value} onClick={() => useGame.getState().debug.setSpeed(value)}>
+            ×{value}
+          </button>
         ))}
-      </datalist>
-      <button
-        onClick={() => {
-          if (value.trim()) onJump(value.trim())
-        }}
-      >
-        →
-      </button>
+        {[1, 2, 3, 4, 5].map((night) => (
+          <button key={night} onClick={() => useGame.getState().debug.startNight(night)}>
+            {night}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

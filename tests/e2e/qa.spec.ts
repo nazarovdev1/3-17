@@ -1,8 +1,7 @@
 import { expect, type Page } from '@playwright/test'
 import { test } from './fixtures'
-import { acceptWarning, startNamedRun } from './helpers'
+import { acceptWarning, startNamedRun, startRun } from './helpers'
 import { ui } from '../../src/content/text'
-import { pickChoice } from '../routes'
 
 /**
  * Phase 8 QA: fast debug-API routes to every ending, Telegram BackButton,
@@ -25,13 +24,6 @@ test.afterEach(({ page }) => {
 })
 
 type Ending = 'A' | 'B' | 'C'
-interface DebugStep {
-  nodeId: string
-  night: number
-  phase: 'next' | 'choices' | 'ending'
-  ending: string | null
-  choices: { id: string; label: string }[]
-}
 
 const api = <T>(page: Page, fn: string, ...args: unknown[]): Promise<T> =>
   page.evaluate(
@@ -43,63 +35,98 @@ const api = <T>(page: Page, fn: string, ...args: unknown[]): Promise<T> =>
     [fn, args] as const,
   )
 
-/** Drives the story through window.__game only, with the shared choice-id route
- * (tests/routes.ts) used by the real-input runs. Returns the visited node ids. */
-async function debugRoute(page: Page, ending: Ending): Promise<string[]> {
-  const visited: string[] = []
-  for (let i = 0; i < 400; i++) {
-    const step = await api<DebugStep | null>(page, 'getStep')
-    expect(step, 'a running story').not.toBeNull()
-    visited.push(step!.nodeId)
-    if (step!.phase === 'ending') return visited
-    if (step!.phase === 'next') {
-      await api(page, 'advance')
-      continue
+/**
+ * The whole game through the Director at ×60: the rental form is signed, the player idles
+ * through nights 1–4 (3:17 comes by itself every night), and night 5 ends by the inputs that
+ * ending needs. Returns the nights that played.
+ */
+async function fastRoute(page: Page, ending: Ending): Promise<string[]> {
+  const played = new Set<string>()
+  // The debug overlay sits over the mobile view's top (forward) arrow.
+  await page.addStyleTag({ content: '.debug-overlay { display: none }' })
+  await page.evaluate((c) => {
+    const g = window.__game
+    g.input({
+      type: 'form',
+      profile: { name: 'Dilnoza', livesAlone: 'ha', fear: 'qorongʻulik', doorAtNight: 'yopiq' },
+    })
+    if (c) {
+      const run = g.getState()!
+      for (let i = 1; i <= 7; i++) run.inventory.push(`diary_${i}`)
+      for (let i = 1; i <= 5; i++) run.inventory.push(`mom_msg_${i}`)
     }
-    await api(
-      page,
-      'choose',
-      pickChoice(
-        ending,
-        step!.choices.map((c) => c.id),
-      ),
+    g.setSpeed(60)
+  }, ending === 'C')
+  for (let i = 0; i < 600; i++) {
+    const sequence = await page.evaluate(() => window.__game.getSequence())
+    if (sequence) played.add(sequence)
+    if ((await page.evaluate(() => window.__game.getScreen())) === 'gallery') return [...played]
+    const door = await page.evaluate(() => !!window.__game.getState()?.flags['open_the_door'])
+    if (sequence === 'n5' && door) {
+      await page.evaluate((e) => {
+        const g = window.__game
+        if (e === 'B') g.input({ type: 'interact', target: 'front_door' })
+        if (e === 'C') {
+          g.input({ type: 'interact', target: 'clock' })
+          g.input({ type: 'interact', target: 'keyhole' })
+        }
+      }, ending)
+      if (ending !== 'C') {
+        // The player walks out (B) or over 48's threshold (A).
+        if (await page.locator('.desktop-game').count())
+          await page.evaluate(
+            (e) =>
+              e === 'A' ? window.__game.teleport(-4.2, 4.3) : window.__game.teleport(1.6, 6.95),
+            ending,
+          )
+        else {
+          await page
+            .locator('.mobile-game[data-view="room"] .view-exit-back')
+            .click({ timeout: 2000 })
+            .catch(() => undefined)
+          await page
+            .locator('.mobile-game[data-view="hall"] .view-exit-forward')
+            .click({ timeout: 2000 })
+            .catch(() => undefined)
+          if (ending === 'B')
+            await page
+              .locator('.mobile-game[data-view="landing"] .view-exit-back')
+              .click({ timeout: 2000 })
+              .catch(() => undefined)
+          else
+            await page
+              .locator('.mobile-game[data-view="landing"] .view-exit-left')
+              .click({ timeout: 2000 })
+              .catch(() => undefined)
+        }
+      }
+    }
+    if (sequence === 'endA')
+      await page.evaluate(() => window.__game.input({ type: 'knock3', target: 'party_wall48' }))
+    if (
+      sequence === 'endC' &&
+      (await page.evaluate(() => window.__game.getWorld()?.phone.screen)) === 'incoming'
     )
+      await page.evaluate(() => window.__game.input({ type: 'interact', target: 'phone_call' }))
+    await page.waitForTimeout(250)
   }
-  throw new Error(`no ending after 400 steps for ${ending}`)
+  throw new Error(`ending ${ending} not reached; played ${[...played].join(', ')}`)
 }
 
 for (const ending of ['A', 'B', 'C'] as const) {
-  test(`window.__game fast route reaches ending ${ending}`, async ({ page }) => {
-    test.setTimeout(120_000)
+  test(`window.__game fast route plays every night and reaches ending ${ending}`, async ({
+    page,
+  }) => {
+    test.setTimeout(240_000)
     await page.goto('/?debug=1')
-    await startNamedRun(page, 'Dilnoza')
-    const visited = await debugRoute(page, ending)
-    const step = await api<DebugStep>(page, 'getStep')
-    expect(step.ending).toBe(ending)
-    expect(await api<string>(page, 'getScreen')).toBe('ending')
-    expect(
-      new Set(visited.filter((id) => !id.startsWith('end')).map((id) => id.slice(0, 2))),
-    ).toEqual(new Set(['n1', 'n2', 'n3', 'n4', 'n5']))
-    if (ending === 'C') {
-      const state = await api<{
-        sanity: number
-        inventory: string[]
-        flags: Record<string, unknown>
-      }>(page, 'getState')
-      expect(state.inventory.filter((id) => id.startsWith('diary_'))).toHaveLength(7)
-      expect(state.sanity).toBeGreaterThanOrEqual(40)
-      expect(state.flags['answered_n3']).toBeFalsy()
-      expect(state.inventory.filter((id) => id.startsWith('mom_msg_'))).toHaveLength(5)
-    }
-    await expect(
-      page
-        .locator('h1, h2')
-        .filter({ hasText: ui(`endings.${ending}.title`) })
-        .first(),
-    ).toBeVisible()
+    await startRun(page)
+    const played = await fastRoute(page, ending)
+    expect(played).toEqual(expect.arrayContaining(['n1', 'n2', 'n3', 'n4', 'n5', `end${ending}`]))
+    // Titles live in the gallery only, after the ending has played out.
+    await expect(page.getByText(ui(`endings.${ending}.title`), { exact: true })).toBeVisible()
+    expect(await page.evaluate(() => window.__game.getState())).toBeNull()
   })
 }
-
 test('Telegram BackButton opens pause, resumes and steps back from settings', async ({ page }) => {
   await page.addInitScript(() => {
     const handlers = new Set<() => void>()
@@ -141,8 +168,6 @@ test('Telegram BackButton opens pause, resumes and steps back from settings', as
   expect(await backState()).toEqual({ visible: false, count: 0 })
 
   await page.getByRole('button', { name: ui('title.new_game') }).click()
-  await page.getByRole('textbox').fill('Dilnoza')
-  await page.getByRole('button', { name: ui('form.sign') }).click()
   await expect.poll(backState).toEqual({ visible: true, count: 1 })
 
   await press()
@@ -165,13 +190,16 @@ test('Telegram BackButton opens pause, resumes and steps back from settings', as
   await expect.poll(backState).toEqual({ visible: false, count: 0 })
 })
 
-test('closing the tab mid-game keeps the exact node and state', async ({ page, context }) => {
+test('closing the tab mid-night keeps the night, the profile and what the player did', async ({
+  page,
+  context,
+}) => {
   await page.goto('/?debug=1')
   await startNamedRun(page, 'Dilnoza')
-  await api(page, 'advance')
+  await api(page, 'startNight', 3)
   await api(page, 'setSanity', 63)
   await api(page, 'setFlag', 'qa_marker', 'closed')
-  const before = await api<{ currentNodeId: string; sanity: number }>(page, 'getState')
+  await page.waitForTimeout(400)
   await page.close({ runBeforeUnload: true })
   // The auto fixture stubs the Telegram SDK per page; the reopened tab needs it too.
   await context.route('https://telegram.org/js/telegram-web-app.js', (route) =>
@@ -187,11 +215,12 @@ test('closing the tab mid-game keeps the exact node and state', async ({ page, c
   await next.goto('/?debug=1')
   await next.getByRole('button', { name: ui('common.continue') }).click()
   const after = await api<{
-    currentNodeId: string
+    night: number
     sanity: number
     flags: Record<string, unknown>
   }>(next, 'getState')
-  expect(after.currentNodeId).toBe(before.currentNodeId)
+  expect(after.night).toBe(3)
+  await expect(next.locator('.game-area')).toHaveAttribute('data-sequence', 'n3')
   expect(after.sanity).toBe(63)
   expect(after.flags['qa_marker']).toBe('closed')
   expect(errors).toEqual([])
@@ -209,14 +238,9 @@ test('no runtime request leaves the origin except the Telegram SDK', async ({ pa
     foreign.push(url)
   })
   await page.goto('/?debug=1')
-  await startNamedRun(page, 'Dilnoza')
-  await debugRoute(page, 'B')
-  await expect(
-    page
-      .locator('h1, h2')
-      .filter({ hasText: ui('endings.B.title') })
-      .first(),
-  ).toBeVisible()
+  await startRun(page)
+  await fastRoute(page, 'B')
+  await expect(page.getByText(ui('endings.B.title'), { exact: true })).toBeVisible()
   expect(foreign).toEqual([])
 })
 
@@ -224,7 +248,7 @@ test('repeated night transitions do not grow resources', async ({ page }, info) 
   test.setTimeout(240_000)
   await page.goto('/?debug=1')
   await startNamedRun(page, 'Dilnoza')
-  const nights = ['n1_start', 'n2_day_start', 'n3_start', 'n4_start', 'n5_start']
+  const nights = [1, 2, 3, 4, 5]
 
   const isDesktop = info.project.name === 'desktop-chrome'
   const sample = async () => {
@@ -247,9 +271,7 @@ test('repeated night transitions do not grow resources', async ({ page }, info) 
   }
   const cycle = async () => {
     for (const id of nights) {
-      await page.evaluate((nodeId) => {
-        ;(window as unknown as { __game: { goTo: (id: string) => void } }).__game.goTo(nodeId)
-      }, id)
+      await page.evaluate((night) => window.__game.startNight(night), id)
       await page.waitForTimeout(400)
     }
   }
@@ -303,10 +325,6 @@ test('mobile scene holds 30 FPS under ×4 CPU throttling', async ({ page }, info
   test.setTimeout(120_000)
   await page.goto('/')
   await startNamedRun(page, 'Dilnoza')
-  await page
-    .getByRole('button', { name: ui('common.continue') })
-    .first()
-    .click()
   await expect(page.locator('.mobile-game canvas').first()).toBeVisible()
   const cdp = await page.context().newCDPSession(page)
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 })

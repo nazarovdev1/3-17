@@ -474,6 +474,10 @@ Each is replaced, not dropped:
 
 ## 11. Decisions for the owner
 
+**Owner answers (2026-10-28), applied in R1 (DECISIONS 63):** 1 — the clock comes off the wall at any time on night 5, but the key turns only after N5-07. 2 — as recommended; no automatic ending. 3 — real recordings: the owner records the mother (a woman) and the wall voice (himself); lines and directions in `RECORDING.md`. 4 — no second model: only Rustam's hand with the key ring, his sleeve and his breath; his face is never seen. 5 — the ban covers narration only; every spoken line is exempt. 6 — kept, as paper Rustam hands over. 7 — approved, with every surviving behaviour re-tested (mapping in DECISIONS 71). 8 — as recommended.
+
+The questions as asked:
+
 1. **Ending C timing.** Winding catches only after the voice says "Eshikni och" (N5-07); before that the key will not turn. _Recommended._ Alternative: winding works at any time on night 5.
 2. **Night 5 idle.** Time stays at 3:17 and the knocks repeat every 45 s until the player acts; no automatic ending. _Recommended._ Alternative: after 5 minutes, ending A starts by itself.
 3. **Voice audio.**

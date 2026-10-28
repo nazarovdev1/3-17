@@ -1,68 +1,55 @@
 import { describe, expect, it } from 'vitest'
-import { story } from '@/content/story'
-import { createInitialState, goTo } from '@/core/engine'
-import type { Step } from '@/core/engine/types'
+import { SEQUENCES } from '@/content/nights'
+import { wordsOf } from '@/content/text'
+import { Director } from '@/core/director/director'
+import { newRun, STILL } from '@/core/director/simulate'
+import { actionsOf } from '@/core/validate/beats'
 import { WORLD, footprint, objectById, rectArea, type Rect } from '@/content/world/layout'
 import { canWalk } from '@/content/world/walk'
-import { figureAppearance } from '@/presenters/desktop/figure'
-import { MISSED_CALLS, phoneState, phoneTime } from '@/presenters/desktop/phone'
+import { appearanceFor } from '@/presenters/desktop/figure'
+import { phoneTime } from '@/presenters/desktop/phone'
 import { CHAIR_MOVED, changesFor } from '@/presenters/desktop/changes'
-import { REACH, footstepAt, interactionPoint } from '@/presenters/desktop/layout'
+import { REACH, footstepAt } from '@/presenters/desktop/layout'
 
-const initial = () =>
-  createInitialState(
-    { name: 'Ali', livesAlone: 'ha', fear: 'qorongʻulik', doorAtNight: 'yopiq' },
-    '2026-10-25T00:00:00Z',
-  )
-/** Walks the story through `ids` in order, carrying the state like the game does. */
-function through(...ids: string[]): Step {
-  let step = goTo(story, initial(), ids[0]!)
-  for (const id of ids.slice(1)) step = goTo(story, step.state, id)
-  return step
+const profile = {
+  name: 'Ali',
+  livesAlone: 'ha',
+  fear: 'qorongʻulik',
+  doorAtNight: 'yopiq',
+} as const
+/** Runs a night for `ms` with the player standing still, then returns its Director. */
+function night(id: string, ms: number, before?: (d: Director) => void) {
+  const director = new Director({ sequences: SEQUENCES, run: newRun({ ...profile }), wordsOf }, id)
+  director.run.night = Number(id[1]) as 1
+  before?.(director)
+  for (let t = 0; t < ms; t += 100) director.tick(100, STILL)
+  return director
 }
 
 const overlap = (a: Rect, b: Rect) => a.x0 < b.x1 && b.x0 < a.x1 && a.z0 < b.z1 && b.z0 < a.z1
+const PLACEMENTS = ['stairwell', 'frosted', 'peephole', 'under_door', 'tv_reflection'] as const
 
 describe('the figure (FIX_PROMPT §4.4)', () => {
-  it('appears only at the beats fear-design.md gives it, never in night 1', () => {
-    const appearances = Object.keys(story.nodes)
-      .map((id) => [id, figureAppearance(id, through('n4_317', id).state)?.id] as const)
-      .filter(([, a]) => a)
-    expect(appearances.every(([id]) => !id.startsWith('n1_'))).toBe(true)
-    expect(Object.fromEntries(appearances)).toMatchObject({
-      n2_day_start: 'stairwell',
-      n3_corridor_loop: 'frosted',
-      n3_tv: 'tv_reflection',
-      n4_peephole: 'peephole',
-      n5_voice_final: 'under_door',
-    })
-  })
-  it('stands under the door only after the night-4 power cut, until the peephole', () => {
-    expect(figureAppearance('n4_hub', through('n4_start', 'n4_hub').state)).toBeNull()
-    expect(figureAppearance('n4_hub', through('n4_317', 'n4_hub').state)?.id).toBe('under_door')
-    expect(figureAppearance('n4_hub', through('n4_317', 'n4_peephole', 'n4_hub').state)).toBeNull()
+  it('never appears on night 1', () => {
+    expect(actionsOf(SEQUENCES.n1!).some(({ action }) => action.type === 'figure')).toBe(false)
   })
   it('never stands where it is plainly seen: always lit from behind, hidden or reflected', () => {
-    for (const id of [
-      'n2_day_start',
-      'n3_corridor_loop',
-      'n4_peephole',
-      'n3_tv',
-      'n5_voice_final',
-    ]) {
-      const a = figureAppearance(id, through('n4_317', id).state)!
+    for (const id of PLACEMENTS) {
+      const a = appearanceFor(id)!
       expect(a.maxSeconds).toBeLessThanOrEqual(75)
       expect(a.vanishWhenUnseen || a.reflectionOnly || a.closedDoors.length > 0).toBe(true)
     }
+    expect(appearanceFor(null)).toBeNull()
+    expect(appearanceFor('nowhere')).toBeNull()
   })
   it('stands on walkable floor (a body fits there), outside the furniture', () => {
-    for (const id of ['n2_day_start', 'n3_corridor_loop', 'n4_peephole', 'n5_voice_final']) {
-      const [x, , z] = figureAppearance(id, through('n4_317', id).state)!.position
+    for (const id of ['stairwell', 'frosted', 'peephole', 'under_door'] as const) {
+      const [x, , z] = appearanceFor(id)!.position
       expect(canWalk(x, z, { flat48: true, extension: 0 }), id).toBe(true)
     }
   })
   it('stands in the room doorway for the TV glass, seen only in the reflection', () => {
-    const a = figureAppearance('n3_tv', through('n3_start', 'n3_tv').state)!
+    const a = appearanceFor('tv_reflection')!
     expect(a.reflectionOnly).toBe(true)
     expect(canWalk(a.position[0], a.position[2], { flat48: false, extension: 0 })).toBe(true)
   })
@@ -70,68 +57,54 @@ describe('the figure (FIX_PROMPT §4.4)', () => {
 
 describe('the phone (fear-design.md escalation table)', () => {
   it('counts the mother’s missed calls night by night', () => {
-    expect(Object.values(MISSED_CALLS)).toEqual([3, 11, 24, 40, 52])
-    expect(phoneState('n3_hub', through('n3_start', 'n3_hub').state).missed).toBe(24)
-  })
-  it('is held up at the phone beats and plays the message', () => {
-    expect(phoneState('n1_phone', through('n1_hub', 'n1_phone').state)).toMatchObject({
-      place: 'hand',
-      screen: 'messages',
+    const counts = ['n1', 'n2', 'n3', 'n4', 'n5'].map((id) => {
+      const d = night(id, 300)
+      // Night 2 begins in the day; its night count is set when the night falls.
+      return id === 'n2' ? night(id, 85_000).world.phone.missed : d.world.phone.missed
     })
-    const message = through('n1_hub', 'n1_phone', 'n1_message')
-    expect(phoneState('n1_message', message.state)).toMatchObject({
-      screen: 'playing',
-      heard: true,
-      messageSeconds: 11,
-    })
+    expect(counts).toEqual([3, 11, 24, 40, 52])
   })
-  it('lies face down after the kitchen on night 1, under the pillow on night 4, dies at 3:17 on night 5', () => {
-    expect(phoneState('n1_hub', through('n1_hub', 'n1_tea', 'n1_hub').state).faceDown).toBe(true)
-    expect(phoneState('n1_hub', through('n1_hub').state).faceDown).toBe(false)
-    expect(phoneState('n4_hub', through('n4_start', 'n4_hub').state).place).toBe('pillow')
-    expect(phoneState('n5_317', through('n5_start', 'n5_317').state)).toMatchObject({
-      screen: 'dead',
-      calling: false,
-    })
+  it('is picked up, plays tonight’s message when tapped, and is put down', () => {
+    const d = night('n1', 300)
+    d.input({ type: 'interact', target: 'phone' })
+    expect(d.world.phone).toMatchObject({ place: 'hand', screen: 'lock' })
+    d.input({ type: 'interact', target: 'phone_message' })
+    expect(d.world.phone.screen).toBe('playing')
+    expect(d.run.inventory).toContain('mom_msg_1')
+    for (let t = 0; t < 11_500; t += 100) d.tick(100, STILL)
+    expect(d.world.phone).toMatchObject({ screen: 'lock', heard: true, messageSeconds: 11 })
+    d.input({ type: 'interact', target: 'phone' })
+    expect(d.world.phone.place).toBe('table')
   })
-  it('shows the story’s 3:17 once it is set, the player’s own clock before', () => {
-    expect(phoneTime(through('n1_317').state)).toBe('3:17')
-    expect(phoneTime(initial(), new Date(2026, 0, 1, 22, 5))).toBe('22:05')
+  it('lies under the pillow on night 4 and dies with everything else at 3:17 on night 5', () => {
+    expect(night('n4', 300).world.phone.place).toBe('pillow')
+    expect(night('n5', 240_000).world.phone.screen).toBe('dead')
   })
-  it('lies on the room table, and is reached from under the pillow on night 4', () => {
-    const phone = objectById('phone')!
-    expect(phone.support).toEqual({ on: 'object', object: 'table' })
-    const choice = { id: 'phone', label: '', to: 'n4_phone' }
-    expect(interactionPoint(choice, 0, false, 4)).toEqual(
-      interactionPoint({ ...choice, id: 'sleep' }),
-    )
+  it('shows the night’s clock, or the player’s own after midnight on night 1', () => {
+    const phone = night('n1', 300).world.phone
+    expect(phoneTime(phone, '02:41', false)).toBe('02:41')
+    expect(phoneTime(phone, '02:41', true, new Date(2026, 0, 1, 3, 5))).toBe('03:05')
+    expect(phoneTime({ ...phone, time: '07:40' }, '03:17', false)).toBe('07:40')
+  })
+  it('lies on the room table', () => {
+    expect(objectById('phone')!.support).toEqual({ on: 'object', object: 'table' })
   })
 })
 
 describe('changes while nobody looks (fear-design.md)', () => {
   it('follows the nightly table', () => {
-    expect(changesFor('n1_hub', through('n1_hub').state)).toMatchObject({
-      coat: false,
-      chairMoved: false,
-    })
-    expect(changesFor('n2_day_start', through('n2_day_start').state).coat).toBe(false)
-    expect(changesFor('n2_night_hub', through('n2_night_hub').state)).toMatchObject({
-      coat: true,
-      coatTonight: true,
-    })
-    expect(changesFor('n3_hub', through('n3_start', 'n3_hub').state)).toMatchObject({
-      chairMoved: true,
-      chairMovedTonight: true,
-    })
-    const n4 = through('n4_start', 'n4_317', 'n4_hub')
-    expect(changesFor('n4_hub', n4.state)).toMatchObject({
+    expect(changesFor(1, {}, false)).toMatchObject({ coat: false, chairMoved: false })
+    expect(changesFor(2, {}, true).coat).toBe(false)
+    expect(changesFor(2, {}, false)).toMatchObject({ coat: true, coatTonight: true })
+    expect(changesFor(3, {}, false)).toMatchObject({ chairMoved: true, chairMovedTonight: true })
+    expect(changesFor(4, { power_off: true }, false)).toMatchObject({
       chainLoose: true,
       bundle: true,
       footprints: false,
     })
-    const seen = through('n4_start', 'n4_317', 'n4_peephole', 'n4_hub')
-    expect(changesFor('n4_hub', seen.state).footprints).toBe(true)
-    expect(changesFor('n5_hub', through('n5_start', 'n5_hub').state).breath).toBe(true)
+    expect(changesFor(4, { power_off: true, took_parcel: true }, false).bundle).toBe(false)
+    expect(changesFor(4, { power_off: true, saw_figure: true }, false).footprints).toBe(true)
+    expect(changesFor(5, {}, false).breath).toBe(true)
   })
   it('moves the chair to an empty spot of the room', () => {
     const chair = objectById('room_chair')!

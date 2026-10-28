@@ -23,6 +23,7 @@ const sound = (
     ...(cue === 'wind' ? { highpassHz: 70, lowpassHz: 2500 } : {}),
     ...(cue === 'whisper' ? { highpassHz: 100, lowpassHz: 1600 } : {}),
     ...(cue === 'static' ? { highpassHz: 100, lowpassHz: 4500 } : {}),
+    ...(cue === 'cough' ? { highpassHz: 300, lowpassHz: 3200 } : {}),
     ...(cue === 'traffic' ? { highpassHz: 60, lowpassHz: 1600 } : {}),
     ...(cue === 'clock' ? { repeat: { every: 1, count: 4 } } : {}),
   },
@@ -120,5 +121,21 @@ export const SOUND_SOURCES: AssetSourceEntry[] = [
     [[1.18, 0.24]],
     'real clock tick repeated over a silent bed; only Ending C',
     true,
+  ),
+  // Redesign night 1 (R2): untold sounds of the flat, all pinned CC0.
+  sound(
+    'cough',
+    '743354',
+    [[0, 0.9]],
+    'one cough inside the TV static (night 1); filtered as heard through a set',
+  ),
+  sound('drip', '323142', [[0, 2.6]], 'bathroom tap dripping on the first visit'),
+  sound('crows', '335871', [[2, 8]], 'crows at dawn over the courtyard'),
+  sound('pipes', '637942', [[12, 6]], 'water moving through the building pipes (ambient)'),
+  sound(
+    'car_pass',
+    '275164',
+    [[1.5, 6]],
+    'a car passing below at night; its lights sweep the ceiling (ambient)',
   ),
 ]

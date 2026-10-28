@@ -1,18 +1,16 @@
 import { expect, type Page } from '@playwright/test'
 import { test } from './fixtures'
+import { signForm } from './helpers'
 import type { AudioEngine } from '../../src/audio/engine'
 import { ui } from '../../src/content/text'
 import { manifest } from '../../src/assets/loader'
 
 type AudioInfo = ReturnType<AudioEngine['inspect']>
-interface DebugAudioApi {
-  getAudioState: () => AudioInfo
-  goTo: (id: string) => void
-}
-const state = (page: Page) =>
-  page.evaluate(() => (window as unknown as { __game: DebugAudioApi }).__game.getAudioState())
-const jump = (page: Page, id: string) =>
-  page.evaluate((id) => (window as unknown as { __game: DebugAudioApi }).__game.goTo(id), id)
+const state = (page: Page): Promise<AudioInfo> =>
+  page.evaluate(() => window.__game.getAudioState() as AudioInfo)
+/** A cue exactly as the Director sends it: the triple knock from the shared wall. */
+const knock = (page: Page) =>
+  page.evaluate(() => window.__game.emit([{ type: 'sound', id: 'knock_triple', at: 'party_wall' }]))
 
 // Exercise the actual native graph under the configured gesture autoplay policy.
 
@@ -33,7 +31,7 @@ test.beforeEach(async ({ page }) => {
       'g317:meta',
       JSON.stringify({
         kind: 'meta',
-        saveVersion: 1,
+        saveVersion: 2,
         meta: { contentWarningAccepted: true, endingsSeen: [], chaptersUnlocked: [] },
       }),
     )
@@ -50,18 +48,18 @@ async function boot(page: Page) {
 }
 async function start(page: Page) {
   await page.getByRole('button', { name: ui('title.new_game'), exact: true }).click()
-  await page.getByRole('textbox').fill('Dilnoza')
-  await page.getByRole('button', { name: ui('form.sign'), exact: true }).click()
+  await signForm(page, 'Dilnoza')
 }
 
 test('native suspended context unlocks on a tap; mixer is audible, muted and persisted', async ({
   page,
 }, info) => {
+  test.setTimeout(120_000)
   await boot(page)
   await expect.poll(async () => (await state(page)).contextState).toBe('suspended')
   await expect.poll(async () => (await state(page)).recordingsReady).toBe(true)
   expect((await state(page)).missingRecordings).toEqual([])
-  expect((await state(page)).recordingCount).toBe(41)
+  expect((await state(page)).recordingCount).toBe(46)
   expect((await state(page)).status).toBe('locked')
   const unlock = page.getByRole('button', { name: ui('shell.audio_unlock_label'), exact: true })
   await expect(unlock).toHaveText(ui('shell.audio_unlock'))
@@ -93,7 +91,7 @@ test('native suspended context unlocks on a tap; mixer is audible, muted and per
   await page.getByRole('button', { name: ui('common.back'), exact: true }).click()
   await expect.poll(async () => (await state(page)).peak).toBeLessThan(0.00001)
   await start(page)
-  await jump(page, 'n1_knocks')
+  await knock(page)
   await expect.poll(async () => (await state(page)).peak).toBeGreaterThan(0.001)
   await page.getByRole('button', { name: ui('common.pause'), exact: true }).click()
   await page.getByRole('button', { name: ui('common.settings'), exact: true }).click()
@@ -103,9 +101,19 @@ test('native suspended context unlocks on a tap; mixer is audible, muted and per
   await page.getByRole('button', { name: ui('common.back'), exact: true }).click()
   await expect(page.getByRole('heading', { name: ui('pause.title'), exact: true })).toBeVisible()
   await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
-  await jump(page, 'n1_start')
+  // The landing's ambience is music: audible.
   await expect.poll(async () => (await state(page)).peak).toBeGreaterThan(0.001)
-  await jump(page, 'n1_knocks')
+  // At 3:17 the bed goes silent; the knocks that follow are effects: muted.
+  await page.evaluate(() => {
+    window.__game.setSpeed(4)
+    window.__game.setClock('03:16')
+  })
+  await expect
+    .poll(() => page.evaluate(() => window.__game.getWorld()?.power), { timeout: 20_000 })
+    .toBe(false)
+  await expect
+    .poll(async () => (await state(page)).recent, { timeout: 20_000 })
+    .toContain('knock_triple')
   await expect.poll(async () => (await state(page)).peak).toBeLessThan(0.00001)
   expect((await state(page)).failures).toEqual([])
 })
@@ -113,6 +121,7 @@ test('native suspended context unlocks on a tap; mixer is audible, muted and per
 test('outage silence, native cue output, clock ending, spatial panner and bounded voices', async ({
   page,
 }, info) => {
+  test.setTimeout(120_000)
   await page.addInitScript(() => {
     localStorage.setItem('g317:settings', JSON.stringify({ mode: 'desktop', reduceFlashing: true }))
     const original = Object.getOwnPropertyDescriptor(BaseAudioContext.prototype, 'createPanner')!
@@ -126,35 +135,39 @@ test('outage silence, native cue output, clock ending, spatial panner and bounde
   await boot(page)
   await start(page)
   await expect.poll(async () => (await state(page)).status).toBe('running')
-  await jump(page, 'n1_clock')
+  // Rustam aka gone, the player steps into the hall: the flat's bed, and no clock tick in it.
+  await page.evaluate(() => window.__game.setFlag('rustam_gone', true))
+  // Without WebGL the desktop choice falls back to the mobile viewpoints.
+  if (await page.locator('.mobile-game').count()) await page.locator('.view-exit-forward').click()
+  else await page.evaluate(() => window.__game.teleport(0.5, 3.8))
+  await expect.poll(async () => (await state(page)).layers, { timeout: 15_000 }).toContain('fridge')
   expect((await state(page)).recent).not.toContain('clock_tick')
-  expect((await state(page)).layers).toContain('fridge')
-  await jump(page, 'n1_317')
-  expect((await state(page)).layers).toEqual([])
-  await expect.poll(async () => (await state(page)).voices).toBe(0)
-  await expect.poll(async () => (await state(page)).peak).toBeLessThan(0.00001)
   const quiet = await page.evaluate(async () => {
-    const api = (window as unknown as { __game: DebugAudioApi }).__game
-    // Start the cut and measurement atomically; slow CDP round trips cannot consume the gap.
-    api.goTo('n1_317')
-    const begin = api.getAudioState().contextTime
-    api.goTo('n1_knocks')
+    const api = window.__game
+    type A = { contextTime: number; peak: number; recent: string[] }
+    const audio = () => api.getAudioState() as A
+    const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+    // Measure in the page; slow CDP round trips cannot consume the gap.
+    api.setClock('03:16')
+    while (api.getWorld()?.power !== false) await frame()
+    const begin = audio().contextTime
     let peak = 0
     let observedAt: number | null = null
-    while (api.getAudioState().silenceRemaining > 0.08) {
-      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
-      const audio = api.getAudioState()
-      if (audio.contextTime - begin >= 0.45 && audio.silenceRemaining > 0.08) {
-        observedAt ??= audio.contextTime
-        peak = Math.max(peak, audio.peak)
+    while (!audio().recent.includes('knock_triple')) {
+      await frame()
+      const now = audio()
+      if (now.recent.includes('knock_triple')) break
+      if (now.contextTime - begin >= 0.45) {
+        observedAt ??= now.contextTime
+        peak = Math.max(peak, now.peak)
       }
     }
-    return { peak, seconds: observedAt === null ? 0 : api.getAudioState().contextTime - observedAt }
+    return { peak, seconds: observedAt === null ? 0 : audio().contextTime - observedAt }
   })
+  expect((await state(page)).layers).toEqual([])
   expect(quiet.seconds).toBeGreaterThan(3)
   expect(quiet.peak).toBeLessThan(0.00001)
   await expect.poll(async () => (await state(page)).peak).toBeGreaterThan(0.001)
-  expect((await state(page)).recent).toContain('knock_triple')
   const spatialExpected = info.project.name !== 'no-webgl'
   expect((await state(page)).spatial).toBe(spatialExpected)
   const playback = (await state(page)).playbacks.filter((p) => p.id === 'knock_triple').at(-1)
@@ -167,15 +180,14 @@ test('outage silence, native cue output, clock ending, spatial panner and bounde
   if (spatialExpected) expect(panners).toBeGreaterThan(0)
   else expect(panners).toBe(0)
   await page.evaluate(() => {
-    const api = (window as unknown as { __game: DebugAudioApi }).__game
-    for (let i = 0; i < 30; i++) api.goTo('n1_knocks')
+    for (let i = 0; i < 30; i++)
+      window.__game.emit([{ type: 'sound', id: 'knock_triple', at: 'party_wall' }])
   })
   expect((await state(page)).voices).toBeLessThanOrEqual(8)
   expect((await state(page)).bufferCount).toBeLessThanOrEqual(25)
-  await jump(page, 'endC')
-  expect((await state(page)).layers).toEqual(['clock'])
+  await page.evaluate(() => window.__game.playSequence('endC'))
   await expect.poll(async () => (await state(page)).voices).toBe(0)
-  await expect.poll(async () => (await state(page)).peak).toBeLessThan(0.00001)
+  await expect.poll(async () => (await state(page)).layers, { timeout: 15_000 }).toEqual(['clock'])
   await expect
     .poll(async () => (await state(page)).peak, { intervals: [100, 150, 200, 250] })
     .toBeGreaterThan(0.001)
@@ -193,7 +205,7 @@ test('an undecodable local recording uses the audible synth fallback without blo
   await start(page)
   await expect.poll(async () => (await state(page)).recordingsReady).toBe(true)
   expect((await state(page)).missingRecordings).toEqual([recording.path])
-  await jump(page, 'n1_knocks')
+  await knock(page)
   const playback = (await state(page)).playbacks.filter((p) => p.id === 'knock_triple').at(-1)
   expect(playback?.kind).toBe('synth')
   await expect.poll(async () => (await state(page)).peak).toBeGreaterThan(0.001)
@@ -203,6 +215,7 @@ test('an undecodable local recording uses the audible synth fallback without blo
 test('pause, hidden page and Telegram deactivation stop sound without replaying old cues', async ({
   page,
 }) => {
+  test.setTimeout(90_000)
   await page.route('**/telegram-web-app.js', (route) =>
     route.fulfill({ body: '', contentType: 'application/javascript' }),
   )
@@ -225,15 +238,17 @@ test('pause, hidden page and Telegram deactivation stop sound without replaying 
   })
   await boot(page)
   await start(page)
-  await jump(page, 'n2_night_hub')
-  const wall = page.locator('[data-choice-id="listen"]')
-  const target = (await wall.boundingBox())!
-  await page.mouse.move(target.x + target.width / 2, target.y + target.height / 2)
+  // Night 2 begins in the room; the shared wall is to the left. Holding it listens.
+  await page.evaluate(() => window.__game.startNight(2))
+  await expect(page.locator('.mobile-game')).toHaveAttribute('data-view', 'room')
+  await page.locator('.view-exit-left').click()
+  const wall = (await page.locator('[data-object="party_wall"]').boundingBox())!
+  await page.mouse.move(wall.x + wall.width / 2, wall.y + wall.height / 2)
   await page.mouse.down()
   await expect.poll(async () => (await state(page)).listening).toBe(true)
   await page.mouse.up()
-  expect((await state(page)).listening).toBe(false)
-  await jump(page, 'n1_knocks')
+  await expect.poll(async () => (await state(page)).listening).toBe(false)
+  await knock(page)
   await page.getByRole('button', { name: ui('common.pause'), exact: true }).click()
   await expect.poll(async () => (await state(page)).contextState).toBe('suspended')
   expect((await state(page)).voices).toBe(0)
@@ -258,7 +273,7 @@ test('pause, hidden page and Telegram deactivation stop sound without replaying 
     document.dispatchEvent(new Event('visibilitychange'))
   })
   await expect.poll(async () => (await state(page)).contextState).toBe('suspended')
-  await jump(page, 'n1_knocks')
+  await knock(page)
   expect((await state(page)).recent).toEqual(recent)
   await page.evaluate(() => {
     Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' })
@@ -280,8 +295,7 @@ test('missing Web Audio does not block playing or settings', async ({ page }) =>
     page.getByRole('button', { name: ui('shell.audio_unlock_label'), exact: true }),
   ).toBeHidden()
   await start(page)
-  await page.getByRole('button', { name: ui('common.continue'), exact: true }).click()
-  await expect(page.locator('.mobile-game')).toHaveAttribute('data-node', 'n1_hub')
+  await expect(page.locator('.mobile-game')).toHaveAttribute('data-view', 'landing')
   await page.getByRole('button', { name: ui('common.pause'), exact: true }).click()
   await page.getByRole('button', { name: ui('common.settings'), exact: true }).click()
   await expect(page.getByRole('slider', { name: ui('settings.master'), exact: true })).toBeVisible()

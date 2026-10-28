@@ -68,20 +68,14 @@ settings:
 pause:
   title: PAUZA
 
-ending:
-  scroll_hint: Matn davomi pastda.
-  gallery: Yakunlar roʻyxati
-
+# Yakun nomlari faqat yakunlar roʻyxatida koʻrinadi, yakun davomida emas.
 endings:
   A:
     title: Qoʻshni
-    summary: Siz qirq sakkizning eshigini ochdingiz. Endi kechasi devorni siz taqillatasiz.
   B:
     title: Ketish
-    summary: Siz uydan chiqib ketdingiz. Choʻntagingizdagi telefon esa hamon titrayapti.
   C:
     title: '3:18'
-    summary: Soat yurdi. Devor jim boʻldi. Siz onangizga qoʻngʻiroq qildingiz.
 
 gallery:
   title: YAKUNLAR
@@ -96,49 +90,35 @@ nights:
   '4': '48'
   '5': '3:17'
 
-locations:
-  room: xona
-  kitchen: oshxona
-  bathroom: hammom
-  corridor: dahliz
-  balcony: deraza oldi
-  stairwell: zinapoya
-  flat48: qirq sakkizinchi xonadon
-
+# Oʻyin vaqtida ekranda faqat shu boshqaruv kartasi (1-tunning dastlabki 15 soniyasi) chiqadi.
 desktop:
   scene_label: Qirq yettinchi xonadon, uch oʻlchamli koʻrinish
   fallback_loading: Yengil rejimga oʻtilmoqda…
-  hold_q: Q — bosib turing
   recovering: Tasvir tiklanmoqda…
-  topline: '{night}-tun · 4-qavat · {flat}'
-  quality: 'Sifat: {tier}'
-  quality_high: yuqori
-  quality_low: past
-  flashlight: 'Fonus: {state} · F'
-  flashlight_on: yoniq
-  flashlight_off: oʻchiq
-  controls: WASD — yurish · Sichqoncha — qarash · E — koʻrish · F — fonus · Q — devorni tinglash · 1–9 — tanlash · Probel — matn · Esc — pauza
-  control_lock: Sichqoncha oʻyinga ulangan.
-  control_drag: Sichqonchani bosib, sudrab ham qarash mumkin.
-  got_it: Tushunarli
-  peek: Eshik koʻzidan qarash
-  unpeek: Koʻzni olish
+  controls: WASD — yurish · Sichqoncha — qarash · E — ishlatish · F — fonus · Q — tinglash · Esc — pauza
 
+# Telefon ekrani (oʻyin ichidagi narsa).
 phone:
   mother: Onam
   missed: '{count} ta javobsiz qoʻngʻiroq'
   voice: Ovozli xabar
   voice_heard: Ovozli xabar · tinglangan
   incoming: qoʻngʻiroq qilyapti…
-  unlock: Ochish uchun suring
+  call: Qoʻngʻiroq qilish
+  rustam: Rustam aka
+  work: Ish
+  draft: Yaxshiman, ona. Ishdaman
+  send: Yuborish
+  date_n1: Juma, 12-dekabr
+  date_n1_dawn: Shanba, 13-dekabr
+  date_n2: Shanba, 13-dekabr
+  date_n3: Seshanba, 16-dekabr
+  date_n4: Chorshanba, 17-dekabr
+  date_n5: Payshanba, 18-dekabr
 
 mobile:
   scene_label: Xonadon manzarasi
-  hotspot_hint: Yorishib turgan joylarni bosing.
-  hold_hint: Devorni bosib turing.
-  typing: yozmoqda…
-  reveal: Hammasini koʻrsatish
-  ending_label: Yakun manzarasi
+  go: Yurish
 
 loading:
   place: Chilonzor · toʻrtinchi qavat · 47-xonadon
@@ -149,23 +129,8 @@ loading:
 
 shell:
   fallback_notice: Tasvir yengil rejimga oʻtdi. Oʻyin davom etadi.
-  real_317: Telefoningizdagi soatga qarang. U ham 3:17.
   audio_unlock: Davom etish uchun ekranga bosing
   audio_unlock_label: Ovozni yoqish
   error: Nimadir buzildi.
   error_restart: Qaytadan boshlash
   glitch_label: Xona tasviri buzildi
-  glitch_text: Signal yoʻqoldi
-
-text_presenter:
-  guest: Mehmon
-  restart: Boshidan
-
-meta:
-  late_night: Haqiqiy soat ham yarim tundan oʻtgan. Siz ham uxlamayapsiz.
-  late_night_fallback: Tashqarida tun choʻzilib boryapti.
-  return_long: Bir necha soat yoʻq boʻldingiz. Men kutdim. Bu yerda soat hamon oʻsha.
-  return_short: Yarim soatdan koʻp kutdim. Qaytdingiz. Bu yerda soat hamon oʻsha.
-  return_long_sen: Bir necha soat yoʻq boʻlding. Men kutdim. Bu yerda soat hamon oʻsha.
-  return_short_sen: Yarim soatdan koʻp kutdim. Qaytding. Bu yerda soat hamon oʻsha.
-  return_fallback: Qaytdingiz. Men kutdim.

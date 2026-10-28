@@ -1,8 +1,11 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
+import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { Reflector } from 'three/examples/jsm/objects/Reflector.js'
 import { WORLD, type WorldObject } from '@/content/world/layout'
+import { zonesAt } from '@/content/world/zones'
+import { desktopRuntime } from '@/platform/device/desktopRuntime'
 import { uniformScale } from '@/content/world/scale'
 import { metricBox, type SurfaceMaterials } from './materials'
 import { shiftZ } from './stretch'
@@ -336,6 +339,16 @@ function Mirror({
   return <primitive object={reflector} position={position} />
 }
 
+const ENTRANCES = [
+  ['47', 'front_door'],
+  ['48', 'front_door48'],
+] as const
+const ROOMS_OF: Record<string, string[]> = Object.fromEntries(
+  ['47', '48'].map((flat) => [flat, WORLD.rooms.filter((r) => r.flat === flat).map((r) => r.id)]),
+)
+/** Rooms seen from the landing through a flat's open entrance (the straight line in). */
+const THROUGH_ENTRANCE = new Set(['hall', 'corridor', 'room'])
+
 export function Furniture({
   models,
   surfaces,
@@ -361,19 +374,75 @@ export function Furniture({
         }),
     [models, skip, mirrors],
   )
+  // Nothing occludes in three.js: from the landing every object of both flats was drawn
+  // through the walls (230k triangles on software GL). A flat's furniture is drawn whole from
+  // inside it; from outside, only the rooms in line with its open entrance (hall, corridor,
+  // room) can be seen, and nothing while that leaf is shut.
+  const groups = useRef<Record<string, THREE.Group | null>>({})
+  const here = useRef<string>('common')
+  // The first frames draw everything once, so every room's buffers are on the GPU before it is
+  // culled (no upload hitch the first time a room comes into view, no growth across nights).
+  const warm = useRef(0)
+  useFrame(() => {
+    if (warm.current < 3) {
+      // Frustum culling off too, or what is behind the first view would upload later.
+      const warming = warm.current < 2
+      for (const group of Object.values(groups.current))
+        group?.traverse((o) => {
+          if (!(o as THREE.Mesh).isMesh) return
+          if (warming) {
+            o.userData.frustumCulled ??= o.frustumCulled
+            o.frustumCulled = false
+          } else o.frustumCulled = (o.userData.frustumCulled as boolean | undefined) ?? true
+        })
+      warm.current++
+      return
+    }
+    const [x, , z] = desktopRuntime.position
+    const room = WORLD.rooms.find((r) => zonesAt(x!, z!).includes(r.id))
+    if (room) here.current = room.flat
+    const drawn: string[] = []
+    for (const [flat, door] of ENTRANCES) {
+      const inside = here.current === flat
+      const open = !!desktopRuntime.entrances[door]
+      for (const id of ROOMS_OF[flat]!) {
+        const group = groups.current[id]
+        const visible = inside || (open && THROUGH_ENTRANCE.has(id.replace(/48$/, '')))
+        if (group) group.visible = visible
+        if (visible) drawn.push(id)
+      }
+    }
+    desktopRuntime.flatsDrawn = drawn.join(',')
+  })
+  const rooms = useMemo(() => [...new Set(placed.map(({ o }) => o.room as string))], [placed])
   return (
     <group name="furniture">
-      {placed.map(({ o, node }) => (
+      {rooms.map((room) => (
         <group
-          key={o.id}
-          position={[o.position[0], o.position[1], shiftZ(o.position[0], o.position[2], extension)]}
-          rotation-y={node ? 0 : o.rotation}
+          key={room}
+          ref={(g) => {
+            groups.current[room] = g
+          }}
         >
-          {node ? (
-            <primitive object={node} />
-          ) : (
-            <Procedural o={o} surfaces={surfaces} mirrors={mirrors} />
-          )}
+          {placed
+            .filter(({ o }) => o.room === room)
+            .map(({ o, node }) => (
+              <group
+                key={o.id}
+                position={[
+                  o.position[0],
+                  o.position[1],
+                  shiftZ(o.position[0], o.position[2], extension),
+                ]}
+                rotation-y={node ? 0 : o.rotation}
+              >
+                {node ? (
+                  <primitive object={node} />
+                ) : (
+                  <Procedural o={o} surfaces={surfaces} mirrors={mirrors} />
+                )}
+              </group>
+            ))}
         </group>
       ))}
     </group>

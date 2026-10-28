@@ -18,14 +18,20 @@ const BULB_CD = 3.5
 
 export function Lighting({
   outage,
+  daylight = false,
   lightsOff,
   extension,
   shadows,
   landingDark = false,
+  landingDead = false,
 }: {
   /** The landing's timer bulb is off (the figure stands out there). */
   landingDark?: boolean
+  /** The landing's bulb is dead (night 1's arrival): only a phone lights the way. */
+  landingDead?: boolean
   outage: boolean
+  /** Grey winter morning through the windows (each night's dawn, the day of night 2). */
+  daylight?: boolean
   lightsOff: Set<number>
   extension: number
   shadows: boolean
@@ -56,10 +62,18 @@ export function Lighting({
     // Limit bounced fill to the occupied volume instead of leaking through party walls.
     if (flatWindowFill.current)
       flatWindowFill.current.intensity = px! < PARTY_X && pz! < 4.69 ? 18 : 0
-    if (stairWindowFill.current) stairWindowFill.current.intensity = stairFill * 16
+    if (stairWindowFill.current)
+      stairWindowFill.current.intensity = stairFill * (landingDead ? 2 : 16)
     if (fill.current)
-      fill.current.intensity =
-        px! < PARTY_X && pz! < 4.69 ? 2.5 : outage ? 2.0 : 0.14 + stairFill * 0.9
+      fill.current.intensity = daylight
+        ? 3.2
+        : px! < PARTY_X && pz! < 4.69
+          ? 2.5
+          : outage
+            ? 2.0
+            : landingDead && pz! > 4.69
+              ? 0.05 + stairFill * 0.15
+              : 0.14 + stairFill * 0.9
     const on = (circuit: number | null) => !outage && (circuit === null || !lightsOff.has(circuit))
     // The fixture of the room the player stands in casts the shadows.
     let current = 0
@@ -81,7 +95,8 @@ export function Lighting({
       active.position[1],
       shiftZ(active.position[0], active.position[2], extension),
     )
-    softwareLight.power.value = on(active.circuit) ? BULB_CD : 0
+    softwareLight.power.value =
+      on(active.circuit) && !(landingDead && active === landing) ? BULB_CD : 0
     if (s) {
       const l = ceilings[current]!
       s.position.set(l.position[0], l.position[1], shiftZ(l.position[0], l.position[2], extension))
@@ -159,15 +174,15 @@ export function Lighting({
         ]}
         color="#ffd9a0"
         // The timer bulb clicked off: only a glow from the stairwell window is left.
-        intensity={outage ? 0 : landingDark ? 0.9 : 9}
+        intensity={outage || landingDead ? 0 : landingDark ? 0.9 : 9}
         distance={8}
         decay={2}
       />
       {/* Moonlight from high over the block opposite. */}
       <directionalLight
         position={moon.position}
-        color="#8fa6c8"
-        intensity={0.22}
+        color={daylight ? '#c7d0dc' : '#8fa6c8'}
+        intensity={daylight ? 1.6 : 0.22}
         castShadow={shadows}
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-6}
@@ -181,7 +196,7 @@ export function Lighting({
         ref={sodium}
         position={street.position}
         color="#ff9a3d"
-        intensity={160}
+        intensity={daylight ? 0 : 160}
         distance={40}
         decay={2}
         angle={0.55}

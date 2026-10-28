@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { lintEntry, lintTexts, repeatedPhrases } from '@/core/validate/textLint'
-import { story } from '@/content/story'
-import { allStoryKeys, missingKeys, usedKeys } from '@/content/text'
+import { SEQUENCES, READABLES } from '@/content/nights'
+import { missingKeys, scriptKeys } from '@/content/text'
+import { textUses } from '@/core/validate/beats'
 
 const line = (text: string, id = 'n/l') => ({ id, text, kind: 'line' as const })
 
@@ -68,9 +69,16 @@ describe('Uzbek text rules', () => {
 })
 
 describe('YAML text keys', () => {
-  it('every key the story asks for exists and every YAML story key is used', () => {
-    expect(Object.keys(story.nodes).length).toBeGreaterThan(0)
+  it('every word a night asks for exists, and every script.yaml line is used', () => {
+    const used = new Set(
+      Object.values(SEQUENCES).flatMap((s) =>
+        textUses(s, { readables: READABLES }).map((u) => u.key),
+      ),
+    )
+    for (const paper of Object.values(READABLES)) paper.lines.forEach((key) => used.add(key))
+    const keys = new Set(scriptKeys())
+    expect([...used].filter((key) => !keys.has(key))).toEqual([])
+    expect([...keys].filter((key) => !used.has(key))).toEqual([])
     expect(missingKeys).toEqual([])
-    expect(allStoryKeys().filter((key) => !usedKeys.has(key))).toEqual([])
   })
 })

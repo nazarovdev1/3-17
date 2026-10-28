@@ -6,10 +6,12 @@ import {
   synthSound,
   type AmbientId,
 } from '@/audio/synthesis'
-import { audioScene } from '@/audio/presentation'
-import { story } from '@/content/story'
-import { createInitialState, goTo } from '@/core/engine'
-import type { Step } from '@/core/engine/types'
+import { audioScene } from '@/audio/AudioController'
+import { Director } from '@/core/director/director'
+import { newRun, STILL } from '@/core/director/simulate'
+import { SEQUENCES } from '@/content/nights'
+import { wordsOf } from '@/content/text'
+import { actionsOf } from '@/core/validate/beats'
 
 const rms = (pcm: Float32Array) =>
   Math.sqrt(pcm.reduce((sum, value) => sum + value * value, 0) / pcm.length)
@@ -53,30 +55,36 @@ describe('procedural sound library', () => {
   }
 })
 
-const initial = () =>
-  createInitialState(
-    { name: 'Ali', livesAlone: 'ha', fear: 'qorongʻulik', doorAtNight: 'yopiq' },
-    '2026-10-25T00:00:00Z',
-  )
-const at = (id: string): Step => goTo(story, initial(), id)
+const world = (sequence: string, ms: number) => {
+  const run = newRun({ name: 'Ali', livesAlone: 'ha', fear: 'qorongʻulik', doorAtNight: 'yopiq' })
+  const director = new Director({ sequences: SEQUENCES, run, wordsOf }, sequence)
+  for (let t = 0; t < ms; t += 100) director.tick(100, STILL)
+  return director.world
+}
 
 describe('audio scene mapping', () => {
-  it('cuts every ambient layer at the outage and preserves silence on resume', () => {
-    const cut = at('n1_317')
+  it('cuts every ambient layer at the outage, and the flat hums again at dawn', () => {
+    const before = world('n1', 300_000)
+    expect(before.power).toBe(true)
+    const cut = world('n1', 370_000)
+    expect(cut.power).toBe(false)
     expect(audioScene('game', cut)).toBe('silence')
-    expect(audioScene('game', goTo(story, cut.state, 'n1_knocks'))).toBe('silence')
-    expect(audioScene('game', goTo(story, cut.state, 'n2_day_start'))).toBe('day')
-    expect(audioScene('game', goTo(story, cut.state, 'n2_night_hub'))).toBe('flat')
-    expect(cut.state.flags['time']).toBe('3:17')
+    expect(audioScene('game', world('n2', 1000))).toBe('flat')
+    expect(audioScene('game', world('n1', 1000))).toBe('day')
   })
   it('keeps ticking exclusive to C and maps title, street and menus', () => {
-    expect(audioScene('game', at('n1_clock'))).toBe('flat')
-    expect(audioScene('game', at('n5_clock'))).toBe('flat')
-    expect(audioScene('ending', at('endA'))).toBe('silence')
-    expect(audioScene('ending', at('endB'))).toBe('street')
-    expect(audioScene('ending', at('endC'))).toBe('clock')
+    for (const night of ['n1', 'n2', 'n3', 'n4', 'n5'])
+      for (const { action } of actionsOf(SEQUENCES[night]!))
+        expect(action.type === 'scene' && action.scene).not.toBe('clock')
+    const scenes = (id: string) =>
+      actionsOf(SEQUENCES[id]!).flatMap(({ action }) =>
+        action.type === 'scene' ? [action.scene] : [],
+      )
+    expect(scenes('endA')).toContain('silence')
+    expect(scenes('endB')).toContain('street')
+    expect(scenes('endC')).toContain('clock')
     expect(audioScene('title', null)).toBe('title')
-    expect(audioScene('paused', at('n1_clock'))).toBe('off')
+    expect(audioScene('paused', world('n1', 100))).toBe('off')
     expect(audioScene('settings', null)).toBe('off')
   })
 })

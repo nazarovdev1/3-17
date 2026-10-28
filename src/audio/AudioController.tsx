@@ -1,14 +1,29 @@
 import { ui } from '@/content/text'
 import { useEffect, useSyncExternalStore } from 'react'
 import { audio } from './engine'
-import { audioScene } from './presentation'
-import { useGame, onEngineEvents } from '@/ui/gameStore'
+import { SOUND_IDS } from './synthesis'
+import { useGame, onDirectorEvents } from '@/ui/gameStore'
 import { useSettings } from '@/ui/settingsStore'
-import { getWebApp } from '@/platform/telegram/adapter'
+import { getWebApp, TelegramAdapter } from '@/platform/telegram/adapter'
 import type { GameMode } from '@/platform/device/mode'
-import { cuePosition, SHARED_WALL } from './positions'
+import type { SfxId } from '@/core/state/types'
+import type { AudioScene } from './engine'
+import type { Screen } from '@/ui/gameStore'
+import type { WorldState } from '@/core/director/types'
+import { SHARED_WALL, soundPosition } from './positions'
 
-/** One audio owner across presenters; all hooks/listeners are cleaned up. */
+const KNOWN = new Set<string>(SOUND_IDS)
+/** Sounds the Director asks for that have no recording yet are skipped, never faked. */
+const isSfx = (id: string): id is SfxId => KNOWN.has(id)
+
+/** The ambient bed: the menu's hum, or whatever the world's current scene is. */
+export function audioScene(screen: Screen, world: WorldState | null): AudioScene {
+  if (screen === 'title' || screen === 'gallery') return 'title'
+  if (screen !== 'game' || !world) return 'off'
+  return world.scene
+}
+
+/** One audio owner across presenters; the Director decides what plays and where. */
 export function AudioController({ mode }: { mode: GameMode }) {
   const status = useSyncExternalStore(audio.subscribe, audio.getSnapshot)
   const screen = useGame((s) => s.screen)
@@ -18,10 +33,17 @@ export function AudioController({ mode }: { mode: GameMode }) {
   }, [mode])
   useEffect(() => {
     audio.initialize()
+    const telegram = new TelegramAdapter()
+    let listening = false
     const sync = () => {
       const game = useGame.getState()
       audio.setPaused('menu', game.screen === 'paused' || game.screen === 'settings')
-      audio.setScene(audioScene(game.screen, game.currentStep), game.run?.sanity)
+      audio.setScene(audioScene(game.screen, game.world), game.run?.sanity)
+      const wantsListening = game.screen === 'game' && !!game.world?.listening
+      if (wantsListening !== listening) {
+        listening = wantsListening
+        audio.setListening(wantsListening, SHARED_WALL)
+      }
     }
     const visibility = () => {
       audio.setPaused('hidden', document.visibilityState === 'hidden')
@@ -38,57 +60,19 @@ export function AudioController({ mode }: { mode: GameMode }) {
       useGame.getState().saveNow()
     }
     const pageshow = () => audio.setPaused('pagehide', false)
-    let lastClockBanner = useGame.getState().realClock317Visible
-    const unsubscribeGame = useGame.subscribe((game) => {
-      sync()
-      if (game.realClock317Visible && !lastClockBanner) audio.play('knock_soft', SHARED_WALL)
-      lastClockBanner = game.realClock317Visible
-    })
+    const unsubscribeGame = useGame.subscribe(sync)
     const unsubscribeSettings = useSettings.subscribe((settings) =>
       audio.setVolumes(settings.settings),
     )
-    const unsubscribeEvents = onEngineEvents((events, step, previous) => {
-      const game = useGame.getState()
-      const active = game.screen === 'game' || game.screen === 'form' || game.screen === 'ending'
-      if (!active) return
-      // The committed step's ambient state is in place before its sounds play.
-      audio.setScene(audioScene(step.node.ending ? 'ending' : 'game', step), step.state.sanity)
+    const unsubscribeEvents = onDirectorEvents((events, world) => {
+      if (useGame.getState().screen !== 'game') return
       for (const event of events) {
-        if (event.kind !== 'sfx') continue
-        // Ticking exists only in Ending C's loop. The authored inspection cues
-        // stay silent and the winding cue is represented by that same loop.
-        if (event.id === 'clock_tick') continue
-        audio.play(
-          event.id,
-          cuePosition(event.id, step.state),
-          event.id === 'phone_buzz' && step.state.night === 4 ? 0.3 : 1,
-        )
+        if (event.type === 'scene') audio.setScene(event.scene, useGame.getState().run?.sanity)
+        if (event.type === 'haptic') telegram.haptic(event.pattern)
+        if (event.type !== 'sound' || !isSfx(event.id)) continue
+        audio.play(event.id, soundPosition(event.at), event.volume ?? 1)
       }
-      if (
-        previous?.node.id !== step.node.id &&
-        step.node.lines.some((line) => line.speaker === 'voice') &&
-        !events.some((event) => event.kind === 'sfx' && event.id === 'whisper')
-      )
-        audio.play('whisper', SHARED_WALL)
-      const before = previous?.node.location
-      if (
-        before &&
-        before !== step.node.location &&
-        !step.node.ending &&
-        !events.some((event) => event.kind === 'sfx' && event.id.startsWith('step_'))
-      ) {
-        audio.play(
-          step.node.location === 'stairwell'
-            ? 'step_concrete'
-            : step.node.location === 'kitchen'
-              ? 'step_board'
-              : step.node.location === 'bathroom'
-                ? 'step_tile'
-                : 'step_wood',
-        )
-      }
-      if (step.node.id.endsWith('_message') || step.node.id === 'n2_wardrobe') audio.play('cloth')
-      if (step.node.ending === 'A') audio.play('knock_triple', SHARED_WALL)
+      void world
     })
     audio.setVolumes(useSettings.getState().settings)
     sync()
@@ -116,7 +100,7 @@ export function AudioController({ mode }: { mode: GameMode }) {
     }
   }, [])
 
-  return status === 'locked' && ['title', 'game', 'form', 'ending'].includes(screen) ? (
+  return status === 'locked' && ['title', 'game'].includes(screen) ? (
     <button
       className="audio-unlock"
       aria-label={ui('shell.audio_unlock_label')}

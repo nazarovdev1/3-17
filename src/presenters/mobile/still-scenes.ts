@@ -1,5 +1,3 @@
-import type { GameState } from '@/core/state/types'
-
 type Point = [number, number, number]
 export interface StillCamera {
   position: Point
@@ -114,31 +112,16 @@ export const STILL_RECIPES: StillRecipe[] = [
   shot('ending_b', 'on', ['n1_window']),
   shot('ending_c', 'on', ['n5_clock']),
 ]
-/** Revisit changes use persistent story evidence, never a random frame choice. */
-export function stillId(vignette: string, node: string, state: GameState): string {
-  if (node === 'n3_tv') return 'tv-figure'
-  if (node === 'n3_corridor_loop') return 'kitchen-figure'
-  if (node === 'n3_corridor_run' || node === 'n3_corridor_stop') return 'corridor-changed'
-  const off = state.visitedNodes.includes(`n${state.night}_317`) || vignette.endsWith('_dark')
-  if (vignette === 'corridor' && state.night === 5 && !off) return 'corridor-cold'
-  if (vignette === 'corridor' && state.night === 4 && state.visitedNodes.includes('n4_peephole'))
-    return 'corridor-cleared'
-  if (vignette === 'corridor' && state.night >= 2 && !off) return 'coat-changed'
-  let camera = vignette.replace(/_(dark|shifted)$/, '')
-  if (camera === 'room' && (node.endsWith('_phone') || node.endsWith('_message'))) camera = 'phone'
-  if (camera === 'phone')
-    return state.night === 5 && off ? 'phone-dead' : `phone-night${state.night}`
-  if (!STILL_CAMERAS[camera]) camera = 'room'
-  let variant = off ? 'off' : 'on'
-  if (camera === 'room' && state.night === 1 && state.visitedNodes.includes('n1_tea') && !off)
-    variant = 'return'
-  if (camera === 'room' && (state.flags['clock_shifted'] || vignette === 'room_shifted') && !off)
-    variant = 'changed'
-  if (camera === 'corridor' && node === 'n3_corridor_loop') variant = 'changed'
-  if (camera === 'landing48' && state.flags['saw_figure']) variant = 'changed'
-  if (camera === 'kitchen' && node === 'n3_corridor_loop') variant = 'figure'
-  if (camera === 'peephole' && node === 'n4_peephole') variant = 'figure'
-  if (camera === 'peephole' && state.night === 5) variant = 'close'
-  const id = `${camera}-${variant}`
-  return STILL_RECIPES.some((recipe) => recipe.id === id) ? id : `${camera}-on`
+/**
+ * The still for a mobile viewpoint in the current world: lights on or off, and the
+ * persistent revisit changes of later nights (never a random frame choice).
+ */
+export function stillFor(view: string, night: number, power: boolean): string {
+  if (view === 'phone') return night === 5 && !power ? 'phone-dead' : `phone-night${night}`
+  const off = !power
+  if (view === 'corridor' && !off && night === 5) return 'corridor-cold'
+  if (view === 'corridor' && !off && night >= 2) return 'coat-changed'
+  const variant = view === 'room' && !off && night >= 3 ? 'changed' : off ? 'off' : 'on'
+  const id = `${view}-${variant}`
+  return STILL_RECIPES.some((recipe) => recipe.id === id) ? id : `${view}-on`
 }

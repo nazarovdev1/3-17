@@ -1,564 +1,112 @@
 {
   "story": {
-    "endings": {
-      "endA": {
-        "l1": "Maydonchaga chiqdingiz. Qirq sakkizning eshigi sizni kutib turgan edi.",
-        "l2": "Ichkarida chang, sovuq va sizning stulingiz. Siz oʻtirdingiz.",
-        "l3": "Devor ortida, qirq yettida telefoningiz titrab yotardi. Keyin u ham titrashdan toʻxtadi.",
-        "l4": "Bahorda qirq yettiga yangi ijarachi koʻchib keldi — yosh, yolgʻiz, qoʻlida bitta sumka.",
-        "l5": "Birinchi kechasi uning stoli ustida telefon yorishdi. Ekranda «Onam», lekin u olmadi.",
-        "l6": "Soat 3:17 boʻlganda siz devorni uch marta taqillatdingiz.",
-        "l7": "Qoʻshni… uxlamayapsizmi?"
-      },
-      "endB": {
-        "l1": "Zanjirni yechib, zinapoyadan pastga tushdingiz: toʻrtinchi qavat, uchinchi.",
-        "l2": "Muhabbat opaning eshigi ostidan yorugʻ tushib turibdi — u ham uxlamagan ekan. Siz toʻxtamadingiz.",
-        "l3": "Hovlida qor yogʻyapti. Sariq chiroq ostida nafasingiz bugʻ boʻlib koʻtariladi.",
-        "l4": "Chuqur nafas oldingiz. Sovuq havo oʻpkangizni achitdi.",
-        "l5": "Bekatda birinchi avtobus turibdi, haydovchi sizga qaramay eshikni ochdi.",
-        "l6": "Choʻntagingizda telefon titradi. Ekranda «Onam» degan yozuv.",
-        "l7": "Siz unga uzoq qarab turdingiz, keyin telefonni choʻntagingizga solib qoʻydingiz.",
-        "l8": "Avtobus joyidan qoʻzgʻaldi, telefon esa yana titray boshladi.",
-        "l9": "Derazaga qaradingiz. Qorongʻi oynada oʻsha charchagan yuz."
-      },
-      "endC": {
-        "l1": "Mis kalitni soatning teshigiga solib buradingiz. Prujina gʻijirlab ketdi.",
-        "l2": "Soat chiqillay boshladi. Tik. Tik.",
-        "l3": "Uzun mil qimirladi. Soat endi 3:18.",
-        "l4": "Devor jim. Uch marta taqillashini kutdingiz, lekin taqillamadi.",
-        "l5": "Ovoz chiqarib «Sardor», dedingiz.",
-        "l6": "Muzlatgich gʻuvillab ishga tushdi, tok qaytdi, telefon ekrani yorishdi.",
-        "l7": "Siz «Onam» degan yozuvni bosdingiz. Bir marta chaqirdi. Ikki.",
-        "l8": "Alo… bolam?"
-      }
-    },
-    "night-1": {
-      "n1_start": {
-        "l1": "Chilonzordagi toʻqqiz qavatli panel uy, toʻrtinchi qavat.",
-        "l2": "Zinapoyada chiroq yoʻq edi, telefon chirogʻida chiqib keldingiz. Smenadan keyin oyoqlaringiz oʻzingizniki emasdek.",
-        "l3": "Mana kalit. Tok ba’zan oʻchib turadi, sham shkafda bor. Yana bitta gap — qirq sakkizga e’tibor bermang, u yerda hech kim turmaydi.",
-        "l4": "U kalit dastasini qoʻlingizga tutqazdi-yu, pasportingizni ham soʻramay, zinadan tushib ketdi.",
-        "l5": "Dastada ikkita kalit bor: biri eshikniki, ikkinchisi kichkina, mis. U haqda Rustam aka hech narsa demadi.",
-        "l6": "Dasta iliq edi. Uni ancha vaqt qoʻlida siqib turgan boʻlsa kerak."
-      },
-      "n1_hub": {
-        "l1": "Xona sovuq, lekin toza. Polda hali hoʻl latta hidi bor, kimdir sizdan oldin yuvib ketgan.",
-        "c_clock": "Devordagi soatga qarash",
-        "c_note": "Stol ustidagi xatni oʻqish",
-        "c_radiator": "Radiatorni ushlab koʻrish",
-        "c_tv": "Televizorni yoqish",
-        "c_window": "Derazadan qarash",
-        "c_phone": "Telefonga qarash",
-        "c_tea": "Oshxonaga oʻtib, choy qoʻyish",
-        "c_sleep": "Chiroqni oʻchirib yotish"
-      },
-      "n1_clock": {
-        "l1": "Devorda katta soat osilib turibdi, oynasi changli, yogʻoch gardishi qorayib ketgan.",
-        "l2": "Millari uchdan oʻn yetti daqiqa oʻtganda toʻxtab qolgan.",
-        "l3_unutilish": "Negadir tugʻilgan kuningiz esingizga tushdi. Oxirgi marta uni kim bilan nishonlagan edingiz?",
-        "l3": "Orqasidagi batareya joyi boʻsh. Batareyani kimdir ataylab olib qoʻygan."
-      },
-      "n1_note": {
-        "l1": "Stol ustida buklangan qogʻoz yotibdi. Rustam akaning qoʻli, shoshib yozilgan.",
-        "l2": "Ijara oyiga ikki yarim million, har oyning beshinchisigacha. Kommunalni oʻzim toʻlayman.",
-        "l3": "Kechasi eshikni zanjirlab yoting va kim chaqirsa ham ochmang.",
-        "l4": "Ismingizni aytib chaqirsa ham.",
-        "l5": "Oxirgi gap boshqa ruchkada yozilgan, xuddi keyinroq eslab qoʻshilgandek."
-      },
-      "n1_radiator": {
-        "l1": "Choʻyan radiatorning ustida eski paypoq izi qolgan, issigʻi esa zoʻrgʻa seziladi.",
-        "l2": "Ichida suv shildirab oqdi, keyin bir marta quruq taq etdi.",
-        "l3": "Panel uylarda radiator doim shunaqa qiladi. Uyda ham shunaqa edi."
-      },
-      "n1_tv": {
-        "l1": "Yogʻoch qutili eski «Rubin» televizori, antennasi skotch bilan yopishtirilgan.",
-        "l2": "Yoqdingiz. Ekranda oq-qora «qor» shitirlay boshladi.",
-        "l3": "Shitirlash orasida kimdir bir marta yoʻtaldi.",
-        "l4": "Oʻchirdingiz. Qoramtir ekranda xona aks etdi: divan, gilam va ortingizdagi ochiq eshik."
-      },
-      "n1_window": {
-        "l1": "Roʻparada xuddi shunday toʻqqiz qavatli uy, qator-qator derazalari qorongʻi.",
-        "l2": "Pastda yolgʻiz koʻcha chirogʻi yonib turibdi, uning sariq doirasida qor aylanadi.",
-        "l3": "Roʻparadagi toʻrtinchi qavatda bitta deraza yorugʻ. Pardasi yoʻq, lekin ichida hech kim koʻrinmaydi."
-      },
-      "n1_phone": {
-        "l1": "Telefon stol ustida, quvvatlagichga ulangan holda yotibdi.",
-        "l2": "Ekranda «Onam — 3 ta javobsiz qoʻngʻiroq» degan yozuv, ostida bitta ovozli xabar.",
-        "c_hear": "Ovozli xabarni eshitish",
-        "c_later": "Keyinroq eshitaman, deb telefonni qoʻyish"
-      },
-      "n1_message": {
-        "l1": "Bolam, yetib bordingmi? Uy issiqmi oʻzi? Bir ogʻiz yozib qoʻy, xavotir olyapman.",
-        "l2": "Xabar oʻn bir soniya davom etdi. Oxirida u yana nimadir demoqchi boʻldi, lekin yozuv uzilib qoldi.",
-        "l3": "Javob yozmoqchi boʻldingiz, ammo barmogʻingiz ekran ustida qotib qoldi."
-      },
-      "n1_tea": {
-        "l1": "Oshxona tor: plita, muzlatgich va bitta taburetka. Muzlatgich bir tekis gʻuvillab turibdi.",
-        "l2": "Choynakni olovga qoʻyib, gazning koʻk tili yonida qoʻllaringizni isitdingiz.",
-        "l3": "Birinchi qultumdan keyin yelkalaringiz pastga tushdi. Ularni qachondan beri koʻtarib yurgan ekansiz?"
-      },
-      "n1_316": {
-        "l1": "Yotdingiz, lekin uyqu kelmadi. Telefonda soat 3:16.",
-        "l2": "Roʻparadagi uyda derazalar pastdan yuqoriga, qavatma-qavat, birin-ketin oʻchyapti.",
-        "l3": "Toʻrtinchi qavatdagi deraza hammasidan keyin oʻchdi."
-      },
-      "n1_317": {
-        "l1": "3:17.",
-        "l2": "Chiroq oʻchdi va muzlatgich gʻuvillashdan toʻxtadi.",
-        "l3": "Uy shu qadar jim boʻldiki, qulogʻingiz oʻz-oʻzidan biror tovush qidira boshladi.",
-        "l4": "Keyin oʻng tomondagi devor uch marta taqilladi."
-      },
-      "n1_knocks": {
-        "l1": "Bu devorning ortida qirq sakkizinchi xonadon turibdi.",
-        "l2": "Qoʻshni… uxlamayapsizmi?",
-        "c_answer": "«Yoʻq, uxlayapman», deyish",
-        "c_silent": "Indamay yotish",
-        "c_knock_back": "Devorni uch marta taqillatish"
-      },
-      "n1_answer": {
-        "l1": "Yoʻq… uxlayapman.",
-        "l2": "Gapingiz ahmoqona chiqdi.",
-        "l3": "Men ham.",
-        "l4_yolgiz": "Yolgʻiz odam kechasi har bir tovushni eshitadi. Toʻgʻrimi?",
-        "l4": "Yaxshi tush koʻring, qoʻshni.",
-        "l5": "Tong otguncha devorga tikilib yotdingiz."
-      },
-      "n1_silent": {
-        "l1": "Nafasingizni ichingizga yutdingiz. Bolalikda qorongʻida xuddi shunday yotardingiz: qimirlamasang, koʻrishmaydi.",
-        "l2_yopiq": "Eshigingiz yopiq ekan. Yaxshi, men ham yopib yotaman.",
-        "l2": "Mayli. Ertaga gaplasharmiz.",
-        "l3": "Boshqa tovush boʻlmadi, siz esa tong otguncha qimirlamadingiz."
-      },
-      "n1_knock_back": {
-        "l1": "Musht bilan devorga uch marta urdingiz, barmoq boʻgʻinlaringiz achishib ketdi.",
-        "l2": "Devor ortida uzoq jimlik choʻkdi.",
-        "l3": "Rahmat. Javob berganingiz uchun.",
-        "l4": "Siz esa hech narsa demagan edingiz."
-      },
-      "n1_sleep": {
-        "l1": "Tong otdi. Tok qaytdi, muzlatgich yana gʻuvillay boshladi.",
-        "l2": "Devordagi soat esa hamon oʻsha vaqtni koʻrsatib turibdi.",
-        "l3": "Telefonni ekrani bilan pastga qaratib qoʻydingiz."
-      }
-    },
-    "night-2": {
-      "n2_day_start": {
-        "l1": "Kunduzi atigi uch soat uxladingiz, keyin non olgani pastga tushdingiz.",
-        "l2": "Uchinchi qavatda bir eshik ochiq turibdi. Ostonada roʻmol oʻragan kampir qoʻlida bir likopcha halva ushlab turibdi.",
-        "l3": "Voy, bolam, oʻsha qirq yettiga koʻchdingmi? Kel, kel, halva ol, hali issiq.",
-        "l4": "Men Muhabbat opangman. Shu uyda qirq yildan beri turaman, hammani bilaman.",
-        "l5": "Oʻzing qayerdansan? Ota-onang bormi? Yolgʻiz turasanmi?",
-        "l6": "U javobingizni kutib oʻtirmadi, likopchani qoʻlingizga tutqazdi."
-      },
-      "n2_muhabbat_talk": {
-        "l1_yana": "Yana nimani soʻramoqchisan? Soʻrayver, uyalma.",
-        "l1": "Nima soʻramoqchisan, bolam? Yuzingdan koʻrinib turibdi.",
-        "c_ask48": "Qirq sakkiz haqida soʻrash",
-        "c_asksardor": "Oldin bu yerda kim turganini soʻrash",
-        "c_leavetalk": "Rahmat aytib, yuqoriga chiqish"
-      },
-      "n2_ask_48": {
-        "l1": "Qirq sakkiz? Voy, uni gapirma, yigirma yildan beri yopiq turibdi.",
-        "l2": "Ikki ming oltinchi yili muhrlab ketishgan. Eshigida qogʻoz bor edi, keyin u ham yoʻqolib qoldi.",
-        "l3": "Ba’zan kechalari u yoqdan televizor ovozi keladi. Men eshitmaganga olaman, yoshim bir joyga borib qoldi."
-      },
-      "n2_ask_sardor": {
-        "l1": "Sendan oldin Sardor degan bola turardi. Qishloqdan kelgan, odobli, kitobga oʻch bola edi.",
-        "l2": "Keyin birdan oʻzgarib, uydan chiqmay qoʻydi. «Qoʻshnim bilan gaplashib oʻtiraman», derdi.",
-        "l3": "Qaysi qoʻshni, desam, kulib qoʻyardi. Qirq sakkizda u paytda ham hech kim yoʻq edi.",
-        "l4": "Onasi qishloqdan kelib-ketib yurdi, eshik oldida soatlab oʻtirib kutardi. Sardor esa ochmasdi.",
-        "l5": "Bir kuni yoʻq boʻlib qoldi. Na koʻrgan bor, na eshitgan."
-      },
-      "n2_day_end": {
-        "l1": "Onangga qoʻngʻiroq qilib tur, xoʻpmi? Onalar kutadi.",
-        "l2": "U eshigini yopdi, halva esa qoʻlingizda asta soviy boshladi."
-      },
-      "n2_night_hub": {
-        "l1": "Tun. Ishdan qaytganingizda radiator zoʻrgʻa iliq, derazada esa muz gullari ochilgan edi.",
-        "c_wardrobe": "Shkafni ochish",
-        "c_mirror": "Hammomga kirib, oynaga qarash",
-        "c_bathroom": "Vanna ostini qarash",
-        "c_listen": "Devorga quloq solish",
-        "c_phone": "Telefonga qarash",
-        "c_tea": "Choy qoʻyish",
-        "c_wait317": "Kiyimni yechmay yotish"
-      },
-      "n2_phone": {
-        "l1": "Ekranning yuqorisida «Onam (11)» degan belgi, yana bitta ovozli xabar kelibdi.",
-        "c_hear": "Ovozli xabarni eshitish",
-        "c_later": "Keyinroq eshitaman, deb telefonni qoʻyish"
-      },
-      "n2_message": {
-        "l1": "Bolam, otang soʻrayapti: pul yetyaptimi? Ovqat qilyapsanmi oʻzi? Yetmasa ayt, uyalma.",
-        "l2": "Bizda qor yogʻdi. Sen tomonda ham yogʻdimi? Issiq kiyin, shamollab qolma.",
-        "l3": "Orqada televizor gapiryapti, choynakning qopqogʻi shiqirlayapti. Uyning ovozi.",
-        "c_draft": "«Yaxshiman, ona» deb yozish",
-        "c_down": "Telefonni teskari qoʻyish"
-      },
-      "n2_draft": {
-        "l1": "«Yaxshiman, ona. Ishdaman», deb yozdingiz.",
-        "l2": "Aslida ishda emassiz — qorongʻi xonada, kurtkangizni ham yechmay yotibsiz.",
-        "l3": "Barmogʻingiz joʻnatish tugmasi ustida toʻxtab qoldi. Keyin harflarni bittalab oʻchirib chiqdingiz."
-      },
-      "n2_tea": {
-        "l1": "Choynak shivillayapti. Gazning koʻk alangasi bu uydagi eng tirik narsa.",
-        "l2": "Issiq piyolani ikki qoʻllab ushladingiz va bir zumga devor oddiy devorga aylandi."
-      },
-      "n2_wardrobe": {
-        "l1": "Shkafda uzun, qora palto osilib turibdi. Bu sizning paltongiz emas.",
-        "l2": "Orqa taxtasiga tirnab chiziqlar chizilgan: toʻrttasi tik, beshinchisi ustidan. Bunday guruhlar juda koʻp.",
-        "l3": "Eng oxirgi chiziq yangi, tokchada hali yogʻoch qirindisi turibdi.",
-        "l4": "Palto choʻntagidan buklangan qogʻoz chiqdi.",
-        "l5": "«Bugun yana uch marta taqilladi, javob bermadim. Onam ham qoʻngʻiroq qildi. Unga ham javob bermadim.»"
-      },
-      "n2_mirror": {
-        "l1": "Hammom tor: vanna, rakovina va uning ustida oynali javoncha.",
-        "l2": "Oynada koʻz osti koʻkargan, sochlari yogʻlanib qolgan yuz turibdi. Necha kundan beri shundaysiz?",
-        "l3": "Boshingizni oʻngga burdingiz, oynadagi siz esa bir lahza kech burildi.",
-        "l4_kuzatuv": "Yana burilib koʻrdingiz, bu safar aks oʻz vaqtida burildi. Ortingizdagi eshik esa qiya ochiq edi, holbuki siz uni yopgan edingiz.",
-        "l4": "Yana burilib koʻrdingiz, bu safar aks oʻz vaqtida burildi. Faqat koʻzini sizdan uzmadi."
-      },
-      "n2_diary2": {
-        "l1": "Vanna ostida, quvurning orqasida namdan qavargan qogʻoz yotibdi.",
-        "l2": "«Bugun ishga bormadim, kecha ham. Devor ortidagi odam meni tushunadi, boshqalar tushunmaydi.»"
-      },
-      "n2_listen": {
-        "l1": "Qulogʻingizni devorga qoʻydingiz. Gilam ortidagi suvoq muzdek.",
-        "l2": "Avvaliga hech narsa eshitilmadi. Keyin sekin, bir tekis nafas keldi — siz bilan bir vaqtda.",
-        "l3": "Nafasingizni toʻxtatdingiz. Devorning u tomonidagi nafas ham toʻxtadi."
-      },
-      "n2_317": {
-        "l1": "3:17. Muzlatgich yana jim boʻldi.",
-        "l2": "Bu safar taqillashni kutib yotgan edingiz. Devor uch marta taqilladi.",
-        "l3_javob": "Kecha javob berdingiz. Ovozingiz charchagan ekan.",
-        "l3_urdi": "Kecha devorni qattiq urdingiz. Qoʻlingiz ogʻrimadimi?",
-        "l3": "Kecha indamadingiz, lekin uxlamadingiz ham. Bilaman.",
-        "l4_ha": "Yolgʻiz yashaysiz-a? Men ham.",
-        "l4_hozircha": "«Hozircha yolgʻizman», debsiz. Bu «hozircha» qancha davom etadi?",
-        "l4": "Yolgʻiz emasman, debsiz. Unda nega hech kimga qoʻngʻiroq qilmaysiz?"
-      },
-      "n2_voice_fear": {
-        "l1_qorongulik": "Qorongʻidan qoʻrqasiz. Men ham qoʻrqardim, keyin koʻnikib ketdim.",
-        "l1_yolgizlik": "Yolgʻizlikdan qoʻrqasiz. Endi yolgʻiz emassiz, men borman-ku.",
-        "l1_kuzatuv": "Kimdir kuzatayotgandek tuyuladi sizga. Toʻgʻri tuyuladi.",
-        "l1_unutilish": "Unutilishdan qoʻrqasiz. Men sizni unutmayman.",
-        "l1": "Har kim nimadandir choʻchiydi, siz ham.",
-        "l2": "Ertalab kiyimingiz bilan uygʻondingiz. Telefon koʻkragingizda yotgan ekan."
-      },
-      "n2_sleep": {
-        "l1": "Tushlikka yaqin turdingiz. Telefonda yana bitta javobsiz qoʻngʻiroq bor edi."
-      }
-    },
-    "night-3": {
-      "n3_start": {
-        "l1": "Telefonda seshanba deb turibdi, siz esa bugun dushanba deb yurgan edingiz.",
-        "l2": "Ishxonadan xabar keldi — «Bugun ham kelmaysizmi?» Kecha ishga borgandingiz-ku. Yoki bormagan edingizmi?",
-        "l3": "Shu payt telefon jiringladi. Ekranda «Rustam aka». Siz birinchi signaldayoq oldingiz.",
-        "l4": "Alo, hammasi joyidami? Muhabbat opa sizga nimadir dedimi? U kishi koʻp gapiradi.",
-        "l5": "Ijarani beshinchigacha bersangiz boʻldi. Xayr.",
-        "l6": "Suhbat oʻn olti soniya davom etdi. Ekranda uning ostida hamon «Onam — 24 ta javobsiz» degan yozuv turardi."
-      },
-      "n3_hub": {
-        "l1": "Xona tanish, juda tanish. Har bir dogʻini yoddan bilasiz.",
-        "c_kitchen": "Oshxonadagi non qutisini ochish",
-        "c_corridor": "Dahlizga chiqish",
-        "c_tv": "Televizorni qayta yoqish",
-        "c_carpet": "Gilamning chetini koʻtarish",
-        "c_phone": "Telefonga qarash",
-        "c_tea": "Choy qoʻyish",
-        "c_wait": "Divanga choʻzilish"
-      },
-      "n3_phone": {
-        "l1": "Yangi ovozli xabar. Yuboruvchi — «Onam».",
-        "c_hear": "Ovozli xabarni eshitish",
-        "c_later": "Keyinroq eshitaman, deb telefonni qoʻyish"
-      },
-      "n3_message": {
-        "l1": "Bolam, nega telefonni olmayapsan?",
-        "l2": "Kecha tushimda koʻrdim seni. Kichkina ekansan, qorda yalangoyoq turgan ekansan.",
-        "l3": "Bir ogʻiz «yaxshiman» deb yoz, boshqa hech narsa kerakmas.",
-        "l4": "Xabar tugadi. Ekran oʻchdi va xona yana qorongʻilikka choʻmdi."
-      },
-      "n3_tea": {
-        "l1": "Issiq piyola qoʻlingizda. Hozir bu yerdagi eng haqiqiy narsa shu.",
-        "l2": "Choy tugaguncha hech narsani oʻylamadingiz."
-      },
-      "n3_kitchen": {
-        "l1": "Non qutisi boʻm-boʻsh, faqat tubida buklangan qogʻoz yotibdi.",
-        "l2": "«U mening gaplarimni qaytaryapti. Men aytgan gaplarni — lekin men ularni unga aytmaganman.»"
-      },
-      "n3_corridor_loop": {
-        "l1": "Dahliz: chapda oshxona, oʻngda hammom, oxirida kirish eshigi. Hammasi besh qadam.",
-        "l2": "Eshik tomon yurdingiz. Oʻn qadam, oʻn besh qadam.",
-        "l3": "Eshik esa hamon oʻsha masofada turibdi.",
-        "l4_charchoq": "Devor qogʻozidagi gullar takrorlanyapti — oʻsha dogʻ, oʻsha yirtiq, yana va yana.",
-        "l4": "Ortingizdagi xona eshigi ham uzoqlashib qolibdi.",
-        "c_keep": "Yugurib ketish",
-        "c_stop": "Toʻxtab, orqaga qarash"
-      },
-      "n3_corridor_run": {
-        "l1": "Yugurdingiz, lekin shippaklaringiz polda shapillamadi. Hech qanday tovush yoʻq edi.",
-        "l2": "Bir payt qoʻlingiz eshik tutqichiga tegdi. Eshikda raqam yoʻq, faqat burama mixlarning izi qolgan.",
-        "l3": "Koʻzingizni yumib ochdingiz va xonada, divan oldida turganingizni koʻrdingiz."
-      },
-      "n3_corridor_stop": {
-        "l1": "Toʻxtab, orqangizga qaradingiz.",
-        "l2": "Dahliz odatdagidek kalta, xona eshigi ikki qadamda turibdi.",
-        "l3": "Faqat bitta pol taxtasi koʻtarilib qolibdi. Oldin bunday emas edi."
-      },
-      "n3_room_return": {
-        "l1": "Xonaga qaytdingiz. Hammasi joyida. Deyarli.",
-        "l2": "Soat boshqa devorda osilib turibdi. Eski joyida devor qogʻozi ochroq: toʻrtburchak iz qolgan.",
-        "c_shifted_clock": "Soatni yaqindan koʻrish"
-      },
-      "n3_clock_close": {
-        "l1": "Soatni yaqindan koʻrdingiz. Millar hamon 3:17 da turibdi.",
-        "l2": "Oynadagi changda bitta barmoq izi qolibdi. Yangi."
-      },
-      "n3_tv": {
-        "l1": "Televizorni yoqdingiz. Bu safar shitirlash oʻrniga tasvir chiqdi.",
-        "l2": "Ekranda shu xona, tepadagi burchakdan olingan. Divanda kimdir sizga orqasi bilan oʻtiribdi.",
-        "l3": "Tasvirdagi odam asta boshini bura boshladi.",
-        "l4": "Oʻchirdingiz. Qora ekranda xona aks etdi — divan boʻsh, siz esa tik turibsiz."
-      },
-      "n3_diary4": {
-        "l1": "Gilamning chetini koʻtardingiz, ostidan buklangan qogʻoz chiqdi.",
-        "l2": "Xat tanish, juda tanish. Bu sizning xatingiz.",
-        "l3": "«Onamga qoʻngʻiroq qilish kerak. Ertaga. Ertaga albatta.»",
-        "l4": "Buni qachon yozganingizni eslay olmaysiz, qogʻoz esa allaqachon sargʻayib ketgan."
-      },
-      "n3_317": {
-        "l1": "3:17. Tok oʻchdi, uy jimib qoldi.",
-        "l2": "Bu safar taqillash boʻlmadi. Faqat devor ortida kimdir yoʻtalib qoʻydi.",
-        "l3": "Keyin juda yaqindan ovoz keldi."
-      },
-      "n3_voice_repeat": {
-        "l1_javob": "«Yoʻq, uxlayapman». Esingdami? Men ham birinchi kechasi shunday degandim.",
-        "l1_sukut": "Birinchi kechasi men ham nafasimni ichimga yutib yotgandim. Qimirlamasang, koʻrishmaydi, deb oʻylagandim.",
-        "l1": "Birinchi kechasi men ham devorni musht bilan urgandim. Barmoqlarim achishib ketgandi.",
-        "l2_sardor": "Muhabbat opa senga Sardor haqida gapirib berdi-a? Bilaman, hamma shuni gapiradi.",
-        "l2": "Muhabbat opa senga halva berdi-a? Menga ham bergan edi. Issiqqina edi."
-      },
-      "n3_voice_echo": {
-        "l1_ertaga": "«Ertaga», deysan. Men ham doim «ertaga» derdim.",
-        "l1": "Sen menga oʻxshab qolyapsan. Men ham boshida buni sezmagandim.",
-        "c_answer": "«Sen kimsan?» deb soʻrash",
-        "c_silent": "Indamaslik"
-      },
-      "n3_answered": {
-        "l1": "Sen… kimsan?",
-        "l2": "Qoʻshningman. Devorning u tomonidagi qoʻshning.",
-        "l3": "Yaqinda sen ham kimgadir qoʻshni boʻlasan."
-      },
-      "n3_silent": {
-        "l1": "Indamadingiz. Tizzalaringizni quchoqlab, tong otguncha oʻtirdingiz.",
-        "l2": "Mayli, gaplashmasak ham boʻladi. Men shu yerdaman.",
-        "l3": "Ertalab devorga kaftingizni qoʻydingiz. Devor iliq edi, holbuki qirq sakkizda isitish yoʻq."
-      },
-      "n3_sleep": {
-        "l1": "Kun qanday oʻtganini eslay olmaysiz. Derazaga qarasangiz, tashqari yana qorongʻi."
-      }
-    },
-    "night-4": {
-      "n4_start": {
-        "l1": "Ishxonadan yana xabar keldi — «Ertaga kelmasangiz, oʻrningizga boshqa odam olamiz.»",
-        "l2": "Javob yozmadingiz, telefonni yostiq ostiga tiqib qoʻydingiz.",
-        "l3": "Dahlizda nimadir shitirladi, xuddi kimdir polda nimanidir sudrab oʻtgandek."
-      },
-      "n4_hub": {
-        "l1_qorongi": "Atrof qorongʻi, derazadan faqat koʻcha chirogʻining sariq nuri tushyapti.",
-        "l1": "Yostiq ostida telefon bir-ikki titrab qoʻydi.",
-        "c_phone": "Telefonni yostiq ostidan olish",
-        "c_carpet": "Dahlizdagi koʻtarilgan taxtani ochish",
-        "c_tea": "Choy qoʻyish",
-        "c_wait": "Tokning oʻchishini kutish",
-        "c_peephole": "Eshik koʻzidan qarash",
-        "c_corridor": "Maydonchaga chiqish",
-        "c_sleep": "Hech qayoqqa chiqmay, yotish"
-      },
-      "n4_phone": {
-        "l1": "Ekran yorishdi. Javobsiz qoʻngʻiroqlar soni qirqqa yetibdi, oxirgisi — 23:58. Yangi ovozli xabar ham bor.",
-        "c_hear": "Ovozli xabarni eshitish",
-        "c_later": "Keyinroq eshitaman, deb telefonni qoʻyish"
-      },
-      "n4_message": {
-        "l1": "Bolam… Shuhrat akaning mashinasida ovqat berib yubordim. Somsa, qatlama, bir banka qatiq.",
-        "l2": "Eshigingga qoʻyib ketadi, olib qolarsan.",
-        "l3": "…Eshityapsanmi? Mayli. Sogʻ boʻl.",
-        "l4": "Uning «mayli» degani uzoq choʻzilib qoldi."
-      },
-      "n4_tea": {
-        "l1": "Choy qoʻydingiz. Gazning koʻk alangasi devorga titroq soya tashlayapti.",
-        "l2": "Piyoladagi choy titrab turibdi. Yoki qoʻlingiz titrayaptimi?"
-      },
-      "n4_317": {
-        "l1": "3:17. Tok yana ketdi va muzlatgich tindi.",
-        "l2": "Taqillash boʻlmadi. Uning oʻrniga maydonchadan bitta qadam tovushi keldi, keyin yana jimlik."
-      },
-      "n4_peephole": {
-        "l1": "Eshik koʻzidan qaradingiz. Maydoncha egilib, xira shar ichiga yigʻilib qolgan.",
-        "l2": "Zinapoya yonida baland boʻyli kimdir turibdi. Egnida uzun palto, orqasi sizga qaragan.",
-        "l3": "Koʻzingizni olib, yana qaradingiz. Hech kim yoʻq.",
-        "l4": "Faqat beton polda qirq sakkizinchi eshik tomon ketgan hoʻl izlar qolibdi."
-      },
-      "n4_diary6": {
-        "l1": "Kecha koʻtarilib qolgan taxtani qoʻporib oldingiz, tagidan qogʻoz chiqdi.",
-        "l2": "«Qirq sakkizga kirdim. U yerda mening stulim bor, mening piyolam bor, hatto tirnalgan joyi ham bir xil.»",
-        "l3": "«Bu yerda meni hech kim kutmaydi. U yerda esa kutishadi.»"
-      },
-      "n4_door48": {
-        "l1": "Maydonchada sovuq. Lift ishlamaydi, zinapoya zim-ziyo.",
-        "l2_olingan": "Ostonada hech narsa yoʻq, tugun ichkarida, stol ustida turibdi.",
-        "l2": "Ostonangizda tugun turibdi: somsa, qatlama, bir banka qatiq. Tugun hali iliq.",
-        "l3": "Qirq sakkizinchi eshik qiya ochiq. Muhr qogʻozi yirtilgan, yarmi yerda yotibdi.",
-        "c_enter": "Qirq sakkizga kirish",
-        "c_retreat": "Tugunni olib, ichkariga qaytish"
-      },
-      "n4_retreat": {
-        "l1": "Tugunni ichkariga olib kirdingiz va qatlamadan bir tishlab koʻrdingiz. Uyning ta’mi.",
-        "l2": "Eshikni zanjirladingiz. Qirq sakkizning eshigi esa ochiqligicha qoldi."
-      },
-      "n4_inside48": {
-        "l1": "Ichkarida sovuq va chang hidi. Gilam, divan, soat — hammasi xuddi sizning xonangizdagidek.",
-        "l2": "Faqat bu yerda hammasi eskirib ketgan. Devor qogʻozi koʻchib tushgan, gilamning rangi oʻchgan.",
-        "l3": "Soat bu yerda ham oʻsha vaqtda toʻxtab qolgan."
-      },
-      "n4_copy_room": {
-        "l1": "Koʻzingiz qorongʻiga asta koʻnikib boryapti.",
-        "c_calendar": "Devordagi kalendarni koʻrish",
-        "c_belongings": "Divandagi sumkani ochish",
-        "c_diary": "Stuldagi qogʻozni olish",
-        "c_glitch": "Yotoq tomonga yurish"
-      },
-      "n4_calendar": {
-        "l1": "Devorda yirtma kalendar osilgan. Yili yozilmagan, faqat oy va kunlar bor.",
-        "l2": "Kunlar birma-bir chizib chiqilgan, oxirgisi — kecha.",
-        "l3": "Bugungi kun hali chizilmagan. Yonida ipga bogʻlangan ruchka osilib turibdi."
-      },
-      "n4_belongings": {
-        "l1": "Divanda sumka yotibdi. Sizning sumkangiz — yirtilgan bandi oq ip bilan tikilgan.",
-        "l2": "Ichida pasport. Rasmda siz, ismi ham sizniki: {name}.",
-        "l3": "Pasportni qalin chang bosgan, goʻyo uni yillar davomida hech kim qoʻzgʻatmagan."
-      },
-      "n4_diary5": {
-        "l1": "Stul ustida bir varaq qogʻoz. Xati shkafdagi qogʻozniki bilan bir xil.",
-        "l2": "«Bugun onam keldi va eshik oldida oʻtirdi. Men ichkarida edim. Ochmadim.»",
-        "l3": "«Kechqurun u ketdi. Zinada uning qadamlari uzoq eshitilib turdi.»"
-      },
-      "n4_glitch": {
-        "l1": "Yotoq tomonga yurdingiz. Qorongʻida nimadir qimirladi.",
-        "l2": "Koʻz oldingiz chayqalib, tasvir surilib ketdi, devor chiziqlari bir-biriga tutashmay qoldi.",
-        "l3": "Keyin hammasi joyiga tushdi, lekin bir lahza eshik qaysi tomonda ekanini eslay olmadingiz."
-      },
-      "n4_voice_identity": {
-        "l1": "Bu safar ovoz devor ortidan emas, shu xonaning oʻzidan keldi.",
-        "l2": "Bolam, nega telefonni olmayapsan?",
-        "l3": "Ovoz onangizniki emas edi. Soʻzlar esa uniki.",
-        "l4_eshitmagan": "Siz bu xabarni eshitmagan edingiz. U eshitgan.",
-        "l4": "Bu soʻzlarni kecha, qorongʻi xonada, telefondan eshitgan edingiz.",
-        "l5": "Ovqat qilyapsanmi oʻzi? Issiq kiyin, shamollab qolma.",
-        "c_who": "«Sardormisan?» deb soʻrash",
-        "c_why": "«Bu gaplarni qayerdan bilasan?» deb soʻrash",
-        "c_no_talk": "Indamaslik"
-      },
-      "n4_ask_sardor": {
-        "l1": "Sen… Sardormisan?",
-        "l2": "Sardor edim. Keyin qoʻshni boʻlib qoldim.",
-        "l3": "Bu yerda ism uzoq turmaydi. Meni Sardor deb faqat onam chaqirardi."
-      },
-      "n4_why": {
-        "l1": "Bu gaplarni qayerdan bilasan?",
-        "l2": "Telefoning yostiq ostida yotadi. Yostiq esa devorga tegib turadi.",
-        "l3": "Sen eshitmaganni men eshitaman. Kimdir eshitishi kerak-ku."
-      },
-      "n4_no_talk": {
-        "l1": "Indamadingiz va orqaga, eshik tomon yurdingiz.",
-        "l2": "Ertaga yana kelasan. Hamma ertaga yana keladi."
-      },
-      "n4_return": {
-        "l1": "Oʻz xonangizga qaytdingiz va eshikdagi raqamga qaradingiz: 47.",
-        "l2": "Kaftlaringiz chang boʻlib qolgan, ularni yuvishga ham kuchingiz yetmadi.",
-        "l3_olingan": "Tugun stol ustida turibdi. Unga qoʻl tekkizmadingiz.",
-        "l3": "Tugun ostonada qolib ketdi. Ertalab u yerda yoʻq edi."
-      },
-      "n4_sleep": {
-        "l1": "Uxlay olmadingiz. Yostiq ostida telefon bir necha marta titradi.",
-        "l2": "Siz olmadingiz."
-      }
-    },
-    "night-5": {
-      "n5_start": {
-        "l1": "Bugun koʻchaga chiqmadingiz. Kecha ham, undan oldingi kun ham chiqmagandingiz, shekilli.",
-        "l2_kirgan": "Qirq sakkizning eshigi endi yopilmaydi, ochiq tirqishdan dahlizga sovuq oqib kiryapti.",
-        "l2": "Maydonchadan sovuq kiryapti. Qirq sakkizning eshigi qiya ochiq qolgan boʻlsa kerak."
-      },
-      "n5_hub": {
-        "l1": "Soat devorda, millari qimirlamaydi. Muzlatgich esa gʻuvillab turibdi.",
-        "c_clock": "Soatni devordan olish",
-        "c_chain": "Eshik zanjirini ushlab koʻrish",
-        "c_carpet": "Soat osilgan joyni koʻrish",
-        "c_phone": "Telefonga qarash",
-        "c_leave_early": "Hoziroq kiyinib, uydan chiqib ketish",
-        "c_tea": "Oxirgi marta choy qoʻyish",
-        "c_stay": "Shu yerda qolib, kutish"
-      },
-      "n5_phone": {
-        "l1": "«Onam» — 52. Oxirgi qoʻngʻiroq bir soat oldin boʻlgan, yangi ovozli xabar ham kelibdi.",
-        "c_hear": "Ovozli xabarni eshitish",
-        "c_later": "Keyinroq eshitaman, deb telefonni qoʻyish"
-      },
-      "n5_message": {
-        "l1": "Bolam, endi koʻp qoʻngʻiroq qilmayman, bezor qilmay.",
-        "l2": "Faqat bilib qoʻy: eshigimiz ochiq. Kelsang ham, kelmasang ham, qachon boʻlsa ham.",
-        "l3": "Xabar tugadi, siz esa telefonni ancha vaqtgacha qoʻlingizdan qoʻymadingiz."
-      },
-      "n5_tea": {
-        "l1_tugun": "Oxirgi marta choy qoʻydingiz va somsaning qolganini isitdingiz.",
-        "l1": "Oxirgi marta choy qoʻydingiz. Choynak shivillab, oshxona biroz iliqlashdi.",
-        "l2": "Bir piyola choy ichguncha hech narsa boʻlmadi. Shuning oʻzi koʻp edi."
-      },
-      "n5_clock": {
-        "l1": "Soatni devordan oldingiz. U ogʻir, qopqogʻi ostida changli mexanizm koʻrinadi.",
-        "l2": "Prujinasi boʻshab qolgan, yon tomonida esa kichkina kalit teshigi bor.",
-        "l3": "Dastadagi kichkina mis kalitni teshikka tutdingiz. Aynan shu teshik uchun ekan."
-      },
-      "n5_chain": {
-        "l1": "Zanjirni ushladingiz. Har kecha uni taqib yotgansiz.",
-        "l2_ochiq": "Anketada «eshigim ochiq» deb yozgan edingiz, lekin bu yerda uni bir marta ham ochiq qoldirmadingiz.",
-        "l2": "Anketada «eshigim yopiq» deb yozgan edingiz. Toʻgʻri yozgan ekansiz.",
-        "l3": "Koʻchaga chiqish uchun bitta harakat yetadi."
-      },
-      "n5_diary7": {
-        "l1": "Soat osilgan joyda devor qogʻozi koʻchib turibdi, ortida esa buklangan qogʻoz.",
-        "l2": "«Soatni burash kerak edi. Men qoʻrqdim: soat yursa, men ham yurishim kerak boʻladi.»",
-        "l3": "«Kalit dastada turibdi. Har kecha qoʻlimga olaman, har kecha qaytarib qoʻyaman. Ismim Sardor. Buni ham unutib qoʻymay deb yozib qoʻydim.»"
-      },
-      "n5_316": {
-        "l1": "3:16. Roʻparadagi derazalar yana birin-ketin oʻchyapti.",
-        "l2": "Toʻrtinchi qavat eng oxirida oʻchdi. U yerda kimdir telefon ushlab turgan edi, ekranning yorugʻi uning yuziga tushib turardi."
-      },
-      "n5_317": {
-        "l1": "3:17. Xonadagi chiroq, muzlatgich, koʻcha chirogʻi — hammasi bir vaqtda oʻchdi.",
-        "l2": "Telefon ekrani ham qorayib qoldi, holbuki quvvati toʻla edi.",
-        "l3": "Keyin devordan uch marta taqillash eshitildi — sekin, deyarli mehr bilan."
-      },
-      "n5_voice_final": {
-        "l1_qoralama": "«Yaxshiman, ona. Ishdaman». Yozganding, lekin joʻnatmading. Men ham shunday yozardim.",
-        "l1_javob": "«Yoʻq, uxlayapman». Birinchi kechasi shunday deganding. Hali ham uxlamayapsan.",
-        "l1": "Birinchi kechasi sen indamading. Men jimligingni ham eslab qoldim.",
-        "l2_sardor": "«Sardormisan?» deb soʻraganding. Sardor shu yerda, men ham shu yerdaman. Sen ham kelasan.",
-        "l2_qayerdan": "«Bu gaplarni qayerdan bilasan?» deganding. Endi bilasan.",
-        "l2": "{name}. Ismingni hamma unutadi, men esa unutmayman.",
-        "l3": "Eshikni och. Bu yerda seni hech kim qoʻngʻiroq bilan bezor qilmaydi."
-      },
-      "n5_final_choice": {
-        "l1": "Qirq sakkiz devor ortida, uning eshigi maydonchada ochiq turibdi.",
-        "l2": "Kirish eshigi dahliz oxirida. Undan keyin zinapoya, hovli va koʻcha.",
-        "l3_soat": "Soat qoʻlingizda. Mis kalit uning teshigiga mos keladi.",
-        "l3": "Soat devorda, millari qimirlamaydi.",
-        "c_open48": "Eshikni ochib, qirq sakkizga kirish",
-        "c_leave": "Zanjirni yechib, uydan chiqib ketish",
-        "c_wind": "Soatni burash"
+    "script": {
+      "n1": {
+        "N1-01": "Mana kalit.",
+        "N1-02": "Tok ba’zan oʻchib turadi, sham shkafda bor.",
+        "N1-03": "Yana bitta gap — qirq sakkizga e’tibor bermang.",
+        "N1-04": "U yerda hech kim turmaydi.",
+        "N1-08": "Bolam, yetib bordingmi? Uy issiqmi oʻzi? Bir ogʻiz yozib qoʻy, xavotir olyapman.",
+        "N1-09": "Ijara oyiga ikki yarim million, har oyning beshinchisigacha. Kommunalni oʻzim toʻlayman.",
+        "N1-10": "Kechasi eshikni zanjirlab yoting va kim chaqirsa ham ochmang.",
+        "N1-11": "Ismingizni aytib chaqirsa ham.",
+        "N1-12": "Qoʻshni… uxlamayapsizmi?",
+        "N1-13a.1": "Yoʻq… uxlayapman.",
+        "N1-13a.2": "Men ham.",
+        "N1-13a.3": "Yolgʻiz odam kechasi har bir tovushni eshitadi. Toʻgʻrimi?",
+        "N1-13b": "Eshigingiz yopiq ekan. Yaxshi, men ham yopib yotaman.",
+        "N1-13c": "Mayli. Ertaga gaplasharmiz.",
+        "N1-13d": "Rahmat. Javob berganingiz uchun.",
+        "N1-13e": "Yaxshi tush koʻring, qoʻshni."
+      },
+      "n2": {
+        "N2-02": "Voy, bolam, oʻsha qirq yettiga koʻchdingmi?",
+        "N2-03": "Kel, kel, halva ol, hali issiq.",
+        "N2-04": "Men Muhabbat opangman. Qirq yildan beri shu uydaman.",
+        "N2-05": "Oʻzing qayerdansan? Yolgʻiz turasanmi?",
+        "N2-06": "Qirq sakkiz? Voy, uni gapirma, yigirma yildan beri yopiq.",
+        "N2-07": "Ikki ming oltinchi yili muhrlab ketishgan.",
+        "N2-08": "Ba’zan kechasi u yoqdan televizor ovozi keladi.",
+        "N2-09": "Sendan oldin Sardor degan bola turardi. Qishloqdan kelgan.",
+        "N2-10": "Keyin uydan chiqmay qoʻydi. «Qoʻshnim bilan gaplashaman», derdi.",
+        "N2-11": "Qirq sakkizda u paytda ham hech kim yoʻq edi.",
+        "N2-12": "Onasi kelib, eshik oldida soatlab kutardi. Sardor ochmasdi.",
+        "N2-13": "Bir kuni yoʻq boʻlib qoldi.",
+        "N2-14": "Onangga qoʻngʻiroq qilib tur, xoʻpmi? Onalar kutadi.",
+        "N2-16": "Bolam, otang soʻrayapti: pul yetyaptimi? Ovqat qilyapsanmi oʻzi? Yetmasa ayt, uyalma.",
+        "N2-17": "Bizda qor yogʻdi. Sen tomonda ham yogʻdimi? Issiq kiyin, shamollab qolma.",
+        "N2-19a": "Kecha javob berdingiz. Ovozingiz charchagan ekan.",
+        "N2-19b": "Kecha indamadingiz, lekin uxlamadingiz ham. Bilaman.",
+        "N2-19c": "Kecha devorni urdingiz. Uch marta. Men sanadim.",
+        "N2-20a": "Yolgʻiz yashaysiz-a? Men ham.",
+        "N2-20b": "«Hozircha», debsiz. Bu «hozircha» qancha davom etadi?",
+        "N2-20c": "Yolgʻiz emasman, debsiz. Unda nega hech kimga qoʻngʻiroq qilmaysiz?",
+        "N2-21a": "Qorongʻidan qoʻrqasiz. Men ham qoʻrqardim, keyin koʻnikdim.",
+        "N2-21b": "Yolgʻizlikdan qoʻrqasiz. Endi yolgʻiz emassiz, men borman-ku.",
+        "N2-21c": "Kimdir kuzatayotgandek tuyuladi sizga. Toʻgʻri tuyuladi.",
+        "N2-21d": "Unutilishdan qoʻrqasiz. Men sizni unutmayman."
+      },
+      "diary": {
+        "K-1": "Bugun yana uch marta taqilladi, javob bermadim. Onam ham qoʻngʻiroq qildi. Unga ham javob bermadim.",
+        "K-2": "Bugun ishga bormadim, kecha ham. Devor ortidagi odam meni tushunadi, boshqalar tushunmaydi.",
+        "K-3": "U mening gaplarimni qaytaryapti. Men aytgan gaplarni — lekin men ularni unga aytmaganman.",
+        "K-4": "Onamga qoʻngʻiroq qilish kerak. Ertaga. Ertaga albatta.",
+        "K-5": "Bugun onam keldi va eshik oldida oʻtirdi. Men ichkarida edim. Ochmadim. Kechqurun u ketdi. Zinada uning qadamlari uzoq eshitilib turdi.",
+        "K-6": "Qirq sakkizga kirdim. U yerda mening stulim bor, mening piyolam bor, hatto tirnalgan joyi ham bir xil. Bu yerda meni hech kim kutmaydi. U yerda esa kutishadi.",
+        "K-7": "Soatni burash kerak edi. Men qoʻrqdim: soat yursa, men ham yurishim kerak boʻladi. Kalit dastada turibdi. Har kecha qoʻlimga olaman, har kecha qaytarib qoʻyaman. Ismim Sardor. Buni ham unutib qoʻymay deb yozib qoʻydim."
+      },
+      "n3": {
+        "N3-02": "Bugun ham kelmaysizmi?",
+        "N3-04": "Alo, hammasi joyidami?",
+        "N3-05": "Muhabbat opa sizga nimadir dedimi? U kishi koʻp gapiradi.",
+        "N3-06": "Ijarani beshinchigacha bersangiz boʻldi. Xayr.",
+        "N3-08": "Bolam, nega telefonni olmayapsan?",
+        "N3-09": "Kecha tushimda koʻrdim seni. Kichkina ekansan, qorda yalangoyoq turgan ekansan.",
+        "N3-10": "Bir ogʻiz «yaxshiman» deb yoz, boshqa hech narsa kerakmas.",
+        "N3-11a.1": "«Yoʻq, uxlayapman». Esingdami?",
+        "N3-11a.2": "Men ham birinchi kechasi shunday degandim.",
+        "N3-11b.1": "Birinchi kechasi men ham indamagandim.",
+        "N3-11b.2": "Qimirlamasang, koʻrishmaydi, deb oʻylagandim.",
+        "N3-11c": "Birinchi kechasi men ham devorni urgandim. Uch marta.",
+        "N3-12a": "Muhabbat opa senga Sardor haqida gapirdi-a?",
+        "N3-12b": "Muhabbat opa senga halva berdi-a? Menga ham bergan.",
+        "N3-13a": "«Ertaga», deysan. Men ham doim «ertaga» derdim.",
+        "N3-13b": "Sen menga oʻxshab qolyapsan.",
+        "N3-14a.1": "Sen… kimsan?",
+        "N3-14a.2": "Qoʻshningman. Devorning u tomonidagi qoʻshning.",
+        "N3-14a.3": "Yaqinda sen ham kimgadir qoʻshni boʻlasan.",
+        "N3-14b": "Mayli, gaplashmasak ham boʻladi. Men shu yerdaman."
+      },
+      "n4": {
+        "N4-01": "Ertaga kelmasangiz, oʻrningizga boshqa odam olamiz.",
+        "N4-04": "Bolam… Shuhrat akaning mashinasida ovqat berib yubordim. Somsa, qatlama, bir banka qatiq.",
+        "N4-05": "Eshigingga qoʻyib ketadi, olib qolarsan.",
+        "N4-06": "…Eshityapsanmi? Mayli. Sogʻ boʻl.",
+        "N4-09": "Bolam, nega telefonni olmayapsan?",
+        "N4-10": "Ovqat qilyapsanmi oʻzi? Issiq kiyin, shamollab qolma.",
+        "N4-11a.1": "Sen… Sardormisan?",
+        "N4-11a.2": "Sardor edim. Keyin qoʻshni boʻlib qoldim.",
+        "N4-11a.3": "Meni Sardor deb faqat onam chaqirardi.",
+        "N4-11b.1": "Buni qayerdan bilasan?",
+        "N4-11b.2": "Telefoning yostiq ostida yotadi. Yostiq devorga tegib turadi.",
+        "N4-11b.3": "Sen eshitmaganni men eshitaman.",
+        "N4-11c": "Ertaga yana kelasan. Hamma ertaga yana keladi."
+      },
+      "n5": {
+        "N5-03": "Bolam, endi koʻp qoʻngʻiroq qilmayman, bezor qilmay.",
+        "N5-04": "Faqat bilib qoʻy: eshigimiz ochiq. Kelsang ham, kelmasang ham, qachon boʻlsa ham.",
+        "N5-05a": "«Yaxshiman, ona. Ishdaman». Yozganding, lekin joʻnatmading.",
+        "N5-05b": "«Yaxshiman, ona. Ishdaman». Joʻnatding. Rost emasdi-ku.",
+        "N5-06a": "«Sardormisan?» deb soʻraganding. Sardor shu yerda. Sen ham kelasan.",
+        "N5-06b": "«Buni qayerdan bilasan?» deganding. Endi bilasan.",
+        "N5-06c": "{name}. Ismingni hamma unutadi, men esa unutmayman.",
+        "N5-07": "Eshikni och.",
+        "N5-08": "Bu yerda seni hech kim qoʻngʻiroq bilan bezor qilmaydi."
+      },
+      "endings": {
+        "EA-01": "Mana kalit. Tok ba’zan oʻchib turadi.",
+        "EA-02": "Qoʻshni… uxlamayapsizmi?",
+        "EC-02": "Alo… bolam?"
       }
     }
   },
@@ -618,14 +166,9 @@
     "settings.credits_stills": "Mobil manzaralar quyidagi modellar va materiallar asosida tayyorlangan.",
     "settings.credits_rendered": "Mobil manzaralar",
     "pause.title": "PAUZA",
-    "ending.scroll_hint": "Matn davomi pastda.",
-    "ending.gallery": "Yakunlar roʻyxati",
     "endings.A.title": "Qoʻshni",
-    "endings.A.summary": "Siz qirq sakkizning eshigini ochdingiz. Endi kechasi devorni siz taqillatasiz.",
     "endings.B.title": "Ketish",
-    "endings.B.summary": "Siz uydan chiqib ketdingiz. Choʻntagingizdagi telefon esa hamon titrayapti.",
     "endings.C.title": "3:18",
-    "endings.C.summary": "Soat yurdi. Devor jim boʻldi. Siz onangizga qoʻngʻiroq qildingiz.",
     "gallery.title": "YAKUNLAR",
     "gallery.locked": "— hali ochilmagan",
     "gallery.chapters": "TUNLAR",
@@ -635,63 +178,38 @@
     "nights.3": "Takror",
     "nights.4": "48",
     "nights.5": "3:17",
-    "locations.room": "xona",
-    "locations.kitchen": "oshxona",
-    "locations.bathroom": "hammom",
-    "locations.corridor": "dahliz",
-    "locations.balcony": "deraza oldi",
-    "locations.stairwell": "zinapoya",
-    "locations.flat48": "qirq sakkizinchi xonadon",
     "desktop.scene_label": "Qirq yettinchi xonadon, uch oʻlchamli koʻrinish",
     "desktop.fallback_loading": "Yengil rejimga oʻtilmoqda…",
-    "desktop.hold_q": "Q — bosib turing",
     "desktop.recovering": "Tasvir tiklanmoqda…",
-    "desktop.topline": "{night}-tun · 4-qavat · {flat}",
-    "desktop.quality": "Sifat: {tier}",
-    "desktop.quality_high": "yuqori",
-    "desktop.quality_low": "past",
-    "desktop.flashlight": "Fonus: {state} · F",
-    "desktop.flashlight_on": "yoniq",
-    "desktop.flashlight_off": "oʻchiq",
-    "desktop.controls": "WASD — yurish · Sichqoncha — qarash · E — koʻrish · F — fonus · Q — devorni tinglash · 1–9 — tanlash · Probel — matn · Esc — pauza",
-    "desktop.control_lock": "Sichqoncha oʻyinga ulangan.",
-    "desktop.control_drag": "Sichqonchani bosib, sudrab ham qarash mumkin.",
-    "desktop.got_it": "Tushunarli",
-    "desktop.peek": "Eshik koʻzidan qarash",
-    "desktop.unpeek": "Koʻzni olish",
+    "desktop.controls": "WASD — yurish · Sichqoncha — qarash · E — ishlatish · F — fonus · Q — tinglash · Esc — pauza",
     "phone.mother": "Onam",
     "phone.missed": "{count} ta javobsiz qoʻngʻiroq",
     "phone.voice": "Ovozli xabar",
     "phone.voice_heard": "Ovozli xabar · tinglangan",
     "phone.incoming": "qoʻngʻiroq qilyapti…",
-    "phone.unlock": "Ochish uchun suring",
+    "phone.call": "Qoʻngʻiroq qilish",
+    "phone.rustam": "Rustam aka",
+    "phone.work": "Ish",
+    "phone.draft": "Yaxshiman, ona. Ishdaman",
+    "phone.send": "Yuborish",
+    "phone.date_n1": "Juma, 12-dekabr",
+    "phone.date_n1_dawn": "Shanba, 13-dekabr",
+    "phone.date_n2": "Shanba, 13-dekabr",
+    "phone.date_n3": "Seshanba, 16-dekabr",
+    "phone.date_n4": "Chorshanba, 17-dekabr",
+    "phone.date_n5": "Payshanba, 18-dekabr",
     "mobile.scene_label": "Xonadon manzarasi",
-    "mobile.hotspot_hint": "Yorishib turgan joylarni bosing.",
-    "mobile.hold_hint": "Devorni bosib turing.",
-    "mobile.typing": "yozmoqda…",
-    "mobile.reveal": "Hammasini koʻrsatish",
-    "mobile.ending_label": "Yakun manzarasi",
+    "mobile.go": "Yurish",
     "loading.place": "Chilonzor · toʻrtinchi qavat · 47-xonadon",
     "loading.label": "Xonadon yuklanmoqda",
     "loading.percent": "{percent} %",
     "loading.error": "Fayllar yuklanmadi. Internetni tekshirib, qayta urinib koʻring.",
     "loading.retry": "Qayta urinish",
     "shell.fallback_notice": "Tasvir yengil rejimga oʻtdi. Oʻyin davom etadi.",
-    "shell.real_317": "Telefoningizdagi soatga qarang. U ham 3:17.",
     "shell.audio_unlock": "Davom etish uchun ekranga bosing",
     "shell.audio_unlock_label": "Ovozni yoqish",
     "shell.error": "Nimadir buzildi.",
     "shell.error_restart": "Qaytadan boshlash",
-    "shell.glitch_label": "Xona tasviri buzildi",
-    "shell.glitch_text": "Signal yoʻqoldi",
-    "text_presenter.guest": "Mehmon",
-    "text_presenter.restart": "Boshidan",
-    "meta.late_night": "Haqiqiy soat ham yarim tundan oʻtgan. Siz ham uxlamayapsiz.",
-    "meta.late_night_fallback": "Tashqarida tun choʻzilib boryapti.",
-    "meta.return_long": "Bir necha soat yoʻq boʻldingiz. Men kutdim. Bu yerda soat hamon oʻsha.",
-    "meta.return_short": "Yarim soatdan koʻp kutdim. Qaytdingiz. Bu yerda soat hamon oʻsha.",
-    "meta.return_long_sen": "Bir necha soat yoʻq boʻlding. Men kutdim. Bu yerda soat hamon oʻsha.",
-    "meta.return_short_sen": "Yarim soatdan koʻp kutdim. Qaytding. Bu yerda soat hamon oʻsha.",
-    "meta.return_fallback": "Qaytdingiz. Men kutdim."
+    "shell.glitch_label": "Xona tasviri buzildi"
   }
 }

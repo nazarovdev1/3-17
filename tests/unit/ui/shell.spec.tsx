@@ -60,8 +60,6 @@ describe('Telegram BackButton routing', () => {
     expect(backTarget('paused', 'title')).toBe('game')
     expect(backTarget('settings', 'paused')).toBe('paused')
     expect(backTarget('settings', 'title')).toBe('title')
-    expect(backTarget('form', 'title')).toBe('title')
-    expect(backTarget('ending', 'title')).toBe('title')
     expect(backTarget('gallery', 'title')).toBe('title')
     expect(backTarget('title', 'title')).toBeNull()
     expect(backTarget('warning', 'title')).toBeNull()

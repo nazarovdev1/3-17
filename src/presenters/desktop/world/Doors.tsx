@@ -252,6 +252,7 @@ export function Doors({
   extension,
   doorAjar,
   closed,
+  held = NO_DOORS,
   frosted,
 }: {
   surfaces: SurfaceMaterials
@@ -259,6 +260,8 @@ export function Doors({
   doorAjar: boolean
   /** Doors held shut for the current beat (they neither open for the player nor stand ajar). */
   closed: Set<string>
+  /** Doors the story holds open (someone opened them and stands there). */
+  held?: Set<string>
   frosted: boolean
 }) {
   const placed = useMemo(
@@ -295,7 +298,7 @@ export function Doors({
       const shut = closed.has(p.def.id)
       const target = shut
         ? 0
-        : near && opensForPlayer && !kitchenInside
+        : held.has(p.def.id) || (near && opensForPlayer && !kitchenInside)
           ? 1.4
           : rest(p.def, doorAjar)
       // A door the story holds shut is shut (it does not swing closed in front of you).
@@ -309,6 +312,7 @@ export function Doors({
       speeds.current[i] = next === 0 ? 0 : speed
       angles.current[i] = next
       pivot.rotation.y = p.base + p.sign * next
+      if (p.def.id in desktopRuntime.entrances) desktopRuntime.entrances[p.def.id] = next > 0.02
       const hinge: [number, number, number] = [p.hinge.x, 1.0, p.hinge.z]
       const wasOpening = opening.current[i] ?? false
       if (target > current + 0.5 && !wasOpening) {
@@ -342,3 +346,5 @@ export function Doors({
     </group>
   )
 }
+
+const NO_DOORS = new Set<string>()

@@ -93,6 +93,11 @@ Freesound recordings are excerpted, mixed to mono, filtered and loudness-normali
 | Muffled TV Program #6 | sound | milcahrawr | [Freesound](https://freesound.org/people/milcahrawr/sounds/872726/) | CC0-1.0 |
 | Cuckoo Clock Ticking.aif | sound | DiArchangeli | [Freesound](https://freesound.org/people/DiArchangeli/sounds/462929/) | CC0-1.0 |
 | Cuckoo Clock Ticking.aif | sound | DiArchangeli | [Freesound](https://freesound.org/people/DiArchangeli/sounds/462929/) | CC0-1.0 |
+| Double Cough | sound | qubodup | [Freesound](https://freesound.org/people/qubodup/sounds/743354/) | CC0-1.0 |
+| Dripping Kitchen Tap.wav | sound | eimear123 | [Freesound](https://freesound.org/people/eimear123/sounds/323142/) | CC0-1.0 |
+| Crows at Dawn 2 | sound | silentseason | [Freesound](https://freesound.org/people/silentseason/sounds/335871/) | CC0-1.0 |
+| water drain though pipes under metal sink2.flac | sound | kyles | [Freesound](https://freesound.org/people/kyles/sounds/637942/) | CC0-1.0 |
+| Car Passing Suburb | sound | robotjay | [Freesound](https://freesound.org/people/robotjay/sounds/275164/) | CC0-1.0 |
 
 ## Mobile scene renders
 

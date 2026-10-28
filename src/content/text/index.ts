@@ -40,6 +40,35 @@ export function storyText(file: string, nodeId: string, key: string): string {
   return text
 }
 
+/** Section of script.yaml that holds a SCRIPT_UZ id: N1-… → n1, K-… → diary, E… → endings. */
+function scriptSection(key: string): string {
+  if (key.startsWith('K-')) return 'diary'
+  if (key.startsWith('E')) return 'endings'
+  return `n${key[1]}`
+}
+
+/**
+ * An in-world line by its SCRIPT_UZ.md id (subtitle, phone transcript, paper, diary).
+ * `{name}` is the name signed on the rental form.
+ */
+export function line(key: string, name = ''): string {
+  const text = storyText('script', scriptSection(key), key)
+  return text.split('{name}').join(name)
+}
+
+/** Every script id present in script.yaml. */
+export function scriptKeys(): string[] {
+  return Object.values(bundle.story['script'] ?? {}).flatMap((section) => Object.keys(section))
+}
+
+/** Words shown for a line (subtitle duration, budgets). */
+export function wordsOf(key: string): number {
+  return line(key, 'X')
+    .replace(/[—·…/]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => /[\p{L}\p{N}]/u.test(w)).length
+}
+
 /** UI string by dotted key, with optional `{name}` substitutions. */
 export function ui(key: string, values?: Record<string, string | number>): string {
   usedKeys.add(`ui/${key}`)
@@ -58,8 +87,8 @@ export function ui(key: string, values?: Record<string, string | number>): strin
 /** UI key families looked up with computed keys (e.g. `nights.${n}`); lint:text treats them as used. */
 export const DYNAMIC_UI_PREFIXES = [
   'nights.',
-  'locations.',
   'endings.',
+  'phone.date_',
   'form.alone_',
   'form.fear_',
   'form.door_',

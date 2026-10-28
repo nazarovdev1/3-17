@@ -4,11 +4,9 @@ import { useGame, type Screen } from './gameStore'
 import { TelegramAdapter } from '@/platform/telegram/adapter'
 import { ContentWarning } from './ContentWarning'
 import { TitleScreen } from './TitleScreen'
-import { RentalForm } from './RentalForm'
 import { SettingsScreen } from './SettingsScreen'
 import { ErrorBoundary } from './ErrorBoundary'
 import { MobilePresenter } from '@/presenters/mobile/MobilePresenter'
-import { EndingScreen } from './EndingScreen'
 import { GalleryScreen } from './GalleryScreen'
 import { DebugOverlay } from '@/debug/DebugOverlay'
 import { useSettings } from './settingsStore'
@@ -17,15 +15,15 @@ import { checkGpu } from '@/platform/device/gpu'
 import { AudioController } from '@/audio/AudioController'
 import { HorrorEffects } from './HorrorEffects'
 import { LoadingScreen } from './LoadingScreen'
+import { DirectorDriver } from './DirectorDriver'
 import { useAssetLoad } from './assetLoadStore'
 import './shell.css'
 
 const DesktopPresenter = lazy(() => import('@/presenters/desktop/DesktopPresenter'))
 
 /**
- * The shell (spec 3/4/6): boot → warning → title → form → game, with pause,
- * settings, endings, mode routing and the debug overlay. Presenters render
- * story state; the shell owns screens and platform wiring.
+ * The shell: boot → warning → title → game, with pause, settings, the endings gallery,
+ * mode routing and the debug overlay. The Director runs the world; presenters show it.
  */
 export function GameShell() {
   const screen = useGame((s) => s.screen)
@@ -98,7 +96,7 @@ export function GameShell() {
     const checkClock = () => {
       const now = new Date()
       if (!document.hidden && now.getHours() === 3 && now.getMinutes() === 17) {
-        useGame.getState().showRealClock317()
+        useGame.getState().realClock317()
       }
     }
     const timer = window.setInterval(checkClock, 1000)
@@ -134,9 +132,6 @@ export function GameShell() {
     if (bootDone && mode === 'desktop') useAssetLoad.getState().start()
   }, [bootDone, mode])
 
-  const realClock317Visible = useGame((s) => s.realClock317Visible)
-  const dismissRealClock = useGame((s) => s.dismissRealClock317)
-
   if (!bootDone) {
     return (
       <div className="screen">
@@ -152,9 +147,9 @@ export function GameShell() {
       <div className="phone-frame">
         <AudioController mode={mode} />
         <HorrorEffects />
+        <DirectorDriver paused={screen !== 'game'} />
         {screen === 'warning' && <ContentWarning />}
         {screen === 'title' && <TitleScreen mode={mode} />}
-        {screen === 'form' && <RentalForm />}
         {(screen === 'game' || screen === 'paused') &&
           (mode === 'mobile' ? (
             <MobilePresenter paused={screen === 'paused'} />
@@ -176,17 +171,11 @@ export function GameShell() {
             onModeRequest={() => setRetry((value) => value + 1)}
           />
         )}
-        {screen === 'ending' && <EndingScreen />}
         {screen === 'gallery' && <GalleryScreen />}
         <DebugOverlay />
         {fallbackVisible && (
           <button className="realtime-banner" onClick={() => setFallbackVisible(false)}>
             {ui('shell.fallback_notice')}
-          </button>
-        )}
-        {realClock317Visible && (
-          <button className="realtime-banner" onClick={dismissRealClock}>
-            {ui('shell.real_317')}
           </button>
         )}
       </div>
@@ -203,8 +192,6 @@ export function backTarget(screen: Screen, settingsReturn: Screen): Screen | nul
       return 'game'
     case 'settings':
       return settingsReturn
-    case 'form':
-    case 'ending':
     case 'gallery':
       return 'title'
     default:

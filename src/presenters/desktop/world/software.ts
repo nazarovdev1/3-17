@@ -10,6 +10,14 @@ export function softwareModel(source: GLTF): Promise<GLTF> {
   if (!pending) {
     pending = MeshoptSimplifier.ready.then(() => {
       const scene = source.scene.clone(true)
+      // A model made of many small parts (a shelf of books) is heavy as a whole: its parts
+      // are reduced too, not only single big meshes.
+      let total = 0
+      scene.traverse((object) => {
+        if (object instanceof THREE.Mesh)
+          total += (object.geometry as THREE.BufferGeometry).index?.count ?? 0
+      })
+      const floor = total > 90_000 ? 1500 : 12000
       const geometries = new Map<THREE.BufferGeometry, THREE.BufferGeometry>()
       scene.traverse((object) => {
         if (!(object instanceof THREE.Mesh)) return
@@ -19,7 +27,7 @@ export function softwareModel(source: GLTF): Promise<GLTF> {
           geometry = original.clone()
           const position = original.getAttribute('position')
           const indices = original.index
-          if (indices && indices.count > 12000 && original.groups.length <= 1) {
+          if (indices && indices.count > floor && original.groups.length <= 1) {
             const vertices = new Float32Array(position.count * 3)
             for (let i = 0; i < position.count; i++) {
               vertices[i * 3] = position.getX(i)
@@ -30,7 +38,7 @@ export function softwareModel(source: GLTF): Promise<GLTF> {
               Uint32Array.from(indices.array),
               vertices,
               3,
-              Math.max(1800, Math.floor((indices.count * 0.025) / 3) * 3),
+              Math.max(floor === 12000 ? 1800 : 300, Math.floor((indices.count * 0.025) / 3) * 3),
               0.08,
               ['Permissive'],
             )

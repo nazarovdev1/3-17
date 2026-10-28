@@ -594,22 +594,13 @@ const OBJECTS_47: WorldObject[] = [
     id: 'kitchen_chair_1',
     room: 'kitchen',
     asset: 'painted_wooden_chair_02',
-    position: [1.6, 0, 1.2],
+    // One chair, centred on the table's side: with two, the way past the fridge and washer
+    // to the stove (the night-1 kettle) was 14 cm wide.
+    position: [1.6, 0, 1.5],
     rotation: HALF_PI,
     size: [0.64, 1.26, 0.66],
     support: ON_FLOOR,
-    purpose: 'chair (one of two; it moves when not watched)',
-    blocks: true,
-  },
-  {
-    id: 'kitchen_chair_2',
-    room: 'kitchen',
-    asset: 'painted_wooden_chair_02',
-    position: [1.6, 0, 1.86],
-    rotation: HALF_PI,
-    size: [0.64, 1.26, 0.66],
-    support: ON_FLOOR,
-    purpose: 'second chair',
+    purpose: 'the one chair at the table (a renter living alone)',
     blocks: true,
   },
   {
