@@ -922,11 +922,12 @@ const OBJECTS_COMMON: WorldObject[] = [
     id: 'stairs_radiator',
     room: 'stairs',
     asset: 'radiator',
-    position: [1.6, 0.1, 9.9],
+    // On the half-landing below, beside its window (stairwell.ts: the half-landing at -1.4).
+    position: [2.55, -1.3, 9.9],
     rotation: Math.PI,
     size: [0.8, 0.67, 0.2],
     support: wall('stairs_south'),
-    purpose: 'stairwell radiator under the window',
+    purpose: 'stairwell radiator on the half-landing, beside the window',
   },
 ]
 

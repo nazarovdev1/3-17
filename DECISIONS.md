@@ -394,3 +394,67 @@ Android phones"), recorded here.
     scale without a sit-up. The player stayed on the sofa through 3:17. Now any return to
     normal time sends `sitUp`, and a movement key counts as moving while lying. Found by
     the R2 playthrough; a unit test covers it.
+75. **R3: the stairwell goes down to the 3rd floor (owner decision 8).** Flight A goes
+    down to the half-landing and flight B comes back under the landing. The 3rd-floor
+    landing has the 4th floor's footprint: 42–45, the dead lift and Muhabbat opa's 43 under 47.
+    The camera now keeps a floor height (`feet`): `walkFeet` steps along the stairs, and floors
+    one storey apart are told apart by it, in walking and in zones (`stairwell`,
+    `half_landing`, `landing3`, `by_43`). Someone's moving boxes are stacked on the head of
+    the next flight down, so nobody goes further. The stair radiator moved to the
+    half-landing, beside the new lower window. It used to float 1.5 m over the half-landing.
+    Debug `teleport` takes a floor height.
+76. **Muhabbat opa talks in three stages and can be cut off.** The stages are the BEATS
+    stages: 48 sets `heard_48`, Sardor sets `heard_sardor`. Each stage goes on only while the
+    player is by 43 (`onlyIn`). Walking off triggers `hush`, which drops the current and queued
+    subtitles mid-sentence, and she says N2-14 once. If nobody comes down within 45 s, she
+    climbs to 47, knocks, says stage 1 through the door and leaves the halva on the
+    threshold. This keeps night 2 at 70% wordless beats; one beat per line had made it 57%.
+77. **Night 2's clock beats wait for the night.** The day starts at 13:20, which is "after"
+    03:16 as a number, so 3:16 and the mother's call fired at once. They now require
+    `night_started_n2`.
+78. **Director verbs added in R3:** `onlyIn` on a beat, `hush`, and `place`, which moves the
+    body; the night-3 corridor uses `place` to put the player by the sofa. All three have
+    unit tests.
+79. **The strange coat: in the wardrobe on night 2, on the hooks from night 3.** This follows
+    BEATS n2 #11 and n3 #5. The changes table test now states this.
+80. **The night-3 corridor stretch is built (deferred in 70).** While `corridor_loop` is on,
+    the corridor grows 1.5 m each time the entrance is out of view, up to 6 m. The desktop
+    presenter holds the stretch. The camera walks, plays footsteps and measures zones on the
+    plan as built. The hall and landing props (coat, chain, 48's seal, the stairwell) move with
+    the stretch. Twelve seconds of walking ends the loop with `corridor_ran`: a blink, then the
+    player stands by the sofa. Stopping and looking back ends it with `corridor_turned`: the
+    corridor goes back and the floorboard is raised over page 6. These two are
+    `BODY_TARGETS`: inputs for what the body does, not places. Steps behind the player
+    follow theirs a beat late.
+81. **The TV has a picture.** Static is a live noise texture. On night 3 the screen shows this
+    room from its top corner, rendered on the GPU into a 256×192 target. The figure sits on
+    the sofa there only (the reflection layer) and turns its head. Looking at the real sofa
+    leaves static. On software GL the night-3 picture is static too. Night 1's TV had sound
+    but no screen picture; it now shows its static.
+82. **The block opposite goes dark from the top down, and the 4th floor goes last.** This is
+    BEATS n1 #17 and n5 #9. The silhouette stands in that window when someone is there
+    (night 3) or holds a lit phone up (night 5). Night 4 goes dark at once (`allAtOnce`).
+83. **Ending B is taking the stairs down.** The trigger is the `stairwell` zone, from
+    anywhere on night 5. Before, it was the top of the stairs. The mobile stairs viewpoint
+    counts as the stairwell. The ending-B test and metrics:design use the new zone.
+84. **The night can shut a door or leave it ajar.** `world.doors` 'closed' or 'ajar' sets the
+    door's rest angle, and the door still opens for the player. Night 2's bathroom door
+    starts shut and is found ajar. Night 4's entrance swings ajar by itself.
+85. **The calendar and the passport in 48 are papers in the hand.** Their words are N4-07
+    "Dekabr" and N4-08 "Pasport" / {name}, added to the script (+4 visible words; the
+    whole game is 524).
+86. **Tests retimed to the new nights, assertions unchanged.**
+    - Night 2 now starts in the day: the outage test checks the flat's hum on night 3, and the
+      missed-call count is read when night 2's night falls (110 s).
+    - The night-4 voice test stays 16 s in 48's room: glitch, voice, answer.
+    - New tests: `tests/unit/director/nights.spec.ts` (night 2–5 beats) and
+      `tests/unit/director/stairwell.spec.ts` (walking down, boxes, the shaft edge,
+      `onlyIn`, `hush`, `place`).
+87. **BEATS details not built in R3, left for the R6 fear pass:**
+    - Night 2: holding backspace to delete the draft; wood shavings.
+    - Night 3: the face-down phone's glow; tinnitus; the fingerprint on the clock glass.
+    - Night 4: dust footprints into 48; 48's mirror without the player; 47's plate reading 48;
+      dusty prints on the phone; the parcel on the table at dawn.
+    - Night 5: the curtain in the draught; the brass key's glint.
+
+    Each has a sound or a simpler visual stand-in, or the beat still works without it.

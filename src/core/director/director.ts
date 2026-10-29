@@ -266,6 +266,7 @@ export class Director {
 
   private triggered(beat: Beat, sensors: Sensors): boolean {
     if (beat.notIn?.some((zone) => sensors.zones.includes(zone))) return false
+    if (beat.onlyIn && !beat.onlyIn.some((zone) => sensors.zones.includes(zone))) return false
     const t = beat.trigger
     switch (t.type) {
       case 'start':
@@ -405,6 +406,7 @@ export class Director {
       case 'camera':
       case 'fx':
       case 'fade':
+      case 'place':
         this.events.push(action)
         return
       case 'scene':
@@ -494,6 +496,12 @@ export class Director {
           evaluateCondition(action.when, this.run) ? action.then : (action.else ?? []),
           source,
         )
+        return
+      case 'hush':
+        this.speech = []
+        this.speechEnd = this.now
+        w.subtitle = null
+        this.queue = this.queue.filter((q) => q.action.type !== 'say')
         return
       case 'ending':
         this.loadSequence(`end${action.id}`)

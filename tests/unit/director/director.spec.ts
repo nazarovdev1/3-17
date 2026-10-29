@@ -4,7 +4,7 @@ import { STILL, newRun, simulate } from '@/core/director/simulate'
 import type { Sequence, Sensors } from '@/core/director/types'
 import { SEQUENCES } from '@/content/nights'
 import { wordsOf } from '@/content/text'
-import { ENDING_C } from '@/content/nights/n2to5'
+import { ENDING_C } from '@/content/nights/n5'
 import { evaluateCondition } from '@/core/director/conditions'
 
 const profile = {
@@ -361,7 +361,8 @@ describe('Nights 4 and 5', () => {
     d.tick(10, STILL)
     d.run.flags['power_off'] = true
     setup(d.run)
-    for (let t = 0; t < 3000; t += 100) d.tick(100, { ...STILL, zones: ['room48'] })
+    // In 48's room: the glitch after 3 s, the voice 2 s later, the answer 6.5 s after that.
+    for (let t = 0; t < 16_000; t += 100) d.tick(100, { ...STILL, zones: ['room48'] })
     return d.log
       .filter((l) => l.action.type === 'say')
       .map((l) => (l.action as { line: string }).line)

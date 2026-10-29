@@ -43,7 +43,7 @@ export interface GameApi {
   getScreen: () => string
   getAudioState: () => unknown
   getDesktopState: () => Record<string, unknown>
-  teleport: (x: number, z: number, yaw?: number) => void
+  teleport: (x: number, z: number, yaw?: number, feet?: number) => void
   emit: (events: unknown[]) => void
   setSanity: (n: number) => void
   setTime: (iso: string) => void

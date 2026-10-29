@@ -17,6 +17,8 @@ import type { WorldState } from '@/core/director/types'
 import { formatClock } from '@/core/director/clock'
 import { phoneTime } from './phone'
 import { Rustam } from './world/Rustam'
+import { Downstairs } from './world/Downstairs'
+import { NightProps } from './world/NightProps'
 import { Furniture, placeClock, type Models } from './world/Furniture'
 import { Lighting } from './world/Lighting'
 import { loadSurfaces, type SurfaceMaterials } from './world/materials'
@@ -60,15 +62,18 @@ function useWorldAssets(detailed: boolean): Loaded | null {
   return loaded
 }
 
-const SKIP = new Set(['clock', 'phone', 'room_chair'])
+const SKIP = new Set(['clock', 'phone', 'room_chair', 'wardrobe'])
 
 function Clock({
   models,
   requested,
+  inHand,
   detailed,
 }: {
   models: Models
   requested: boolean
+  /** Night 5: off its nail and held low in both hands. */
+  inHand: boolean
   detailed: boolean
 }) {
   const camera = useThree((s) => s.camera)
@@ -98,7 +103,16 @@ function Clock({
     }
   }
   useEffect(() => place(shifted.current))
+  const forward = useRef(new THREE.Vector3())
   useFrame(() => {
+    if (inHand && group.current) {
+      // Held at the chest, face up toward the eyes.
+      camera.getWorldDirection(forward.current)
+      group.current.position.copy(camera.position).addScaledVector(forward.current, 0.42)
+      group.current.position.y -= 0.32
+      group.current.rotation.set(-1.0, Math.atan2(-forward.current.x, -forward.current.z), 0, 'YXZ')
+      return
+    }
     // A still's changed state represents a completed unobserved revisit.
     if (
       (import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1') &&
@@ -178,7 +192,12 @@ export function World({
   const door48 = world.doors['door48']
   return (
     <>
-      <Outside surfaces={assets.surfaces} windowsDark={world.windows !== 'lit'} />
+      <Outside
+        surfaces={assets.surfaces}
+        windowsDark={world.windows !== 'lit'}
+        allAtOnce={world.windows === 'allAtOnce'}
+        someone={world.objects['opposite'] ?? ''}
+      />
       <Architecture surfaces={assets.surfaces} extension={extension} />
       <Furniture
         models={assets.models}
@@ -190,7 +209,14 @@ export function World({
       <Clock
         models={assets.models}
         requested={world.objects['clock'] === 'shifted'}
+        inHand={world.objects['clock'] === 'in_hand'}
         detailed={shadows}
+      />
+      <NightProps
+        objects={world.objects}
+        surfaces={assets.surfaces}
+        detailed={shadows}
+        extension={extension}
       />
       <Doors
         surfaces={assets.surfaces}
@@ -198,6 +224,7 @@ export function World({
         doorAjar={door48 === 'ajar' || door48 === 'open'}
         closed={closed}
         held={held}
+        story={world.doors}
         // Blurring glass costs a second scene pass; only while something stands behind it.
         frosted={shadows && appearance?.id === 'frosted'}
       />
@@ -229,7 +256,20 @@ export function World({
         node={world.sequence}
         models={assets.models}
         detailed={shadows}
+        extension={extension}
       />
+      {/* The hall and the landing move with the night-3 corridor's extra metres. */}
+      <group position-z={extension}>
+        <Downstairs
+          surfaces={assets.surfaces}
+          models={assets.models}
+          daylight={world.daylight}
+          muhabbat={world.objects['muhabbat'] ?? 'closed'}
+          bread={world.objects['bread_bag'] === 'sill'}
+          halva={world.objects['halva'] ?? 'none'}
+          detailed={shadows}
+        />
+      </group>
       <Rustam
         state={world.objects['rustam'] ?? 'gone'}
         keysInLock={world.objects['key_ring'] === 'in_lock'}

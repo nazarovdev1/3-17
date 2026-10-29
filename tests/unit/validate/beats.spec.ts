@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { SEQUENCES, READABLES } from '@/content/nights'
 import { scriptKeys, wordsOf } from '@/content/text'
-import { objectPoint, PHONE_TARGETS } from '@/content/world/objects'
-import { EXTRA_ZONES } from '@/content/world/zones'
-import { WORLD } from '@/content/world/layout'
+import { BODY_TARGETS, objectPoint, PHONE_TARGETS } from '@/content/world/objects'
+import { ZONE_IDS } from '@/content/world/zones'
 import {
   noTextShare,
   validateSequences,
@@ -12,7 +11,7 @@ import {
 } from '@/core/validate/beats'
 import type { Sequence } from '@/core/director/types'
 
-const zones = new Set([...WORLD.rooms.map((r) => r.id), ...EXTRA_ZONES.map((z) => z.id)])
+const zones = ZONE_IDS
 const virtual = new Set([
   'sofa',
   'fridge',
@@ -25,7 +24,8 @@ const virtual = new Set([
 const ctx: ValidationContext = {
   scriptKeys: new Set(scriptKeys()),
   readables: READABLES,
-  objectExists: (id) => !!objectPoint(id) || PHONE_TARGETS.has(id) || virtual.has(id),
+  objectExists: (id) =>
+    !!objectPoint(id) || PHONE_TARGETS.has(id) || BODY_TARGETS.has(id) || virtual.has(id),
   zoneExists: (id) => zones.has(id),
   wordsOf,
 }

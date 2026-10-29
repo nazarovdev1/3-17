@@ -25,7 +25,7 @@ interface Placed {
 }
 
 const plates = new Map<string, THREE.CanvasTexture>()
-function numberPlate(label: string) {
+export function numberPlate(label: string) {
   let texture = plates.get(label)
   if (texture) return texture
   const canvas = document.createElement('canvas')
@@ -71,7 +71,10 @@ function place(def: DoorDef, extension: number): Placed | null {
   return null
 }
 
-function rest(def: DoorDef, doorAjar: boolean): number {
+function rest(def: DoorDef, doorAjar: boolean, story?: 'ajar' | 'closed'): number {
+  // The night's word on a door: shut (it still opens for the player) or standing ajar.
+  if (story === 'closed') return 0
+  if (story === 'ajar') return def.kind === 'entrance' ? 0.3 : 0.45
   if (def.id === 'front_door48') return doorAjar ? 0.36 : 0
   if (def.kind === 'entrance' || def.kind === 'metal' || def.kind === 'lift') return 0
   if (def.kind === 'balcony' || def.kind === 'closet') return 0
@@ -79,6 +82,10 @@ function rest(def: DoorDef, doorAjar: boolean): number {
   if (def.id.startsWith('kitchen_door')) return 0.22
   return 1.45
 }
+
+const NO_STORY: Record<string, 'open' | 'ajar' | 'closed'> = {}
+const storyRest = (state?: 'open' | 'ajar' | 'closed') =>
+  state === 'ajar' || state === 'closed' ? state : undefined
 
 /** The entrance leaf hangs this far above the floor: light (and shadows) show under it. */
 export const DOOR_GAP = 0.014
@@ -253,8 +260,11 @@ export function Doors({
   doorAjar,
   closed,
   held = NO_DOORS,
+  story = NO_STORY,
   frosted,
 }: {
+  /** Doors the night has shut or left ajar (world.doors), apart from held and closed. */
+  story?: Record<string, 'open' | 'ajar' | 'closed'>
   surfaces: SurfaceMaterials
   extension: number
   doorAjar: boolean
@@ -300,9 +310,11 @@ export function Doors({
         ? 0
         : held.has(p.def.id) || (near && opensForPlayer && !kitchenInside)
           ? 1.4
-          : rest(p.def, doorAjar)
+          : rest(p.def, doorAjar, storyRest(story[p.def.id]))
       // A door the story holds shut is shut (it does not swing closed in front of you).
-      const current = shut ? 0 : (angles.current[i] ?? rest(p.def, doorAjar))
+      const current = shut
+        ? 0
+        : (angles.current[i] ?? rest(p.def, doorAjar, storyRest(story[p.def.id])))
       // A heavy leaf: pushed open, it swings and settles with a small overshoot; it
       // falls shut a little faster. Hinge sounds follow the movement.
       let speed = speeds.current[i] ?? 0
@@ -338,7 +350,7 @@ export function Doors({
             p.opening.bottom + (p.def.kind === 'entrance' ? DOOR_GAP : 0),
             p.hinge.z,
           ]}
-          rotation-y={p.base + p.sign * rest(p.def, doorAjar)}
+          rotation-y={p.base + p.sign * rest(p.def, doorAjar, storyRest(story[p.def.id]))}
         >
           <Leaf p={p} surfaces={surfaces} frosted={frosted} />
         </group>

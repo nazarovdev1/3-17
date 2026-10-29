@@ -232,6 +232,11 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
     return off
   }, [switched, sequence, world?.lights])
   const [near, setNear] = useState<Near | null>(null)
+  // Night 3's corridor (BEATS n3 #7): its extra metres, while the loop is on.
+  const [stretch, setStretch] = useState({ sequence: '', metres: 0 })
+  const looping = !!flags['corridor_loop'] && !flags['corridor_done']
+  const extension = looping && stretch.sequence === sequence ? stretch.metres : 0
+  const extend = useCallback((metres: number) => setStretch({ sequence, metres }), [sequence])
   const [, setControl] = useState<'lock' | 'drag'>('drag')
   const [profile, setProfile] = useState(() => renderProfile())
   const [still] = useState(
@@ -307,7 +312,7 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
             world={world}
             flags={flags}
             lateNight={lateNight}
-            corridorLength={1}
+            corridorLength={1 + extension}
             lightsOff={lightsOff}
             shadows={profile.shadows}
             peephole={peepholeView}
@@ -325,6 +330,8 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
             shadows={profile.shadows}
             peeking={peeking}
             onPeek={setPeeking}
+            extension={extension}
+            onExtend={extend}
           />
           <Inspect paper={paper} />
           <PostEffects

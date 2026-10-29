@@ -69,7 +69,9 @@ describe('audio scene mapping', () => {
     const cut = world('n1', 370_000)
     expect(cut.power).toBe(false)
     expect(audioScene('game', cut)).toBe('silence')
-    expect(audioScene('game', world('n2', 1000))).toBe('flat')
+    // Night 2 begins in the day; the next night begins with the flat's hum.
+    expect(audioScene('game', world('n3', 1000))).toBe('flat')
+    expect(audioScene('game', world('n2', 1000))).toBe('day')
     expect(audioScene('game', world('n1', 1000))).toBe('day')
   })
   it('keeps ticking exclusive to C and maps title, street and menus', () => {

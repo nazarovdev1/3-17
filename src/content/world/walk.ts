@@ -7,6 +7,7 @@ import {
   type Rect,
   type Room,
 } from './layout'
+import { stairHeight } from './stairwell'
 
 /**
  * Walkable floor derived from the world layout: inside any room (or a passable doorway),
@@ -87,4 +88,54 @@ export function walk(
   if (canWalk(x + dx, z, options)) x += dx
   if (canWalk(x, z + dz, options)) z += dz
   return [x, y, z]
+}
+
+const SAMPLES = [
+  [PLAYER_RADIUS, 0],
+  [-PLAYER_RADIUS, 0],
+  [0, PLAYER_RADIUS],
+  [0, -PLAYER_RADIUS],
+] as const
+
+/**
+ * The floor under a body standing at (x, z) whose feet were at `feet`: 0 on the 4th floor's
+ * plan, the stairwell's height below it, or null where it cannot stand.
+ */
+export function standAt(x: number, z: number, feet: number, options: WalkOptions): number | null {
+  const level = Math.abs(feet) < 0.45
+  if (level && canWalk(x, z, options)) return 0
+  const h = stairHeight(x, z, feet)
+  if (h === null) return null
+  const floor = options.flat48 ? FLOOR_ALL : FLOOR_47
+  for (const [dx, dz] of SAMPLES) {
+    const sx = x + dx
+    const sz = z + dz
+    if (stairHeight(sx, sz, h) !== null) continue
+    if (Math.abs(h) < 0.45 && onFloor(floor, sx, sz)) continue
+    return null
+  }
+  return h
+}
+
+/** Like walk(), on stairs too: returns [x, feet, z]. */
+export function walkFeet(
+  x: number,
+  feet: number,
+  z: number,
+  dx: number,
+  dz: number,
+  options: WalkOptions,
+): [number, number, number] {
+  let f = feet
+  const across = standAt(x + dx, z, f, options)
+  if (across !== null) {
+    x += dx
+    f = across
+  }
+  const along = standAt(x, z + dz, f, options)
+  if (along !== null) {
+    z += dz
+    f = along
+  }
+  return [x, f, z]
 }

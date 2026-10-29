@@ -92,7 +92,7 @@ for (const night of [1, 2, 3, 4, 5]) {
 // Endings: each reachable from night 5, and each keeps non-text key events.
 const reach: Record<string, () => Sensors> = {
   A: () => ({ ...STILL, zones: ['room48'] }),
-  B: () => ({ ...STILL, zones: ['stairs_down'] }),
+  B: () => ({ ...STILL, zones: ['stairwell'] }),
   C: () => STILL,
 }
 for (const ending of ['A', 'B', 'C'] as const) {

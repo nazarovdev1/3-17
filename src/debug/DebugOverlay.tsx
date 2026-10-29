@@ -85,8 +85,9 @@ export function DebugOverlay() {
       },
       getScreen: () => game().screen,
       /** Test builds: place the desktop camera (x, z[, yaw]) without walking there. */
-      teleport: (x: number, z: number, yaw?: number) => {
-        desktopRuntime.teleport = yaw === undefined ? [x, z] : [x, z, yaw]
+      teleport: (x: number, z: number, yaw?: number, feet?: number) => {
+        desktopRuntime.teleport =
+          yaw === undefined ? [x, z] : feet === undefined ? [x, z, yaw] : [x, z, yaw, feet]
       },
       /** Test builds: deliver Director events (an effect) as the Director would. */
       emit: (events: DirectorEvent[]) => emitDirectorEvents(events),

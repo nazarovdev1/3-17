@@ -12,12 +12,26 @@ import { metricBox, metricPlane, type SurfaceMaterials } from './materials'
 const GROUND_Y = -8.6
 const OPPOSITE_Z = -24
 
+/** The 4th-floor window opposite (floor 3, column 5 of the grid, lit): where someone stands. */
+const SOMEONE_AT: [number, number, number] = [
+  -19 + 5 * 2.9,
+  GROUND_Y + 1.6 + 3 * 2.8,
+  // Its parts sit just in front of the lit pane (the panes are at +0.52).
+  OPPOSITE_Z + 0.515,
+]
+
 export function Outside({
   surfaces,
   windowsDark,
+  allAtOnce = false,
+  someone = '',
 }: {
   surfaces: SurfaceMaterials
   windowsDark: boolean
+  /** Night 4: the block goes dark at once instead of floor by floor. */
+  allAtOnce?: boolean
+  /** In the 4th-floor window opposite: 'standing' (backlit) or 'phone' (a lit phone at the face). */
+  someone?: string
 }) {
   const panes = useRef<THREE.InstancedMesh>(null)
   const snow = useRef<THREE.Points>(null)
@@ -40,9 +54,9 @@ export function Outside({
 
   // Window grid of the block opposite: 9 floors × 14 windows.
   const PANES = 9 * 14
-  // Five occupied windows, scattered across the floors facing the flat. The story's
-  // five-step extinction stays the same when the building's full window grid grows.
-  const lit = useMemo(() => [32, 47, 62, 77, 92], [])
+  // Five occupied windows, scattered across the floors facing the flat. They go out from
+  // the top down, and the 4th floor's (47) last (BEATS night 1 #17, night 5 #9).
+  const lit = useMemo(() => [92, 77, 62, 32, 47], [])
   useLayoutEffect(() => {
     const mesh = panes.current
     if (!mesh) return
@@ -86,7 +100,9 @@ export function Outside({
         ? 5
         : darkSince.current === null
           ? 0
-          : Math.floor((clock.elapsedTime - darkSince.current) * 1.4)
+          : allAtOnce
+            ? 5
+            : Math.floor((clock.elapsedTime - darkSince.current) * 1.4)
     if (dark === lastDark.current) return
     lastDark.current = dark
     const warm = new THREE.Color('#c48a48')
@@ -150,6 +166,38 @@ export function Outside({
         <sphereGeometry args={[0.12, 16, 12]} />
         <meshBasicMaterial color="#d9853a" />
       </mesh>
+      {(someone === 'standing' || someone === 'phone') && (
+        <group position={SOMEONE_AT}>
+          {/* Head and shoulders against the glass: nobody's face, only a shape. */}
+          <mesh position={[0, -0.05, 0.012]}>
+            <planeGeometry args={[0.62, 0.5]} />
+            <meshBasicMaterial color="#120d0a" toneMapped={false} />
+          </mesh>
+          <mesh position={[0, 0.32, 0.012]}>
+            <circleGeometry args={[0.15, 20]} />
+            <meshBasicMaterial color="#120d0a" toneMapped={false} />
+          </mesh>
+          {someone === 'phone' && (
+            // A phone held up to a face: a cold glow on the cheek and the screen itself.
+            <>
+              <mesh position={[0.05, 0.3, 0.02]}>
+                <circleGeometry args={[0.24, 24]} />
+                <meshBasicMaterial
+                  color="#7fa6e6"
+                  transparent
+                  opacity={0.5}
+                  depthWrite={false}
+                  toneMapped={false}
+                />
+              </mesh>
+              <mesh position={[0.12, 0.28, 0.03]}>
+                <planeGeometry args={[0.08, 0.14]} />
+                <meshBasicMaterial color="#e6f0ff" toneMapped={false} />
+              </mesh>
+            </>
+          )}
+        </group>
+      )}
       <points ref={snow} geometry={flakes}>
         <pointsMaterial color="#c8d0da" size={0.045} transparent opacity={0.7} depthWrite={false} />
       </points>

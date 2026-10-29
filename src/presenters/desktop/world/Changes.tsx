@@ -51,6 +51,7 @@ function useUnobserved(
 }
 
 const COAT_AT: THREE.Vector3Tuple = [1.43, 0.09, 3.24]
+const WARDROBE_COAT_AT: THREE.Vector3Tuple = [-1.2, 0.2, 1.05]
 
 export function Changes({
   night,
@@ -59,7 +60,10 @@ export function Changes({
   node,
   models,
   detailed,
+  extension = 0,
 }: {
+  /** Night 3's corridor stretch: the hall (hooks, chain) moves with it. */
+  extension?: number
   night: number
   flags: Record<string, unknown>
   daylight: boolean
@@ -100,7 +104,12 @@ export function Changes({
     const source = figure?.scene.getObjectByName('hanging_coat')
     if (!source) return null
     const copy = source.clone(true)
-    const wool = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95 })
+    // Black wool: its vertex colours darkened, so a lit corridor does not turn it grey-blue.
+    const wool = new THREE.MeshStandardMaterial({
+      vertexColors: true,
+      color: '#4a4a4a',
+      roughness: 0.95,
+    })
     copy.traverse((o) => {
       const mesh = o as THREE.Mesh
       if (!mesh.isMesh) return
@@ -109,6 +118,7 @@ export function Changes({
     })
     return copy
   }, [figure, detailed])
+  const wardrobeCoat = useMemo(() => coat?.clone(true) ?? null, [coat])
   const gl = useThree((state) => state.gl)
   useEffect(() => {
     if (coat) primeUpload(gl, coat)
@@ -139,11 +149,22 @@ export function Changes({
       )}
       {coat && c.coat && coatShown && (
         // The node keeps its own (dequantization) transform: place it from outside.
-        <group position={COAT_AT} rotation-y={-Math.PI / 2}>
+        <group
+          position={[COAT_AT[0], COAT_AT[1], COAT_AT[2] + extension]}
+          rotation-y={-Math.PI / 2}
+        >
           <primitive object={coat} />
         </group>
       )}
-      <DoorChain loose={chainLoose} detailed={detailed} />
+      {wardrobeCoat && c.wardrobeCoat && (
+        // Inside the wardrobe, on the rail, facing its doors.
+        <group position={WARDROBE_COAT_AT} rotation-y={-Math.PI / 2}>
+          <primitive object={wardrobeCoat} />
+        </group>
+      )}
+      <group position-z={extension}>
+        <DoorChain loose={chainLoose} detailed={detailed} />
+      </group>
       {c.bundle && <Bundle detailed={detailed} />}
       {c.footprints && <Footprints detailed={detailed} />}
       <Breath active={c.breath} node={node} />

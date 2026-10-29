@@ -29,12 +29,88 @@ Redesign phases (REDESIGN_PROMPT.md, overrides FIX_PROMPT and PROMPT; based on `
 
 - [x] R0 — Design (approved by the owner with eight decisions, BEATS §11)
 - [x] R1 — Engine (Director, clock, triggers, ambient, save v2, metrics:design)
-- [ ] R2 — Night 1 vertical slice on desktop (built; ✋ awaiting owner review of the videos)
-- [ ] R3 — Nights 2–5 on desktop
+- [x] R2 — Night 1 vertical slice on desktop (reviewed by the owner: "davom et")
+- [x] R3 — Nights 2–5 on desktop
 - [ ] R4 — Endings as set pieces
 - [ ] R5 — Mobile magic window + stills fallback
 - [ ] R6 — Fear pass
 - [ ] R7 — Full QA
+
+## R3 — Nights 2–5 on desktop (done, 2026-10-29)
+
+The owner approved R2 and asked to go on ("yaxshi endi davom et qolganlarini ham boshlashing
+mumkin"). R3 has no gate; R4 stops with videos.
+
+- Stairwell down to the 3rd floor (DECISIONS 75): both flights and the half-landing are walkable.
+  The 3rd-floor landing has 42–45, the lift and Muhabbat opa's 43; moving boxes block the way
+  further down. The camera keeps a floor height.
+- Night 2 (`src/content/nights/n2.ts`): the day.
+  - The player wakes on the sofa; the phone is on the cushion.
+  - Bread waits on the half-landing sill.
+  - Muhabbat opa opens 43 on its chain with halva and talks in three stages while the player
+    stays. Walking off hushes her and she calls N2-14 once. The figure stands on the
+    half-landing below for 2 s if looked at.
+  - Nobody comes down: after 45 s she talks at 47's door and leaves the halva.
+  - The blink into the night; frost on the glass.
+  - The wardrobe holds the black coat, tally marks and page 1; page 2 is in the bathroom.
+  - The bathroom door is found ajar and the mirror cabinet open.
+  - Footsteps cross the flat above; 48's TV stops when the player comes near.
+  - 3:16 floor by floor, 3:17, knocks. The voice's three lines quote the form. Holding at the
+    wall after it gives one tap.
+- Night 3 (`n3.ts`):
+  - Rustam's call answers itself.
+  - The tap runs while nobody is in the bathroom; the coat moves to the hooks; the clock moves
+    to the shared wall and leaves a pale circle.
+  - The corridor stretch (DECISIONS 80), with steps behind the player. Running ends by the
+    sofa; turning round raises the floorboard over page 6.
+  - The TV shows this room from the corner with someone on the sofa (DECISIONS 81). Looking at
+    the real sofa leaves static.
+  - Someone stands in the 4th-floor window opposite; a knock comes from the wardrobe.
+  - 3:17 brings no knocks: a cough, then the voice with "sen" and its 20 s window. A palm of
+    breath appears on the wall. Dusk.
+- Night 4 (`n4.ts`):
+  - The phone buzzes under the pillow; something drags in the corridor; the radiator knocks
+    once.
+  - 3:16 all at once. 3:17: one step outside, feet under the door; the figure in the peephole,
+    then wet footprints.
+  - The entrance swings ajar at +60 s and the cold comes in. The parcel is on the threshold;
+    48 is ajar with its seal torn.
+  - Chaining the door: the voice at the door 30 s later.
+  - In 48: the calendar and passport papers, page 5, the glitch (respects Reduce flashing),
+    the voice in the mother's words. Walking toward it or away chooses the line. Back on the
+    landing, a knock comes from inside the lift.
+- Night 5 (`n5.ts`):
+  - The clock comes off the wall into the hands; page 7 is behind it; the key stops before
+    3:17.
+  - 48's TV murmurs through the wall. At 3:16 someone opposite holds a lit phone up as the 4th
+    floor goes dark last.
+  - At 3:17 everything dies, the phone too. Three slow knocks, the voice in the player's words.
+  - The clock holds at 3:17: knocks and "Eshikni och" every 45 s; feet under the door.
+  - A: into 48. B: down the stairs, at any time. C: wind the clock (eligible, after the voice).
+- Shared: `flatBeats` (note, clock, radiator, tea, chain, TV, sofa) and the mother's call while
+  the player is away. Opposite windows go out top-down, the 4th floor last (DECISIONS 82).
+- Gates (`metrics:design`):
+
+  | Night | 3:17 by itself | Silence | Reading | Wordless beats |
+  | --- | --- | --- | --- | --- |
+  | n1 | 359 s | 7 s | 6% | 88% |
+  | n2 | 349 s | 7 s | 14% | 70% |
+  | n3 | 350 s | 7 s | 8% | 84% |
+  | n4 | 252 s | 7 s | 6% | 78% |
+  | n5 | 232 s | 8 s | 3% | 84% |
+
+  The whole game has 524 visible words; all three endings are reached.
+- Tests: 301 unit tests pass, including the new `nights.spec.ts` and `stairwell.spec.ts`; three
+  tests were retimed (DECISIONS 86). `npm run check` is green.
+- Evidence (ignored folder `audit/screenshots/r3/`):
+  - `stairs-sheet.jpg`;
+  - `nights-sheet.jpg`: wake, Muhabbat at 43, the figure below, frost, wardrobe, mirror cabinet,
+    feet under the door, peephole, 48, calendar, clock off the wall;
+  - `ultra-sheet.jpg`: the TV's picture on the GPU path.
+
+  All at 60 FPS on software GL.
+- Not built yet: DECISIONS 87 (details for R6). Mobile is still the viewpoint fallback; new
+  hotspots were added for the new objects.
 
 ## R1 — Engine (done, 2026-10-29) and R2 — Night 1 slice (✋ awaiting owner review)
 

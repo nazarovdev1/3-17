@@ -4,9 +4,11 @@
  * on later nights it is simply so.
  */
 export interface NightChanges {
-  /** A long coat that isn't the player's on the hall hooks (night 2 on). */
+  /** A long coat that isn't the player's on the hall hooks (night 3 on). */
   coat: boolean
   coatTonight: boolean
+  /** The same coat inside the wardrobe on night 2 (BEATS night 2 #11). */
+  wardrobeCoat: boolean
   /** The room chair turned to face the wall of 48 (night 3 on). */
   chairMoved: boolean
   chairMovedTonight: boolean
@@ -33,14 +35,16 @@ export function changesFor(
 ): NightChanges {
   const afterOutage4 = night === 4 && !!flags['power_off']
   return {
-    // Night 2's day is spent out; the coat is there when the night begins.
-    coat: night > 2 || (night === 2 && !daylight),
-    coatTonight: night === 2,
+    // Night 2 it hangs in the wardrobe; on night 3 it is on the hooks the moment nobody looks.
+    coat: night >= 3,
+    coatTonight: night === 3,
+    wardrobeCoat: night === 2 && !daylight,
     chairMoved: night >= 3,
     chairMovedTonight: night === 3,
     chainLoose: afterOutage4,
     bundle: afterOutage4 && !flags['took_parcel'],
     footprints: night === 4 && !!flags['saw_figure'],
-    breath: night === 5,
+    // Night 5 all night; night 4 once the entrance has swung open on the cold landing.
+    breath: night === 5 || (night === 4 && !!flags['cold_n4']),
   }
 }

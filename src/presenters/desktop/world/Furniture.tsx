@@ -399,8 +399,8 @@ export function Furniture({
       return
     }
     const [x, , z] = desktopRuntime.position
-    const room = WORLD.rooms.find((r) => zonesAt(x!, z!).includes(r.id))
-    if (room) here.current = room.flat
+    const room = WORLD.rooms.find((r) => zonesAt(x!, z!, desktopRuntime.feet).includes(r.id))
+    here.current = room ? room.flat : desktopRuntime.feet < -0.3 ? 'common' : here.current
     const drawn: string[] = []
     for (const [flat, door] of ENTRANCES) {
       const inside = here.current === flat

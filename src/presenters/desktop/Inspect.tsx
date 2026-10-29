@@ -12,7 +12,7 @@ import { READABLES } from '@/content/nights'
  * here while `desktopRuntime.inspecting` is set). Put down by moving away.
  */
 export interface Readable {
-  kind: 'diary' | 'note'
+  kind: 'diary' | 'note' | 'calendar' | 'passport'
   lines: string[]
   /** First line written later, in another pen (the landlord's afterthought). */
   otherInkFrom?: number
@@ -48,10 +48,92 @@ function wrap(c: CanvasRenderingContext2D, text: string, width: number): string[
   return out
 }
 
+/** A wall calendar's December: 1–16 crossed out in ballpoint, 17 left. */
+function drawCalendar(c: CanvasRenderingContext2D, month: string) {
+  const { w, h } = PAGE
+  c.fillStyle = '#d9d3c3'
+  c.fillRect(0, 0, w, h)
+  c.fillStyle = 'rgba(90, 80, 60, 0.25)'
+  c.fillRect(0, 0, w, 40)
+  c.fillStyle = '#7a2a24'
+  c.font = '700 110px Literata, Georgia, serif'
+  c.textAlign = 'center'
+  c.fillText(month.toUpperCase(), w / 2, 210)
+  c.font = '400 64px Literata, Georgia, serif'
+  const cell = { w: 132, h: 150 }
+  // This December starts on a Monday (the phone shows Saturday the 13th).
+  for (let day = 1; day <= 31; day++) {
+    const col = (day - 1) % 7
+    const row = Math.floor((day - 1) / 7)
+    const x = 50 + col * cell.w + cell.w / 2
+    const y = 380 + row * cell.h
+    c.fillStyle = col >= 5 ? '#7a2a24' : '#2b2a27'
+    c.fillText(String(day), x, y)
+    if (day <= 16) {
+      c.strokeStyle = 'rgba(30, 45, 95, 0.85)'
+      c.lineWidth = 6
+      c.beginPath()
+      c.moveTo(x - 44 + (day % 3) * 3, y - 58)
+      c.lineTo(x + 44, y + 18 - (day % 4) * 3)
+      c.moveTo(x + 42 - (day % 2) * 4, y - 60)
+      c.lineTo(x - 44, y + 16)
+      c.stroke()
+    }
+  }
+  c.textAlign = 'left'
+  // Dust over everything, thicker toward the bottom.
+  for (let i = 0; i < 600; i++) {
+    c.fillStyle = `rgba(150, 140, 120, ${0.05 + (i % 5) * 0.02})`
+    c.fillRect((i * 389) % w, (i * 241) % h, 3 + (i % 4), 3 + (i % 3))
+  }
+  const dust = c.createLinearGradient(0, 0, 0, h)
+  dust.addColorStop(0, 'rgba(120, 110, 90, 0.08)')
+  dust.addColorStop(1, 'rgba(120, 110, 90, 0.35)')
+  c.fillStyle = dust
+  c.fillRect(0, 0, w, h)
+}
+
+/** The player's passport, open at the photo page, under thick dust; the photo is grey. */
+function drawPassport(c: CanvasRenderingContext2D, lines: string[]) {
+  const { w, h } = PAGE
+  c.fillStyle = '#cfd4c4'
+  c.fillRect(0, 0, w, h)
+  c.strokeStyle = 'rgba(80, 110, 90, 0.18)'
+  c.lineWidth = 2
+  for (let y = 0; y < h; y += 18) {
+    c.beginPath()
+    c.moveTo(0, y)
+    c.bezierCurveTo(w / 3, y + 12, (2 * w) / 3, y - 12, w, y)
+    c.stroke()
+  }
+  c.fillStyle = '#3d4a40'
+  c.font = '700 70px Literata, Georgia, serif'
+  c.fillText(lines[0]!.toUpperCase(), 90, 170)
+  // The photo: dust has made it a grey square.
+  c.fillStyle = '#9a9a92'
+  c.fillRect(90, 260, 320, 420)
+  c.fillStyle = 'rgba(70, 70, 66, 0.35)'
+  c.beginPath()
+  c.ellipse(250, 430, 90, 120, 0, 0, Math.PI * 2)
+  c.fill()
+  c.fillStyle = '#20231f'
+  c.font = '400 72px Literata, Georgia, serif'
+  for (const [i, row] of wrap(c, lines[1] ?? '', w - 520).entries())
+    c.fillText(row, 460, 340 + i * 90)
+  for (let i = 0; i < 900; i++) {
+    c.fillStyle = `rgba(140, 132, 115, ${0.06 + (i % 5) * 0.025})`
+    c.fillRect((i * 389) % w, (i * 241) % h, 3 + (i % 5), 3 + (i % 3))
+  }
+  c.fillStyle = 'rgba(130, 122, 105, 0.3)'
+  c.fillRect(0, 0, w, h)
+}
+
 /** A squared school-notebook page (diary) or a torn sheet (note), written in ink. */
 function drawPage(canvas: HTMLCanvasElement, paper: Readable) {
   const c = canvas.getContext('2d')!
   const { w, h } = PAGE
+  if (paper.kind === 'calendar') return drawCalendar(c, paper.lines[0] ?? '')
+  if (paper.kind === 'passport') return drawPassport(c, paper.lines)
   c.fillStyle = paper.kind === 'diary' ? '#e6e0cf' : '#ebe6da'
   c.fillRect(0, 0, w, h)
   // Age: soft stains and a darker edge.

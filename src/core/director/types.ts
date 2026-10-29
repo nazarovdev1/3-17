@@ -94,6 +94,10 @@ export type Action =
   | { type: 'endNight'; afterMs: number }
   | { type: 'ending'; id: EndingId }
   | { type: 'credits' }
+  /** Whoever is talking stops mid-sentence: the current and queued subtitles are dropped. */
+  | { type: 'hush' }
+  /** Moves the player's body (the night-3 corridor gives up and puts them by the sofa). */
+  | { type: 'place'; position: Point; yaw: number }
   /** Branch inside a beat on flags, items, sanity or the rental-form profile. */
   | { type: 'if'; when: Condition; then: TimedAction[]; else?: TimedAction[] }
 
@@ -126,6 +130,8 @@ export interface Beat {
   cooldownMs?: number
   /** Only while the player is in none of these zones (e.g. a call while away from the phone). */
   notIn?: ZoneId[]
+  /** Only while the player is in one of these zones (Muhabbat opa talks while they stay). */
+  onlyIn?: ZoneId[]
   actions: TimedAction[]
   waitFor?: ResponseWindow
 }
@@ -190,6 +196,7 @@ export type DirectorEvent =
           | 'form'
           | 'credits'
           | 'scene'
+          | 'place'
       }
     >
   | { type: 'nightStart'; night: number }

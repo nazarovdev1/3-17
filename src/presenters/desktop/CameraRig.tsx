@@ -18,7 +18,10 @@ import { desktopRuntime } from '@/platform/device/desktopRuntime'
 import { zonesAt } from '@/content/world/zones'
 import { objectPoint, PHONE_TARGETS } from '@/content/world/objects'
 import type { Point, WorldState } from '@/core/director/types'
-import { walk, SWITCHES, REACH, footstepAt } from './layout'
+import { SWITCHES, REACH, footstepAt } from './layout'
+import { walkFeet } from '@/content/world/walk'
+import { isBelow } from '@/content/world/stairwell'
+import { CORRIDOR_SPLIT_Z } from '@/content/world/layout'
 import { softwareLight } from './world/softwareMaterial'
 import { STILL_CAMERAS } from '../mobile/still-scenes'
 
@@ -44,11 +47,16 @@ export interface RigProps {
   /** Looking through the entrance peephole (E at the door when nothing else wants it). */
   peeking: boolean
   onPeek: (on: boolean) => void
+  /** Night 3's corridor: metres added between the room and the hall (0 = as built). */
+  extension: number
+  onExtend: (metres: number) => void
 }
 
 /** The peephole lens, on the landing side of the entrance leaf. */
 export const PEEPHOLE_EYE: Point = [0, 1.6, 4.75]
 const PEEPHOLE: Point = [0, 1.6, 4.69]
+/** Eye height above the floor under the feet. */
+const EYE = 1.6
 /** Objects the wall listens and knocks at. */
 const WALL_TARGETS = new Set(['party_wall', 'party_wall48'])
 
@@ -65,6 +73,8 @@ export function CameraRig({
   shadows,
   peeking,
   onPeek,
+  extension,
+  onExtend,
 }: RigProps) {
   const cookie = useMemo(() => makeCookie(), [])
   useEffect(() => () => cookie.dispose(), [cookie])
@@ -77,6 +87,8 @@ export function CameraRig({
   const forward = useRef(new Vector3())
   const sense = useRef(0)
   const velocity = useRef({ x: 0, z: 0 })
+  /** Height of the floor under the feet: 0 on the 4th floor, lower on the stairs. */
+  const feet = useRef(0)
   const bob = useRef(0)
   const stepDistance = useRef(0)
   const frustum = useRef(new Frustum())
@@ -86,10 +98,24 @@ export function CameraRig({
   const putDown = useRef(-1)
   /** Camera effects the Director asks for: a jolt, a closer look, lying down. */
   const effect = useRef({ jolt: 0, push: 0, lying: false, hands: 0 })
-  const live = useRef({ world, interactables, peeking })
+  const live = useRef({ world, interactables, peeking, extension })
   useLayoutEffect(() => {
-    live.current = { world, interactables, peeking }
-  }, [world, interactables, peeking])
+    live.current = { world, interactables, peeking, extension }
+  }, [world, interactables, peeking, extension])
+  /** Night 3's corridor loop: when it last grew, how long the player has run, stood still. */
+  const loop = useRef({ grewAt: 0, running: 0, still: 0, sent: false })
+  const lastExtension = useRef(extension)
+  useLayoutEffect(() => {
+    // The corridor gives the metres back: whoever stood in them is put where they belong.
+    const before = lastExtension.current
+    lastExtension.current = extension
+    if (extension >= before) return
+    const z = camera.position.z
+    if (z >= CORRIDOR_SPLIT_Z + before) camera.position.z = z - (before - extension)
+    else if (z > CORRIDOR_SPLIT_Z + extension)
+      camera.position.z = CORRIDOR_SPLIT_Z + extension - 0.05
+    loop.current = { grewAt: 0, running: 0, still: 0, sent: false }
+  }, [extension, camera])
 
   /** Where the player stood before stepping up to the peephole. */
   const beforePeek = useRef<{ position: Vector3; yaw: number; pitch: number } | null>(null)
@@ -99,6 +125,7 @@ export function CameraRig({
     const spawn = getDirector()?.spawn
     if (!spawn) return
     camera.position.set(...spawn.position)
+    feet.current = spawn.position[1] - EYE
     angles.current = { yaw: spawn.yaw, pitch: 0 }
     velocity.current = { x: 0, z: 0 }
     mirrorHistory.current = []
@@ -131,6 +158,10 @@ export function CameraRig({
     () =>
       onDirectorEvents((events) => {
         for (const event of events) {
+          // A new night begins on its feet unless it says otherwise (night 2 wakes lying down;
+          // its start beat comes a tick after this).
+          if (event.type === 'nightStart' || event.type === 'endingStart')
+            effect.current.lying = false
           if (event.type !== 'camera') continue
           if (event.effect === 'jolt' || event.effect === 'shake') effect.current.jolt = 1
           if (event.effect === 'push') effect.current.push = 1
@@ -138,8 +169,15 @@ export function CameraRig({
           if (event.effect === 'lookDown') effect.current.lying = true
           if (event.effect === 'sitUp') effect.current.lying = false
         }
+        for (const event of events) {
+          if (event.type !== 'place') continue
+          camera.position.set(event.position[0], event.position[1], event.position[2])
+          feet.current = event.position[1] - EYE
+          angles.current = { yaw: event.yaw, pitch: 0 }
+          velocity.current = { x: 0, z: 0 }
+        }
       }),
-    [],
+    [camera],
   )
 
   useEffect(() => {
@@ -169,7 +207,11 @@ export function CameraRig({
       }
       const n = near.current
       if (!n) return
-      if (n.kind === 'switch') onSwitch(Number(n.id))
+      if (n.kind === 'use' && n.id === 'peephole') {
+        // The night wants the peephole looked through: the eye goes to the lens.
+        onPeek(true)
+        input({ type: 'interact', target: 'peephole' })
+      } else if (n.kind === 'switch') onSwitch(Number(n.id))
       else if (n.kind === 'peek') onPeek(true)
       else if (n.kind === 'unpeek' || peeking) onPeek(false)
       else input({ type: 'interact', target: n.id })
@@ -280,9 +322,11 @@ export function CameraRig({
     if (paused || document.hidden) return
     const delta = Math.min(rawDelta, 0.05)
     if (desktopRuntime.teleport && (import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1')) {
-      const [tx, tz, tyaw] = desktopRuntime.teleport
+      const [tx, tz, tyaw, tfeet] = desktopRuntime.teleport
       desktopRuntime.teleport = null
-      camera.position.set(tx!, 1.6, tz)
+      feet.current = tfeet ?? 0
+      camera.position.set(tx!, EYE + feet.current, tz)
+      effect.current.lying = false
       if (tyaw !== undefined) angles.current.yaw = tyaw
       velocity.current = { x: 0, z: 0 }
     }
@@ -291,6 +335,9 @@ export function CameraRig({
     const fx = effect.current
     const { yaw } = angles.current
     // Lying on the sofa: eyes on the ceiling; at the peephole or reading: the body stays put.
+    // Woken lying down (night 2's morning) and the night is at its own pace: a step gets up.
+    if (fx.lying && world.timeScale === 1 && ['w', 'a', 's', 'd'].some((k) => keys.current.has(k)))
+      fx.lying = false
     const still = peeking || world.control === 'locked' || fx.lying || world.form || fx.hands > 0
     const reading = !!world.readable
     const sideways = still ? 0 : (keys.current.has('d') ? 1 : 0) - (keys.current.has('a') ? 1 : 0)
@@ -320,13 +367,12 @@ export function CameraRig({
     const walking = Math.hypot(v.x, v.z) > 0.25
     const before = camera.position.clone()
     const door48 = world.doors['door48']
-    const next = walk(
-      [camera.position.x, 1.6, camera.position.z] as Point,
-      dx,
-      dz,
-      door48 === 'ajar' || door48 === 'open',
-      0,
-    )
+    const stretch = live.current.extension
+    const next = walkFeet(camera.position.x, feet.current, camera.position.z, dx, dz, {
+      flat48: door48 === 'ajar' || door48 === 'open',
+      extension: stretch,
+    })
+    feet.current = next[1]
     // Someone standing on the landing is in the way like any body.
     if (world.objects['rustam'] && world.objects['rustam'] !== 'gone') {
       const feet = objectPoint('rustam_body')!
@@ -335,7 +381,8 @@ export function CameraRig({
         next[2] = camera.position.z
       }
     }
-    camera.position.set(...next)
+    camera.position.x = next[0]
+    camera.position.z = next[2]
     const distance = before.distanceTo(camera.position)
     if (distance < Math.hypot(dx, dz) * 0.3) v.x = v.z = 0
     if (walking) {
@@ -344,11 +391,21 @@ export function CameraRig({
     }
     if (stepDistance.current > 0.72) {
       // The sound of the floor actually underfoot: parquet, painted boards, tiles, concrete.
-      audio.play(footstepAt(camera.position.x, camera.position.z, 0), [
-        camera.position.x,
-        0.05,
-        camera.position.z,
-      ])
+      audio.play(
+        isBelow(feet.current)
+          ? 'step_concrete'
+          : footstepAt(camera.position.x, camera.position.z, stretch),
+        [camera.position.x, feet.current + 0.05, camera.position.z],
+      )
+      if (stretch > 0) {
+        // In the long corridor someone walks behind, in step, a beat late.
+        const behind: Point = [
+          camera.position.x - forward.current.x * 1.4,
+          0.05,
+          camera.position.z - forward.current.z * 1.4,
+        ]
+        setTimeout(() => audio.play('step_board', behind), 280)
+      }
       stepDistance.current = 0
     }
     // Effects decay: a jolt kicks the head, a closer look narrows the lens for a moment.
@@ -369,7 +426,8 @@ export function CameraRig({
         ? Math.sin(clock.elapsedTime * 0.9) * 0.006
         : 0
     camera.position.y =
-      1.6 -
+      EYE +
+      feet.current -
       (fx.lying ? 0.95 : 0) +
       (settings.headBob && !settings.reduceFlashing && walking ? Math.sin(bob.current) * 0.018 : 0)
     camera.quaternion.setFromEuler(
@@ -424,7 +482,16 @@ export function CameraRig({
         const to = p.clone().sub(camera.position)
         if (to.length() < 7 && to.normalize().dot(forward.current) > 0.96) looking.push(id)
       }
-      sensors.zones = zonesAt(camera.position.x, camera.position.z)
+      // Zones are measured on the plan as built: the corridor's extra metres count as corridor.
+      const stretch = live.current.extension
+      const planZ =
+        stretch > 0 && camera.position.z >= CORRIDOR_SPLIT_Z
+          ? camera.position.z < CORRIDOR_SPLIT_Z + stretch
+            ? CORRIDOR_SPLIT_Z - 0.01
+            : camera.position.z - stretch
+          : camera.position.z
+      sensors.zones = zonesAt(camera.position.x, planZ, feet.current)
+      corridorLoop(sensors.zones.includes('corridor'), walking, clock.elapsedTime)
       sensors.looking = looking
       sensors.visible = visible
       // Lying down the body stays put, so a movement key is what gets the player up.
@@ -446,6 +513,12 @@ export function CameraRig({
       }
       for (const id of interactables) {
         if (PHONE_TARGETS.has(id)) continue
+        // The clock held in both hands: its keyhole is wherever the eyes are.
+        if (id === 'keyhole' && world.objects['clock'] === 'in_hand') {
+          const held = camera.position.clone().addScaledVector(forward.current, 0.4)
+          consider(id, 'use', [held.x, held.y - 0.1, held.z])
+          continue
+        }
         const point = objectPoint(id)
         if (point) consider(id, 'use', point, id === 'rustam_hand' ? 2.0 : REACH)
       }
@@ -472,6 +545,37 @@ export function CameraRig({
         onNear(best)
       }
     }
+    function corridorLoop(inCorridor: boolean, walking: boolean, now: number) {
+      const flags = useGame.getState().run?.flags ?? {}
+      const l = loop.current
+      if (!flags['corridor_loop'] || flags['corridor_done'] || l.sent) return
+      const stretch = live.current.extension
+      // Looking away from the entrance (its door out of view): the corridor is longer.
+      const door = new Vector3(0, 1.4, 4.69 + stretch)
+      if (
+        inCorridor &&
+        camera.position.z < CORRIDOR_SPLIT_Z &&
+        !frustum.current.containsPoint(door) &&
+        stretch < 6 &&
+        now - l.grewAt > 1.5
+      ) {
+        l.grewAt = now
+        onExtend(stretch + 1.5)
+      }
+      if (stretch <= 0) return
+      const input = useGame.getState().input
+      l.running = inCorridor && walking ? l.running + 0.1 : walking ? l.running : 0
+      l.still = walking ? 0 : l.still + 0.1
+      // Running on for twelve seconds: the flat gives up and puts them by the sofa.
+      if (l.running >= 12) {
+        l.sent = true
+        input({ type: 'interact', target: 'corridor_ran' })
+      } else if (l.still >= 1 && forward.current.z < -0.6) {
+        // Stopping and turning round to the room: the corridor is as it was.
+        l.sent = true
+        input({ type: 'interact', target: 'corridor_turned' })
+      }
+    }
     const history = mirrorHistory.current
     history.push({
       time: clock.elapsedTime,
@@ -482,6 +586,7 @@ export function CameraRig({
     while (history.length > 2 && history[1]!.time < clock.elapsedTime - 0.5) history.shift()
     desktopRuntime.mirrorDelay = sensors.zones.includes('bathroom') ? 0.5 : 0
     desktopRuntime.position = camera.position.toArray()
+    desktopRuntime.feet = feet.current
     desktopRuntime.yaw = yaw
     desktopRuntime.pitch = angles.current.pitch
     desktopRuntime.flashlight = flashlight

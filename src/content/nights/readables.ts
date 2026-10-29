@@ -5,7 +5,7 @@ import type { TextKey } from '@/core/director/types'
  * Only these words are shown; nothing summarises them.
  */
 export interface Readable {
-  kind: 'note' | 'diary'
+  kind: 'note' | 'diary' | 'calendar' | 'passport'
   lines: TextKey[]
   /** Index of the first line written later, in a different pen. */
   otherInkFrom?: number
@@ -22,4 +22,7 @@ export const READABLES: Record<string, Readable> = {
   diary_5: { kind: 'diary', lines: ['K-5'] },
   diary_6: { kind: 'diary', lines: ['K-6'] },
   diary_7: { kind: 'diary', lines: ['K-7'] },
+  // In 48 (night 4): December crossed out up to yesterday; the player's own passport.
+  calendar: { kind: 'calendar', lines: ['N4-07'] },
+  passport: { kind: 'passport', lines: ['N4-08.1', 'N4-08.2'] },
 }

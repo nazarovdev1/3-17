@@ -59,8 +59,9 @@ describe('the phone (fear-design.md escalation table)', () => {
   it('counts the mother’s missed calls night by night', () => {
     const counts = ['n1', 'n2', 'n3', 'n4', 'n5'].map((id) => {
       const d = night(id, 300)
-      // Night 2 begins in the day; its night count is set when the night falls.
-      return id === 'n2' ? night(id, 85_000).world.phone.missed : d.world.phone.missed
+      // Night 2 begins in the day; its night count is set when the night falls (Muhabbat opa
+      // has talked at 47's door and gone, 30 s later).
+      return id === 'n2' ? night(id, 110_000).world.phone.missed : d.world.phone.missed
     })
     expect(counts).toEqual([3, 11, 24, 40, 52])
   })
@@ -95,7 +96,10 @@ describe('changes while nobody looks (fear-design.md)', () => {
   it('follows the nightly table', () => {
     expect(changesFor(1, {}, false)).toMatchObject({ coat: false, chairMoved: false })
     expect(changesFor(2, {}, true).coat).toBe(false)
-    expect(changesFor(2, {}, false)).toMatchObject({ coat: true, coatTonight: true })
+    // BEATS night 2 #11 / night 3 #5: in the wardrobe on night 2, on the hooks from night 3.
+    expect(changesFor(2, {}, false)).toMatchObject({ coat: false, wardrobeCoat: true })
+    expect(changesFor(3, {}, false)).toMatchObject({ coat: true, coatTonight: true })
+    expect(changesFor(4, {}, false)).toMatchObject({ coat: true, coatTonight: false })
     expect(changesFor(3, {}, false)).toMatchObject({ chairMoved: true, chairMovedTonight: true })
     expect(changesFor(4, { power_off: true }, false)).toMatchObject({
       chainLoose: true,

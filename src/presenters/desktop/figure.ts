@@ -6,7 +6,8 @@ import type { Point } from './layout'
  * for good once the player has seen it and looked away, walks too close, or waits it out.
  * Pure data so the rules can be tested; World/Figure.tsx renders it.
  */
-export type AppearanceId = 'under_door' | 'frosted' | 'stairwell' | 'peephole' | 'tv_reflection'
+export type AppearanceId =
+  'under_door' | 'frosted' | 'stairwell' | 'peephole' | 'tv_reflection' | 'below' | 'tv_sofa'
 
 export interface Appearance {
   id: AppearanceId
@@ -109,6 +110,37 @@ const APPEARANCES: Record<AppearanceId, Appearance> = {
     vanishWhenUnseen: false,
     vanishWithin: 0,
     maxSeconds: 30,
+    reflectionOnly: true,
+    closedDoors: [],
+    darkCircuits: [],
+    landingDark: false,
+  },
+  // Night 2's day: on the half-landing below the 3rd floor, against its window, looking up
+  // the flight at whoever stands by 43. Gone after two seconds, or when looked away from.
+  below: {
+    id: 'below',
+    position: [1.75, -4.2, 9.55],
+    yaw: Math.PI,
+    headYaw: 0.25,
+    headPitch: -0.2,
+    vanishWhenUnseen: true,
+    vanishWithin: 0,
+    maxSeconds: 2.5,
+    reflectionOnly: false,
+    closedDoors: [],
+    darkCircuits: [],
+    landingDark: false,
+  },
+  // Night 3: on the sofa in the TV's picture only — sunk to the seat, back to the corner
+  // camera, the head turning slowly round. The real sofa stays empty.
+  tv_sofa: {
+    id: 'tv_sofa',
+    position: [-1.45, -0.42, -1.45],
+    yaw: Math.PI / 2 + 0.2,
+    headYaw: -1.2,
+    vanishWhenUnseen: false,
+    vanishWithin: 0,
+    maxSeconds: 40,
     reflectionOnly: true,
     closedDoors: [],
     darkCircuits: [],

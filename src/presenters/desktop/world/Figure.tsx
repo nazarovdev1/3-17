@@ -28,6 +28,8 @@ const BACKLIGHT: Partial<
   stairwell: { position: [2.2, -0.5, 8.6], color: '#b4c6de', power: 14 },
   // Behind the door: only what little comes up the stairwell, a rim on the head.
   under_door: { position: [0.7, 1.9, 6.6], color: '#8ea3c0', power: 5 },
+  // The grey day through the half-landing window behind it.
+  below: { position: [1.3, -3.4, 10.05], color: '#c7d0dc', power: 4 },
   // From the stairs, beyond it: a rim on the shoulders, nothing on the back.
   peephole: { position: [1.15, 1.25, 8.3], color: '#9fb2cc', power: 2.6 },
 }
@@ -36,7 +38,7 @@ const BACKLIGHT: Partial<
  * The TV's picture tube, measured on the model: the set faces −x (rotation −π/2) and the
  * tube sits left of the knobs, i.e. toward −z from the viewer.
  */
-function tvScreen(): { centre: Point; width: number; height: number } {
+export function tvScreen(): { centre: Point; width: number; height: number } {
   const tv = objectById('tv')!
   return {
     centre: [
@@ -174,7 +176,7 @@ export function Figure({
     camera.updateMatrixWorld()
     matrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
     frustum.setFromProjectionMatrix(matrix)
-    sphere.center.set(g.position.x, 1.2, g.position.z)
+    sphere.center.set(g.position.x, g.position.y + 1.2, g.position.z)
     const inView = !appearance.reflectionOnly && frustum.intersectsSphere(sphere)
     if (inView) r.seen += delta
     const [px, , pz] = desktopRuntime.position
@@ -200,7 +202,7 @@ export function Figure({
         {body && <primitive object={body} />}
       </group>
       {appearance?.id === 'under_door' && <DoorGap outage={outage} />}
-      {appearance?.reflectionOnly && detailed && <TvGlass />}
+      {appearance?.id === 'tv_reflection' && detailed && <TvGlass />}
     </>
   )
 }

@@ -97,6 +97,11 @@ export function Lighting({
     )
     softwareLight.power.value =
       on(active.circuit) && !(landingDead && active === landing) ? BULB_CD : 0
+    // Downstairs the one software light is the grey day from the half-landing window.
+    if (desktopRuntime.feet < -0.3) {
+      softwareLight.position.value.set(0.9, -0.6, 7.4)
+      softwareLight.power.value = daylight ? 6 : 0.5
+    }
     if (s) {
       const l = ceilings[current]!
       s.position.set(l.position[0], l.position[1], shiftZ(l.position[0], l.position[2], extension))

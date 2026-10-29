@@ -4,12 +4,11 @@
  */
 import { SEQUENCES, READABLES } from '../src/content/nights'
 import { scriptKeys, wordsOf } from '../src/content/text'
-import { objectPoint, PHONE_TARGETS } from '../src/content/world/objects'
-import { EXTRA_ZONES } from '../src/content/world/zones'
-import { WORLD } from '../src/content/world/layout'
+import { BODY_TARGETS, objectPoint, PHONE_TARGETS } from '../src/content/world/objects'
+import { ZONE_IDS } from '../src/content/world/zones'
 import { validateSequences, worstCaseWords, textUses } from '../src/core/validate/beats'
 
-const zones = new Set([...WORLD.rooms.map((r) => r.id), ...EXTRA_ZONES.map((z) => z.id)])
+const zones = ZONE_IDS
 const virtual = new Set([
   'sofa',
   'fridge',
@@ -22,7 +21,8 @@ const virtual = new Set([
 const errors = validateSequences(SEQUENCES, {
   scriptKeys: new Set(scriptKeys()),
   readables: READABLES,
-  objectExists: (id) => !!objectPoint(id) || PHONE_TARGETS.has(id) || virtual.has(id),
+  objectExists: (id) =>
+    !!objectPoint(id) || PHONE_TARGETS.has(id) || BODY_TARGETS.has(id) || virtual.has(id),
   zoneExists: (id) => zones.has(id),
   wordsOf,
 })
