@@ -117,10 +117,39 @@ test('desktop real-input ending B: unchain, walk out and down the stairs', async
     .poll(async () => page.evaluate(() => !!window.__game.getState()?.flags['front_open']))
     .toBe(true)
   await walkTo(page, 0.1, 5.3)
-  await walkTo(page, 1.6, 6.95, 0.3)
+  await walkTo(page, 0.9, 6.9, 0.3)
+  // The first steps down the flight are the ending.
+  await walkTo(page, 0.9, 7.9, 0.3)
   await expect.poll(async () => page.evaluate(() => window.__game.getSequence())).toBe('endB')
   // The ending plays in the world: no title, no card until its last frame.
   await expect(page.getByText(ui('endings.B.title'), { exact: true })).toHaveCount(0)
+  // On down: the half-landing, flight B, the 3rd floor; then out to the bus's open door.
+  await walkTo(page, 0.9, 9.6, 0.3)
+  await walkTo(page, 2.3, 9.6, 0.3)
+  // Down flight B until the 3rd floor cuts to the yard.
+  for (let leg = 0; leg < 12; leg++) {
+    if (await page.evaluate(() => !!window.__game.getState()?.flags['going_out'])) break
+    await face(page, 2.3, 6.6)
+    await page.keyboard.down('w')
+    await page.waitForTimeout(1000)
+    await page.keyboard.up('w')
+  }
+  await expect
+    .poll(async () => page.evaluate(() => !!window.__game.getState()?.flags['outside']), {
+      timeout: 15_000,
+    })
+    .toBe(true)
+  // Toward the bus's open door until the player is on board (the step in is the cut).
+  for (let leg = 0; leg < 12; leg++) {
+    if (await page.evaluate(() => !!window.__game.getState()?.flags['on_bus'])) break
+    await face(page, 6.1, -16.0)
+    await page.keyboard.down('w')
+    await page.waitForTimeout(1200)
+    await page.keyboard.up('w')
+  }
+  await expect
+    .poll(async () => page.evaluate(() => !!window.__game.getState()?.flags['on_bus']))
+    .toBe(true)
   await endingSeen(page, 'B')
 })
 
@@ -145,13 +174,12 @@ test('desktop real-input ending A: across the landing, into 48', async ({ page }
   await page.keyboard.up('w')
   await expect.poll(async () => page.evaluate(() => window.__game.getSequence())).toBe('endA')
   await expect(page.getByText(ui('endings.A.title'), { exact: true })).toHaveCount(0)
-  // Weeks later the only thing left to do is knock on the wall: three clicks at it.
+  // Weeks later, once the light has died, the only thing left to do is knock on the wall.
   await expect
-    .poll(async () => page.evaluate(() => window.__game.getWorld()?.waiting ?? null), {
-      timeout: 45_000,
+    .poll(async () => page.evaluate(() => window.__game.getWorld()?.objects['knock_prompt']), {
+      timeout: 70_000,
     })
-    .toBeNull()
-  await page.waitForTimeout(31_000)
+    .toBe('shown')
   await page.evaluate(() => window.__game.input({ type: 'knock3', target: 'party_wall48' }))
   await endingSeen(page, 'A')
 })
@@ -169,6 +197,14 @@ test('desktop real-input ending C: the clock off the wall, the key turned', asyn
     .toBe(true)
   await page.evaluate(() => window.__game.input({ type: 'interact', target: 'keyhole' }))
   await expect.poll(async () => page.evaluate(() => window.__game.getSequence())).toBe('endC')
+  // Winding the spring: E held turns the key (a circular drag does too), about three turns.
+  await page.keyboard.down('e')
+  await expect
+    .poll(async () => page.evaluate(() => window.__game.getWorld()?.objects['clock']), {
+      timeout: 30_000,
+    })
+    .toBe('3:18')
+  await page.keyboard.up('e')
   await expect
     .poll(async () => page.evaluate(() => window.__game.getWorld()?.phone.screen), {
       timeout: 20_000,

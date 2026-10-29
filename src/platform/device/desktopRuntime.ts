@@ -13,6 +13,8 @@ export const desktopRuntime = {
   geometries: 0,
   textures: 0,
   position: [0, 1.6, 0] as number[],
+  /** Counts deliberate one-frame GPU uploads (each night's start): not a slow GPU. */
+  primes: 0,
   /** Floor height under the player: 0 on the 4th floor, below on the stairs. */
   feet: 0,
   yaw: 0,

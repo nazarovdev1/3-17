@@ -3,13 +3,13 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { desktopRuntime } from '@/platform/device/desktopRuntime'
 import { metricBox, metricPlane, type SurfaceMaterials } from './materials'
+import { GROUND_Y } from '@/content/world/exterior'
 
 /**
  * What the windows show: the nine-storey block across the courtyard with a few lit
  * windows that go dark one by one after 3:17, the snowy yard four floors down, the
  * streetlamp, falling snow, and the rest of our own building's façade around the flat.
  */
-const GROUND_Y = -8.6
 const OPPOSITE_Z = -24
 
 /** The 4th-floor window opposite (floor 3, column 5 of the grid, lit): where someone stands. */
@@ -166,38 +166,36 @@ export function Outside({
         <sphereGeometry args={[0.12, 16, 12]} />
         <meshBasicMaterial color="#d9853a" />
       </mesh>
-      {(someone === 'standing' || someone === 'phone') && (
-        <group position={SOMEONE_AT}>
-          {/* Head and shoulders against the glass: nobody's face, only a shape. */}
-          <mesh position={[0, -0.05, 0.012]}>
-            <planeGeometry args={[0.62, 0.5]} />
-            <meshBasicMaterial color="#120d0a" toneMapped={false} />
-          </mesh>
-          <mesh position={[0, 0.32, 0.012]}>
-            <circleGeometry args={[0.15, 20]} />
-            <meshBasicMaterial color="#120d0a" toneMapped={false} />
-          </mesh>
-          {someone === 'phone' && (
-            // A phone held up to a face: a cold glow on the cheek and the screen itself.
-            <>
-              <mesh position={[0.05, 0.3, 0.02]}>
-                <circleGeometry args={[0.24, 24]} />
-                <meshBasicMaterial
-                  color="#7fa6e6"
-                  transparent
-                  opacity={0.5}
-                  depthWrite={false}
-                  toneMapped={false}
-                />
-              </mesh>
-              <mesh position={[0.12, 0.28, 0.03]}>
-                <planeGeometry args={[0.08, 0.14]} />
-                <meshBasicMaterial color="#e6f0ff" toneMapped={false} />
-              </mesh>
-            </>
-          )}
-        </group>
-      )}
+      <group visible={someone === 'standing' || someone === 'phone'} position={SOMEONE_AT}>
+        {/* Head and shoulders against the glass: nobody's face, only a shape. */}
+        <mesh position={[0, -0.05, 0.012]}>
+          <planeGeometry args={[0.62, 0.5]} />
+          <meshBasicMaterial color="#120d0a" toneMapped={false} />
+        </mesh>
+        <mesh position={[0, 0.32, 0.012]}>
+          <circleGeometry args={[0.15, 20]} />
+          <meshBasicMaterial color="#120d0a" toneMapped={false} />
+        </mesh>
+        {someone === 'phone' && (
+          // A phone held up to a face: a cold glow on the cheek and the screen itself.
+          <>
+            <mesh position={[0.05, 0.3, 0.02]}>
+              <circleGeometry args={[0.24, 24]} />
+              <meshBasicMaterial
+                color="#7fa6e6"
+                transparent
+                opacity={0.5}
+                depthWrite={false}
+                toneMapped={false}
+              />
+            </mesh>
+            <mesh position={[0.12, 0.28, 0.03]}>
+              <planeGeometry args={[0.08, 0.14]} />
+              <meshBasicMaterial color="#e6f0ff" toneMapped={false} />
+            </mesh>
+          </>
+        )}
+      </group>
       <points ref={snow} geometry={flakes}>
         <pointsMaterial color="#c8d0da" size={0.045} transparent opacity={0.7} depthWrite={false} />
       </points>

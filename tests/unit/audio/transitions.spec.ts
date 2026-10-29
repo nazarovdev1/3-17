@@ -20,7 +20,8 @@ it('an ending plays out, then commits to the gallery and clears the run in one s
     // The player unchains the door and takes the stairs down: ending B.
     useGame.getState().input({ type: 'interact', target: 'front_door' })
     sensors.zones = ['stairwell']
-    for (let i = 0; i < 400 && useGame.getState().screen === 'game'; i++) {
+    // Ending B is played: the stairs, the yard, the bus (it boards by itself in the end).
+    for (let i = 0; i < 1300 && useGame.getState().screen === 'game'; i++) {
       useGame.getState().step(100)
       // While it plays the run is still there; only the credits finish it.
       if (seen.length && useGame.getState().screen === 'game')

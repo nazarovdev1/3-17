@@ -53,6 +53,7 @@ function Runtime({
   const elapsed = useRef(0)
   const last = useRef(0)
   const frames = useRef(0)
+  const primes = useRef(0)
   useEffect(() => {
     setDpr(renderDpr(tier, profile, size.height))
     governor.current.tier = tier
@@ -94,7 +95,10 @@ function Runtime({
     desktopRuntime.shadows = gl.shadowMap.enabled
     desktopRuntime.frames++
     frames.current++
-    if (paused || document.hidden || delta > 0.5) {
+    // A night's one-time upload stalls a frame on purpose; it says nothing about the GPU.
+    const primed = desktopRuntime.primes !== primes.current
+    primes.current = desktopRuntime.primes
+    if (paused || document.hidden || delta > 0.5 || primed) {
       governor.current.resetWindow()
       frames.current = 0
       last.current = elapsed.current
@@ -268,7 +272,19 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
     peeking ||
     ((import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1') &&
       new URLSearchParams(window.location.search).get('cam')?.startsWith('peephole') === true)
-  const glyph = near && !paused && !paper && !world.form ? (near.kind === 'hold' ? 'Q' : 'E') : null
+  const glyph = paused
+    ? null
+    : world.objects['clock'] === 'winding'
+      ? // Ending C: turn the key in a circle (drag round, or hold E).
+        '↻'
+      : near && !paper && !world.form
+        ? world.objects['knock_prompt'] === 'shown' && near.id === 'party_wall48'
+          ? // Ending A: the only time the game shows a knock.
+            '• • •'
+          : near.kind === 'hold'
+            ? 'Q'
+            : 'E'
+        : null
   return (
     <div
       className={`game-area desktop-game sanity-${sanityBand(sanity)} ${settings.reduceFlashing ? 'reduce-flashing' : ''}`}

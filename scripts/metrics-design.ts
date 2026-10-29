@@ -4,6 +4,7 @@
  */
 import { SEQUENCES, READABLES, ENDING_C } from '../src/content/nights'
 import { wordsOf } from '../src/content/text'
+import type { Director } from '../src/core/director/director'
 import { simulate, newRun, STILL } from '../src/core/director/simulate'
 import { evaluateCondition } from '../src/core/director/conditions'
 import { noTextShare, textUses, worstCaseWords, NO_TEXT_SHARE } from '../src/core/validate/beats'
@@ -90,9 +91,13 @@ for (const night of [1, 2, 3, 4, 5]) {
 }
 
 // Endings: each reachable from night 5, and each keeps non-text key events.
-const reach: Record<string, () => Sensors> = {
+const reach: Record<string, (d: Director) => Sensors> = {
   A: () => ({ ...STILL, zones: ['room48'] }),
-  B: () => ({ ...STILL, zones: ['stairwell'] }),
+  // Down the stairs to the 3rd floor, out, and to the bus door.
+  B: (d) => ({
+    ...STILL,
+    zones: d.run.flags['outside'] ? ['yard', 'bus_door'] : ['stairwell', 'landing3'],
+  }),
   C: () => STILL,
 }
 for (const ending of ['A', 'B', 'C'] as const) {
@@ -110,7 +115,7 @@ for (const ending of ['A', 'B', 'C'] as const) {
     wordsOf,
     maxMs: 12 * 60_000,
     script: {
-      sensors: (_t, d) => (d.run.flags['open_the_door'] ? reach[ending]!() : STILL),
+      sensors: (_t, d) => (d.run.flags['open_the_door'] ? reach[ending]!(d) : STILL),
       inputs: [
         { at: 1000, input: { type: 'interact', target: 'front_door' } },
         { at: 2000, input: { type: 'interact', target: 'clock' } },
@@ -127,9 +132,11 @@ for (const ending of ['A', 'B', 'C'] as const) {
             d.sequenceId === `end${ending}`
               ? ending === 'A'
                 ? ({ type: 'knock3', target: 'party_wall48' } as const)
-                : ending === 'C' && d.world.phone.screen === 'incoming'
-                  ? ({ type: 'interact', target: 'phone_call' } as const)
-                  : null
+                : ending === 'C' && d.world.objects['clock'] === 'winding'
+                  ? ({ type: 'interact', target: 'clock_wound' } as const)
+                  : ending === 'C' && d.world.phone.screen === 'incoming'
+                    ? ({ type: 'interact', target: 'phone_call' } as const)
+                    : null
               : null,
         })),
       ],

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import type { Surface } from '@/content/world/layout'
@@ -13,6 +13,8 @@ import {
 } from '@/content/world/stairwell'
 import { objectPoint } from '@/content/world/objects'
 import { metricBox, metricPlane, type SurfaceMaterials } from './materials'
+import { desktopRuntime } from '@/platform/device/desktopRuntime'
+import { primeUpload } from './prime'
 import { numberPlate } from './Doors'
 import { softwareMaterial } from './softwareMaterial'
 import type { Models } from './Furniture'
@@ -108,8 +110,11 @@ const WINDOWS: [number, number][] = [
 ]
 const WINDOW_X: [number, number] = [0.7, 1.9]
 
-function shellBoxes(): Box[] {
-  const boxes: Box[] = []
+/** The 3rd floor's own landing (walls, doors' openings, the lift) and the stair shaft. */
+function shellBoxes(): { floor3: Box[]; shaft: Box[] } {
+  const floor3: Box[] = []
+  const shaft: Box[] = []
+  let boxes = floor3
   // Back wall of the landing: 44 (under 48) and 43 (under 47).
   boxes.push(
     ...wallAlongX(-6.4, 3.0, 4.6, 4.78, [
@@ -120,10 +125,11 @@ function shellBoxes(): Box[] {
   // West: 45, under 46. East: 42, under 49; the same wall goes on down the shaft.
   boxes.push(...wallAlongZ(-6.58, -6.4, 4.78, 7.38, Y3, TOP, [[6.0, 0.9, 2.05]]))
   boxes.push(...wallAlongZ(3.0, 3.18, 4.78, 7.38, Y3, TOP, [[6.0, 0.9, 2.05]]))
-  boxes.push(...wallBox(3.0, 3.18, 7.38, 10.18, SHAFT_BOTTOM, 0, Y3))
+  shaft.push(...wallBox(3.0, 3.18, 7.38, 10.18, SHAFT_BOTTOM, 0, Y3))
   boxes.push(...wallBox(3.0, 3.18, 4.78, 7.38, SHAFT_BOTTOM, Y3, Y3))
   // South: the lift shaft wall, with the lift's doors.
   boxes.push(...wallAlongX(-6.4, 0.2, 7.2, 7.38, [[-2.6, 1.0, 2.0]]))
+  boxes = shaft
   // The shaft's inner wall beside the flights.
   boxes.push(...wallBox(0.02, 0.2, 7.2, 10.18, SHAFT_BOTTOM, 0, Y3))
   // Outer wall with a window over each half-landing.
@@ -177,10 +183,10 @@ function shellBoxes(): Box[] {
       })
     }
   }
-  return boxes
+  return { floor3, shaft }
 }
 
-function mergeBySurface(boxes: Box[]) {
+function mergeBySurface(boxes: Box[], landing: boolean) {
   const batches = new Map<Surface, THREE.BufferGeometry[]>()
   for (const box of boxes) {
     const geometry = metricBox(...box.size).toNonIndexed()
@@ -196,8 +202,10 @@ function mergeBySurface(boxes: Box[]) {
     g.rotateX(up ? -Math.PI / 2 : Math.PI / 2).translate(x, y, z)
     return g
   }
-  batches.get('concrete')?.push(plane(9.4, 2.42, -1.7, Y3, 5.99, true))
-  batches.get('whitewash')?.push(plane(9.4, 2.42, -1.7, TOP - 0.005, 5.99, false))
+  if (landing) {
+    batches.get('concrete')?.push(plane(9.4, 2.42, -1.7, Y3, 5.99, true))
+    batches.get('whitewash')?.push(plane(9.4, 2.42, -1.7, TOP - 0.005, 5.99, false))
+  }
   return [...batches].map(([surface, parts]) => {
     const geometry = mergeGeometries(parts, false)
     parts.forEach((p) => p.dispose())
@@ -290,8 +298,15 @@ export function Downstairs({
   halva: string
   detailed: boolean
 }) {
-  const shell = useMemo(() => mergeBySurface(shellBoxes()), [])
-  useEffect(() => () => shell.forEach(({ geometry }) => geometry.dispose()), [shell])
+  const { shell, shell3 } = useMemo(() => {
+    const { floor3, shaft } = shellBoxes()
+    return { shell: mergeBySurface(shaft, false), shell3: mergeBySurface(floor3, true) }
+  }, [])
+  useEffect(
+    () => () => [...shell, ...shell3].forEach(({ geometry }) => geometry.dispose()),
+    [shell, shell3],
+  )
+  const floor3 = useRef<THREE.Group>(null)
   const props = useMemo(() => {
     const mat = (m: THREE.MeshStandardMaterial) => (detailed ? m : softwareMaterial(m))
     const leather = mat(new THREE.MeshStandardMaterial({ color: '#3a2a22', roughness: 0.7 }))
@@ -389,18 +404,25 @@ export function Downstairs({
     })
   }, [models])
   const door = useRef<THREE.Group>(null)
-  const glow = useRef<THREE.PointLight>(null)
-  const day = useRef<THREE.PointLight>(null)
-  const fill = useRef<THREE.PointLight>(null)
+  const root = useRef<THREE.Group>(null)
   const open = useRef(0)
+  const gl = useThree((state) => state.gl)
+  // Everything uploaded once now, not when the stairs first come into view.
+  useEffect(() => {
+    if (root.current) primeUpload(gl, root.current)
+  }, [gl, shell, shell3, props, boxes])
   useFrame(({ clock }, delta) => {
     const chain = muhabbat === 'chain'
     // On the chain the leaf swings a hand's width and stops with a jerk.
     open.current += ((chain ? 0.2 : 0) - open.current) * Math.min(1, delta * 6)
     if (door.current) door.current.rotation.y = open.current
-    if (glow.current) glow.current.intensity = chain ? 2.2 : muhabbat === 'gone' ? 0 : 0.15
-    if (day.current) day.current.intensity = daylight ? 9 : 0.4
-    if (fill.current) fill.current.intensity = daylight ? 5 : 0.2
+    // Drawn only from the landing outward or below: from inside the flats nothing shows.
+    const [, , z] = desktopRuntime.position
+    const below = desktopRuntime.feet < -0.3
+    if (root.current) root.current.visible = z! > 4.6 || below
+    // The 3rd floor itself shows only from the head of the stairs down.
+    if (floor3.current) floor3.current.visible = z! > 7.15 || below
+    props.warm.color.set(chain ? '#f2c98d' : muhabbat === 'gone' ? '#1a1410' : '#6a4f33')
     props.sky.color.set(daylight ? '#c9d2dc' : '#2a2018')
     const hand = handRef.current
     if (hand) {
@@ -414,7 +436,7 @@ export function Downstairs({
   const sill = WINDOWS[0]![0]
   const threshold = objectPoint('halva_47')!
   return (
-    <group name="downstairs">
+    <group name="downstairs" ref={root}>
       {shell.map(({ surface, geometry }) => (
         <mesh
           key={surface}
@@ -440,99 +462,116 @@ export function Downstairs({
           />
         </group>
       ))}
-      {LEAVES.map((l) => (
-        <group key={l.label} position={l.position} rotation-y={l.yaw}>
+      <group ref={floor3} name="floor3">
+        {shell3.map(({ surface, geometry }) => (
           <mesh
-            geometry={l.lift ? props.liftLeaf : props.leaf}
-            material={l.lift ? props.steel : props.leather}
-          />
-          <mesh
-            geometry={props.plateBox}
-            material={props.plates.get(l.label)}
-            position={[0, l.lift ? 1.12 : 0.8, 0]}
-          />
-        </group>
-      ))}
-      {/* 43: hinged at its west side, opening toward the landing. */}
-      <group position={[DOOR43.x - DOOR43.width / 2, Y3 + 1.02, DOOR43.z + 0.01]}>
-        <group ref={door}>
-          <mesh geometry={props.leaf} material={props.leather} position={[0.445, 0, 0]} />
-          <mesh
-            geometry={props.plateBox}
-            material={props.plates.get('43')}
-            position={[0.445, 0.8, 0]}
-          />
-        </group>
-      </group>
-      {/* The lit hallway behind the gap, her scarf and one eye, the chain across. */}
-      <mesh
-        geometry={props.slit}
-        material={props.warm}
-        position={[DOOR43.x + DOOR43.width / 2 - 0.08, Y3 + 1.02, DOOR43.z - 0.12]}
-      />
-      <mesh
-        ref={scarfRef}
-        geometry={props.slit}
-        material={props.scarf}
-        scale={[0.6, 0.32, 1]}
-        position={[DOOR43.x + DOOR43.width / 2 - 0.1, Y3 + 1.56, DOOR43.z - 0.06]}
-      />
-      {Array.from({ length: 7 }, (_, i) => (
-        <mesh
-          key={i}
-          geometry={props.link}
-          material={props.chain}
-          visible={muhabbat === 'chain'}
-          position={[
-            DOOR43.x + 0.3 + i * 0.016,
-            Y3 + 1.45 - Math.sin((i / 6) * Math.PI) * 0.01,
-            DOOR43.z + 0.12,
-          ]}
-          rotation-y={i % 2 ? Math.PI / 2 : 0}
-        />
-      ))}
-      <group ref={handRef} position={[DOOR43.x + 0.36, Y3 + 1.08, DOOR43.z + 0.2]}>
-        <mesh
-          geometry={props.arm}
-          material={props.sleeve}
-          position={[0, -0.02, -0.16]}
-          rotation-x={Math.PI / 2}
-        />
-        <mesh geometry={props.hand} material={props.skin} scale={[1.1, 0.6, 1.3]} />
-        <mesh geometry={props.dish} material={props.plate} position={[0, 0.03, 0.08]} />
-        {[-0.03, 0.03, 0].map((dx, i) => (
-          <mesh
-            key={i}
-            geometry={props.lump}
-            material={props.halvaMat}
-            position={[dx, 0.055, 0.08 + (i === 2 ? 0.04 : 0)]}
+            key={surface}
+            geometry={geometry}
+            material={surfaces[surface]}
+            castShadow
+            receiveShadow
           />
         ))}
-      </group>
-      {halva === 'threshold' && (
-        <group position={[threshold[0], 0.01, threshold[2]]}>
-          <mesh geometry={props.dish} material={props.plate} />
+        {LEAVES.map((l) => (
+          <group key={l.label} position={l.position} rotation-y={l.yaw}>
+            <mesh
+              geometry={l.lift ? props.liftLeaf : props.leaf}
+              material={l.lift ? props.steel : props.leather}
+            />
+            <mesh
+              geometry={props.plateBox}
+              material={props.plates.get(l.label)}
+              position={[0, l.lift ? 1.12 : 0.8, 0]}
+            />
+          </group>
+        ))}
+        {/* 43: hinged at its west side, opening toward the landing. */}
+        <group position={[DOOR43.x - DOOR43.width / 2, Y3 + 1.02, DOOR43.z + 0.01]}>
+          <group ref={door}>
+            <mesh geometry={props.leaf} material={props.leather} position={[0.445, 0, 0]} />
+            <mesh
+              geometry={props.plateBox}
+              material={props.plates.get('43')}
+              position={[0.445, 0.8, 0]}
+            />
+          </group>
+        </group>
+        {/* The lit hallway behind the gap, her scarf and one eye, the chain across. */}
+        <mesh
+          geometry={props.slit}
+          material={props.warm}
+          position={[DOOR43.x + DOOR43.width / 2 - 0.08, Y3 + 1.02, DOOR43.z - 0.12]}
+        />
+        <mesh
+          ref={scarfRef}
+          geometry={props.slit}
+          material={props.scarf}
+          scale={[0.6, 0.32, 1]}
+          position={[DOOR43.x + DOOR43.width / 2 - 0.1, Y3 + 1.56, DOOR43.z - 0.06]}
+        />
+        {Array.from({ length: 7 }, (_, i) => (
+          <mesh
+            key={i}
+            geometry={props.link}
+            material={props.chain}
+            visible={muhabbat === 'chain'}
+            position={[
+              DOOR43.x + 0.3 + i * 0.016,
+              Y3 + 1.45 - Math.sin((i / 6) * Math.PI) * 0.01,
+              DOOR43.z + 0.12,
+            ]}
+            rotation-y={i % 2 ? Math.PI / 2 : 0}
+          />
+        ))}
+        <group ref={handRef} position={[DOOR43.x + 0.36, Y3 + 1.08, DOOR43.z + 0.2]}>
+          <mesh
+            geometry={props.arm}
+            material={props.sleeve}
+            position={[0, -0.02, -0.16]}
+            rotation-x={Math.PI / 2}
+          />
+          <mesh geometry={props.hand} material={props.skin} scale={[1.1, 0.6, 1.3]} />
+          <mesh geometry={props.dish} material={props.plate} position={[0, 0.03, 0.08]} />
           {[-0.03, 0.03, 0].map((dx, i) => (
             <mesh
               key={i}
               geometry={props.lump}
               material={props.halvaMat}
-              position={[dx, 0.025, i === 2 ? 0.04 : 0]}
+              position={[dx, 0.055, 0.08 + (i === 2 ? 0.04 : 0)]}
             />
           ))}
         </group>
-      )}
-      {bread && (
-        <group position={[BREAD_SILL[0], sill + 0.15, BREAD_SILL[2]]} rotation-y={0.3}>
-          <mesh geometry={props.bag} material={props.paperBag} castShadow />
-          <mesh
-            geometry={props.bun}
-            material={props.loaf}
-            position={[0, 0.17, 0]}
-            scale={[1.3, 0.7, 1]}
-          />
-        </group>
-      )}
+        {halva === 'threshold' && (
+          <group position={[threshold[0], 0.01, threshold[2]]}>
+            <mesh geometry={props.dish} material={props.plate} />
+            {[-0.03, 0.03, 0].map((dx, i) => (
+              <mesh
+                key={i}
+                geometry={props.lump}
+                material={props.halvaMat}
+                position={[dx, 0.025, i === 2 ? 0.04 : 0]}
+              />
+            ))}
+          </group>
+        )}
+        {boxes.map((box, i) => (
+          <primitive key={i} object={box} />
+        ))}
+      </group>
+      {/* Always there for the GPU; seen only until taken. */}
+      <group
+        visible={bread}
+        position={[BREAD_SILL[0], sill + 0.15, BREAD_SILL[2]]}
+        rotation-y={0.3}
+      >
+        <mesh geometry={props.bag} material={props.paperBag} castShadow />
+        <mesh
+          geometry={props.bun}
+          material={props.loaf}
+          position={[0, 0.17, 0]}
+          scale={[1.3, 0.7, 1]}
+        />
+      </group>
       {RAILS.map((rail, i) => (
         <mesh
           key={`rail${i}`}
@@ -543,30 +582,6 @@ export function Downstairs({
           scale={[1, 1, rail.length]}
         />
       ))}
-      {boxes.map((box, i) => (
-        <primitive key={i} object={box} />
-      ))}
-      <pointLight
-        ref={glow}
-        color="#f2c98d"
-        distance={4}
-        decay={2}
-        position={[DOOR43.x + 0.3, Y3 + 1.4, DOOR43.z + 0.25]}
-      />
-      <pointLight
-        ref={fill}
-        color="#b9c3cf"
-        distance={8}
-        decay={1.4}
-        position={[0.3, Y3 + 2.3, 6.2]}
-      />
-      <pointLight
-        ref={day}
-        color="#c7d0dc"
-        distance={9}
-        decay={1.6}
-        position={[1.6, HALF_LANDING_Y + 1.0, 9.6]}
-      />
     </group>
   )
 }

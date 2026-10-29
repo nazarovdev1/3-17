@@ -59,7 +59,8 @@ test('native suspended context unlocks on a tap; mixer is audible, muted and per
   await expect.poll(async () => (await state(page)).contextState).toBe('suspended')
   await expect.poll(async () => (await state(page)).recordingsReady).toBe(true)
   expect((await state(page)).missingRecordings).toEqual([])
-  expect((await state(page)).recordingCount).toBe(46)
+  // 46 recorded cues plus the four of the endings (DECISIONS 89).
+  expect((await state(page)).recordingCount).toBe(50)
   expect((await state(page)).status).toBe('locked')
   const unlock = page.getByRole('button', { name: ui('shell.audio_unlock_label'), exact: true })
   await expect(unlock).toHaveText(ui('shell.audio_unlock'))
@@ -187,6 +188,8 @@ test('outage silence, native cue output, clock ending, spatial panner and bounde
   expect((await state(page)).bufferCount).toBeLessThanOrEqual(25)
   await page.evaluate(() => window.__game.playSequence('endC'))
   await expect.poll(async () => (await state(page)).voices).toBe(0)
+  // The spring wound, the clock ticks.
+  await page.evaluate(() => window.__game.input({ type: 'interact', target: 'clock_wound' }))
   await expect.poll(async () => (await state(page)).layers, { timeout: 15_000 }).toEqual(['clock'])
   await expect
     .poll(async () => (await state(page)).peak, { intervals: [100, 150, 200, 250] })

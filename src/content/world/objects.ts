@@ -60,7 +60,7 @@ export function objectPoint(id: string): Point | null {
 }
 
 /** Inputs the presenter sends for what the body does, not for a place (night 3's corridor). */
-export const BODY_TARGETS = new Set(['corridor_ran', 'corridor_turned'])
+export const BODY_TARGETS = new Set(['corridor_ran', 'corridor_turned', 'clock_wound'])
 
 /** Ids that are not places but parts of the phone held in the hand. */
 export const PHONE_TARGETS = new Set(['phone_message', 'phone_send', 'phone_call'])

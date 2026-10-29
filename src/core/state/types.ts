@@ -39,6 +39,10 @@ export type SfxId =
   | 'crows'
   | 'pipes'
   | 'car_pass'
+  | 'ringback'
+  | 'ratchet'
+  | 'suitcase'
+  | 'engine'
 
 /** Screen effect ids (spec section 6). */
 export type FxId =

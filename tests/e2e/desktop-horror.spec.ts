@@ -141,6 +141,8 @@ test('desktop: the clock moves only while unseen; the mirror turns half a second
   await boot(page, 'desktop')
   await page.evaluate(() => window.__game.startNight(3))
   await expect(page.locator('.desktop-game')).toHaveAttribute('data-sequence', 'n3')
+  // The clock moves only after 02:20 (BEATS night 3 #6).
+  await page.evaluate(() => window.__game.setClock('02:21'))
   const clock = objectPoint('clock')!
   // Facing the clock from the room: it stays where it is, however long the player looks.
   await page.evaluate(

@@ -87,7 +87,8 @@ export type Action =
   | { type: 'form' }
   | { type: 'timeScale'; factor: number }
   | { type: 'fade'; to: 'black' | 'clear'; ms: number }
-  | { type: 'daylight'; on: boolean }
+  /** Day or night through the windows; `ms` lets it change slowly (ending A's dusk). */
+  | { type: 'daylight'; on: boolean; ms?: number }
   | { type: 'setClock'; at: GameClock }
   | { type: 'clockFreeze'; on: boolean }
   | { type: 'control'; limit: 'none' | 'shuffle' | 'locked' }
@@ -218,6 +219,8 @@ export interface WorldState {
   timeScale: number
   power: boolean
   daylight: boolean
+  /** How long the last change of daylight takes (0: at once). */
+  daylightMs: number
   windows: 'lit' | 'floorByFloor' | 'allAtOnce'
   scene: 'flat' | 'day' | 'silence' | 'street' | 'clock' | 'off'
   doors: Record<ObjectId, 'open' | 'ajar' | 'closed'>

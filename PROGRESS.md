@@ -31,10 +31,54 @@ Redesign phases (REDESIGN_PROMPT.md, overrides FIX_PROMPT and PROMPT; based on `
 - [x] R1 — Engine (Director, clock, triggers, ambient, save v2, metrics:design)
 - [x] R2 — Night 1 vertical slice on desktop (reviewed by the owner: "davom et")
 - [x] R3 — Nights 2–5 on desktop
-- [ ] R4 — Endings as set pieces
+- [ ] R4 — Endings as set pieces (built; ✋ awaiting owner review of the videos)
 - [ ] R5 — Mobile magic window + stills fallback
 - [ ] R6 — Fear pass
 - [ ] R7 — Full QA
+
+## R4 — Endings as set pieces (✋ awaiting owner review, 2026-10-30)
+
+- A, B and C are played in the world, with no title or card (DECISIONS 88). Titles stay in
+  the gallery.
+  - A: 48's door shuts; darkness; 48 weeks later in daylight, the body only shuffling. Through
+    the wall: a suitcase, keys and the landlord, then 47's unanswered phone. The light dies
+    over 10 s; the only knock glyph in the game appears; the player's knock and EA-02.
+  - B: down the walkable stairs past 43 (light under the door, her TV), then out into the
+    snowy yard to an idling bus with its door open (`exterior.ts`, `Bus.tsx`). On board,
+    "Onam" calls with no answer button. Lamps slide past; for one frame someone sits behind
+    (a real mirror on the GPU).
+  - C: the clock is wound by hand: a clockwise circular drag or holding E, with ratchet
+    clicks and haptics; six taps on the key on the phone fallback. The ticking; the minute
+    hand to 3:18; no knock. The power comes back slowly, then the call: two ringback tones,
+    EC-02 in the centre.
+- Fallbacks so no ending can get stuck: A knocks by itself after 90 s; B goes out after 25 s
+  and boards after 50 s.
+- Four pinned CC0 sounds (DECISIONS 89): ringback, ratchet, suitcase, bus engine.
+- Found while recording, and fixed:
+  - In A the player was put 2.4 m from the wall but could shuffle only 1.5 m, so the knock
+    could not be given. A unit test now guards the spot.
+  - GPU geometry counts grew on a night's first view (lazy uploads). Every night now uploads
+    all its geometry once at its start (`primeGeometries`). The quality governor ignores
+    that frame, and the 3rd floor is drawn only from the stairs.
+- Tests:
+  - New `tests/unit/director/endings.spec.ts` (9 tests).
+  - The e2e ending tests now play the new inputs: B walks down the stairs and out to the bus;
+    A waits for the knock glyph; C holds E to wind.
+  - `npm run check` is green with 318 unit tests.
+- Evidence (ignored folder `audit/screenshots/r4/`), all real time on desktop with real keys
+  and mouse, from night 5 after "Eshikni och". Playwright video has no sound.
+
+  | Ending | Video           | Length | Contact sheet          |
+  | ------ | --------------- | ------ | ---------------------- |
+  | A      | `ending-A.webm` | 1:49   | `contact-ending-A.jpg` |
+  | B      | `ending-B.webm` | 2:13   | `contact-ending-B.jpg` |
+  | C      | `ending-C.webm` | 1:09   | `contact-ending-C.jpg` |
+
+- Known:
+  - On software GL, A's "weeks later" daylight reads dim (R6).
+  - The desktop performance e2e (≥ 55 FPS, high tier) fails on this machine today for the R2
+    commit as well (48 FPS), so it is the environment, not R3/R4. The room now draws fewer
+    calls than R2 (205 vs 231).
 
 ## R3 — Nights 2–5 on desktop (done, 2026-10-29)
 
@@ -92,14 +136,15 @@ mumkin"). R3 has no gate; R4 stops with videos.
 - Gates (`metrics:design`):
 
   | Night | 3:17 by itself | Silence | Reading | Wordless beats |
-  | --- | --- | --- | --- | --- |
-  | n1 | 359 s | 7 s | 6% | 88% |
-  | n2 | 349 s | 7 s | 14% | 70% |
-  | n3 | 350 s | 7 s | 8% | 84% |
-  | n4 | 252 s | 7 s | 6% | 78% |
-  | n5 | 232 s | 8 s | 3% | 84% |
+  | ----- | -------------- | ------- | ------- | -------------- |
+  | n1    | 359 s          | 7 s     | 6%      | 88%            |
+  | n2    | 349 s          | 7 s     | 14%     | 70%            |
+  | n3    | 350 s          | 7 s     | 8%      | 84%            |
+  | n4    | 252 s          | 7 s     | 6%      | 78%            |
+  | n5    | 232 s          | 8 s     | 3%      | 84%            |
 
   The whole game has 524 visible words; all three endings are reached.
+
 - Tests: 301 unit tests pass, including the new `nights.spec.ts` and `stairwell.spec.ts`; three
   tests were retimed (DECISIONS 86). `npm run check` is green.
 - Evidence (ignored folder `audit/screenshots/r3/`):
@@ -109,6 +154,7 @@ mumkin"). R3 has no gate; R4 stops with videos.
   - `ultra-sheet.jpg`: the TV's picture on the GPU path.
 
   All at 60 FPS on software GL.
+
 - Not built yet: DECISIONS 87 (details for R6). Mobile is still the viewpoint fallback; new
   hotspots were added for the new objects.
 

@@ -20,6 +20,10 @@ export interface GameApi {
     phone: { place: string; screen: string; missed: number }
     readable: string | null
     waiting: string | null
+    objects: Record<string, string>
+    doors: Record<string, string>
+    figure: string | null
+    frozen: boolean
   } | null
   firedBeats: () => string[]
   interactables: () => string[]

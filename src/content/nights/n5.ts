@@ -169,6 +169,18 @@ export const night5: Sequence = {
       when: isFlag('open_the_door'),
       actions: [{ type: 'ending', id: 'A' }],
     })),
+    {
+      // Unchaining and opening the entrance (the way to the stairs).
+      id: 'n5.open_front',
+      trigger: on.use('front_door'),
+      when: not(isFlag('front_open')),
+      actions: [
+        flag('front_open'),
+        flag('chain_on', false),
+        { type: 'door', id: 'front_door', state: 'open' },
+        sound('chain', 'front_door'),
+      ],
+    },
     // B: down the stairs, any time tonight.
     {
       id: 'n5.ending_b',

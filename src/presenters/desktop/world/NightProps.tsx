@@ -7,6 +7,7 @@ import { objectPoint } from '@/content/world/objects'
 import { REFLECTION_LAYER } from '../figure'
 import { tvScreen } from './Figure'
 import { softwareMaterial } from './softwareMaterial'
+import { primeUpload } from './prime'
 import type { SurfaceMaterials } from './materials'
 
 /**
@@ -17,6 +18,7 @@ import type { SurfaceMaterials } from './materials'
  * clock leaves on the wallpaper. Every state comes from the Director's world objects.
  */
 type Objects = Record<string, string>
+const OFF_THE_WALL = new Set(['in_hand', 'winding', '3:18'])
 
 function canvasTexture(w: number, h: number, draw: (c: CanvasRenderingContext2D) => void) {
   const canvas = document.createElement('canvas')
@@ -270,15 +272,24 @@ export function NightProps({
     [parts],
   )
   const palmAt = useRef(-1)
+  const palm = useRef<THREE.Mesh>(null)
+  const root = useRef<THREE.Group>(null)
+  const gl = useThree((state) => state.gl)
+  // Uploaded once now, so a change that appears later does not upload mid-scare.
+  useEffect(() => {
+    if (root.current) primeUpload(gl, root.current)
+  }, [gl, parts])
   useFrame(({ clock }) => {
     // The print fades over twelve seconds once it has appeared.
     if (objects['party_wall'] === 'palm') {
       if (palmAt.current < 0) palmAt.current = clock.elapsedTime
       const t = clock.elapsedTime - palmAt.current
       parts.palm.opacity = Math.max(0, Math.min(1, t / 1.5) * (1 - t / 12)) * 0.8
+      if (palm.current) palm.current.visible = parts.palm.opacity > 0
     } else {
       palmAt.current = -1
       parts.palm.opacity = 0
+      if (palm.current) palm.current.visible = false
     }
   })
   const wardrobe = objectById('wardrobe')!
@@ -290,7 +301,7 @@ export function NightProps({
   const board = objectPoint('floorboard')!
   const seal = objects['seal'] ?? 'intact'
   return (
-    <group name="night-props">
+    <group name="night-props" ref={root}>
       {/* The wardrobe: two leaves on the corridor wall; open, they show the back wall. */}
       {[-1, 1].map((side) => {
         // Hinged at the outer edges, swinging out into the corridor.
@@ -313,6 +324,7 @@ export function NightProps({
         )
       })}
       <mesh
+        visible={open}
         position={[PARTY_X + 0.095, 1.2, wardrobe.position[2]]}
         rotation-y={Math.PI / 2}
         material={parts.tally}
@@ -320,98 +332,98 @@ export function NightProps({
         <planeGeometry args={[1.0, 1.25]} />
       </mesh>
       <TvScreen state={objects['tv'] ?? 'off'} detailed={detailed} />
-      {objects['mirror_cabinet'] === 'open' && (
-        <group position={cabinet.position}>
-          {/* Inside: dark shelves where the glass was; the door swung out to the left. */}
-          <mesh
-            position={[0, cabinet.size[1] / 2, cabinet.size[2] / 2 + 0.006]}
-            material={parts.dark}
-          >
-            <planeGeometry args={[cabinet.size[0] * 0.92, cabinet.size[1] * 0.88]} />
+      <group visible={objects['mirror_cabinet'] === 'open'} position={cabinet.position}>
+        {/* Inside: dark shelves where the glass was; the door swung out to the left. */}
+        <mesh
+          position={[0, cabinet.size[1] / 2, cabinet.size[2] / 2 + 0.006]}
+          material={parts.dark}
+        >
+          <planeGeometry args={[cabinet.size[0] * 0.92, cabinet.size[1] * 0.88]} />
+        </mesh>
+        <group position={[-cabinet.size[0] / 2, 0, cabinet.size[2] / 2 + 0.01]} rotation-y={-1.9}>
+          <mesh position={[cabinet.size[0] / 2, cabinet.size[1] / 2, 0]} material={parts.glass}>
+            <boxGeometry args={[cabinet.size[0] * 0.95, cabinet.size[1] * 0.9, 0.015]} />
           </mesh>
-          <group position={[-cabinet.size[0] / 2, 0, cabinet.size[2] / 2 + 0.01]} rotation-y={-1.9}>
-            <mesh position={[cabinet.size[0] / 2, cabinet.size[1] / 2, 0]} material={parts.glass}>
-              <boxGeometry args={[cabinet.size[0] * 0.95, cabinet.size[1] * 0.9, 0.015]} />
-            </mesh>
-          </group>
         </group>
-      )}
+      </group>
       <mesh
+        ref={palm}
+        visible={false}
         position={[PARTY_X + 0.112, 1.42, -0.45]}
         rotation-y={Math.PI / 2}
         material={parts.palm}
       >
         <planeGeometry args={[0.2, 0.25]} />
       </mesh>
-      {objects['room_window'] === 'frost' && (
-        <mesh
-          position={[
-            window.position[0],
-            window.position[1] + window.size[1] / 2,
-            window.position[2] + 0.06,
-          ]}
-          material={parts.frost}
-        >
-          <planeGeometry args={[window.size[0] * 0.92, window.size[1] * 0.9]} />
+      <mesh
+        visible={objects['room_window'] === 'frost'}
+        position={[
+          window.position[0],
+          window.position[1] + window.size[1] / 2,
+          window.position[2] + 0.06,
+        ]}
+        material={parts.frost}
+      >
+        <planeGeometry args={[window.size[0] * 0.92, window.size[1] * 0.9]} />
+      </mesh>
+      <group
+        visible={objects['floorboard'] === 'raised'}
+        position={[board[0], 0, board[2]]}
+        rotation-y={0.2}
+      >
+        <mesh position={[0, 0.002, 0]} rotation-x={-Math.PI / 2} material={parts.dark}>
+          <planeGeometry args={[0.12, 0.7]} />
         </mesh>
-      )}
-      {objects['floorboard'] === 'raised' && (
-        <group position={[board[0], 0, board[2]]} rotation-y={0.2}>
-          <mesh position={[0, 0.002, 0]} rotation-x={-Math.PI / 2} material={parts.dark}>
-            <planeGeometry args={[0.12, 0.7]} />
-          </mesh>
-          <mesh position={[0, 0.045, 0.08]} rotation-x={0.12} material={parts.board} castShadow>
-            <boxGeometry args={[0.12, 0.022, 0.72]} />
-          </mesh>
-        </group>
-      )}
+        <mesh position={[0, 0.045, 0.08]} rotation-x={0.12} material={parts.board} castShadow>
+          <boxGeometry args={[0.12, 0.022, 0.72]} />
+        </mesh>
+      </group>
       {/* 48's seal across the leaf's gap on the landing side; torn, half of it on the floor. */}
       <group position={[mirrorX(0) + 0.42, 1.25, 4.79 + extension]}>
-        {seal === 'intact' ? (
-          <mesh rotation-z={-0.12} material={parts.seal}>
-            <planeGeometry args={[0.36, 0.07]} />
-          </mesh>
-        ) : (
-          <mesh position={[0.1, 0.01, 0]} rotation-z={-0.4} material={parts.seal}>
-            <planeGeometry args={[0.16, 0.065]} />
-          </mesh>
-        )}
-      </group>
-      {seal !== 'intact' && (
+        <mesh visible={seal === 'intact'} rotation-z={-0.12} material={parts.seal}>
+          <planeGeometry args={[0.36, 0.07]} />
+        </mesh>
         <mesh
-          position={[mirrorX(0) + 0.15, 0.003, 5.05 + extension]}
-          rotation={[-Math.PI / 2, 0, 0.7]}
+          visible={seal !== 'intact'}
+          position={[0.1, 0.01, 0]}
+          rotation-z={-0.4}
           material={parts.seal}
         >
-          <planeGeometry args={[0.2, 0.065]} />
+          <planeGeometry args={[0.16, 0.065]} />
         </mesh>
-      )}
+      </group>
+      <mesh
+        visible={seal !== 'intact'}
+        position={[mirrorX(0) + 0.15, 0.003, 5.05 + extension]}
+        rotation={[-Math.PI / 2, 0, 0.7]}
+        material={parts.seal}
+      >
+        <planeGeometry args={[0.2, 0.065]} />
+      </mesh>
       {/* Where the clock hung: the wallpaper under it kept its colour. */}
-      {(objects['clock'] === 'shifted' || objects['clock'] === 'in_hand') && (
-        <mesh
-          position={[
-            clock.position[0],
-            clock.position[1] + clock.size[1] / 2,
-            clock.position[2] - 0.02,
-          ]}
-          material={parts.pale}
-        >
-          <circleGeometry args={[clock.size[0] / 2 + 0.01, 32]} />
-        </mesh>
-      )}
-      {objects['clock'] === 'in_hand' && objects['diary_7'] !== 'taken' && (
-        <mesh
-          position={[
-            clock.position[0] + 0.03,
-            clock.position[1] + clock.size[1] / 2 - 0.02,
-            clock.position[2] - 0.015,
-          ]}
-          rotation-z={0.15}
-          material={parts.paper}
-        >
-          <planeGeometry args={[0.1, 0.14]} />
-        </mesh>
-      )}
+      <mesh
+        visible={objects['clock'] === 'shifted' || OFF_THE_WALL.has(objects['clock'] ?? '')}
+        position={[
+          clock.position[0],
+          clock.position[1] + clock.size[1] / 2,
+          clock.position[2] - 0.02,
+        ]}
+        material={parts.pale}
+      >
+        <circleGeometry args={[clock.size[0] / 2 + 0.01, 32]} />
+      </mesh>
+      <mesh
+        visible={OFF_THE_WALL.has(objects['clock'] ?? '') && objects['diary_7'] !== 'taken'}
+        position={[
+          clock.position[0] + 0.03,
+          clock.position[1] + clock.size[1] / 2 - 0.02,
+          clock.position[2] - 0.015,
+        ]}
+        rotation-z={0.15}
+        material={parts.paper}
+      >
+        <planeGeometry args={[0.1, 0.14]} />
+      </mesh>
     </group>
   )
 }

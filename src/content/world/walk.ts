@@ -8,6 +8,7 @@ import {
   type Room,
 } from './layout'
 import { stairHeight } from './stairwell'
+import { yardHeight } from './exterior'
 
 /**
  * Walkable floor derived from the world layout: inside any room (or a passable doorway),
@@ -104,6 +105,10 @@ const SAMPLES = [
 export function standAt(x: number, z: number, feet: number, options: WalkOptions): number | null {
   const level = Math.abs(feet) < 0.45
   if (level && canWalk(x, z, options)) return 0
+  // Outside in the yard (ending B): flat ground, every edge of the body on it.
+  const ground = yardHeight(x, z, feet)
+  if (ground !== null)
+    return SAMPLES.every(([dx, dz]) => yardHeight(x + dx, z + dz, feet) !== null) ? ground : null
   const h = stairHeight(x, z, feet)
   if (h === null) return null
   const floor = options.flat48 ? FLOOR_ALL : FLOOR_47

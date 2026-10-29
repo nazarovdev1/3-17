@@ -98,6 +98,10 @@ Freesound recordings are excerpted, mixed to mono, filtered and loudness-normali
 | Crows at Dawn 2 | sound | silentseason | [Freesound](https://freesound.org/people/silentseason/sounds/335871/) | CC0-1.0 |
 | water drain though pipes under metal sink2.flac | sound | kyles | [Freesound](https://freesound.org/people/kyles/sounds/637942/) | CC0-1.0 |
 | Car Passing Suburb | sound | robotjay | [Freesound](https://freesound.org/people/robotjay/sounds/275164/) | CC0-1.0 |
+| ringbackA | sound | FlorsTristi | [Freesound](https://freesound.org/people/FlorsTristi/sounds/723841/) | CC0-1.0 |
+| Clock Wind.wav | sound | adeluc4 | [Freesound](https://freesound.org/people/adeluc4/sounds/125320/) | CC0-1.0 |
+| Rolling suitcase 1 | sound | Aurelon | [Freesound](https://freesound.org/people/Aurelon/sounds/423707/) | CC0-1.0 |
+| bus_idle_long.wav | sound | Mihacappy | [Freesound](https://freesound.org/people/Mihacappy/sounds/803762/) | CC0-1.0 |
 
 ## Mobile scene renders
 

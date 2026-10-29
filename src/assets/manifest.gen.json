@@ -1941,6 +1941,90 @@
         }
       },
       "bytes": 226805
+    },
+    {
+      "id": "sound_ringback",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "the ringback tone heard in the handset (ending C)",
+      "title": "ringbackA",
+      "author": "FlorsTristi",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/FlorsTristi/sounds/723841/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "ringback", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_ringback-1.flac",
+          "bytes": 246903,
+          "sha256": "a1d82db396a4289a"
+        }
+      },
+      "bytes": 246903
+    },
+    {
+      "id": "sound_ratchet",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "one click of a clock key being wound (ending C)",
+      "title": "Clock Wind.wav",
+      "author": "adeluc4",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/adeluc4/sounds/125320/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "ratchet", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_ratchet-1.flac",
+          "bytes": 16875,
+          "sha256": "b890d22b3cd87f47"
+        }
+      },
+      "bytes": 16875
+    },
+    {
+      "id": "sound_suitcase",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "a suitcase rolled across the next flat (ending A)",
+      "title": "Rolling suitcase 1",
+      "author": "Aurelon",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/Aurelon/sounds/423707/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "suitcase", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_suitcase-1.flac",
+          "bytes": 96760,
+          "sha256": "203394ebb90f4515"
+        }
+      },
+      "bytes": 96760
+    },
+    {
+      "id": "sound_engine",
+      "kind": "sound",
+      "group": "flat47",
+      "tier": "small",
+      "purpose": "an early city bus idling with its door open (ending B)",
+      "title": "bus_idle_long.wav",
+      "author": "Mihacappy",
+      "source": "freesound",
+      "sourceUrl": "https://freesound.org/people/Mihacappy/sounds/803762/",
+      "license": "CC0-1.0",
+      "audio": { "cue": "engine", "loop": false },
+      "files": {
+        "v1": {
+          "path": "assets/sounds/sound_engine-1.flac",
+          "bytes": 192008,
+          "sha256": "0f7b67ce460a9aae"
+        }
+      },
+      "bytes": 192008
     }
   ]
 }

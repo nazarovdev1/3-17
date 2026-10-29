@@ -1,5 +1,6 @@
 import { WORLD, inRect, type Rect } from './layout'
 import { LOWER_ZONES, isBelow, lowerZonesAt } from './stairwell'
+import { isOutside, outsideZonesAt } from './exterior'
 
 /**
  * Places the Director listens for (docs/BEATS.md triggers). Every room of the plan is a zone
@@ -16,6 +17,7 @@ export const EXTRA_ZONES: { id: string; rect: Rect }[] = [
 
 /** Zones containing a floor point (rooms by id, plus EXTRA_ZONES); feet below 0 are downstairs. */
 export function zonesAt(x: number, z: number, feet = 0): string[] {
+  if (isOutside(feet)) return outsideZonesAt(x, z)
   if (isBelow(feet)) return lowerZonesAt(x, z, feet)
   const out: string[] = []
   for (const room of WORLD.rooms)
@@ -29,4 +31,6 @@ export const ZONE_IDS: ReadonlySet<string> = new Set([
   ...WORLD.rooms.map((r) => r.id),
   ...EXTRA_ZONES.map((z) => z.id),
   ...LOWER_ZONES,
+  'yard',
+  'bus_door',
 ])

@@ -19,11 +19,13 @@ import { phoneTime } from './phone'
 import { Rustam } from './world/Rustam'
 import { Downstairs } from './world/Downstairs'
 import { NightProps } from './world/NightProps'
+import { Bus } from './world/Bus'
 import { Furniture, placeClock, type Models } from './world/Furniture'
 import { Lighting } from './world/Lighting'
 import { loadSurfaces, type SurfaceMaterials } from './world/materials'
 import { Outside } from './world/Outside'
 import { softwareModel } from './world/software'
+import { primeGeometries } from './world/prime'
 
 /**
  * Flat 47, the landing and flat 48, built from src/content/world/layout.ts with the
@@ -63,17 +65,22 @@ function useWorldAssets(detailed: boolean): Loaded | null {
 }
 
 const SKIP = new Set(['clock', 'phone', 'room_chair', 'wardrobe'])
+/** The clock's states in which it is off the wall, in both hands (night 5, ending C). */
+const HELD = new Set(['in_hand', 'winding', '3:18'])
 
 function Clock({
   models,
   requested,
   inHand,
+  past317,
   detailed,
 }: {
   models: Models
   requested: boolean
   /** Night 5: off its nail and held low in both hands. */
   inHand: boolean
+  /** Ending C: wound, the minute hand has moved on to 3:18. */
+  past317: boolean
   detailed: boolean
 }) {
   const camera = useThree((s) => s.camera)
@@ -103,6 +110,19 @@ function Clock({
     }
   }
   useEffect(() => place(shifted.current))
+  // One minute on: the minute hand turns 6° clockwise about the face's normal.
+  const turned = useRef(false)
+  useEffect(() => {
+    const hand = node?.getObjectByName('wall_clock_minute_hand')
+    if (!hand?.parent || !group.current || turned.current === past317) return
+    group.current.updateMatrixWorld(true)
+    const normal = new THREE.Vector3(0, 0, 1).transformDirection(group.current.matrixWorld)
+    const parent = new THREE.Quaternion()
+    hand.parent.getWorldQuaternion(parent)
+    const axis = normal.applyQuaternion(parent.invert()).normalize()
+    hand.rotateOnAxis(axis, ((past317 ? -1 : 1) * Math.PI) / 30)
+    turned.current = past317
+  }, [node, past317])
   const forward = useRef(new THREE.Vector3())
   useFrame(() => {
     if (inHand && group.current) {
@@ -178,6 +198,17 @@ export function World({
     () => new Set([...lightsOff, ...(appearance?.darkCircuits ?? [])]),
     [lightsOff, appearance],
   )
+  const gl = useThree((s) => s.gl)
+  // Each night (and the first frame of the world) uploads every geometry it holds, shown or
+  // not: nothing reaches the GPU later in the middle of the night.
+  const sequence = world.sequence
+  useEffect(() => {
+    if (!assets) return
+    const id = requestAnimationFrame(() => {
+      primeGeometries(gl, scene)
+    })
+    return () => cancelAnimationFrame(id)
+  }, [assets, gl, scene, sequence])
   useEffect(() => {
     if (!assets) return
     scene.environment = shadows ? assets.environment : null
@@ -209,7 +240,8 @@ export function World({
       <Clock
         models={assets.models}
         requested={world.objects['clock'] === 'shifted'}
-        inHand={world.objects['clock'] === 'in_hand'}
+        inHand={HELD.has(world.objects['clock'] ?? '')}
+        past317={world.objects['clock'] === '3:18'}
         detailed={shadows}
       />
       <NightProps
@@ -231,6 +263,7 @@ export function World({
       <Lighting
         outage={outage}
         daylight={world.daylight}
+        daylightMs={world.daylightMs}
         lightsOff={dark}
         extension={extension}
         shadows={shadows}
@@ -270,6 +303,9 @@ export function World({
           detailed={shadows}
         />
       </group>
+      {world.sequence === 'endB' && (
+        <Bus moving={world.objects['bus'] === 'moving'} detailed={shadows} />
+      )}
       <Rustam
         state={world.objects['rustam'] ?? 'gone'}
         keysInLock={world.objects['key_ring'] === 'in_lock'}

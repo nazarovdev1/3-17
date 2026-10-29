@@ -458,3 +458,34 @@ Android phones"), recorded here.
     - Night 5: the curtain in the draught; the brass key's glint.
 
     Each has a sound or a simpler visual stand-in, or the beat still works without it.
+
+88. **R4: the endings are played, not shown.** No title or card appears before or during an
+    ending; titles exist only in the gallery, as before.
+    - **A:** 48's door shuts behind the player, then 6 s of darkness and heartbeat. A cut to
+      48 weeks later in daylight: the body can only shuffle within 1.5 m. Through the wall a
+      suitcase, keys and the landlord's line; then 47's phone rings five times. The daylight
+      dies over 10 s (`daylight` takes `ms`). Then a knock glyph (`• • •`) appears on the wall,
+      the only one in the game. Knocking (three clicks, or E) plays the knock from this side
+      and the voice-styled line EA-02, then black and credits. If the player never knocks,
+      the knock comes by itself after 90 s.
+    - **B:** the player starts on the first flight down. Light shows under 43's door and her
+      TV murmurs. Reaching the 3rd floor blinks the player out into the snowy yard
+      (`exterior.ts`: walkable yard, `bus_door` zone). An old bus idles with its door open. On
+      board (or after 50 s): seated by the window, "Onam" calls with no answer button. The bus
+      moves and lamps slide past. For one frame someone sits a few rows behind; on the GPU the
+      window is a real mirror. Fade, credits. Without stairs to walk (the phone fallback) it
+      goes out after 25 s.
+    - **C:** the body is still and the clock is in both hands. A clockwise circular drag (or
+      holding E) winds the spring: a ratchet click and a light haptic every 30°, about three
+      turns. Then the ticking. The minute hand turns 6° to 3:18 with a loud tick. Five
+      seconds, no knock. The power comes back, the bulbs warming up over two seconds. The
+      phone lights up with a call button. Calling gives black, two ringback tones, and EC-02
+      alone in the centre. Credits.
+89. **Four new pinned CC0 sounds for the endings:** ringback (FlorsTristi 723841), the clock
+    key's ratchet (adeluc4 125320), a rolling suitcase (Aurelon 423707), and a bus idling
+    (Mihacappy 803762). CREDITS and the manifest are generated. Each also has a synthesized
+    fallback, like every cue.
+90. **Downstairs costs nothing from inside the flats.** Its parts are drawn only from the hall
+    outward or below. They are uploaded once on mount, as are the night props, so resource
+    counts stay flat across night transitions. The landing bulb and the stair window fill are
+    moved downstairs instead of adding lights, so the shader set does not grow.

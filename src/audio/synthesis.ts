@@ -32,6 +32,10 @@ export const SOUND_IDS = [
   'crows',
   'pipes',
   'car_pass',
+  'ringback',
+  'ratchet',
+  'suitcase',
+  'engine',
 ] as const satisfies readonly SfxId[]
 
 const DURATIONS: Record<SfxId, number> = {
@@ -64,6 +68,10 @@ const DURATIONS: Record<SfxId, number> = {
   crows: 1.2,
   pipes: 1.5,
   car_pass: 2.5,
+  ringback: 4,
+  ratchet: 0.09,
+  suitcase: 3.2,
+  engine: 4,
 }
 
 function random(seed: number) {
@@ -199,6 +207,24 @@ export function synthSound(id: SfxId, sampleRate = SAMPLE_RATE): Float32Array {
         break
       case 'car_pass':
         value = low * 0.25 * Math.sin((Math.PI * t) / duration) ** 2
+        break
+      // Ending C: the ringback heard in a handset here, 425 Hz, one second on, three off.
+      case 'ringback':
+        value = t < 1 ? sine(425, t) * 0.16 * Math.min(1, t / 0.02, (1 - t) / 0.02) : 0
+        break
+      // The clock's spring being wound: one pawl over one tooth.
+      case 'ratchet':
+        value = hit(t, 2300, 160) * 0.14 + high * 0.08 * Math.exp(-t * 120)
+        break
+      // Ending A: a suitcase rolled across the next flat's floor, small wheels on the joints.
+      case 'suitcase':
+        value =
+          low * 0.22 * Math.sin((Math.PI * t) / duration) +
+          (Math.sin(t * 2 * Math.PI * 3.1) > 0.97 ? high * 0.25 : 0)
+        break
+      // Ending B: a diesel bus idling, heard from inside.
+      case 'engine':
+        value = (sine(31, t) * 0.12 + sine(62, t) * 0.06) * (0.8 + 0.2 * sine(4.3, t)) + low * 0.08
         break
     }
     // Short fades prevent discontinuities; ample headroom for simultaneous cues.

@@ -68,6 +68,7 @@ function freshWorld(sequence: Sequence): WorldState {
     timeScale: 1,
     power: true,
     daylight: false,
+    daylightMs: 0,
     windows: 'lit',
     scene: 'flat',
     doors: {},
@@ -478,6 +479,7 @@ export class Director {
         return
       case 'daylight':
         w.daylight = action.on
+        w.daylightMs = action.ms ?? 0
         return
       case 'setClock':
         w.clock = parseClock(action.at)

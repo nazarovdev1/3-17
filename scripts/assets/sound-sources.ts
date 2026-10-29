@@ -138,4 +138,10 @@ export const SOUND_SOURCES: AssetSourceEntry[] = [
     [[1.5, 6]],
     'a car passing below at night; its lights sweep the ceiling (ambient)',
   ),
+  // Endings (R4): the ringback of ending C, the clock's spring wound by hand, ending A's
+  // new neighbour's suitcase, ending B's bus idling. All pinned CC0.
+  sound('ringback', '723841', [[0, 4]], 'the ringback tone heard in the handset (ending C)'),
+  sound('ratchet', '125320', [[0.5, 0.2]], 'one click of a clock key being wound (ending C)'),
+  sound('suitcase', '423707', [[1, 3.2]], 'a suitcase rolled across the next flat (ending A)'),
+  sound('engine', '803762', [[1, 4]], 'an early city bus idling with its door open (ending B)'),
 ]

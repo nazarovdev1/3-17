@@ -12,7 +12,7 @@ import {
   SRGBColorSpace,
 } from 'three'
 import { audio } from '@/audio/engine'
-import { getDirector, onDirectorEvents, sensors, useGame } from '@/ui/gameStore'
+import { emitDirectorEvents, getDirector, onDirectorEvents, sensors, useGame } from '@/ui/gameStore'
 import { useSettings } from '@/ui/settingsStore'
 import { desktopRuntime } from '@/platform/device/desktopRuntime'
 import { zonesAt } from '@/content/world/zones'
@@ -98,10 +98,15 @@ export function CameraRig({
   const putDown = useRef(-1)
   /** Camera effects the Director asks for: a jolt, a closer look, lying down. */
   const effect = useRef({ jolt: 0, push: 0, lying: false, hands: 0 })
+  const windRef = useRef<(radians: number) => void>(() => undefined)
   const live = useRef({ world, interactables, peeking, extension })
   useLayoutEffect(() => {
     live.current = { world, interactables, peeking, extension }
   }, [world, interactables, peeking, extension])
+  /** Ending C: the spring being wound (radians turned) and the drag that turns it. */
+  const winding = useRef({ turned: 0, clicks: 0, done: false, v: { x: 0, y: -120 } })
+  /** Ending A: where the body is when it can only shuffle (it stays within 1.5 m). */
+  const tether = useRef<Vector3 | null>(null)
   /** Night 3's corridor loop: when it last grew, how long the player has run, stood still. */
   const loop = useRef({ grewAt: 0, running: 0, still: 0, sent: false })
   const lastExtension = useRef(extension)
@@ -174,6 +179,7 @@ export function CameraRig({
           camera.position.set(event.position[0], event.position[1], event.position[2])
           feet.current = event.position[1] - EYE
           angles.current = { yaw: event.yaw, pitch: 0 }
+          tether.current = null
           velocity.current = { x: 0, z: 0 }
         }
       }),
@@ -265,6 +271,24 @@ export function CameraRig({
         drag.x = event.clientX
         drag.y = event.clientY
       }
+      if (live.current.world.objects['clock'] === 'winding') {
+        // A circular drag around the middle of the screen winds the spring, against its
+        // resistance; the eyes stay on the clock.
+        const w = winding.current
+        const before = { ...w.v }
+        w.v.x += dx
+        w.v.y += dy
+        const r = Math.hypot(w.v.x, w.v.y)
+        const k = Math.min(260, Math.max(60, r)) / Math.max(r, 1e-6)
+        w.v.x *= k
+        w.v.y *= k
+        const turn = Math.atan2(
+          before.x * w.v.y - before.y * w.v.x,
+          before.x * w.v.x + before.y * w.v.y,
+        )
+        windBy(turn * 0.6)
+        return
+      }
       if (desktopRuntime.inspecting) {
         // Turning the paper over in the hand, not the head.
         const clampTo = (v: number, m: number) => Math.max(-m, Math.min(m, v))
@@ -289,6 +313,24 @@ export function CameraRig({
         input({ type: 'knock3', target: n.id })
       }
     }
+    function windBy(radians: number) {
+      const w = winding.current
+      if (w.done || radians <= 0) return
+      w.turned += radians
+      // A pawl over a tooth every 30°: a click and a small knock in the hand.
+      const clicks = Math.floor(w.turned / (Math.PI / 6))
+      if (clicks > w.clicks) {
+        w.clicks = clicks
+        audio.play('ratchet')
+        emitDirectorEvents([{ type: 'haptic', pattern: 'light' }])
+      }
+      // About three turns, and the spring has caught.
+      if (w.turned >= Math.PI * 6) {
+        w.done = true
+        input({ type: 'interact', target: 'clock_wound' })
+      }
+    }
+    windRef.current = windBy
     const lockchange = () =>
       onControl(document.pointerLockElement === gl.domElement ? 'lock' : 'drag')
     const lockerror = (event: Event) => {
@@ -332,6 +374,10 @@ export function CameraRig({
     }
     const settings = useSettings.getState().settings
     const { world, interactables } = live.current
+    // Holding E winds the clock too, a little slower than a hand turning it.
+    if (world.objects['clock'] === 'winding' && keys.current.has('e')) windRef.current(delta * 1.4)
+    if (world.objects['clock'] !== 'winding' && winding.current.turned > 0)
+      winding.current = { turned: 0, clicks: 0, done: false, v: { x: 0, y: -120 } }
     const fx = effect.current
     const { yaw } = angles.current
     // Lying on the sofa: eyes on the ceiling; at the peephole or reading: the body stays put.
@@ -369,9 +415,19 @@ export function CameraRig({
     const door48 = world.doors['door48']
     const stretch = live.current.extension
     const next = walkFeet(camera.position.x, feet.current, camera.position.z, dx, dz, {
-      flat48: door48 === 'ajar' || door48 === 'open',
+      // Ending A happens inside 48 with its door shut behind the player.
+      flat48: door48 === 'ajar' || door48 === 'open' || world.sequence === 'endA',
       extension: stretch,
     })
+    // Able to move only a little: a slow shuffle within 1.5 m of where it began.
+    if (world.control === 'shuffle') {
+      tether.current ??= camera.position.clone()
+      const t = tether.current
+      if (Math.hypot(next[0] - t.x, next[2] - t.z) > 1.5) {
+        next[0] = camera.position.x
+        next[2] = camera.position.z
+      }
+    } else tether.current = null
     feet.current = next[1]
     // Someone standing on the landing is in the way like any body.
     if (world.objects['rustam'] && world.objects['rustam'] !== 'gone') {

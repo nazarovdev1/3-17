@@ -7,7 +7,14 @@ import type { Point } from './layout'
  * Pure data so the rules can be tested; World/Figure.tsx renders it.
  */
 export type AppearanceId =
-  'under_door' | 'frosted' | 'stairwell' | 'peephole' | 'tv_reflection' | 'below' | 'tv_sofa'
+  | 'under_door'
+  | 'frosted'
+  | 'stairwell'
+  | 'peephole'
+  | 'tv_reflection'
+  | 'below'
+  | 'tv_sofa'
+  | 'bus_back'
 
 export interface Appearance {
   id: AppearanceId
@@ -142,6 +149,21 @@ const APPEARANCES: Record<AppearanceId, Appearance> = {
     vanishWithin: 0,
     maxSeconds: 40,
     reflectionOnly: true,
+    closedDoors: [],
+    darkCircuits: [],
+    landingDark: false,
+  },
+  // Ending B: a few rows back on the bus, sunk to the seat, facing the front. Shown for one
+  // frame; in the dark window it is behind the player's own reflection.
+  bus_back: {
+    id: 'bus_back',
+    position: [0.55, -8.6, -17.65],
+    yaw: Math.PI / 2,
+    headYaw: 0,
+    vanishWhenUnseen: false,
+    vanishWithin: 0,
+    maxSeconds: 1,
+    reflectionOnly: false,
     closedDoors: [],
     darkCircuits: [],
     landingDark: false,

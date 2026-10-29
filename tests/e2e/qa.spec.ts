@@ -76,7 +76,10 @@ async function fastRoute(page: Page, ending: Ending): Promise<string[]> {
         if (await page.locator('.desktop-game').count())
           await page.evaluate(
             (e) =>
-              e === 'A' ? window.__game.teleport(-4.2, 4.3) : window.__game.teleport(1.6, 6.95),
+              e === 'A'
+                ? window.__game.teleport(-4.2, 4.3)
+                : // A step down the first flight of stairs.
+                  window.__game.teleport(0.9, 8.0, Math.PI, -0.5),
             ending,
           )
         else {
@@ -103,6 +106,11 @@ async function fastRoute(page: Page, ending: Ending): Promise<string[]> {
     }
     if (sequence === 'endA')
       await page.evaluate(() => window.__game.input({ type: 'knock3', target: 'party_wall48' }))
+    if (
+      sequence === 'endC' &&
+      (await page.evaluate(() => window.__game.getWorld()?.objects['clock'])) === 'winding'
+    )
+      await page.evaluate(() => window.__game.input({ type: 'interact', target: 'clock_wound' }))
     if (
       sequence === 'endC' &&
       (await page.evaluate(() => window.__game.getWorld()?.phone.screen)) === 'incoming'
