@@ -967,3 +967,13 @@ The small-Android regression passed after an initial test-harness failure caused
 the React-owned debug overlay; the corrected test hides it instead. The viewed mobile hall
 still shows the closed front door while its movement arrow can cross it. Door operations and
 the complete mobile/desktop visual and real-input audit remain unfinished.
+
+R4.5 continuation (Claude Code): fixed mobile views now respect doors (DECISIONS 98–99,
+`mobile-doors.spec.ts`, `moveOn` e2e helper) and desktop interaction is blocked by walls and
+shut doors (DECISION 100). Screenshots reviewed: hall on a 360x640 phone (door controls and
+corridor still), and lit corner views of every room of flat 47
+(`audit/screenshots/r45/rooms-lit/`). `npm run check`: 333 unit tests green. Still open for
+the gate: a complete real-input walk of all nights, a full placement sign-off of the
+procedural props and the stairwell/exterior (the stairwell is very dark in screenshots and
+its steps read as floating planks), final performance on this HEAD, and the mobile ending
+fast routes after the door change.

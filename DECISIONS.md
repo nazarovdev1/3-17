@@ -528,3 +528,25 @@ Android phones"), recorded here.
     exposes a wall hotspot unconditionally. A story interaction or response wait still
     exposes it, and night 2 exposes listening after the voice. The small-Android test
     checks an unavailable night-5 wall and the available night-2 listening wall.
+98. **Fixed-view doors (R4.5, Claude Code).** On the fallback, a move that crosses a hinged
+    door needs the door open, as on the desktop. A closed door shows a drawn door control in the
+    arrow's place; a tap opens it (and it then stays open: closing is not offered in the
+    fixed views, a deviation until R5's real doors). A door the story holds shut (front door
+    shut by the story or by the under-door figure, entrance 48 before it is left ajar)
+    rattles and does not move. The rest state follows the desktop: the room door rests
+    open, the others shut. Logic is `src/presenters/mobile/doors.ts`, unit-tested.
+99. **The hall always shows the door.** From night 2 the hall view had been replaced by a
+    coat close-up, which hid the front door the forward control belongs to. The hall now
+    always uses the corridor still; the coat and wardrobe are a separate `coat` view
+    reached by a "closer look" control that appears only while something there can be
+    handled. `tests/unit/mobile/stills.spec.ts` keeps its assertion about the coat still
+    and now states it for the `coat` view; the corridor assertion changed from
+    `coat-changed` to `corridor-on` on purpose.
+100.  **Interaction needs line of sight (R4.5).** Reach used a distance and a view cone
+      only, so an object or a door could be used through a wall. `sightBlocked` (walk.ts)
+      tests the plan-view line from the eye to the target against the wall solids (less
+      doorways) and the live door leaves, with 0.15 m slack for things mounted in a wall.
+      A door's own leaf does not block itself. Windows are gazed at, never operated.
+      `tests/unit/validate/sight.spec.ts` also proves that every flat object can be stood
+      at within reach in plain view. `?lit=1` (dev/test builds only) keeps every light
+      circuit on for placement audits.
