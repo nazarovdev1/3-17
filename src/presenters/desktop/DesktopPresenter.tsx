@@ -228,6 +228,12 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
   const sequence = world?.sequence ?? ''
   const lightsOff = useMemo(() => {
     const off = new Set<number>()
+    // Audit builds: ?lit=1 keeps every circuit on so a room can be judged as built.
+    if (
+      (import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1') &&
+      new URLSearchParams(window.location.search).get('lit') === '1'
+    )
+      return off
     CIRCUITS.forEach((name, i) => {
       const mine = switched.sequence === sequence ? switched.on[i] : undefined
       const lit = mine ?? world?.lights[`flat_${name}`] !== 'off'

@@ -30,7 +30,8 @@ describe('interaction sight (nothing is reached through a wall or a shut door)',
 
   it('every object of the flat can be stood at, within reach, in plain view', () => {
     const unreachable: string[] = []
-    for (const object of WORLD.objects.filter( // Windows are looked at (gaze), never operated, and sit inside the facade itself.
+    for (const object of WORLD.objects.filter(
+      // Windows are looked at (gaze), never operated, and sit inside the facade itself.
       (o) => o.room !== 'stairs' && !o.id.includes('window'),
     )) {
       const point = objectPoint(object.id)

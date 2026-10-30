@@ -3,6 +3,7 @@
 Continue work in `C:\horrorr`. The owner asked Claude Code to take over. Speak to the owner in Uzbek; code and docs in English. Read `REDESIGN_PROMPT.md`, `docs/BEATS.md`, `SCRIPT_UZ.md`, `PROGRESS.md` (R4.5), `DECISIONS.md` (91â€“97), and the original request in `C:\Users\Root\.codex\attachments\003ece63-110a-45ff-8729-b95190cd7bdb\Pasted text.txt`. The original request governs: finish R4.5, show evidence and stop at its owner gate; do not start R5 until R4.5 is actually complete and approved. The owner conditionally allowed R5 only if everything was fixed; that condition is not met.
 
 Current main HEAD is `2af58ff`; changes are committed, not pushed. Commits after R4 `37a9375`:
+
 - `d41cf3f`: optional leaf collision geometry and unit tests.
 - `97b9324`: desktop deliberate door interactions and live leaf collision, story-state handling, door-sweep validator, kitchen chair position, software daylight, remove unavailable desktop wall prompt, targeted e2e.
 - `228fbfe`: wardrobe leaf interaction/collision, sweep checks and tests, chair scale, software-GL flat-48 fill.

@@ -78,7 +78,9 @@ describe('mobile renders from the credited desktop world', () => {
           ).toBeDefined()
     expect(stillFor('room', 3, true)).toBe('room-changed')
     expect(stillFor('room', 1, false)).toBe('room-off')
-    expect(stillFor('corridor', 2, true)).toBe('coat-changed')
+    // The hall always shows the front door ahead; the coat is its own closer look.
+    expect(stillFor('corridor', 2, true)).toBe('corridor-on')
+    expect(stillFor('coat', 2, true)).toBe('coat-changed')
     expect(stillFor('corridor', 5, true)).toBe('corridor-cold')
     for (const night of [1, 2, 3, 4, 5])
       expect(stillFor('phone', night, true)).toBe(`phone-night${night}`)
