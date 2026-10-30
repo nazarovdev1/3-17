@@ -524,3 +524,7 @@ Android phones"), recorded here.
 96. **Target the wardrobe leaf.** The open wardrobe no longer shows an interaction glyph
     on empty space between its leaves: the current leaf segments are the targets. The
     real-input test turns to a leaf before closing and also verifies the night-2 story beat.
+97. **Mobile wall hotspot follows available actions.** The fixed-view fallback no longer
+    exposes a wall hotspot unconditionally. A story interaction or response wait still
+    exposes it, and night 2 exposes listening after the voice. The small-Android test
+    checks an unavailable night-5 wall and the available night-2 listening wall.

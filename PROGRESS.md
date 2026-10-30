@@ -961,3 +961,9 @@ exterior audit, mobile door interaction, and ending key-frame comparisons remain
 
 The wardrobe was added to deliberate desktop door interaction and the swing validator;
 its closed and open screenshots were reviewed. Three targeted desktop door tests passed.
+
+Mobile continuation: the wall hotspot no longer appears when no wall action is available.
+The small-Android regression passed after an initial test-harness failure caused by removing
+the React-owned debug overlay; the corrected test hides it instead. The viewed mobile hall
+still shows the closed front door while its movement arrow can cross it. Door operations and
+the complete mobile/desktop visual and real-input audit remain unfinished.

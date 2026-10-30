@@ -35,6 +35,7 @@ function Viewpoints({ paused }: { paused: boolean }) {
   const name = useGame((s) => s.run?.profile?.name ?? '')
   const sanity = useGame((s) => s.run?.sanity ?? 100)
   const lateNight = useGame((s) => !!s.run?.flags['late_night'])
+  const canListen = useGame((s) => !!s.run?.flags['n2_voice_done']) && world.sequence === 'n2'
   const interactableList = useGame((s) => s.interactables)
   const settings = useSettings((s) => s.settings)
   const input = useGame((s) => s.input)
@@ -73,13 +74,16 @@ function Viewpoints({ paused }: { paused: boolean }) {
     () =>
       layoutHotspots(
         view.objects.filter(
-          (o) => interactables.has(o.id) || o.id === world.waiting || WALLS.has(o.id),
+          (o) =>
+            interactables.has(o.id) ||
+            o.id === world.waiting ||
+            (o.id === 'party_wall' && canListen),
         ),
         stillManifest.frames[frameId]?.anchors ?? {},
         size.width,
         size.height,
       ),
-    [view, interactables, world.waiting, frameId, size],
+    [view, interactables, world.waiting, frameId, size, canListen],
   )
   const paper = world.readable ? READABLES[world.readable] : undefined
 
