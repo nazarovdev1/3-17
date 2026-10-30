@@ -554,3 +554,21 @@ Android phones"), recorded here.
       swings into the hall, hinged at x = 0.45; fully open it lies 0.1–0.2 m from a body walking
       at x = 0.1, which the live leaf collision (correctly) stops. The real-input routes now
       walk the doorway at x = -0.1. Assertions are unchanged.
+102.  **R5: the phone gets the same 3D flat (magic window); the stills stay as the fallback.**
+      `DesktopPresenter` takes `magic`; `MagicRig` replaces `CameraRig`. The head turns by
+      the phone (Telegram `DeviceOrientation`, else the browser's `deviceorientation` with the
+      iOS permission asked inside the first tap, else a finger drag); the recentre button
+      re-zeroes. The body only glides between the viewpoints of `presenters/magic/nodes.ts`
+      (floor markers; a shut door shows a door control and is tapped open first), tapped
+      objects are projected hotspots in reach (2.8 m) and plain view (`sightBlocked`). Phones
+      render at DPR ≤ 1.5, no ambient occlusion or bloom, non-soft shadows. Weak devices
+      (software GL, < 3 GB, < 4 cores, no WebGL2), `?magic=0`, a lost context or a slow
+      governor verdict use the stills. `?magic=1` forces the window in debug/test builds
+      (headless GPUs are software rasterisers).
+      `tests/unit/magic/nodes.spec.ts` proves every viewpoint is standable, every edge is
+      walkable on the floor, doors lie on their edges and every object a night asks the
+      player to use is tappable from some viewpoint.
+103.  **Ending A's resting place moved onto the floor.** Its `place` (-2.6, 0.1) lay in 48's
+      closet, behind a wall from the knock target; since sight is required (DECISION 100) it
+      could not be reached by a real player. It is now (-3.4, -0.25) on the room's floor,
+      facing the wall (sight.spec covers it). Beat content is otherwise unchanged.

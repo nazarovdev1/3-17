@@ -12,7 +12,7 @@ import {
   Vignette,
 } from '@react-three/postprocessing'
 import { BlendFunction, ToneMappingMode } from 'postprocessing'
-import { ACESFilmicToneMapping, NoToneMapping, PCFSoftShadowMap } from 'three'
+import { ACESFilmicToneMapping, NoToneMapping, PCFShadowMap, PCFSoftShadowMap } from 'three'
 import { StillCapture } from './StillCapture'
 import { useGame } from '@/ui/gameStore'
 import { useSettings } from '@/ui/settingsStore'
@@ -28,20 +28,28 @@ import { World } from './World'
 import { CameraRig, type Near } from './CameraRig'
 import { Inspect, readableOf } from './Inspect'
 import { PeepholeEffect } from './PeepholeEffect'
+import { MagicRig } from '../magic/MagicRig'
+import { MagicHud } from '../magic/MagicHud'
 import './desktop.css'
 
 interface Props {
   paused: boolean
   onFallback: () => void
+  /** The phone's magic window: the same flat, turned by the phone, glided by taps (R5). */
+  magic?: boolean
 }
+/** Phones render at most this many pixels per CSS pixel. */
+const MAGIC_DPR = 1.5
 function Runtime({
   tier,
   paused,
+  magic,
   onTier,
   onFallback,
   onLost,
 }: {
   tier: QualityTier
+  magic: boolean
   paused: boolean
   onTier: (tier: QualityTier) => void
   onFallback: () => void
@@ -55,10 +63,10 @@ function Runtime({
   const frames = useRef(0)
   const primes = useRef(0)
   useEffect(() => {
-    setDpr(renderDpr(tier, profile, size.height))
+    setDpr(Math.min(magic ? MAGIC_DPR : Infinity, renderDpr(tier, profile, size.height)))
     governor.current.tier = tier
     governor.current.resetWindow()
-  }, [tier, size.height, setDpr, profile])
+  }, [tier, size.height, setDpr, profile, magic])
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout> | null = null
     const lost = (event: Event) => {
@@ -145,11 +153,13 @@ function PostEffects({
   tier,
   sanity,
   reduced,
+  magic,
 }: {
   peephole: boolean
   tier: QualityTier
   sanity: number
   reduced: boolean
+  magic: boolean
 }) {
   const { size, gl } = useThree()
   const profile = useMemo(() => renderProfile(gl), [gl])
@@ -159,7 +169,7 @@ function PostEffects({
   )
   useEffect(() => () => aperture.dispose(), [aperture])
   // Ambient occlusion and bloom only where the GPU can afford them (FIX_PROMPT §2).
-  const rich = tier === 'high' && (!profile.software || profile.ultra)
+  const rich = tier === 'high' && !magic && (!profile.software || profile.ultra)
   const aberration = !reduced && sanity < 70 ? (100 - sanity) * 0.000012 : 0
   if (profile.software && !profile.ultra && !peephole) return <SoftwareOutput />
   return (
@@ -186,7 +196,7 @@ function PostEffects({
     </EffectComposer>
   )
 }
-export default function DesktopPresenter({ paused, onFallback }: Props) {
+export default function DesktopPresenter({ paused, onFallback, magic = false }: Props) {
   const [supported] = useState(() => {
     try {
       const gl = document.createElement('canvas').getContext('webgl2')
@@ -300,8 +310,8 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
       <div className="desktop-view" aria-label={ui('desktop.scene_label')}>
         <Canvas
           onCreated={({ gl }) => setProfile(renderProfile(gl))}
-          dpr={renderDpr(tier, profile, window.innerHeight)}
-          shadows={profile.shadows ? { type: PCFSoftShadowMap } : false}
+          dpr={Math.min(magic ? MAGIC_DPR : Infinity, renderDpr(tier, profile, window.innerHeight))}
+          shadows={profile.shadows ? { type: magic ? PCFShadowMap : PCFSoftShadowMap } : false}
           frameloop={
             paused || lost
               ? 'never'
@@ -326,6 +336,7 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
           <Runtime
             tier={tier}
             paused={paused}
+            magic={magic}
             onTier={setTier}
             onFallback={onFallback}
             onLost={setLost}
@@ -339,41 +350,60 @@ export default function DesktopPresenter({ paused, onFallback }: Props) {
             shadows={profile.shadows}
             peephole={peepholeView}
           />
-          <CameraRig
-            world={world}
-            interactables={interactables}
-            paused={paused}
-            flashlight={flashlight}
-            phoneTorch={phoneTorch}
-            onNear={setNear}
-            onControl={setControl}
-            onFlashlight={toggleFlashlight}
-            onSwitch={toggleSwitch}
-            shadows={profile.shadows}
-            peeking={peeking}
-            onPeek={setPeeking}
-            extension={extension}
-            onExtend={extend}
-          />
-          <Inspect paper={paper} />
+          {magic ? (
+            <MagicRig
+              world={world}
+              interactables={interactables}
+              paused={paused}
+              flashlight={flashlight}
+              phoneTorch={phoneTorch}
+              onSwitch={toggleSwitch}
+              peeking={peeking}
+              onPeek={setPeeking}
+              extension={extension}
+              onExtend={extend}
+            />
+          ) : (
+            <CameraRig
+              world={world}
+              interactables={interactables}
+              paused={paused}
+              flashlight={flashlight}
+              phoneTorch={phoneTorch}
+              onNear={setNear}
+              onControl={setControl}
+              onFlashlight={toggleFlashlight}
+              onSwitch={toggleSwitch}
+              shadows={profile.shadows}
+              peeking={peeking}
+              onPeek={setPeeking}
+              extension={extension}
+              onExtend={extend}
+            />
+          )}
+          {!magic && <Inspect paper={paper} />}
           <PostEffects
             peephole={peepholeView}
             tier={tier}
             sanity={sanity}
             reduced={settings.reduceFlashing}
+            magic={magic}
           />
         </Canvas>
-        <span className="crosshair" aria-hidden="true">
-          ·
-        </span>
-        {glyph && (
+        {!magic && (
+          <span className="crosshair" aria-hidden="true">
+            ·
+          </span>
+        )}
+        {magic && <MagicHud peeking={peeking} paused={paused} onUnpeek={() => setPeeking(false)} />}
+        {glyph && !magic && (
           <span className="use-glyph" aria-hidden="true">
             {glyph}
           </span>
         )}
         {lost && <p className="desktop-recovering">{ui('desktop.recovering')}</p>}
       </div>
-      <PlayOverlays controls={world.night === 1 && world.sequence === 'n1'} />
+      <PlayOverlays controls={!magic && world.night === 1 && world.sequence === 'n1'} />
       <button
         className="pause-corner"
         aria-label={ui('common.pause')}

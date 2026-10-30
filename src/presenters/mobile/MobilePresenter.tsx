@@ -232,7 +232,7 @@ function Viewpoints({ paused }: { paused: boolean }) {
 }
 
 /** The shared wall: one tap answers, three taps knock, press and hold listens. */
-function WallSpot({ target, at }: { target: string; at: { x: number; y: number } }) {
+export function WallSpot({ target, at }: { target: string; at: { x: number; y: number } }) {
   const input = useGame((s) => s.input)
   const taps = useRef<number[]>([])
   const held = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -281,7 +281,13 @@ function WallSpot({ target, at }: { target: string; at: { x: number; y: number }
 }
 
 /** The phone held in front of the eyes: the same screen as on the desktop. */
-function PhoneInHand({ onTap, time }: { onTap: (part: string | null) => void; time: string }) {
+export function PhoneInHand({
+  onTap,
+  time,
+}: {
+  onTap: (part: string | null) => void
+  time: string
+}) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const phone = useGame((s) => s.world!.phone)
   const night = useGame((s) => s.world!.night)

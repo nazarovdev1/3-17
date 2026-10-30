@@ -24,13 +24,13 @@ export function audioScene(screen: Screen, world: WorldState | null): AudioScene
 }
 
 /** One audio owner across presenters; the Director decides what plays and where. */
-export function AudioController({ mode }: { mode: GameMode }) {
+export function AudioController({ mode, spatial }: { mode: GameMode; spatial?: boolean }) {
   const status = useSyncExternalStore(audio.subscribe, audio.getSnapshot)
   const screen = useGame((s) => s.screen)
 
   useEffect(() => {
-    audio.setSpatial(mode === 'desktop')
-  }, [mode])
+    audio.setSpatial(spatial ?? mode === 'desktop')
+  }, [mode, spatial])
   useEffect(() => {
     audio.initialize()
     const telegram = new TelegramAdapter()

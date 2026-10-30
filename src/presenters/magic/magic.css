@@ -1,0 +1,98 @@
+/* The magic window's screen layer: shapes on the 3D view, no sentences. */
+.magic-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  overflow: hidden;
+}
+.magic-hud > button,
+.magic-hud .hotspot,
+.magic-hud .phone-in-hand,
+.magic-hud .paper-in-hand {
+  pointer-events: auto;
+}
+.magic-hud .hotspot {
+  transition:
+    left 70ms linear,
+    top 70ms linear;
+}
+.magic-mark,
+.magic-door {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  transform: translate(-50%, -50%);
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  transition:
+    left 70ms linear,
+    top 70ms linear;
+}
+/* A ring flat on the floor: seen from eye height, an ellipse. */
+.magic-mark span {
+  display: block;
+  width: 40px;
+  height: 18px;
+  margin: 19px auto 0;
+  border: 2px solid rgba(207, 198, 176, 0.85);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(207, 198, 176, 0.35);
+  animation: magic-pulse 2.4s ease-in-out infinite;
+}
+.magic-mark.edge-left span,
+.magic-mark.edge-right span {
+  width: 20px;
+  height: 20px;
+  margin-top: 18px;
+  border-width: 0 0 2px 2px;
+  border-radius: 0;
+  background: none;
+  transform: rotate(45deg);
+}
+.magic-mark.edge-right span {
+  transform: rotate(-135deg);
+}
+@keyframes magic-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.magic-door {
+  display: grid;
+  place-items: center;
+  background: rgba(10, 10, 12, 0.45);
+  border: 1px solid rgba(207, 198, 176, 0.5);
+}
+.magic-door.locked {
+  opacity: 0.6;
+}
+.magic-recenter {
+  position: absolute;
+  left: max(10px, env(safe-area-inset-left));
+  bottom: max(14px, env(safe-area-inset-bottom));
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(207, 198, 176, 0.45);
+  background: rgba(10, 10, 12, 0.35);
+  opacity: 0.6;
+}
+.magic-recenter span {
+  display: block;
+  width: 14px;
+  height: 14px;
+  margin: 0 auto;
+  border: 2px solid var(--paper);
+  border-radius: 50%;
+}
+.magic-unpeek {
+  pointer-events: auto;
+}

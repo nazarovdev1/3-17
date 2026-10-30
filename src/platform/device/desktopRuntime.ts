@@ -47,6 +47,10 @@ export const desktopRuntime = {
   doorChoices: {} as Record<string, boolean>,
   doorLocks: {} as Record<string, boolean>,
   wardrobeChoice: undefined as boolean | undefined,
+  /** Magic window (phones): the viewpoint the body stands at, a glide under way, a sensor. */
+  magicNode: '',
+  magicGliding: false,
+  magicGyro: false,
   wardrobeAngle: 0,
   /** Flats whose furniture is drawn this frame (out of sight behind shut doors otherwise). */
   flatsDrawn: '',

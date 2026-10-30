@@ -47,4 +47,13 @@ describe('interaction sight (nothing is reached through a wall or a shut door)',
     }
     expect(unreachable).toEqual([])
   })
+
+  it('ending A leaves the player where the knock on the wall is within reach and in view', () => {
+    // The place the sequence puts the body (endings.ts, endA.door): a spot on the floor.
+    const [x, z] = [-3.4, -0.25]
+    const wall = objectPoint('party_wall48')!
+    expect(canWalk(x, z, OPEN)).toBe(true)
+    expect(Math.hypot(wall[0] - x, wall[2] - z)).toBeLessThanOrEqual(REACH)
+    expect(sightBlocked(x, z, wall[0], wall[2], {})).toBe(false)
+  })
 })

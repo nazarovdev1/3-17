@@ -58,8 +58,9 @@ export const endingA: Sequence = {
         { type: 'fade', to: 'black', ms: 1200 },
         ...[1800, 3400, 5000, 6600].map((ms) => at(ms, sound('heartbeat', undefined, 0.35))),
         // Cut: 48, weeks later, daylight through dirty glass. Only a slow shuffle.
-        // By the sofa's end, an arm's length from the wall toward 47.
-        at(7600, { type: 'place', position: [-2.6, 1.6, 0.1], yaw: -0.65 }),
+        // By the sofa's end, a step from the wall toward 47, on the room's floor (the old spot
+        // lay in the closet behind a wall: the knock could not be reached, R5 audit).
+        at(7600, { type: 'place', position: [-3.4, 1.6, -0.25], yaw: -1.41 }),
         at(7600, { type: 'daylight', on: true }),
         at(7600, { type: 'control', limit: 'shuffle' }),
         at(7800, { type: 'fade', to: 'clear', ms: 3500 }),

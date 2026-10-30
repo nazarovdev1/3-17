@@ -32,7 +32,7 @@ Redesign phases (REDESIGN_PROMPT.md, overrides FIX_PROMPT and PROMPT; based on `
 - [x] R2 — Night 1 vertical slice on desktop (reviewed by the owner: "davom et")
 - [x] R3 — Nights 2–5 on desktop
 - [ ] R4 — Endings as set pieces (built; ✋ awaiting owner review of the videos)
-- [ ] R5 — Mobile magic window + stills fallback
+- [~] R5 — Mobile magic window + stills fallback (built; ✋ awaiting the owner's test on a real phone)
 - [ ] R6 — Fear pass
 - [ ] R7 — Full QA
 
@@ -977,3 +977,17 @@ the gate: a complete real-input walk of all nights, a full placement sign-off of
 procedural props and the stairwell/exterior (the stairwell is very dark in screenshots and
 its steps read as floating planks), final performance on this HEAD, and the mobile ending
 fast routes after the door change.
+
+## R5 — Mobile magic window (Claude Code)
+
+The owner released R4.5 ("fix the errors, then go on to R5 and finish it"). Built: the 3D flat
+on phones (`src/presenters/magic/`: nodes, MagicRig, MagicHud), device-orientation look,
+recentre, glide markers, door controls, projected object hotspots, wall hold/knock, circle-drag
+clock winding, peephole; routing and fallback in `GameShell` + `platform/device/magic.ts`.
+Evidence (screenshots, no videos): `audit/screenshots/r5/` (walk sheets, magic-*.png).
+`npm run check` 339 unit tests green. e2e `mobile-magic.spec.ts` 9/9 on small-android (360x640)
+and iphone-13 (390x844): glide through every door, gyro, drag, tap a hotspot, ending A knock,
+ending B stairs/bus by glides, ending C winding, context-loss fallback, `magic=0`. Stills
+fallback specs (qa fast routes A/B/C, mobile-doors/wall/scenes/hd) still pass.
+Not done: real-phone check of gyro axes and frame rate (owner gate); no real-input walk of
+nights 1–5 in magic mode beyond the above; stairwell darkness and R6 items remain.

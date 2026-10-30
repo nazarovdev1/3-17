@@ -22,6 +22,18 @@ export interface TelegramWebApp {
     start?: (options: { refresh_rate: number }, callback: (started: boolean) => void) => void
     stop?: () => void
   }
+  /** Absolute head pose in radians (Bot API 8.0). */
+  DeviceOrientation?: {
+    isStarted?: boolean
+    alpha: number | null
+    beta: number | null
+    gamma: number | null
+    start?: (
+      options: { refresh_rate?: number; need_absolute?: boolean },
+      callback: (started: boolean) => void,
+    ) => void
+    stop?: () => void
+  }
   onEvent?: (event: string, callback: () => void) => void
   offEvent?: (event: string, callback: () => void) => void
   ready?: () => void

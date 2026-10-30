@@ -120,6 +120,8 @@ mobile:
   scene_label: Xonadon manzarasi
   go: Yurish
   door: Eshik
+  recenter: Markazga qaytarish
+  unpeek: Orqaga
 
 loading:
   place: Chilonzor · toʻrtinchi qavat · 47-xonadon

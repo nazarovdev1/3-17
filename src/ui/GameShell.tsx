@@ -12,6 +12,7 @@ import { DebugOverlay } from '@/debug/DebugOverlay'
 import { useSettings } from './settingsStore'
 import { detectMode, type GameMode } from '@/platform/device/mode'
 import { checkGpu } from '@/platform/device/gpu'
+import { magicCapable } from '@/platform/device/magic'
 import { AudioController } from '@/audio/AudioController'
 import { HorrorEffects } from './HorrorEffects'
 import { LoadingScreen } from './LoadingScreen'
@@ -34,6 +35,11 @@ export function GameShell() {
   const failed = useRef(false)
   const [retry, setRetry] = useState(0)
   const [fallbackVisible, setFallbackVisible] = useState(false)
+  // Phones: the magic window (3D, turned by the phone) unless the device is weak or it failed.
+  const [magicFailed, setMagicFailed] = useState(false)
+  const failMagic = useCallback(() => setMagicFailed(true), [])
+  const [capable] = useState(magicCapable)
+  const magic = mode === 'mobile' && capable && !magicFailed
   const fallBack = useCallback(() => {
     failed.current = true
     setMode('mobile')
@@ -129,8 +135,8 @@ export function GameShell() {
   // the loading screen is usually short or skipped.
   const assetStatus = useAssetLoad((s) => s.status)
   useEffect(() => {
-    if (bootDone && mode === 'desktop') useAssetLoad.getState().start()
-  }, [bootDone, mode])
+    if (bootDone && (mode === 'desktop' || magic)) useAssetLoad.getState().start()
+  }, [bootDone, mode, magic])
 
   if (!bootDone) {
     return (
@@ -145,19 +151,26 @@ export function GameShell() {
       className={`text-${useSettings.getState().settings.textSize.toLowerCase()} phones ${mode === 'desktop' ? 'desktop-mode' : ''}`}
     >
       <div className="phone-frame">
-        <AudioController mode={mode} />
+        <AudioController mode={mode} spatial={mode === 'desktop' || magic} />
         <HorrorEffects />
         <DirectorDriver paused={screen !== 'game'} />
         {screen === 'warning' && <ContentWarning />}
         {screen === 'title' && <TitleScreen mode={mode} />}
         {(screen === 'game' || screen === 'paused') &&
-          (mode === 'mobile' ? (
+          (mode === 'mobile' && !magic ? (
             <MobilePresenter paused={screen === 'paused'} />
           ) : (
-            <ErrorBoundary label="desktop" onError={fallBack}>
+            <ErrorBoundary
+              label={magic ? 'magic' : 'desktop'}
+              onError={magic ? failMagic : fallBack}
+            >
               {assetStatus === 'done' ? (
                 <Suspense fallback={<LoadingScreen />}>
-                  <DesktopPresenter paused={screen === 'paused'} onFallback={fallBack} />
+                  <DesktopPresenter
+                    paused={screen === 'paused'}
+                    onFallback={magic ? failMagic : fallBack}
+                    magic={magic}
+                  />
                 </Suspense>
               ) : (
                 <LoadingScreen />
