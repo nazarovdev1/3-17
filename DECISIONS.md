@@ -580,3 +580,10 @@ Android phones"), recorded here.
       phase) and the build is never calmer than the unease before it. Real-time idle runs of
       all five nights, desktop and magic window: 402–439 s per night (< 9 min), no console
       errors, mean 58–60 FPS on the software GPU (`audit/screenshots/r6/`).
+105.  **R7 test fixes (intent and assertions unchanged).** `audio.spec` pause test: night 2's
+      wall hotspot needs `n2_voice_done` since DECISION 97, so the test sets that flag after
+      `startNight(2)` (the same one-line setup `mobile-scenes` already had). `no-webgl` skips
+      `mobile-magic.spec.ts` (the magic window is 3D by definition; without WebGL the phone
+      keeps the stills, which the rest of that project covers). `GameShell` probes magic
+      capability only on phones: the extra WebGL context it created on desktop at boot pushed
+      the quality governor to the low tier. The FPS threshold (>= 55, high tier) is unchanged.

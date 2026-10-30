@@ -34,7 +34,7 @@ Redesign phases (REDESIGN_PROMPT.md, overrides FIX_PROMPT and PROMPT; based on `
 - [ ] R4 — Endings as set pieces (built; ✋ awaiting owner review of the videos)
 - [~] R5 — Mobile magic window + stills fallback (built; ✋ awaiting the owner's test on a real phone)
 - [x] R6 — Fear pass
-- [ ] R7 — Full QA
+- [~] R7 — Full QA (all green except one machine-dependent FPS spec, see below)
 
 ## R4 — Endings as set pieces (✋ awaiting owner review, 2026-10-30)
 
@@ -1000,3 +1000,18 @@ nights 1–5 in desktop and magic-window modes: 7.0–7.3 min per night, no erro
 Timelines and screenshots: `audit/screenshots/r6/out-*/`. Voice recordings remain pending
 (RECORDING.md); no TTS is used. QA rubric: environment scores in QA.md stand; the fear pass
 adds no per-capture score because it changes timing, not pictures.
+
+## R7 — Full QA (Claude Code)
+
+Full e2e, one project at a time, one worker: desktop-chrome 58 passed / 2 skipped (+ the
+audio pause test fixed, DECISION 105), small-android 36 + iphone-13 36 + pixel-7 36 passed
+(+ the same audio fix), no-webgl 29 passed. `npm run check`: 339 unit tests, validate:beats,
+metrics:design, metrics:pacing, validate:world, budgets (mobile JS 129.6 KB / 250, desktop 3D
+418.6 KB / 700, flat 47 playable 19.8 MB / 25) all green. Telegram: BackButton, deactivation
+and the WebApp mock cases are in qa/audio specs and pass in plain-browser and mocked-Telegram
+modes. Performance: `desktop-performance.spec` passes at 57–60 FPS (high tier) when the
+software GPU is quiet but trips the quality governor in some runs on this machine (the same
+spec fails 2 of 3 on the pre-R5 commit 2f6f6f8 too, so it is not a regression); the threshold
+is not relaxed. On the owner's real phone/desktop GPU this needs a confirmation run.
+Open for the owner: real-phone check of the magic window (gyro axes, FPS), voice recordings
+(RECORDING.md), the dark stairwell.

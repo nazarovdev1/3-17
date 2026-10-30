@@ -57,7 +57,8 @@ export default defineConfig({
     },
     {
       name: 'no-webgl',
-      testIgnore: '**/desktop*.spec.ts',
+      // The magic window is 3D by definition; without WebGL the phone keeps the stills.
+      testIgnore: ['**/desktop*.spec.ts', '**/mobile-magic.spec.ts'],
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1440, height: 900 },

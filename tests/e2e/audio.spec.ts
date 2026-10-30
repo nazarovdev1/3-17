@@ -243,6 +243,8 @@ test('pause, hidden page and Telegram deactivation stop sound without replaying 
   await start(page)
   // Night 2 begins in the room; the shared wall is to the left. Holding it listens.
   await page.evaluate(() => window.__game.startNight(2))
+  // The wall answers to a hold only once the night's voice has spoken (DECISION 97).
+  await page.evaluate(() => window.__game.setFlag('n2_voice_done', true))
   await expect(page.locator('.mobile-game')).toHaveAttribute('data-view', 'room')
   await page.locator('.view-exit-left').click()
   const wall = (await page.locator('[data-object="party_wall"]').boundingBox())!
