@@ -35,6 +35,11 @@ describe('validate:world (FIX_PROMPT §4.3)', () => {
       chair.position = before
     }
   })
+
+  it('detects furniture in the built-in wardrobe leaf sweep', () => {
+    add({ id: 'wardrobe-sweep-test', room: 'corridor', position: [-0.15, 0, 0.5] })
+    expect(validateWorld().errors).toContain('wardrobe-sweep-test intersects the wardrobe swing')
+  })
   it('passes on the shipped plan', () => {
     expect(validateWorld().errors).toEqual([])
   })

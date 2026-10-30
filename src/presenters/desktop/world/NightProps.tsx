@@ -8,6 +8,7 @@ import { REFLECTION_LAYER } from '../figure'
 import { tvScreen } from './Figure'
 import { softwareMaterial } from './softwareMaterial'
 import { primeUpload } from './prime'
+import { desktopRuntime } from '@/platform/device/desktopRuntime'
 import type { SurfaceMaterials } from './materials'
 
 /**
@@ -274,12 +275,35 @@ export function NightProps({
   const palmAt = useRef(-1)
   const palm = useRef<THREE.Mesh>(null)
   const root = useRef<THREE.Group>(null)
+  const wardrobeLeaves = useRef<(THREE.Group | null)[]>([])
+  const tally = useRef<THREE.Mesh>(null)
+  const wardrobe = objectById('wardrobe')!
+  const leaf = wardrobe.size[0] / 2 - 0.004
+  const open = objects['wardrobe'] === 'open'
   const gl = useThree((state) => state.gl)
   // Uploaded once now, so a change that appears later does not upload mid-scare.
   useEffect(() => {
     if (root.current) primeUpload(gl, root.current)
   }, [gl, parts])
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, rawDelta) => {
+    const target = (desktopRuntime.wardrobeChoice ?? open) ? 1.25 : 0
+    const ease = 1 - Math.exp(-Math.min(rawDelta, 0.05) * 6)
+    desktopRuntime.wardrobeAngle += (target - desktopRuntime.wardrobeAngle) * ease
+    for (const [i, side] of [-1, 1].entries()) {
+      const angle = -side * desktopRuntime.wardrobeAngle
+      const hingeZ = wardrobe.position[2] + (side * wardrobe.size[0]) / 2
+      const hingeX = wardrobe.position[0] + 0.02
+      const group = wardrobeLeaves.current[i]
+      if (group) group.rotation.y = angle
+      const localZ = -side * leaf
+      desktopRuntime.doorLeaves[`wardrobe_${i}`] = {
+        x0: hingeX,
+        z0: hingeZ,
+        x1: hingeX + Math.sin(angle) * localZ,
+        z1: hingeZ + Math.cos(angle) * localZ,
+      }
+    }
+    if (tally.current) tally.current.visible = desktopRuntime.wardrobeAngle > 0.3
     // The print fades over twelve seconds once it has appeared.
     if (objects['party_wall'] === 'palm') {
       if (palmAt.current < 0) palmAt.current = clock.elapsedTime
@@ -292,9 +316,6 @@ export function NightProps({
       if (palm.current) palm.current.visible = false
     }
   })
-  const wardrobe = objectById('wardrobe')!
-  const leaf = wardrobe.size[0] / 2 - 0.004
-  const open = objects['wardrobe'] === 'open'
   const cabinet = objectById('mirror_cabinet')!
   const window = objectById('room_window')!
   const clock = objectById('clock')!
@@ -309,6 +330,9 @@ export function NightProps({
         return (
           <group
             key={side}
+            ref={(group) => {
+              wardrobeLeaves.current[side === -1 ? 0 : 1] = group
+            }}
             position={[wardrobe.position[0] + 0.02, 0, hingeZ]}
             rotation-y={open ? -side * 1.25 : 0}
           >
@@ -324,6 +348,7 @@ export function NightProps({
         )
       })}
       <mesh
+        ref={tally}
         visible={open}
         position={[PARTY_X + 0.095, 1.2, wardrobe.position[2]]}
         rotation-y={Math.PI / 2}

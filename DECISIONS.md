@@ -505,10 +505,19 @@ Android phones"), recorded here.
 92. **R4.5 kitchen clearance.** The kitchen chair moves from z=1.50 to z=1.85 m to clear
     the kitchen door sweep. The world validator samples operable door arcs against solid
     furniture, and a regression test restores the old chair position to verify detection.
-    Closet, lift and metal leaves are excluded because the current door renderer does not
-    swing them. This check does not cover procedural night props or all rendered meshes.
+    Lift and metal leaves are excluded because they do not swing. This check does not
+    cover all procedural night props or rendered meshes.
 93. **Software-rendered daylight and the wall prompt.** The software material now receives
     the same fading daylight state as the scene lighting; its vertex lighting previously
     ignored the hemisphere and directional lights, leaving ending A's daylight almost
     black. The generic hold prompt is limited to night 2 after the voice, when the hold
     actually has a response. Story waits and ending A's knock remain separately targeted.
+94. **R4.5 proportions and visibility.** The three identical 1.26 m chairs were uniformly
+    scaled to 0.95 m high, keeping their model proportions and matching their collision
+    footprints. Software GL now receives a restrained cold fill in flat 48, corresponding
+    to the existing native window fill. Door-sweep checks expand footprints by the actual
+    half-thickness of each leaf.
+95. **The built-in wardrobe is player-operated too.** E opens or closes its two leaves;
+    the first night-2 opening still sends the Director input for the coat and diary beat.
+    Live leaf segments join desktop collision, and the validator checks both leaf sweeps.
+    The fallback mobile presentation still needs its own interaction pass.

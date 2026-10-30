@@ -131,6 +131,7 @@ export function CameraRig({
     if (!spawn) return
     camera.position.set(...spawn.position)
     desktopRuntime.doorChoices = {}
+    desktopRuntime.wardrobeChoice = undefined
     feet.current = spawn.position[1] - EYE
     angles.current = { yaw: spawn.yaw, pitch: 0 }
     velocity.current = { x: 0, z: 0 }
@@ -223,7 +224,13 @@ export function CameraRig({
         return
       }
       const doorId = n.id === 'door48' ? 'front_door48' : n.id
-      if (n.kind === 'door' || (n.kind === 'use' && desktopRuntime.doorLeaves[doorId])) {
+      if (n.id === 'wardrobe') {
+        const opening = !(desktopRuntime.wardrobeChoice ?? world.objects['wardrobe'] === 'open')
+        const handled =
+          interactables.has('wardrobe') && input({ type: 'interact', target: 'wardrobe' })
+        desktopRuntime.wardrobeChoice = opening
+        if (!handled) audio.play(opening ? 'door_open' : 'door_close', [-0.65, 1, 0.95])
+      } else if (n.kind === 'door' || (n.kind === 'use' && desktopRuntime.doorLeaves[doorId])) {
         if (n.kind === 'use') input({ type: 'interact', target: n.id })
         const leaf = desktopRuntime.doorLeaves[doorId]
         if (desktopRuntime.doorLocks[doorId]) {
@@ -600,6 +607,7 @@ export function CameraRig({
         if (point) consider(id, 'use', point, id === 'rustam_hand' ? 2.0 : REACH)
       }
       for (const [id, leaf] of Object.entries(desktopRuntime.doorLeaves)) {
+        if (id.startsWith('wardrobe_')) continue
         if (!pick.best)
           consider(id, 'door', [
             (leaf.x0 + leaf.x1) / 2,
@@ -607,6 +615,7 @@ export function CameraRig({
             (leaf.z0 + leaf.z1) / 2,
           ])
       }
+      if (!pick.best) consider('wardrobe', 'door', [-0.65, 1.4, 0.95])
       if (world.waiting && WALL_TARGETS.has(world.waiting)) {
         const point = objectPoint(world.waiting)
         if (point) consider(world.waiting, 'use', point)

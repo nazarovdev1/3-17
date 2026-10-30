@@ -97,12 +97,19 @@ function distanceToWall(box: Box3, w: Wall) {
 }
 
 /** Whether a finite segment intersects a footprint, expanded for the leaf's thickness. */
-function segmentHitsRect(x: number, z: number, dx: number, dz: number, rect: Rect): boolean {
+function segmentHitsRect(
+  x: number,
+  z: number,
+  dx: number,
+  dz: number,
+  rect: Rect,
+  padding: number,
+): boolean {
   let from = 0
   let to = 1
   for (const [start, delta, low, high] of [
-    [x, dx, rect.x0 - 0.01, rect.x1 + 0.01],
-    [z, dz, rect.z0 - 0.01, rect.z1 + 0.01],
+    [x, dx, rect.x0 - padding, rect.x1 + padding],
+    [z, dz, rect.z0 - padding, rect.z1 + padding],
   ]) {
     if (Math.abs(delta!) < 1e-9) {
       if (start! < low! || start! > high!) return false
@@ -241,10 +248,32 @@ export function validateWorld(): WorldReport {
             width * (wall.axis === 'x' ? dir * Math.cos(angle) : door.swing * Math.sin(angle))
           const dz =
             width * (wall.axis === 'x' ? door.swing * Math.sin(angle) : dir * Math.cos(angle))
-          return segmentHitsRect(x, z, dx, dz, f)
+          return segmentHitsRect(x, z, dx, dz, f, door.kind === 'entrance' ? 0.035 : 0.02)
         },
       )
       if (hit) errors.push(`${ob.id} intersects the ${door.id} swing`)
+    }
+  }
+
+  // The built-in wardrobe uses two shorter leaves, each swinging into the corridor.
+  const wardrobe = objects.find((o) => o.id === 'wardrobe')
+  if (wardrobe) {
+    const leaf = wardrobe.size[0] / 2 - 0.004
+    for (const ob of objects.filter((o) => o.blocks && o.position[1] < wardrobe.size[1])) {
+      const f = footprint(ob)
+      const hit = [-1, 1].some((side) =>
+        Array.from({ length: 73 }, (_, i) => Math.min(1.25, (i * Math.PI) / 180)).some((angle) =>
+          segmentHitsRect(
+            wardrobe.position[0] + 0.02,
+            wardrobe.position[2] + (side * wardrobe.size[0]) / 2,
+            Math.sin(angle) * leaf,
+            -side * Math.cos(angle) * leaf,
+            f,
+            wardrobe.size[2] / 2,
+          ),
+        ),
+      )
+      if (hit) errors.push(`${ob.id} intersects the wardrobe swing`)
     }
   }
 

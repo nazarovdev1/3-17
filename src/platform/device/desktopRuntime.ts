@@ -46,6 +46,8 @@ export const desktopRuntime = {
   doorAngles: {} as Record<string, number>,
   doorChoices: {} as Record<string, boolean>,
   doorLocks: {} as Record<string, boolean>,
+  wardrobeChoice: undefined as boolean | undefined,
+  wardrobeAngle: 0,
   /** Flats whose furniture is drawn this frame (out of sight behind shut doors otherwise). */
   flatsDrawn: '',
   /** Debug/test builds only: a requested jump [x, z, yaw], consumed by the camera rig. */

@@ -27,6 +27,13 @@ test('a door stays closed on approach, toggles on E, and blocks walking', async 
   expect(x).toBeGreaterThan(-0.5)
   await page.keyboard.press('e')
   await expect.poll(angle).toBeGreaterThan(1)
+  await page.keyboard.down('w')
+  await page.waitForTimeout(1800)
+  await page.keyboard.up('w')
+  const through = await page.evaluate(
+    () => (window.__game.getDesktopState().position as number[])[0]!,
+  )
+  expect(through).toBeLessThan(-0.8)
   await page.evaluate(() => {
     const state = window.__game.getDesktopState()
     const position = state.position as number[]
@@ -44,4 +51,47 @@ test('a door stays closed on approach, toggles on E, and blocks walking', async 
   await page.waitForTimeout(250)
   await page.keyboard.press('e')
   await expect.poll(angle).toBeLessThan(0.3)
+})
+
+test('night five front door stays locked before the request', async ({ page }) => {
+  test.setTimeout(120_000)
+  await page.addInitScript(() => {
+    localStorage.setItem('g317:settings', JSON.stringify({ mode: 'desktop', reduceFlashing: true }))
+  })
+  await page.goto('/?debug=1')
+  await startNamedRun(page, 'Dilnoza')
+  await page.evaluate(() => window.__game.startNight(5))
+  await expect
+    .poll(() => page.evaluate(() => window.__game.getDesktopState().worldReady))
+    .toBe(true)
+  await page.evaluate(() => window.__game.teleport(0, 4.1, Math.PI))
+  await page.waitForTimeout(500)
+  await page.keyboard.press('e')
+  await page.waitForTimeout(800)
+  expect(await page.evaluate(() => window.__game.getState()?.flags['front_open'])).not.toBe(true)
+  expect(
+    await page.evaluate(
+      () => (window.__game.getDesktopState().doorAngles as Record<string, number>).front_door,
+    ),
+  ).toBeLessThan(0.3)
+})
+
+test('the wardrobe opens and closes only on E', async ({ page }) => {
+  test.setTimeout(120_000)
+  await page.addInitScript(() => {
+    localStorage.setItem('g317:settings', JSON.stringify({ mode: 'desktop', reduceFlashing: true }))
+  })
+  await page.goto('/?debug=1')
+  await startNamedRun(page, 'Dilnoza')
+  await page.evaluate(() => window.__game.startNight(5))
+  await expect
+    .poll(() => page.evaluate(() => window.__game.getDesktopState().worldReady))
+    .toBe(true)
+  await page.evaluate(() => window.__game.teleport(0.3, 0.95, Math.PI / 2))
+  const angle = () => page.evaluate(() => window.__game.getDesktopState().wardrobeAngle as number)
+  await expect.poll(angle).toBeLessThan(0.1)
+  await page.keyboard.press('e')
+  await expect.poll(angle).toBeGreaterThan(1)
+  await page.keyboard.press('e')
+  await expect.poll(angle).toBeLessThan(0.1)
 })

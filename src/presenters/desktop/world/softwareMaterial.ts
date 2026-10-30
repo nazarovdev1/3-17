@@ -5,6 +5,7 @@ export const softwareLight = {
   position: { value: new THREE.Vector3() },
   power: { value: 3.5 },
   daylight: { value: 0 },
+  flat48Fill: { value: 0 },
   torchPosition: { value: new THREE.Vector3() },
   torchDirection: { value: new THREE.Vector3(0, 0, -1) },
   torch: { value: 0 },
@@ -63,6 +64,7 @@ export function softwareMaterial(source: THREE.MeshStandardMaterial): THREE.Mesh
     shader.uniforms.softPosition = softwareLight.position
     shader.uniforms.softPower = softwareLight.power
     shader.uniforms.softDaylight = softwareLight.daylight
+    shader.uniforms.softFlat48Fill = softwareLight.flat48Fill
     shader.uniforms.softTorchPosition = softwareLight.torchPosition
     shader.uniforms.softTorchDirection = softwareLight.torchDirection
     shader.uniforms.softTorch = softwareLight.torch
@@ -70,7 +72,7 @@ export function softwareMaterial(source: THREE.MeshStandardMaterial): THREE.Mesh
       `
       varying vec3 vSoftwareLight;
       uniform vec3 softPosition, softTorchPosition, softTorchDirection;
-      uniform float softPower, softTorch, softDaylight;
+      uniform float softPower, softTorch, softDaylight, softFlat48Fill;
     ` + shader.vertexShader
     shader.vertexShader = shader.vertexShader.replace(
       '#include <begin_vertex>',
@@ -87,7 +89,7 @@ export function softwareMaterial(source: THREE.MeshStandardMaterial): THREE.Mesh
         float cone = smoothstep(0.90, 0.98, dot(normalize(torchRay), softTorchDirection));
         beam = cone * softTorch * max(dot(worldN, -normalize(torchRay)), 0.0) / (dot(torchRay, torchRay) + 0.8);
       }
-      vSoftwareLight = vec3(0.09, 0.11, 0.15) + vec3(0.28, 0.30, 0.32) * softDaylight + vec3(1.0, 0.8, 0.59) * direct + vec3(0.9, 0.94, 1.0) * beam;
+      vSoftwareLight = vec3(0.09, 0.11, 0.15) + vec3(0.28, 0.30, 0.32) * softDaylight + vec3(0.10, 0.12, 0.15) * softFlat48Fill + vec3(1.0, 0.8, 0.59) * direct + vec3(0.9, 0.94, 1.0) * beam;
     `,
     )
     shader.fragmentShader = 'varying vec3 vSoftwareLight;\n' + shader.fragmentShader

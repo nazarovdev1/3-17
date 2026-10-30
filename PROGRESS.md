@@ -949,3 +949,15 @@ chair images and initial area views are in `audit/screenshots/r45/`. Area views 
 yet a complete placement audit: several face nearby walls, close-ups and ending key frames
 are incomplete, and the required after sheets and full player walk-through remain.
 R4.5 is not at its owner gate; R5 has not started.
+
+R4.5 continuation: same-position before/after area sheets and additional object views were
+reviewed. Some views face walls or are too dark to judge all props, so this is not a full
+visual sign-off. The kitchen chair was viewed again from a downward angle after resizing.
+Desktop fast routes A/B/C and small-Android fast routes A/B/C passed; the two targeted
+door cases passed, including crossing an open door and the locked night-5 front door.
+The unchanged desktop performance test failed at **52.70 FPS** (high, 336 px, SwiftShader;
+requirement >= 55). The complete real-input night-by-night walk, procedural-prop and
+exterior audit, mobile door interaction, and ending key-frame comparisons remain.
+
+The wardrobe was added to deliberate desktop door interaction and the swing validator;
+its closed and open screenshots were reviewed. Three targeted desktop door tests passed.

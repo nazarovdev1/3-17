@@ -86,6 +86,7 @@ export function Lighting({
     }
     if (sodium.current) sodium.current.intensity = 160 * (1 - d)
     const [px, , pz] = desktopRuntime.position
+    softwareLight.flat48Fill.value = px! < PARTY_X && pz! < 4.69 ? 1 : 0
     const stairFill =
       Math.min(1, Math.max(0, pz! - 5.8)) * Math.min(1, Math.max(0, (px! + 0.1) / 0.4))
     // Limit bounced fill to the occupied volume instead of leaking through party walls.
