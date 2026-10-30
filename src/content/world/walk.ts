@@ -168,3 +168,77 @@ export function walkFeet(
   }
   return [x, f, z]
 }
+
+/** Does the plan segment (ax, az)→(bx, bz) cross the rectangle? (Slab test.) */
+function segmentHitsRect(ax: number, az: number, bx: number, bz: number, r: Rect): boolean {
+  let t0 = 0
+  let t1 = 1
+  for (const [a, d, lo, hi] of [
+    [ax, bx - ax, r.x0, r.x1],
+    [az, bz - az, r.z0, r.z1],
+  ] as const) {
+    if (Math.abs(d) < 1e-9) {
+      if (a < lo || a > hi) return false
+      continue
+    }
+    let near = (lo - a) / d
+    let far = (hi - a) / d
+    if (near > far) [near, far] = [far, near]
+    t0 = Math.max(t0, near)
+    t1 = Math.min(t1, far)
+    if (t0 > t1) return false
+  }
+  return true
+}
+
+function segmentsCross(ax: number, az: number, bx: number, bz: number, leaf: DoorLeaf): boolean {
+  const orient = (px: number, pz: number, qx: number, qz: number, rx: number, rz: number) =>
+    (qx - px) * (rz - pz) - (qz - pz) * (rx - px)
+  const d1 = orient(ax, az, bx, bz, leaf.x0, leaf.z0)
+  const d2 = orient(ax, az, bx, bz, leaf.x1, leaf.z1)
+  const d3 = orient(leaf.x0, leaf.z0, leaf.x1, leaf.z1, ax, az)
+  const d4 = orient(leaf.x0, leaf.z0, leaf.x1, leaf.z1, bx, bz)
+  return d1 * d2 < 0 && d3 * d4 < 0
+}
+
+/** The solid pieces of each wall at eye height: its box, less the doorways and arches. */
+const SOLIDS: Rect[] = WORLD.walls.flatMap((w) => {
+  const [lo, hi] = w.axis === 'x' ? [w.box.x0, w.box.x1] : [w.box.z0, w.box.z1]
+  const gaps = w.openings
+    .filter((o) => PASSABLE.has(o.kind) || o.kind === 'closet')
+    .map((o) => [o.at - o.width / 2, o.at + o.width / 2] as const)
+    .sort((a, b) => a[0] - b[0])
+  const pieces: [number, number][] = []
+  let from = lo
+  for (const [g0, g1] of gaps) {
+    if (g0 > from) pieces.push([from, g0])
+    from = Math.max(from, g1)
+  }
+  if (from < hi) pieces.push([from, hi])
+  return pieces.map(([a, b]) =>
+    w.axis === 'x' ? { ...w.box, x0: a, x1: b } : { ...w.box, z0: a, z1: b },
+  )
+})
+
+/**
+ * Can an eye at (x, z) see a point on the plan? Walls and door leaves stop it; the last
+ * `slack` metres before the target are not tested, because wall-mounted things (the
+ * peephole, the shared wall) sit in the wall itself. Interaction is measured with this, so
+ * nothing can be reached through a wall or a shut door.
+ */
+export function sightBlocked(
+  x: number,
+  z: number,
+  tx: number,
+  tz: number,
+  options: Pick<WalkOptions, 'doorLeaves'>,
+  slack = 0.15,
+): boolean {
+  const length = Math.hypot(tx - x, tz - z)
+  if (length <= slack) return false
+  const k = (length - slack) / length
+  const ex = x + (tx - x) * k
+  const ez = z + (tz - z) * k
+  if (SOLIDS.some((rect) => segmentHitsRect(x, z, ex, ez, rect))) return true
+  return !!options.doorLeaves?.some((leaf) => segmentsCross(x, z, ex, ez, leaf))
+}

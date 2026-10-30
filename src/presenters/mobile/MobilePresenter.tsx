@@ -57,7 +57,7 @@ function Viewpoints({ paused }: { paused: boolean }) {
         Object.fromEntries(Object.entries(c).filter(([id]) => !changed.includes(id))),
       )
   }, [world.doors])
-  const useDoor = (id: Parameters<typeof doorPass>[0]) => {
+  const toggleDoor = (id: Parameters<typeof doorPass>[0]) => {
     const pass = doorPass(id, world, doorChoices)
     if (pass.locked) return audio.play('chain', undefined, 0.8)
     audio.play(pass.open ? 'door_close' : 'door_open', undefined, 0.8)
@@ -171,7 +171,7 @@ function Viewpoints({ paused }: { paused: boolean }) {
                   data-door={gate}
                   className={`view-exit view-exit-${edge} view-door ${pass.locked ? 'locked' : ''}`}
                   aria-label={ui('mobile.door')}
-                  onClick={() => !paused && gate && useDoor(gate)}
+                  onClick={() => !paused && gate && toggleDoor(gate)}
                 >
                   <span className="door-icon" aria-hidden="true" />
                 </button>

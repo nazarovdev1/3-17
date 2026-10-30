@@ -19,7 +19,7 @@ import { zonesAt } from '@/content/world/zones'
 import { objectPoint, PHONE_TARGETS } from '@/content/world/objects'
 import type { Point, WorldState } from '@/core/director/types'
 import { SWITCHES, REACH, footstepAt } from './layout'
-import { walkFeet } from '@/content/world/walk'
+import { sightBlocked, walkFeet, type DoorLeaf } from '@/content/world/walk'
 import { isBelow } from '@/content/world/stairwell'
 import { CORRIDOR_SPLIT_Z } from '@/content/world/layout'
 import { softwareLight } from './world/softwareMaterial'
@@ -583,7 +583,18 @@ export function CameraRig({
         walking || (fx.lying && ['w', 'a', 's', 'd'].some((k) => keys.current.has(k)))
       // The one thing in reach under the crosshair.
       const pick: { best: Near | null; distance: number } = { best: null, distance: REACH }
-      const consider = (id: string, kind: Near['kind'], point: Point, reach = REACH) => {
+      const leaves = Object.values(desktopRuntime.doorLeaves)
+      const consider = (
+        id: string,
+        kind: Near['kind'],
+        point: Point,
+        reach = REACH,
+        own?: DoorLeaf,
+      ) => {
+        // Nothing is reached through a wall or a shut door (a door's own leaf is not a wall).
+        const doorLeaves = own ? leaves.filter((leaf) => leaf !== own) : leaves
+        if (sightBlocked(camera.position.x, camera.position.z, point[0], point[2], { doorLeaves }))
+          return
         const to = new Vector3(...point).sub(camera.position)
         // Reach is measured on the floor plane: a low table and a high clock count alike.
         const length = Math.hypot(to.x, to.z)
@@ -609,11 +620,13 @@ export function CameraRig({
       }
       for (const [id, leaf] of Object.entries(desktopRuntime.doorLeaves)) {
         if (!pick.best)
-          consider(id.startsWith('wardrobe_') ? 'wardrobe' : id, 'door', [
-            (leaf.x0 + leaf.x1) / 2,
-            camera.position.y,
-            (leaf.z0 + leaf.z1) / 2,
-          ])
+          consider(
+            id.startsWith('wardrobe_') ? 'wardrobe' : id,
+            'door',
+            [(leaf.x0 + leaf.x1) / 2, camera.position.y, (leaf.z0 + leaf.z1) / 2],
+            REACH,
+            leaf,
+          )
       }
       if (world.waiting && WALL_TARGETS.has(world.waiting)) {
         const point = objectPoint(world.waiting)
