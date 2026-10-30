@@ -33,7 +33,7 @@ Redesign phases (REDESIGN_PROMPT.md, overrides FIX_PROMPT and PROMPT; based on `
 - [x] R3 — Nights 2–5 on desktop
 - [ ] R4 — Endings as set pieces (built; ✋ awaiting owner review of the videos)
 - [~] R5 — Mobile magic window + stills fallback (built; ✋ awaiting the owner's test on a real phone)
-- [ ] R6 — Fear pass
+- [x] R6 — Fear pass
 - [ ] R7 — Full QA
 
 ## R4 — Endings as set pieces (✋ awaiting owner review, 2026-10-30)
@@ -991,3 +991,12 @@ ending B stairs/bus by glides, ending C winding, context-loss fallback, `magic=0
 fallback specs (qa fast routes A/B/C, mobile-doors/wall/scenes/hd) still pass.
 Not done: real-phone check of gyro axes and frame rate (owner gate); no real-input walk of
 nights 1–5 in magic mode beyond the above; stairwell darkness and R6 items remain.
+
+## R6 — Fear pass (Claude Code)
+
+`npm run metrics:pacing` added to `npm run check` (idle gaps per tension phase, build vs
+unease). Fixed starvation of ambient events (DECISION 104). Real-time idle playthroughs of
+nights 1–5 in desktop and magic-window modes: 7.0–7.3 min per night, no errors, no stalls.
+Timelines and screenshots: `audit/screenshots/r6/out-*/`. Voice recordings remain pending
+(RECORDING.md); no TTS is used. QA rubric: environment scores in QA.md stand; the fear pass
+adds no per-capture score because it changes timing, not pictures.

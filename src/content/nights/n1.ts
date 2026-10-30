@@ -1,6 +1,6 @@
 import type { Action, Sequence, TimedAction } from '@/core/director/types'
 import { all, at, flag, has, isFlag, not, on, phone, say, sound, stepsDown } from './build'
-import { phoneBeats, resetNightFlags, sofaBeats, teaBeat } from './common'
+import { phoneBeats, resetNightFlags, sofaBeats, teaBeat, ambientBed } from './common'
 
 /**
  * Night 1 — Koʻchib kelish (docs/BEATS.md). The player arrives after a night shift at
@@ -12,7 +12,7 @@ export const night1: Sequence = {
   start: '01:58',
   spawn: { position: [1.7, 1.6, 6.95], yaw: 0.61 },
   realSecondsPerGameMinute: 4.5,
-  ambientEveryMs: [45_000, 80_000],
+  ambientEveryMs: [28_000, 48_000],
   beats: [
     resetNightFlags('n1'),
     {
@@ -332,6 +332,7 @@ export const night1: Sequence = {
     { id: 'pipes', actions: [sound('pipes', 'bath_sink', 0.5)] },
     { id: 'car', actions: [sound('car_pass', [1.0, 2.0, -9.0], 0.5)] },
     { id: 'door_below', actions: [sound('door_close', [1.6, -2.9, 6.0], 0.35)] },
+    ...ambientBed('n1'),
   ],
 }
 

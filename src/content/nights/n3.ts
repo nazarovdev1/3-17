@@ -9,6 +9,7 @@ import {
   powerCut,
   resetNightFlags,
   windowsGoOut,
+  ambientBed,
 } from './common'
 
 /**
@@ -23,7 +24,7 @@ export const night3: Sequence = {
   start: '02:00',
   spawn: { position: [0.6, 1.6, -0.6], yaw: 0 },
   realSecondsPerGameMinute: 4.5,
-  ambientEveryMs: [45_000, 80_000],
+  ambientEveryMs: [28_000, 48_000],
   beats: [
     resetNightFlags('n3'),
     {
@@ -253,5 +254,6 @@ export const night3: Sequence = {
     { id: 'pipes', actions: [sound('pipes', 'bath_sink', 0.5)] },
     { id: 'radiator', actions: [sound('radiator', 'room_radiator', 0.6)] },
     { id: 'chair_above', actions: [sound('step_wood', [-0.4, 2.75, -1.6], 0.4)] },
+    ...ambientBed('n3'),
   ],
 }

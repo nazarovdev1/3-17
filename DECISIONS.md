@@ -572,3 +572,11 @@ Android phones"), recorded here.
       closet, behind a wall from the knock target; since sight is required (DECISION 100) it
       could not be reached by a real player. It is now (-3.4, -0.25) on the room's floor,
       facing the wall (sight.spec covers it). Beat content is otherwise unchanged.
+104.  **R6 pacing: the building has more small noises, and they come more often.** `metrics:pacing`
+      (in `npm run check`) found 45–105 s with nothing to hear or see in the unease/build of
+      nights 1–5, because each night had 3–4 ambient events with a 180 s cooldown (kept). Added
+      `ambientBed` (7 ordinary building sounds, never story beats), ambient
+      interval 28–48 s (night 4: 18–32 s). Now the longest gap is 47 s (limit 75/50/35 s by
+      phase) and the build is never calmer than the unease before it. Real-time idle runs of
+      all five nights, desktop and magic window: 402–439 s per night (< 9 min), no console
+      errors, mean 58–60 FPS on the software GPU (`audit/screenshots/r6/`).

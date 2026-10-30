@@ -1,4 +1,4 @@
-import type { Beat, Condition, TimedAction } from '@/core/director/types'
+import type { AmbientEvent, Beat, Condition, TimedAction } from '@/core/director/types'
 import { at, flag, has, isFlag, not, all, on, phone, sound } from './build'
 
 /** The phone on the table: pick it up, tap tonight's message, put it down (REDESIGN §3). */
@@ -279,4 +279,22 @@ export function motherCall(night: string, time: `${number}:${number}`, missedAft
       at(6000, phone({ screen: 'off', missed: missedAfter })),
     ],
   }
+}
+
+/**
+ * The building's own small noises (R6 pacing): with only three or four ambient events and a
+ * long cooldown the unease and build of a night went quiet for a minute or more. These are
+ * ordinary things in a block of flats; none of them is a story beat.
+ */
+export function ambientBed(id: string): AmbientEvent[] {
+  const bed: AmbientEvent[] = [
+    { id: `${id}.upstairs`, actions: [sound('step_wood', [0.4, 2.75, -1.2], 0.35)] },
+    { id: `${id}.drip`, actions: [sound('drip', 'bath_sink', 0.45)] },
+    { id: `${id}.pipes_far`, actions: [sound('pipes', [2.4, 1.2, 9.0], 0.4)] },
+    { id: `${id}.door_far`, actions: [sound('door_close', [-5.8, 1.0, 6.4], 0.3)] },
+    { id: `${id}.car`, actions: [sound('car_pass', [1.0, 2.0, -9.0], 0.4)] },
+    { id: `${id}.landing_step`, actions: [sound('step_concrete', [1.6, -1.2, 8.6], 0.3)] },
+    { id: `${id}.settle`, actions: [sound('step_board', [0.8, 0.05, 1.4], 0.25)] },
+  ]
+  return bed
 }

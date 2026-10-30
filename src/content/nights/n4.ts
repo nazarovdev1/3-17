@@ -10,6 +10,7 @@ import {
   powerCut,
   resetNightFlags,
   windowsGoOut,
+  ambientBed,
 } from './common'
 
 /**
@@ -60,7 +61,7 @@ export const night4: Sequence = {
   start: '02:15',
   spawn: { position: [0.6, 1.6, -0.6], yaw: 0 },
   realSecondsPerGameMinute: 4,
-  ambientEveryMs: [45_000, 80_000],
+  ambientEveryMs: [18_000, 32_000],
   beats: [
     resetNightFlags('n4'),
     {
@@ -295,5 +296,6 @@ export const night4: Sequence = {
       when: not(isFlag('radiator_dead')),
     },
     { id: 'below_tv', actions: [sound('static', [0.5, -2.2, -1.5], 0.12)] },
+    ...ambientBed('n4'),
   ],
 }
