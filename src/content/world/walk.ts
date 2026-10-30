@@ -22,6 +22,27 @@ export interface WalkOptions {
   flat48: boolean
   /** Night-3 corridor stretch in metres (0 = normal). */
   extension: number
+  /** Current door leaf segments in world coordinates, supplied by the desktop scene. */
+  doorLeaves?: DoorLeaf[]
+}
+
+export interface DoorLeaf {
+  x0: number
+  z0: number
+  x1: number
+  z1: number
+}
+
+/** Distance from the player's centre to a finite leaf, including its hinge and free end. */
+export function touchesDoor(x: number, z: number, leaf: DoorLeaf): boolean {
+  const dx = leaf.x1 - leaf.x0
+  const dz = leaf.z1 - leaf.z0
+  const length2 = dx * dx + dz * dz
+  const t =
+    length2 === 0
+      ? 0
+      : Math.max(0, Math.min(1, ((x - leaf.x0) * dx + (z - leaf.z0) * dz) / length2))
+  return Math.hypot(x - leaf.x0 - t * dx, z - leaf.z0 - t * dz) < PLAYER_RADIUS + 0.025
 }
 
 const PASSABLE = new Set(['door', 'balcony_door', 'arch'])
@@ -57,6 +78,7 @@ function onFloor(floor: Rect[], x: number, z: number) {
 }
 
 export function canWalk(x: number, z: number, options: WalkOptions): boolean {
+  if (options.doorLeaves?.some((leaf) => touchesDoor(x, z, leaf))) return false
   const base = unstretch(x, z, options.extension)
   if (base === 'inserted') return Math.abs(x) <= 0.6 - PLAYER_RADIUS
   const [bx, bz] = base
@@ -103,6 +125,8 @@ const SAMPLES = [
  * plan, the stairwell's height below it, or null where it cannot stand.
  */
 export function standAt(x: number, z: number, feet: number, options: WalkOptions): number | null {
+  if (Math.abs(feet) < 0.45 && options.doorLeaves?.some((leaf) => touchesDoor(x, z, leaf)))
+    return null
   const level = Math.abs(feet) < 0.45
   if (level && canWalk(x, z, options)) return 0
   // Outside in the yard (ending B): flat ground, every edge of the body on it.
