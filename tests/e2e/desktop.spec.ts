@@ -110,7 +110,7 @@ test('desktop real-input ending B: unchain, walk out and down the stairs', async
   await walkTo(page, 0.1, 1.5)
   await walkTo(page, 0.15, 2.6, 0.2)
   await walkTo(page, 0.3, 3.4, 0.25)
-  await walkTo(page, 0.1, 4.3)
+  await walkTo(page, -0.1, 4.3)
   await face(page, 0, 4.69, 1.4)
   await page.keyboard.press('e')
   await expect
@@ -122,7 +122,7 @@ test('desktop real-input ending B: unchain, walk out and down the stairs', async
       world: (await page.evaluate(() => window.__game.getWorld()))?.doors['front_door'],
     }))
     .toEqual({ angle: true, world: 'open' })
-  await walkTo(page, 0.1, 5.3)
+  await walkTo(page, -0.1, 5.3)
   await walkTo(page, 0.9, 6.9, 0.3)
   // The first steps down the flight are the ending.
   await walkTo(page, 0.9, 7.9, 0.3)
@@ -165,11 +165,11 @@ test('desktop real-input ending A: across the landing, into 48', async ({ page }
   await walkTo(page, 0.1, 1.5)
   await walkTo(page, 0.15, 2.6, 0.2)
   await walkTo(page, 0.3, 3.4, 0.25)
-  await walkTo(page, 0.1, 4.3)
+  await walkTo(page, -0.1, 4.3)
   await face(page, 0, 4.69, 1.4)
   await page.keyboard.press('e')
   // Fully out onto the landing before turning: the doorway allows no sideways step.
-  await walkTo(page, 0.1, 5.7, 0.15)
+  await walkTo(page, -0.1, 5.7, 0.15)
   await walkTo(page, -4.2, 5.7)
   const leaf48 = (await inspect(page)).doorLeaves['front_door48']!
   await face(page, (leaf48.x0 + leaf48.x1) / 2, (leaf48.z0 + leaf48.z1) / 2)

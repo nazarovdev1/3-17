@@ -550,3 +550,7 @@ Android phones"), recorded here.
       `tests/unit/validate/sight.spec.ts` also proves that every flat object can be stood
       at within reach in plain view. `?lit=1` (dev/test builds only) keeps every light
       circuit on for placement audits.
+101.  **Ending A/B routes pass on the hinge-free side of the front door.** The entrance leaf
+      swings into the hall, hinged at x = 0.45; fully open it lies 0.1–0.2 m from a body walking
+      at x = 0.1, which the live leaf collision (correctly) stops. The real-input routes now
+      walk the doorway at x = -0.1. Assertions are unchanged.
