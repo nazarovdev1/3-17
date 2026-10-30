@@ -616,7 +616,14 @@ export function CameraRig({
           continue
         }
         const point = objectPoint(id)
-        if (point) consider(id, 'use', point, id === 'rustam_hand' ? 2.0 : REACH)
+        if (point)
+          consider(
+            id,
+            'use',
+            point,
+            id === 'rustam_hand' ? 2.0 : REACH,
+            desktopRuntime.doorLeaves[id === 'door48' ? 'front_door48' : id],
+          )
       }
       for (const [id, leaf] of Object.entries(desktopRuntime.doorLeaves)) {
         if (!pick.best)
