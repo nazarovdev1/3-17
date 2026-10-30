@@ -42,6 +42,10 @@ export const desktopRuntime = {
   inspectPitch: 0,
   /** Whether each flat's entrance leaf stands open at all (Doors writes it every frame). */
   entrances: { front_door: false, front_door48: false } as Record<string, boolean>,
+  doorLeaves: {} as Record<string, { x0: number; z0: number; x1: number; z1: number }>,
+  doorAngles: {} as Record<string, number>,
+  doorChoices: {} as Record<string, boolean>,
+  doorLocks: {} as Record<string, boolean>,
   /** Flats whose furniture is drawn this frame (out of sight behind shut doors otherwise). */
   flatsDrawn: '',
   /** Debug/test builds only: a requested jump [x, z, yaw], consumed by the camera rig. */

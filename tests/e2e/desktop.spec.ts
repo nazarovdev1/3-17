@@ -116,6 +116,12 @@ test('desktop real-input ending B: unchain, walk out and down the stairs', async
   await expect
     .poll(async () => page.evaluate(() => !!window.__game.getState()?.flags['front_open']))
     .toBe(true)
+  await expect
+    .poll(async () => ({
+      angle: ((await inspect(page)).doorAngles['front_door'] ?? 0) > 1,
+      world: (await page.evaluate(() => window.__game.getWorld()))?.doors['front_door'],
+    }))
+    .toEqual({ angle: true, world: 'open' })
   await walkTo(page, 0.1, 5.3)
   await walkTo(page, 0.9, 6.9, 0.3)
   // The first steps down the flight are the ending.
@@ -165,6 +171,10 @@ test('desktop real-input ending A: across the landing, into 48', async ({ page }
   // Fully out onto the landing before turning: the doorway allows no sideways step.
   await walkTo(page, 0.1, 5.7, 0.15)
   await walkTo(page, -4.2, 5.7)
+  const leaf48 = (await inspect(page)).doorLeaves['front_door48']!
+  await face(page, (leaf48.x0 + leaf48.x1) / 2, (leaf48.z0 + leaf48.z1) / 2)
+  await page.keyboard.press('e')
+  await expect.poll(async () => (await inspect(page)).doorAngles['front_door48']).toBeGreaterThan(1)
   // Over 48's threshold: that step is the ending.
   await face(page, -4.2, 4.0)
   await page.keyboard.down('w')

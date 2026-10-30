@@ -76,6 +76,7 @@ export function Lighting({
     const step = daylightMs > 0 ? Math.min(0.05, delta) / (daylightMs / 1000) : 1
     day.current += Math.sign(target - day.current) * Math.min(Math.abs(target - day.current), step)
     const d = day.current
+    softwareLight.daylight.value = d
     // Power cuts at once, and comes back slowly: the filaments warm up over two seconds.
     current.current = outage ? 0 : Math.min(1, current.current + Math.min(0.05, delta) * 0.5)
     const warm = current.current * current.current

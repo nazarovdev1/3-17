@@ -596,7 +596,7 @@ const OBJECTS_47: WorldObject[] = [
     asset: 'painted_wooden_chair_02',
     // One chair, centred on the table's side: with two, the way past the fridge and washer
     // to the stove (the night-1 kettle) was 14 cm wide.
-    position: [1.6, 0, 1.5],
+    position: [1.6, 0, 1.85],
     rotation: HALF_PI,
     size: [0.64, 1.26, 0.66],
     support: ON_FLOOR,

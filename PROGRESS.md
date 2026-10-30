@@ -937,3 +937,15 @@ Not verified:
 
 Phase 9 exit met. All phases complete; the remaining unverified items are listed above and
 in Phase 8.
+
+## R4.5 — in progress
+
+Desktop doors now use deliberate interaction and live leaf collision. The new door input
+test passed; desktop real-input A and B passed after fixing the under-door figure holding
+47 shut, and C passed in the preceding run. The first A/B runs failed at the entrance;
+these were rerun after that correction. Small-Android fast routes A, B and C passed.
+Kitchen chair clearance and an automated swing-arc validator were added. Before/after
+chair images and initial area views are in `audit/screenshots/r45/`. Area views are not
+yet a complete placement audit: several face nearby walls, close-ups and ending key frames
+are incomplete, and the required after sheets and full player walk-through remain.
+R4.5 is not at its owner gate; R5 has not started.

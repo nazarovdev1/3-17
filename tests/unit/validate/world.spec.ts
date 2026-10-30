@@ -25,6 +25,16 @@ afterEach(() => {
 })
 
 describe('validate:world (FIX_PROMPT §4.3)', () => {
+  it('detects furniture in a door swing even when the doorway itself is clear', () => {
+    const chair = WORLD.objects.find((o) => o.id === 'kitchen_chair_1')!
+    const before = chair.position
+    try {
+      chair.position = [1.6, 0, 1.5]
+      expect(validateWorld().errors).toContain('kitchen_chair_1 intersects the kitchen_door swing')
+    } finally {
+      chair.position = before
+    }
+  })
   it('passes on the shipped plan', () => {
     expect(validateWorld().errors).toEqual([])
   })

@@ -177,6 +177,7 @@ export const night5: Sequence = {
       actions: [
         flag('front_open'),
         flag('chain_on', false),
+        { type: 'figure', placement: null },
         { type: 'door', id: 'front_door', state: 'open' },
         sound('chain', 'front_door'),
       ],

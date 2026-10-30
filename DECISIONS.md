@@ -489,3 +489,26 @@ Android phones"), recorded here.
     outward or below. They are uploaded once on mount, as are the night props, so resource
     counts stay flat across night transitions. The landing bulb and the stair window fill are
     moved downstairs instead of adding lights, so the shader set does not grow.
+
+91. **R4.5 door interaction and proximity audit (in progress).** Player-operated hinged
+    doors keep their selected position; the kitchen no longer closes behind the player.
+    Story-held doors still take precedence, and a new story door state clears a player
+    choice. The entrance to 48 uses its story id `door48` and its physical leaf id
+    `front_door48`. The night-5 figure under 47 vanishes when the entrance is opened,
+    allowing the story-held-open leaf to move. The front door rattles before the voice
+    asks for the door. Dynamic leaf segments are used for desktop walking collision.
+    The ending-A route now opens 48 explicitly and the B route waits for the leaf.
+    The `near`/`Math.hypot`/distance search in desktop code found one remaining
+    proximity-driven visual: `Figure.tsx` ends certain authored apparition appearances
+    when approached, intentionally retained as a story effect. Other hits measure input
+    reach, movement, collision, stair geometry, rendering or winding, not autonomous props.
+92. **R4.5 kitchen clearance.** The kitchen chair moves from z=1.50 to z=1.85 m to clear
+    the kitchen door sweep. The world validator samples operable door arcs against solid
+    furniture, and a regression test restores the old chair position to verify detection.
+    Closet, lift and metal leaves are excluded because the current door renderer does not
+    swing them. This check does not cover procedural night props or all rendered meshes.
+93. **Software-rendered daylight and the wall prompt.** The software material now receives
+    the same fading daylight state as the scene lighting; its vertex lighting previously
+    ignored the hemisphere and directional lights, leaving ending A's daylight almost
+    black. The generic hold prompt is limited to night 2 after the voice, when the hold
+    actually has a response. Story waits and ending A's knock remain separately targeted.

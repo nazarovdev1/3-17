@@ -10,8 +10,7 @@ import { softwareMaterial } from './softwareMaterial'
 
 /**
  * Hinged doors from the plan. Each leaf pivots at its hinge and swings toward the side the
- * plan says. Doors open as the player walks up (and close behind); the bathroom stays a
- * hand's width ajar; flat 48's door hangs open from night 4.
+ * plan says. Player-operated doors remain where they were left.
  */
 interface Placed {
   def: DoorDef
@@ -287,30 +286,33 @@ export function Doors({
   /** Angular velocity of each leaf (rad/s): doors swing on a damped spring, not a lerp. */
   const speeds = useRef<number[]>([])
   const opening = useRef<boolean[]>([])
+  const previousStory = useRef<Record<string, string | undefined>>({})
   useFrame((_, rawDelta) => {
     const delta = Math.min(rawDelta, 0.05)
-    const [px, , pz] = desktopRuntime.position
     placed.forEach((p, i) => {
       const pivot = pivots.current[i]
       if (!pivot) return
-      const centre = p.hinge.clone()
-      const near = Math.hypot(px! - centre.x, pz! - centre.z) < 1.6
-      const opensForPlayer =
-        p.def.kind !== 'metal' &&
-        p.def.kind !== 'lift' &&
-        p.def.id !== 'balcony_door' &&
-        (p.def.id !== 'front_door48' || doorAjar)
-      // Once the player is fully inside the small kitchen, close the leaf behind
-      // them. Holding it open here screened the fridge and washer with frosted glass.
-      const kitchenInside =
-        p.def.id.startsWith('kitchen_door') &&
-        (px! - p.hinge.x) * (p.def.id.endsWith('48') ? -1 : 1) > 0.37
+      const storyId = p.def.id === 'front_door48' ? 'door48' : p.def.id
+      const state = story[storyId]
+      if (previousStory.current[p.def.id] !== state) {
+        delete desktopRuntime.doorChoices[p.def.id]
+        previousStory.current[p.def.id] = state
+      }
       const shut = closed.has(p.def.id)
+      desktopRuntime.doorLocks[p.def.id] =
+        shut ||
+        held.has(p.def.id) ||
+        p.def.kind === 'metal' ||
+        p.def.kind === 'lift' ||
+        (p.def.id === 'front_door48' && !doorAjar)
+      const choice = desktopRuntime.doorChoices[p.def.id]
       const target = shut
         ? 0
-        : held.has(p.def.id) || (near && opensForPlayer && !kitchenInside)
+        : held.has(p.def.id) || choice === true
           ? 1.4
-          : rest(p.def, doorAjar, storyRest(story[p.def.id]))
+          : choice === false
+            ? 0
+            : rest(p.def, doorAjar, storyRest(state))
       // A door the story holds shut is shut (it does not swing closed in front of you).
       const current = shut
         ? 0
@@ -324,6 +326,14 @@ export function Doors({
       speeds.current[i] = next === 0 ? 0 : speed
       angles.current[i] = next
       pivot.rotation.y = p.base + p.sign * next
+      desktopRuntime.doorAngles[p.def.id] = next
+      const width = p.opening.width - 0.01
+      desktopRuntime.doorLeaves[p.def.id] = {
+        x0: p.hinge.x,
+        z0: p.hinge.z,
+        x1: p.hinge.x + Math.cos(pivot.rotation.y) * width,
+        z1: p.hinge.z - Math.sin(pivot.rotation.y) * width,
+      }
       if (p.def.id in desktopRuntime.entrances) desktopRuntime.entrances[p.def.id] = next > 0.02
       const hinge: [number, number, number] = [p.hinge.x, 1.0, p.hinge.z]
       const wasOpening = opening.current[i] ?? false

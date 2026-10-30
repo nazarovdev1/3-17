@@ -187,11 +187,19 @@ export function World({
       new Set([
         ...(appearance?.closedDoors ?? []),
         ...(peephole || world.doors['front_door'] === 'closed' ? ['front_door'] : []),
+        ...(world.sequence === 'endA' && world.doors['door48'] === 'closed'
+          ? ['front_door48']
+          : []),
       ]),
-    [appearance, peephole, world.doors],
+    [appearance, peephole, world.doors, world.sequence],
   )
   const held = useMemo(
-    () => new Set(Object.entries(world.doors).flatMap(([id, s]) => (s === 'open' ? [id] : []))),
+    () =>
+      new Set(
+        Object.entries(world.doors).flatMap(([id, s]) =>
+          s === 'open' ? [id === 'door48' ? 'front_door48' : id] : [],
+        ),
+      ),
     [world.doors],
   )
   const dark = useMemo(

@@ -28,7 +28,7 @@ import { STILL_CAMERAS } from '../mobile/still-scenes'
 /** What the crosshair is on: a Director object, a light switch, or the peephole. */
 export interface Near {
   id: string
-  kind: 'use' | 'hold' | 'switch' | 'peek' | 'unpeek'
+  kind: 'use' | 'hold' | 'switch' | 'peek' | 'unpeek' | 'door'
 }
 
 export interface RigProps {
@@ -130,6 +130,7 @@ export function CameraRig({
     const spawn = getDirector()?.spawn
     if (!spawn) return
     camera.position.set(...spawn.position)
+    desktopRuntime.doorChoices = {}
     feet.current = spawn.position[1] - EYE
     angles.current = { yaw: spawn.yaw, pitch: 0 }
     velocity.current = { x: 0, z: 0 }
@@ -213,7 +214,26 @@ export function CameraRig({
       }
       const n = near.current
       if (!n) return
-      if (n.kind === 'use' && n.id === 'peephole') {
+      if (
+        n.id === 'front_door' &&
+        world.sequence === 'n5' &&
+        !useGame.getState().run?.flags['open_the_door']
+      ) {
+        audio.play('chain', [0, 1, 4.69 + live.current.extension])
+        return
+      }
+      const doorId = n.id === 'door48' ? 'front_door48' : n.id
+      if (n.kind === 'door' || (n.kind === 'use' && desktopRuntime.doorLeaves[doorId])) {
+        if (n.kind === 'use') input({ type: 'interact', target: n.id })
+        const leaf = desktopRuntime.doorLeaves[doorId]
+        if (desktopRuntime.doorLocks[doorId]) {
+          if (leaf) audio.play('chain', [(leaf.x0 + leaf.x1) / 2, 1, (leaf.z0 + leaf.z1) / 2])
+        } else {
+          const open =
+            desktopRuntime.doorChoices[doorId] ?? (desktopRuntime.doorAngles[doorId] ?? 0) > 0.7
+          desktopRuntime.doorChoices[doorId] = !open
+        }
+      } else if (n.kind === 'use' && n.id === 'peephole') {
         // The night wants the peephole looked through: the eye goes to the lens.
         onPeek(true)
         input({ type: 'interact', target: 'peephole' })
@@ -418,6 +438,7 @@ export function CameraRig({
       // Ending A happens inside 48 with its door shut behind the player.
       flat48: door48 === 'ajar' || door48 === 'open' || world.sequence === 'endA',
       extension: stretch,
+      doorLeaves: Object.values(desktopRuntime.doorLeaves),
     })
     // Able to move only a little: a slow shuffle within 1.5 m of where it began.
     if (world.control === 'shuffle') {
@@ -578,13 +599,28 @@ export function CameraRig({
         const point = objectPoint(id)
         if (point) consider(id, 'use', point, id === 'rustam_hand' ? 2.0 : REACH)
       }
+      for (const [id, leaf] of Object.entries(desktopRuntime.doorLeaves)) {
+        if (!pick.best)
+          consider(id, 'door', [
+            (leaf.x0 + leaf.x1) / 2,
+            camera.position.y,
+            (leaf.z0 + leaf.z1) / 2,
+          ])
+      }
       if (world.waiting && WALL_TARGETS.has(world.waiting)) {
         const point = objectPoint(world.waiting)
         if (point) consider(world.waiting, 'use', point)
       }
       for (const id of WALL_TARGETS) {
         const point = objectPoint(id)
-        if (point && !pick.best) consider(id, 'hold', point)
+        if (
+          point &&
+          !pick.best &&
+          world.sequence === 'n2' &&
+          id === 'party_wall' &&
+          useGame.getState().run?.flags['n2_voice_done']
+        )
+          consider(id, 'hold', point)
       }
       // Light switches only when nothing the night cares about is under the crosshair.
       if (!pick.best) SWITCHES.forEach((point, i) => consider(String(i), 'switch', point, 1.6))

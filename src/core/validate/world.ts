@@ -96,6 +96,27 @@ function distanceToWall(box: Box3, w: Wall) {
   return Math.hypot(dx, dz)
 }
 
+/** Whether a finite segment intersects a footprint, expanded for the leaf's thickness. */
+function segmentHitsRect(x: number, z: number, dx: number, dz: number, rect: Rect): boolean {
+  let from = 0
+  let to = 1
+  for (const [start, delta, low, high] of [
+    [x, dx, rect.x0 - 0.01, rect.x1 + 0.01],
+    [z, dz, rect.z0 - 0.01, rect.z1 + 0.01],
+  ]) {
+    if (Math.abs(delta!) < 1e-9) {
+      if (start! < low! || start! > high!) return false
+      continue
+    }
+    const a = (low! - start!) / delta!
+    const b = (high! - start!) / delta!
+    from = Math.max(from, Math.min(a, b))
+    to = Math.min(to, Math.max(a, b))
+    if (from > to) return false
+  }
+  return true
+}
+
 export function validateWorld(): WorldReport {
   const errors: string[] = []
   const objects = WORLD.objects
@@ -197,6 +218,33 @@ export function validateWorld(): WorldReport {
           errors.push(`${ob.id} blocks the ${o.door ?? o.kind} doorway in ${w.id}`)
         }
       }
+    }
+  }
+
+  // Sample each operable leaf's full swing at one-degree intervals. Furniture must clear
+  // the swept area, not just the doorway when the leaf is closed.
+  for (const door of WORLD.doors) {
+    if (door.kind === 'closet' || door.kind === 'metal' || door.kind === 'lift') continue
+    const wall = wallById(door.wall)
+    const opening = wall?.openings.find((o) => o.door === door.id)
+    if (!wall || !opening) continue
+    const along = opening.at + ((door.hinge === 'low' ? -1 : 1) * opening.width) / 2
+    const x = wall.axis === 'x' ? along : (wall.box.x0 + wall.box.x1) / 2
+    const z = wall.axis === 'x' ? (wall.box.z0 + wall.box.z1) / 2 : along
+    const dir = door.hinge === 'low' ? 1 : -1
+    const width = opening.width - 0.01
+    for (const ob of objects.filter((o) => o.blocks && o.position[1] < opening.top)) {
+      const f = footprint(ob)
+      const hit = Array.from({ length: 82 }, (_, i) => Math.min(1.4, (i * Math.PI) / 180)).some(
+        (angle) => {
+          const dx =
+            width * (wall.axis === 'x' ? dir * Math.cos(angle) : door.swing * Math.sin(angle))
+          const dz =
+            width * (wall.axis === 'x' ? door.swing * Math.sin(angle) : dir * Math.cos(angle))
+          return segmentHitsRect(x, z, dx, dz, f)
+        },
+      )
+      if (hit) errors.push(`${ob.id} intersects the ${door.id} swing`)
     }
   }
 
