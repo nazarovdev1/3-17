@@ -597,6 +597,7 @@ export function CameraRig({
       }
       for (const id of interactables) {
         if (PHONE_TARGETS.has(id)) continue
+        if (id === 'wardrobe') continue // Target the moving leaves below, not the empty space between them.
         // The clock held in both hands: its keyhole is wherever the eyes are.
         if (id === 'keyhole' && world.objects['clock'] === 'in_hand') {
           const held = camera.position.clone().addScaledVector(forward.current, 0.4)
@@ -607,15 +608,13 @@ export function CameraRig({
         if (point) consider(id, 'use', point, id === 'rustam_hand' ? 2.0 : REACH)
       }
       for (const [id, leaf] of Object.entries(desktopRuntime.doorLeaves)) {
-        if (id.startsWith('wardrobe_')) continue
         if (!pick.best)
-          consider(id, 'door', [
+          consider(id.startsWith('wardrobe_') ? 'wardrobe' : id, 'door', [
             (leaf.x0 + leaf.x1) / 2,
             camera.position.y,
             (leaf.z0 + leaf.z1) / 2,
           ])
       }
-      if (!pick.best) consider('wardrobe', 'door', [-0.65, 1.4, 0.95])
       if (world.waiting && WALL_TARGETS.has(world.waiting)) {
         const point = objectPoint(world.waiting)
         if (point) consider(world.waiting, 'use', point)

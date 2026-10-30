@@ -521,3 +521,6 @@ Android phones"), recorded here.
     the first night-2 opening still sends the Director input for the coat and diary beat.
     Live leaf segments join desktop collision, and the validator checks both leaf sweeps.
     The fallback mobile presentation still needs its own interaction pass.
+96. **Target the wardrobe leaf.** The open wardrobe no longer shows an interaction glyph
+    on empty space between its leaves: the current leaf segments are the targets. The
+    real-input test turns to a leaf before closing and also verifies the night-2 story beat.

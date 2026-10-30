@@ -90,8 +90,34 @@ test('the wardrobe opens and closes only on E', async ({ page }) => {
   await page.evaluate(() => window.__game.teleport(0.3, 0.95, Math.PI / 2))
   const angle = () => page.evaluate(() => window.__game.getDesktopState().wardrobeAngle as number)
   await expect.poll(angle).toBeLessThan(0.1)
+  await page.waitForTimeout(500)
   await page.keyboard.press('e')
   await expect.poll(angle).toBeGreaterThan(1)
+  await page.evaluate(() => {
+    const state = window.__game.getDesktopState()
+    const position = state.position as number[]
+    const leaf = (
+      state.doorLeaves as Record<string, { x0: number; x1: number; z0: number; z1: number }>
+    )['wardrobe_0']!
+    const x = (leaf.x0 + leaf.x1) / 2
+    const z = (leaf.z0 + leaf.z1) / 2
+    window.__game.teleport(
+      position[0]!,
+      position[2]!,
+      Math.atan2(position[0]! - x, position[2]! - z),
+    )
+  })
+  await page.waitForTimeout(300)
   await page.keyboard.press('e')
   await expect.poll(angle).toBeLessThan(0.1)
+  await page.evaluate(() => {
+    window.__game.startNight(2)
+    window.__game.setFlag('night_started_n2', true)
+    window.__game.teleport(0.3, 0.95, Math.PI / 2)
+  })
+  await page.waitForTimeout(700)
+  await page.keyboard.press('e')
+  await expect
+    .poll(() => page.evaluate(() => window.__game.getState()?.flags['wardrobe_open']))
+    .toBe(true)
 })
