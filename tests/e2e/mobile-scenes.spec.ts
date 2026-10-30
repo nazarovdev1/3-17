@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test'
 import { test } from './fixtures'
-import { startNamedRun } from './helpers'
+import { moveOn, startNamedRun } from './helpers'
 import { ui } from '../../src/content/text'
 
 // Scene evidence is written once; the interaction checks run at every viewport.
@@ -53,12 +53,17 @@ test('mobile viewpoints, hotspot bounds, wall listening, pause and glyph evidenc
       await page.evaluate(() => document.fonts.ready)
       await page.screenshot({ path: `tests/screenshots/mobile-${view}.png` })
     }
-    await page.locator(`.view-exit-${exit}`).click()
+    await moveOn(page, exit as 'left' | 'right' | 'back' | 'forward')
   }
   // Hold the shared wall to listen; letting go stops.
   await expect(game).toHaveAttribute('data-view', 'hall')
-  await page.locator('.view-exit-back').click()
-  await page.locator('.view-exit-left').click()
+  // Listening exists once night 2's voice has spoken, so the wall is tried there.
+  await page.evaluate(() => {
+    window.__game.startNight(2)
+    window.__game.setFlag('n2_voice_done', true)
+  })
+  await expect(game).toHaveAttribute('data-view', 'room')
+  await moveOn(page, 'left')
   await expect(game).toHaveAttribute('data-view', 'wall')
   const wall = (await page.locator('[data-object="party_wall"]').boundingBox())!
   await page.mouse.move(wall.x + wall.width / 2, wall.y + wall.height / 2)

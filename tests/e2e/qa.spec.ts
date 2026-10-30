@@ -1,6 +1,6 @@
 import { expect, type Page } from '@playwright/test'
 import { test } from './fixtures'
-import { acceptWarning, startNamedRun, startRun } from './helpers'
+import { acceptWarning, moveOn, startNamedRun, startRun } from './helpers'
 import { ui } from '../../src/content/text'
 
 /**
@@ -83,24 +83,18 @@ async function fastRoute(page: Page, ending: Ending): Promise<string[]> {
             ending,
           )
         else {
-          await page
-            .locator('.mobile-game[data-view="room"] .view-exit-back')
-            .click({ timeout: 2000 })
-            .catch(() => undefined)
-          await page
-            .locator('.mobile-game[data-view="hall"] .view-exit-forward')
-            .click({ timeout: 2000 })
-            .catch(() => undefined)
+          await moveOn(page, 'back', '.mobile-game[data-view="room"]', 2000).catch(() => undefined)
+          await moveOn(page, 'forward', '.mobile-game[data-view="hall"]', 2000).catch(
+            () => undefined,
+          )
           if (ending === 'B')
-            await page
-              .locator('.mobile-game[data-view="landing"] .view-exit-back')
-              .click({ timeout: 2000 })
-              .catch(() => undefined)
+            await moveOn(page, 'back', '.mobile-game[data-view="landing"]', 2000).catch(
+              () => undefined,
+            )
           else
-            await page
-              .locator('.mobile-game[data-view="landing"] .view-exit-left')
-              .click({ timeout: 2000 })
-              .catch(() => undefined)
+            await moveOn(page, 'left', '.mobile-game[data-view="landing"]', 2000).catch(
+              () => undefined,
+            )
         }
       }
     }

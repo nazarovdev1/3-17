@@ -1,18 +1,23 @@
 import type { HotspotTarget } from './hotspots'
+import type { MobileDoorId } from './doors'
 
 /**
  * Mobile fallback viewpoints (R1): the HD stills of the real flat, one per spot, linked by
  * edge arrows. The same Director runs; a viewpoint stands for the zones the player is in and
  * the objects they can see. R5 replaces this with the magic-window 3D view.
  */
+export type Edge = 'left' | 'right' | 'back' | 'forward' | 'aside'
+
 export interface MobileView {
   /** Still camera (still-scenes.ts) shown for this viewpoint. */
   still: string
   zones: string[]
   objects: HotspotTarget[]
-  exits: Partial<Record<'left' | 'right' | 'back' | 'forward', string>>
+  exits: Partial<Record<Edge, string>>
+  /** Exits that cross a hinged door: the arrow shows only while that leaf stands open. */
+  gates?: Partial<Record<Edge, MobileDoorId>>
   /** Exits that exist only while a door stands open (e.g. 48's, nights 4–5). */
-  doorExits?: Partial<Record<'left' | 'right' | 'back' | 'forward', { to: string; door: string }>>
+  doorExits?: Partial<Record<Edge, { to: string; door: string }>>
 }
 
 export const MOBILE_VIEWS: Record<string, MobileView> = {
@@ -29,6 +34,7 @@ export const MOBILE_VIEWS: Record<string, MobileView> = {
     ],
     exits: { forward: 'hall', back: 'stairs' },
     doorExits: { left: { to: 'flat48', door: 'door48' } },
+    gates: { forward: 'front_door' },
   },
   flat48: {
     still: 'flat48',
@@ -40,6 +46,7 @@ export const MOBILE_VIEWS: Record<string, MobileView> = {
       { id: 'party_wall48', at: { x: 0.72, y: 0.45 } },
     ],
     exits: { back: 'landing' },
+    gates: { back: 'door48' },
   },
   stairs: {
     still: 'stairwell',
@@ -55,10 +62,19 @@ export const MOBILE_VIEWS: Record<string, MobileView> = {
       { id: 'front_door', anchor: 'front_door' },
       { id: 'chain', at: { x: 0.44, y: 0.47 } },
       { id: 'peephole', at: { x: 0.5, y: 0.4 } },
+    ],
+    // The coat hooks and the wardrobe are along the hall's side wall: a closer look.
+    exits: { back: 'room', left: 'bathroom', right: 'kitchen', forward: 'landing', aside: 'coat' },
+    gates: { back: 'room_door', left: 'bath_door', right: 'kitchen_door', forward: 'front_door' },
+  },
+  coat: {
+    still: 'coat',
+    zones: ['hall', 'corridor'],
+    objects: [
       { id: 'wardrobe', at: { x: 0.2, y: 0.5 } },
       { id: 'coat_pocket', at: { x: 0.24, y: 0.58 } },
     ],
-    exits: { back: 'room', left: 'bathroom', right: 'kitchen', forward: 'landing' },
+    exits: { back: 'hall' },
   },
   room: {
     still: 'room',
@@ -72,6 +88,7 @@ export const MOBILE_VIEWS: Record<string, MobileView> = {
       { id: 'floor_rug', at: { x: 0.55, y: 0.85 } },
     ],
     exits: { left: 'wall', right: 'entry', back: 'hall' },
+    gates: { back: 'room_door' },
   },
   entry: {
     still: 'room_entry',
@@ -85,6 +102,7 @@ export const MOBILE_VIEWS: Record<string, MobileView> = {
       { id: 'tv', at: { x: 0.78, y: 0.62 } },
     ],
     exits: { left: 'room', back: 'hall' },
+    gates: { back: 'room_door' },
   },
   wall: {
     still: 'wall',
@@ -100,12 +118,14 @@ export const MOBILE_VIEWS: Record<string, MobileView> = {
       { id: 'bread_bin', at: { x: 0.28, y: 0.6 } },
     ],
     exits: { back: 'hall' },
+    gates: { back: 'kitchen_door' },
   },
   bathroom: {
     still: 'bathroom',
     zones: ['bathroom'],
     objects: [{ id: 'bathtub', at: { x: 0.35, y: 0.75 } }],
     exits: { back: 'hall' },
+    gates: { back: 'bath_door' },
   },
 }
 

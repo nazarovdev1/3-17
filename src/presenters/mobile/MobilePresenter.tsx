@@ -11,11 +11,13 @@ import { stillFor } from './still-scenes'
 import { useParallax } from './useParallax'
 import { PauseMenu } from '@/ui/PauseMenu'
 import { PlayOverlays } from '@/ui/play/Overlays'
-import { MOBILE_VIEWS, mobileStart } from './views'
+import { MOBILE_VIEWS, mobileStart, type Edge } from './views'
+import { doorPass } from './doors'
+import { audio } from '@/audio/engine'
 import { SCREEN, drawScreen } from '../phoneScreen'
 import { phoneTime } from '../desktop/phone'
 
-const ARROW: Record<string, string> = { left: '‹', right: '›', back: '⌄', forward: '⌃' }
+const ARROW: Record<Edge, string> = { left: '‹', right: '›', back: '⌄', forward: '⌃', aside: '' }
 /** The shared walls: hold to listen, three taps to knock, one tap to answer. */
 const WALLS = new Set(['party_wall', 'party_wall48'])
 
@@ -41,6 +43,26 @@ function Viewpoints({ paused }: { paused: boolean }) {
   const input = useGame((s) => s.input)
   const [viewId, setViewId] = useState(() => mobileStart(world.sequence))
   const view = MOBILE_VIEWS[viewId]!
+  // The player's own choice per hinged door; the story's new word on a door clears it.
+  const [doorChoices, setDoorChoices] = useState<Record<string, boolean>>({})
+  const storyDoors = useRef(world.doors)
+  useEffect(() => {
+    const before = storyDoors.current
+    storyDoors.current = world.doors
+    const changed = Object.keys({ ...before, ...world.doors }).filter(
+      (id) => before[id] !== world.doors[id],
+    )
+    if (changed.length)
+      setDoorChoices((c) =>
+        Object.fromEntries(Object.entries(c).filter(([id]) => !changed.includes(id))),
+      )
+  }, [world.doors])
+  const useDoor = (id: Parameters<typeof doorPass>[0]) => {
+    const pass = doorPass(id, world, doorChoices)
+    if (pass.locked) return audio.play('chain', undefined, 0.8)
+    audio.play(pass.open ? 'door_close' : 'door_open', undefined, 0.8)
+    setDoorChoices((c) => ({ ...c, [id]: !pass.open }))
+  }
   const sceneRef = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState({ width: 360, height: 352 })
   const motion = useParallax(!paused)
@@ -125,22 +147,47 @@ function Viewpoints({ paused }: { paused: boolean }) {
             ),
           )}
         {!holdingPhone &&
-          [
-            ...Object.entries(view.exits),
-            ...Object.entries(view.doorExits ?? {}).flatMap(([edge, exit]) => {
-              const state = world.doors[exit.door]
-              return state === 'ajar' || state === 'open' ? [[edge, exit.to] as const] : []
-            }),
-          ].map(([edge, to]) => (
-            <button
-              key={edge}
-              className={`view-exit view-exit-${edge}`}
-              aria-label={ui('mobile.go')}
-              onClick={() => !paused && to && setViewId(to)}
-            >
-              <span aria-hidden="true">{ARROW[edge]}</span>
-            </button>
-          ))}
+          (
+            [
+              ...Object.entries(view.exits),
+              ...Object.entries(view.doorExits ?? {}).flatMap(([edge, exit]) => {
+                const state = world.doors[exit.door]
+                return state === 'ajar' || state === 'open' ? [[edge, exit.to] as const] : []
+              }),
+            ] as [Edge, string][]
+          )
+            // A closer look is offered only where something there can be handled.
+            .filter(
+              ([edge, to]) =>
+                edge !== 'aside' || MOBILE_VIEWS[to]!.objects.some((o) => interactables.has(o.id)),
+            )
+            .map(([edge, to]) => {
+              const gate = view.gates?.[edge]
+              const pass = gate ? doorPass(gate, world, doorChoices) : null
+              // A closed door stands between here and there: the control is the door itself.
+              return pass && !pass.open ? (
+                <button
+                  key={edge}
+                  data-door={gate}
+                  className={`view-exit view-exit-${edge} view-door ${pass.locked ? 'locked' : ''}`}
+                  aria-label={ui('mobile.door')}
+                  onClick={() => !paused && gate && useDoor(gate)}
+                >
+                  <span className="door-icon" aria-hidden="true" />
+                </button>
+              ) : (
+                <button
+                  key={edge}
+                  className={`view-exit view-exit-${edge}`}
+                  aria-label={ui('mobile.go')}
+                  onClick={() => !paused && to && setViewId(to)}
+                >
+                  <span aria-hidden="true" className={edge === 'aside' ? 'look-icon' : undefined}>
+                    {ARROW[edge]}
+                  </span>
+                </button>
+              )
+            })}
         {holdingPhone && (
           <PhoneInHand
             onTap={(part) => {

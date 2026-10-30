@@ -1,6 +1,6 @@
 import { expect, type Page } from '@playwright/test'
 import { test } from './fixtures'
-import { signForm } from './helpers'
+import { moveOn, signForm } from './helpers'
 import type { AudioEngine } from '../../src/audio/engine'
 import { ui } from '../../src/content/text'
 import { manifest } from '../../src/assets/loader'
@@ -139,7 +139,7 @@ test('outage silence, native cue output, clock ending, spatial panner and bounde
   // Rustam aka gone, the player steps into the hall: the flat's bed, and no clock tick in it.
   await page.evaluate(() => window.__game.setFlag('rustam_gone', true))
   // Without WebGL the desktop choice falls back to the mobile viewpoints.
-  if (await page.locator('.mobile-game').count()) await page.locator('.view-exit-forward').click()
+  if (await page.locator('.mobile-game').count()) await moveOn(page, 'forward')
   else await page.evaluate(() => window.__game.teleport(0.5, 3.8))
   await expect.poll(async () => (await state(page)).layers, { timeout: 15_000 }).toContain('fridge')
   expect((await state(page)).recent).not.toContain('clock_tick')

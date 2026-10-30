@@ -84,3 +84,18 @@ export async function startNamedRun(page: Page, name: string): Promise<void> {
   await startRun(page)
   await signForm(page, name)
 }
+
+/**
+ * Fixed-view fallback: moves one view on. A closed door between the views shows a door
+ * control in the arrow's place; it is tapped open first, as a player would.
+ */
+export async function moveOn(
+  page: Page,
+  edge: 'left' | 'right' | 'back' | 'forward',
+  scope = '.mobile-game',
+  timeout?: number,
+): Promise<void> {
+  const door = page.locator(`${scope} .view-door.view-exit-${edge}`)
+  if (await door.count()) await door.click({ timeout })
+  await page.locator(`${scope} .view-exit-${edge}:not(.view-door)`).click({ timeout })
+}

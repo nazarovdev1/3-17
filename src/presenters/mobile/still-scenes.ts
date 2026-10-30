@@ -120,7 +120,8 @@ export function stillFor(view: string, night: number, power: boolean): string {
   if (view === 'phone') return night === 5 && !power ? 'phone-dead' : `phone-night${night}`
   const off = !power
   if (view === 'corridor' && !off && night === 5) return 'corridor-cold'
-  if (view === 'corridor' && !off && night >= 2) return 'coat-changed'
+  // The coat on its hooks (a closer look off the hall) is the changed state of the wall.
+  if (view === 'coat') return 'coat-changed'
   const variant = view === 'room' && !off && night >= 3 ? 'changed' : off ? 'off' : 'on'
   const id = `${view}-${variant}`
   return STILL_RECIPES.some((recipe) => recipe.id === id) ? id : `${view}-on`
