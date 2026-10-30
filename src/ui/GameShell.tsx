@@ -1,5 +1,5 @@
 import { ui } from '@/content/text'
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useGame, type Screen } from './gameStore'
 import { TelegramAdapter } from '@/platform/telegram/adapter'
 import { ContentWarning } from './ContentWarning'
@@ -38,8 +38,9 @@ export function GameShell() {
   // Phones: the magic window (3D, turned by the phone) unless the device is weak or it failed.
   const [magicFailed, setMagicFailed] = useState(false)
   const failMagic = useCallback(() => setMagicFailed(true), [])
-  const [capable] = useState(magicCapable)
-  const magic = mode === 'mobile' && capable && !magicFailed
+  // Probed only on a phone: a desktop never needs the extra graphics context.
+  const capable = useMemo(() => bootDone && mode === 'mobile' && magicCapable(), [bootDone, mode])
+  const magic = capable && !magicFailed
   const fallBack = useCallback(() => {
     failed.current = true
     setMode('mobile')
