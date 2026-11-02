@@ -102,8 +102,14 @@ export function Lighting({
       // And the timer bulb's light is the 3rd floor's, under it.
       const [lx, ly, lz] = below ? LANDING3_BULB : landingAt
       landingLight.current.position.set(lx, ly, lz)
+      // Below, the 3rd floor's own timer bulb burns at night too: the treads and the landing
+      // floor must read as concrete, not as a flat patch of fill light.
       landingLight.current.intensity = below
-        ? 0.25 + 5 * d
+        ? outage
+          ? 0.25
+          : landingDark
+            ? 0.7
+            : 5.5 + 3.5 * d
         : outage || landingDead
           ? 0
           : landingDark
@@ -150,9 +156,11 @@ export function Lighting({
       softwareLight.position.value.set(inBus ? 0.5 : 4.5, inBus ? -6.0 : -2.6, inBus ? -18.3 : -16)
       softwareLight.power.value = inBus ? 5 : 8
     } else if (desktopRuntime.feet < -0.3) {
-      // Downstairs the one software light is the grey day from the half-landing window.
-      softwareLight.position.value.set(0.9, -0.6, 7.4)
-      softwareLight.power.value = daylight ? 6 : 0.5
+      // Downstairs the one software light is the grey day from the half-landing window, and
+      // at night the 3rd floor's timer bulb (the floors there must not go flat blue).
+      if (daylight) softwareLight.position.value.set(0.9, -0.6, 7.4)
+      else softwareLight.position.value.set(...LANDING3_BULB)
+      softwareLight.power.value = daylight ? 6 : outage ? 0.5 : landingDark ? 0.8 : 2.4
     }
     if (s) {
       const l = ceilings[room]!

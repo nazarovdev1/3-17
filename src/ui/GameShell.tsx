@@ -18,7 +18,9 @@ import { HorrorEffects } from './HorrorEffects'
 import { LoadingScreen } from './LoadingScreen'
 import { DirectorDriver } from './DirectorDriver'
 import { useAssetLoad } from './assetLoadStore'
+import { desktopRuntime } from '@/platform/device/desktopRuntime'
 import './shell.css'
+import './menu.css'
 
 const DesktopPresenter = lazy(() => import('@/presenters/desktop/DesktopPresenter'))
 
@@ -139,6 +141,26 @@ export function GameShell() {
     if (bootDone && (mode === 'desktop' || magic)) useAssetLoad.getState().start()
   }, [bootDone, mode, magic])
 
+  // Entering a run (not coming back from pause) shows the loading screen until the flat is
+  // built and its shaders are warm; the Director waits behind it, so no night starts unseen.
+  const inGame = screen === 'game' || screen === 'paused'
+  const entry = useGame((s) => s.entry)
+  const [liftedEntry, setLiftedEntry] = useState(-1)
+  const veil = inGame && liftedEntry !== entry
+  const stillsOnly = mode === 'mobile' && !magic
+  useEffect(() => {
+    if (!inGame || liftedEntry === entry) return
+    const shownAt = performance.now()
+    // Test builds do not sit through the reading time.
+    const minMs = import.meta.env.DEV || import.meta.env.VITE_GAME_API === '1' ? 400 : 3200
+    const timer = window.setInterval(() => {
+      const built =
+        stillsOnly || (useAssetLoad.getState().status === 'done' && desktopRuntime.worldReady)
+      if (built && performance.now() - shownAt >= minMs) setLiftedEntry(entry)
+    }, 150)
+    return () => window.clearInterval(timer)
+  }, [inGame, entry, liftedEntry, stillsOnly])
+
   if (!bootDone) {
     return (
       <div className="screen">
@@ -154,7 +176,7 @@ export function GameShell() {
       <div className="phone-frame">
         <AudioController mode={mode} spatial={mode === 'desktop' || magic} />
         <HorrorEffects />
-        <DirectorDriver paused={screen !== 'game'} />
+        <DirectorDriver paused={screen !== 'game' || veil} />
         {screen === 'warning' && <ContentWarning />}
         {screen === 'title' && <TitleScreen mode={mode} />}
         {(screen === 'game' || screen === 'paused') &&
@@ -166,16 +188,14 @@ export function GameShell() {
               onError={magic ? failMagic : fallBack}
             >
               {assetStatus === 'done' ? (
-                <Suspense fallback={<LoadingScreen />}>
+                <Suspense fallback={null}>
                   <DesktopPresenter
                     paused={screen === 'paused'}
                     onFallback={magic ? failMagic : fallBack}
                     magic={magic}
                   />
                 </Suspense>
-              ) : (
-                <LoadingScreen />
-              )}
+              ) : null}
             </ErrorBoundary>
           ))}
         {screen === 'settings' && (
@@ -186,6 +206,11 @@ export function GameShell() {
           />
         )}
         {screen === 'gallery' && <GalleryScreen />}
+        {inGame && veil && (
+          <div className="loading-veil">
+            <LoadingScreen />
+          </div>
+        )}
         <DebugOverlay />
         {fallbackVisible && (
           <button className="realtime-banner" onClick={() => setFallbackVisible(false)}>

@@ -31,7 +31,7 @@ const SPOTS: Record<string, Point> = {
   // over the threshold to whoever comes up the stairs.
   rustam_body: [0.28, 0, 4.15],
   rustam: [0.28, 1.7, 4.3],
-  rustam_hand: [0.18, 1.2, 5.02],
+  rustam_hand: [0.2, 1.3, 5.0],
   // The raised floorboard in the corridor (night 3/4), under the rug's corner.
   floorboard: [rug.position[0] - 0.7, 0.05, rug.position[2] + 0.35],
   // Night 2's day: the bag of bread on the half-landing sill, Muhabbat opa at 43's chain

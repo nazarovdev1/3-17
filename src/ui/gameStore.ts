@@ -63,6 +63,8 @@ interface GameStore {
   world: WorldState | null
   /** Interactable object ids right now (joined, for cheap comparisons). */
   interactables: string
+  /** Counts the entries into a run (new game, continue, night select): the loading veil's key. */
+  entry: number
   /** Debug: speeds the whole game clock and every timer. */
   speed: number
 
@@ -126,6 +128,7 @@ export const useGame = create<GameStore>((set, get) => {
     meta: { endingsSeen: [], chaptersUnlocked: [], contentWarningAccepted: false },
     world: null,
     interactables: '',
+    entry: 0,
     speed: 1,
 
     setScreen: (screen) => set({ screen }),
@@ -152,18 +155,21 @@ export const useGame = create<GameStore>((set, get) => {
       run.startedAt = now
       run.lastPlayedAt = now
       if (isLateNight(new Date())) run.flags['late_night'] = true
+      set({ entry: get().entry + 1 })
       begin(run, 'n1')
     },
 
     continueRun: () => {
       const run = get().run
       if (!run) return
+      set({ entry: get().entry + 1 })
       begin(run, `n${Math.max(1, run.night)}`)
     },
 
     playNight: (night) => {
       const run = newRun(null)
       run.night = night as GameState['night']
+      set({ entry: get().entry + 1 })
       begin(run, `n${night}`)
     },
 

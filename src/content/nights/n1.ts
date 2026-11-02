@@ -29,8 +29,8 @@ export const night1: Sequence = {
           id: `flat_${circuit}`,
           state: 'off',
         })),
-        // Rustam aka has just unlocked it and stepped into the dark doorway.
-        { type: 'door', id: 'front_door', state: 'open' },
+        // Rustam aka has just unlocked it from inside and waits in the dark doorway. The
+        // door stays shut: nothing opens by itself, the player opens it with E.
         { type: 'object', id: 'rustam', change: 'at_door' },
         { type: 'object', id: 'opposite', change: 'one_lit' },
         phone({
@@ -43,14 +43,20 @@ export const night1: Sequence = {
           heard: false,
         }),
         at(800, sound('chain', 'front_door', 0.5)),
-        at(1900, sound('door_open', 'front_door', 0.6)),
+        at(2300, sound('step_wood', 'rustam_body', 0.35)),
       ],
+    },
+    {
+      // The player opens the door (E): only then does the hand come out of the dark.
+      id: 'n1.door',
+      trigger: on.use('front_door'),
+      actions: [flag('front_opened')],
     },
     // Rustam aka: only a gloved hand, a sleeve and his breath, out of the dark doorway into
     // the phone's light. He has been waiting and holds the form out at once.
     {
       id: 'n1.offer',
-      trigger: on.after('n1.start', 3500),
+      trigger: on.after('n1.door', 1400),
       actions: [
         flag('rustam_offered'),
         { type: 'object', id: 'rustam', change: 'offer_form' },

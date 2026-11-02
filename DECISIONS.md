@@ -587,3 +587,22 @@ Android phones"), recorded here.
       keeps the stills, which the rest of that project covers). `GameShell` probes magic
       capability only on phones: the extra WebGL context it created on desktop at boot pushed
       the quality governor to the low tier. The FPS threshold (>= 55, high tier) is unchanged.
+106.  **R8 owner review fixes.** (a) Night 1 no longer opens the entrance by itself: the door
+      starts shut and only the use key (E, tap on a phone) opens it (`n1.door`, flag
+      `front_opened`); Rustam aka's hand with the form comes 1.4 s after that (`n1.offer`).
+      The mobile stills send the same `interact` when the front door is tapped. Tests: the
+      `signForm` helper and the magic hotspot test first press the door (an `interact` on
+      `front_door`), assertions unchanged. (b) The form could not be taken: the entrance leaf
+      stood between the player and the hand in the sight test. The hand's own door leaf is now
+      ignored for it. (c) The hand was a bare sleeve and a ball with a flat white sheet; it is
+      now a cuffed sleeve, a gloved hand pinching a printed form, held at chest height.
+      (d) The door chain's two plates were one steel mesh that mirrored light as a white card;
+      plates are dull brass and the links grey steel. (e) The 3rd-floor landing had no floor
+      at all: `mergeBySurface` pushed the floor into a `concrete` batch that does not exist
+      for that shell, so `?.push` silently did nothing. The batch is created now; the landing
+      bulb also burns at night below the 4th floor (the software tier lit nothing there), and
+      `metricPlane` is cut into half-metre cells, because the software tier lights vertices
+      only. (f) `DirectorDriver` keeps one frame loop for the shell's life (a paused flag in a
+      ref): re-registering it after the loading veil made it run after the camera's frame and
+      flipped the order the wardrobe test depended on. (g) New menu look (title, pause) and a
+      loading veil with six scary tips; the Director waits behind it until the flat is built.

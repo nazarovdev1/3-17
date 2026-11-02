@@ -129,6 +129,13 @@ loading:
   percent: '{percent} %'
   error: Fayllar yuklanmadi. Internetni tekshirib, qayta urinib koʻring.
   retry: Qayta urinish
+  tip: TIP
+  tip_1: Chiroq oʻchsa, joyingizda turing. Qorongʻida yurgan narsa sizni ham sezadi.
+  tip_2: Yoʻlakda orqangiz bilan turmang. U yerda eshik har safar boshqacha joyda turadi.
+  tip_3: Telefon fonusi zaif. U yoritmagan joyda nima borligini bilmaysiz.
+  tip_4: Qoʻshni xonadondan kelgan tovushni tinglash mumkin. Lekin u ham sizni tinglayotgan boʻlishi mumkin.
+  tip_5: Eshik ochiq qolsa, kimdir kirgan boʻlishi mumkin. Yopiq boʻlsa, kimdir ichkarida qolgan boʻlishi mumkin.
+  tip_6: Soat uchdan oʻn yetti daqiqa oʻtganda hammasi tinch boʻladi. Aynan shuning uchun qoʻrqing.
 
 shell:
   fallback_notice: Tasvir yengil rejimga oʻtdi. Oʻyin davom etadi.

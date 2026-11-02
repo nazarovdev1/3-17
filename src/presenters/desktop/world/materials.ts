@@ -90,9 +90,17 @@ export function metricBox(w: number, h: number, d: number): THREE.BoxGeometry {
   return geometry
 }
 
-/** Horizontal plane (floor or ceiling) with metric UVs. */
+/**
+ * Horizontal plane (floor or ceiling) with metric UVs. Cut into half-metre cells: the
+ * software tier lights vertices only, and a bare quad would be one flat patch of ambient.
+ */
 export function metricPlane(w: number, d: number): THREE.PlaneGeometry {
-  const geometry = new THREE.PlaneGeometry(w, d)
+  const geometry = new THREE.PlaneGeometry(
+    w,
+    d,
+    Math.max(1, Math.ceil(w / 0.5)),
+    Math.max(1, Math.ceil(d / 0.5)),
+  )
   const uv = geometry.getAttribute('uv') as THREE.BufferAttribute
   for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * w, uv.getY(i) * d)
   uv.needsUpdate = true

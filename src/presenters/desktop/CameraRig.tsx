@@ -622,7 +622,10 @@ export function CameraRig({
             'use',
             point,
             id === 'rustam_hand' ? 2.0 : REACH,
-            desktopRuntime.doorLeaves[id === 'door48' ? 'front_door48' : id],
+            // The hand is held out through the entrance: its own door's leaf never hides it.
+            desktopRuntime.doorLeaves[
+              id === 'door48' ? 'front_door48' : id === 'rustam_hand' ? 'front_door' : id
+            ],
           )
       }
       for (const [id, leaf] of Object.entries(desktopRuntime.doorLeaves)) {

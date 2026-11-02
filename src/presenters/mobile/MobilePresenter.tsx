@@ -60,6 +60,8 @@ function Viewpoints({ paused }: { paused: boolean }) {
   const toggleDoor = (id: Parameters<typeof doorPass>[0]) => {
     const pass = doorPass(id, world, doorChoices)
     if (pass.locked) return audio.play('chain', undefined, 0.8)
+    // A door the night waits on (night 1's entrance) hears about the player's hand on it.
+    if (interactableList.split(',').includes(id)) input({ type: 'interact', target: id })
     audio.play(pass.open ? 'door_close' : 'door_open', undefined, 0.8)
     setDoorChoices((c) => ({ ...c, [id]: !pass.open }))
   }

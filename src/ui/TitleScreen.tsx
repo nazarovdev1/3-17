@@ -10,16 +10,21 @@ export function TitleScreen({ mode }: { mode: GameMode }) {
   const startRun = useGame((s) => s.startRun)
 
   return (
-    <div className="screen">
-      <h1 className="title">3:17</h1>
-      <p className="subtitle">{ui('title.tagline')}</p>
-      <div className="menu">
+    <div className="screen title-screen">
+      <div className="title-lamp" aria-hidden="true" />
+      <header className="title-head">
+        <h1 className="title" aria-label="3:17">
+          3<span className="colon">:</span>17
+        </h1>
+        <p className="subtitle">{ui('title.tagline')}</p>
+      </header>
+      <nav className="menu-list">
         {hasRun && <button onClick={continueRun}>{ui('common.continue')}</button>}
         <button onClick={startRun}>{ui('title.new_game')}</button>
         <button onClick={() => setScreen('settings')}>{ui('common.settings')}</button>
         <button onClick={() => setScreen('gallery')}>{ui('title.endings')}</button>
-      </div>
-      <p className="subtitle" style={{ opacity: 0.4, fontSize: 12 }}>
+      </nav>
+      <p className="title-mode">
         {mode === 'desktop' ? ui('title.mode_desktop') : ui('title.mode_mobile')}
       </p>
     </div>

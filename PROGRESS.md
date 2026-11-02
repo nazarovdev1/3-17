@@ -1015,3 +1015,7 @@ spec fails 2 of 3 on the pre-R5 commit 2f6f6f8 too, so it is not a regression); 
 is not relaxed. On the owner's real phone/desktop GPU this needs a confirmation run.
 Open for the owner: real-phone check of the magic window (gyro axes, FPS), voice recordings
 (RECORDING.md), the dark stairwell.
+
+R8 (owner review, DECISION 106): door opens only on E in night 1, form/hand/chain redone,
+3rd-floor landing floor added, new title/pause design, loading veil with tips. Unit tests and
+`npm run check` green; targeted e2e green (desktop doors/audio/horror, small-android mobile set).

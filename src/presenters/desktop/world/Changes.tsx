@@ -174,14 +174,15 @@ export function Changes({
 
 /** The entrance chain: across the gap when fastened, hanging from the frame when not. */
 function DoorChain({ loose, detailed }: { loose: boolean; detailed: boolean }) {
-  // One merged mesh (plates and thirteen links): a single draw call.
-  const { geometry, material } = useMemo(() => {
+  // Two merged meshes (the two small brass plates; thirteen steel links): two draw calls.
+  const parts = useMemo(() => {
     // On the inner faces: the slot plate on the leaf near its free edge, the anchor on the frame.
     const frame = new THREE.Vector3(-0.53, 1.47, 4.597)
     const leaf = new THREE.Vector3(-0.36, 1.47, 4.652)
-    const parts: THREE.BufferGeometry[] = [frame, leaf].map((at) =>
-      new THREE.BoxGeometry(0.03, 0.07, 0.006).translate(at.x, at.y, at.z),
+    const plateParts: THREE.BufferGeometry[] = [frame, leaf].map((at) =>
+      new THREE.BoxGeometry(0.018, 0.05, 0.004).translate(at.x, at.y, at.z),
     )
+    const linkParts: THREE.BufferGeometry[] = []
     for (let i = 0; i < 13; i++) {
       const t = i / 12
       const p = loose
@@ -193,23 +194,35 @@ function DoorChain({ loose, detailed }: { loose: boolean; detailed: boolean }) {
       const link = new THREE.TorusGeometry(0.0085, 0.0021, 6, 12)
       link.rotateX(i % 2 ? Math.PI / 2 : 0)
       if (loose) link.rotateZ(Math.PI / 2)
-      parts.push(link.translate(p.x, p.y, p.z))
+      linkParts.push(link.translate(p.x, p.y, p.z))
     }
-    const geometry = mergeGeometries(parts)
-    parts.forEach((part) => part.dispose())
-    const material = detailed
-      ? new THREE.MeshStandardMaterial({ color: '#8a8d8a', roughness: 0.35, metalness: 1 })
+    const plates = mergeGeometries(plateParts)
+    const links = mergeGeometries(linkParts)
+    ;[...plateParts, ...linkParts].forEach((part) => part.dispose())
+    // Dull brass plates and grey steel links: nothing here may catch the light like a mirror.
+    const plateMaterial = detailed
+      ? new THREE.MeshStandardMaterial({ color: '#5b4a2e', roughness: 0.6, metalness: 0.45 })
+      : new THREE.MeshBasicMaterial({ color: '#2e2a22' })
+    const linkMaterial = detailed
+      ? new THREE.MeshStandardMaterial({ color: '#7a7d7a', roughness: 0.5, metalness: 0.7 })
       : new THREE.MeshBasicMaterial({ color: '#3d3f3d' })
-    return { geometry, material }
+    return { plates, links, plateMaterial, linkMaterial }
   }, [loose, detailed])
   useEffect(
     () => () => {
-      geometry.dispose()
-      material.dispose()
+      parts.plates.dispose()
+      parts.links.dispose()
+      parts.plateMaterial.dispose()
+      parts.linkMaterial.dispose()
     },
-    [geometry, material],
+    [parts],
   )
-  return <mesh name="door-chain" geometry={geometry} material={material} />
+  return (
+    <group name="door-chain">
+      <mesh geometry={parts.plates} material={parts.plateMaterial} />
+      <mesh geometry={parts.links} material={parts.linkMaterial} />
+    </group>
+  )
 }
 
 /** A cloth bundle (tugun) on the landing outside 47: food from home, still warm. */

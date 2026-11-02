@@ -203,8 +203,14 @@ function mergeBySurface(boxes: Box[], landing: boolean) {
     return g
   }
   if (landing) {
-    batches.get('concrete')?.push(plane(9.4, 2.42, -1.7, Y3, 5.99, true))
-    batches.get('whitewash')?.push(plane(9.4, 2.42, -1.7, TOP - 0.005, 5.99, false))
+    // The landing's walls are paint and plaster only: its floor's batch may not exist yet.
+    const into = (surface: Surface) => {
+      const list = batches.get(surface) ?? []
+      batches.set(surface, list)
+      return list
+    }
+    into('concrete').push(plane(9.4, 2.42, -1.7, Y3, 5.99, true))
+    into('whitewash').push(plane(9.4, 2.42, -1.7, TOP - 0.005, 5.99, false))
   }
   return [...batches].map(([surface, parts]) => {
     const geometry = mergeGeometries(parts, false)

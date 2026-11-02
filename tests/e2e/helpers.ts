@@ -72,6 +72,8 @@ export async function startRun(page: Page): Promise<void> {
  */
 export async function signForm(page: Page, name: string, speed = 8): Promise<void> {
   await page.evaluate((s) => window.__game?.setSpeed(s), speed)
+  // The hand with the form comes out only once the door is opened with the use key.
+  await page.evaluate(() => window.__game?.input({ type: 'interact', target: 'front_door' }))
   await expect(page.getByText(ui('form.title'))).toBeVisible({ timeout: 45_000 })
   await page.getByRole('textbox').fill(name)
   await page.getByRole('button', { name: ui('form.sign') }).click()

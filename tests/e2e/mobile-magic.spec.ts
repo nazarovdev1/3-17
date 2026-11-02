@@ -128,6 +128,11 @@ test('an object in reach and in view is tapped where it is', async ({ page }) =>
   await openMagic(page, 1)
   // Night 1 begins on the landing, with the landlord's hand held out.
   await arrive(page, 'landing_s')
+  // The door is opened first (use key); only then does the hand come out with the form.
+  await page.evaluate(() => window.__game.input({ type: 'interact', target: 'front_door' }))
+  await expect
+    .poll(async () => page.evaluate(() => window.__game.interactables()), { timeout: 15_000 })
+    .toContain('rustam_hand')
   const ids = await page.evaluate(() => window.__game.interactables())
   expect(ids).toContain('rustam_hand')
   const hand = page.locator('[data-object="rustam_hand"]')

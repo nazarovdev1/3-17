@@ -15,7 +15,7 @@ import { onDirectorEvents } from '@/ui/gameStore'
 type State = string
 
 const FEET = objectPoint('rustam_body')!
-const BODY: THREE.Vector3Tuple = [FEET[0], 0.88, FEET[2]]
+const BODY: THREE.Vector3Tuple = [FEET[0], 0.9, FEET[2]]
 const HEAD = objectPoint('rustam')!
 const HAND = objectPoint('rustam_hand')!
 const LOCK = objectPoint('key_ring')!
@@ -47,10 +47,60 @@ function keyRing(material: { steel: THREE.Material; brass: THREE.Material }): TH
   return ring
 }
 
+/** A printed form: a heading, ruled lines and tick boxes, so the sheet reads as a form in the dark. */
+function formTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas')
+  canvas.width = 150
+  canvas.height = 210
+  const c = canvas.getContext('2d')!
+  c.fillStyle = '#b9b3a2'
+  c.fillRect(0, 0, 150, 210)
+  c.fillStyle = '#3b3a36'
+  c.fillRect(30, 16, 90, 8)
+  c.fillStyle = '#6d6a62'
+  for (let y = 44; y < 190; y += 18) {
+    c.fillRect(14, y, 86 - ((y / 18) % 3) * 14, 3)
+    c.strokeStyle = '#4a4943'
+    c.strokeRect(112, y - 4, 10, 10)
+  }
+  const map = new THREE.CanvasTexture(canvas)
+  map.colorSpace = THREE.SRGBColorSpace
+  return map
+}
+
+/**
+ * A gloved hand pinching a sheet by its top edge. Local +z points along the arm, away from the
+ * body; the paper hangs below the pinch and faces whoever stands in front of it.
+ */
+function gloveHand(
+  glove: THREE.Material,
+  paper: THREE.Material,
+): { hand: THREE.Group; sheet: THREE.Mesh } {
+  const hand = new THREE.Group()
+  const palm = new THREE.Mesh(new THREE.BoxGeometry(0.082, 0.032, 0.085), glove)
+  palm.position.z = 0.012
+  hand.add(palm)
+  for (let i = 0; i < 4; i++) {
+    const finger = new THREE.Mesh(new THREE.CapsuleGeometry(0.0095, 0.045, 3, 8), glove)
+    finger.rotation.x = Math.PI / 2 + 0.25
+    finger.position.set(-0.03 + i * 0.02, -0.006, 0.086)
+    hand.add(finger)
+  }
+  const thumb = new THREE.Mesh(new THREE.CapsuleGeometry(0.0105, 0.04, 3, 8), glove)
+  thumb.rotation.set(Math.PI / 2 - 0.3, 0.5, 0)
+  thumb.position.set(-0.034, 0.024, 0.07)
+  hand.add(thumb)
+  const sheet = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.21), paper)
+  // Hanging from the pinch under the fingertips.
+  sheet.position.set(-0.004, -0.108, 0.098)
+  hand.add(sheet)
+  return { hand, sheet }
+}
+
 export function Rustam({ state, keysInLock }: { state: State; keysInLock: boolean }) {
   const parts = useMemo(() => {
     const coat = new THREE.MeshStandardMaterial({ color: '#202124', roughness: 1 })
-    const glove = new THREE.MeshStandardMaterial({ color: '#0f0d0c', roughness: 0.55 })
+    const glove = new THREE.MeshStandardMaterial({ color: '#2b2622', roughness: 0.6 })
     const steel = new THREE.MeshStandardMaterial({
       color: '#5c5f63',
       metalness: 0.6,
@@ -61,14 +111,19 @@ export function Rustam({ state, keysInLock }: { state: State; keysInLock: boolea
       metalness: 0.6,
       roughness: 0.5,
     })
+    const formMap = formTexture()
+    // A faint glow of its own: a sheet held in the weak torch must read as paper, not as a hole.
     const paper = new THREE.MeshStandardMaterial({
-      color: '#d9d3c4',
-      roughness: 0.9,
+      map: formMap,
+      emissive: '#ffffff',
+      emissiveMap: formMap,
+      emissiveIntensity: 0.16,
+      roughness: 0.95,
       side: THREE.DoubleSide,
     })
     // A sleeve: wider at the elbow, narrowing to the cuff; the hand is a closed glove.
     // Thick winter wool, a little creased: wider than an arm, open at the dark end.
-    const sleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.058, 0.075, 0.42, 16, 6, true), coat)
+    const sleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.044, 0.072, 0.42, 16, 6, true), coat)
     const crease = sleeve.geometry.getAttribute('position') as THREE.BufferAttribute
     for (let i = 0; i < crease.count; i++) {
       const y = crease.getY(i)
@@ -78,9 +133,15 @@ export function Rustam({ state, keysInLock }: { state: State; keysInLock: boolea
       crease.setZ(i, crease.getZ(i) * k)
     }
     sleeve.geometry.computeVertexNormals()
-    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.045, 14, 10), glove)
-    hand.scale.set(1, 0.7, 1.35)
-    const sheet = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.21), paper)
+    const { hand, sheet } = gloveHand(glove, paper)
+    // A pale shirt cuff between the coat sleeve and the glove.
+    const cuff = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.04, 0.04, 0.035, 14, 1, true),
+      new THREE.MeshStandardMaterial({ color: '#8d8b84', roughness: 1, side: THREE.DoubleSide }),
+    )
+    cuff.geometry.rotateX(Math.PI / 2)
+    cuff.position.z = -0.045
+    hand.add(cuff)
     const keys = keyRing({ steel, brass })
     const lockKeys = keyRing({ steel, brass })
     // In the palm, under the phone's light at a hand's distance: shown as seen, not lit raw.
@@ -119,7 +180,13 @@ export function Rustam({ state, keysInLock }: { state: State; keysInLock: boolea
   useEffect(
     () => () => {
       const { sleeve, hand, sheet, breath, keys, lockKeys } = parts
-      for (const mesh of [sleeve, hand, sheet]) mesh.geometry.dispose()
+      sleeve.geometry.dispose()
+      hand.traverse((o) => {
+        const mesh = o as THREE.Mesh
+        if (mesh.isMesh) mesh.geometry.dispose()
+      })
+      sheet.geometry.dispose()
+      parts.paper.map?.dispose()
       for (const group of [keys, lockKeys, parts.palmKeys])
         group.traverse((o) => (o as THREE.Mesh).isMesh && (o as THREE.Mesh).geometry.dispose())
       for (const sprite of breath) {
@@ -197,9 +264,9 @@ export function Rustam({ state, keysInLock }: { state: State; keysInLock: boolea
     parts.sleeve.lookAt(end.current)
     parts.sleeve.rotateX(Math.PI / 2)
     parts.sleeve.scale.y = start.current.distanceTo(end.current) / 0.42
+    // The hand points along the arm, out of the dark; the paper hangs from its pinch.
+    parts.hand.lookAt(parts.hand.position.clone().add(end.current.clone().sub(start.current)))
     parts.sheet.visible = state === 'offer_form'
-    parts.sheet.position.set(target[0] - 0.02, target[1] + 0.05, target[2] + 0.06)
-    parts.sheet.rotation.set(-0.35, 0.4, 0.1)
     parts.keys.visible = state === 'offer_keys'
     parts.keys.position.set(target[0], target[1] - 0.035, target[2] + 0.03)
     parts.keys.rotation.set(0, 0, Math.sin(t * 2.2) * 0.12)
@@ -218,7 +285,6 @@ export function Rustam({ state, keysInLock }: { state: State; keysInLock: boolea
       <group ref={group}>
         <primitive object={parts.sleeve} />
         <primitive object={parts.hand} />
-        <primitive object={parts.sheet} />
         <primitive object={parts.keys} />
         {parts.breath.map((puff, i) => (
           <primitive key={i} object={puff} />

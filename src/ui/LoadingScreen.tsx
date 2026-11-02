@@ -1,5 +1,17 @@
 import { ui } from '@/content/text'
+import { useEffect, useState } from 'react'
 import { useAssetLoad } from './assetLoadStore'
+
+/** Things the flat's tenants learn too late, shown one at a time while the flat loads. */
+const TIPS = [
+  'loading.tip_1',
+  'loading.tip_2',
+  'loading.tip_3',
+  'loading.tip_4',
+  'loading.tip_5',
+  'loading.tip_6',
+] as const
+const TIP_MS = 5200
 
 /**
  * Diegetic loading screen (FIX_PROMPT §3): Rustam aka's key ring — the door key and the
@@ -10,6 +22,12 @@ export function LoadingScreen() {
   const fraction = total > 0 ? Math.min(1, loaded / total) : 0
   const percent = Math.floor(fraction * 100)
   const failed = status === 'error'
+  // A random tip first, then the rest in turn: nobody reads the same one twice in a row.
+  const [tip, setTip] = useState(() => Math.floor(Math.random() * TIPS.length))
+  useEffect(() => {
+    const timer = window.setInterval(() => setTip((n) => (n + 1) % TIPS.length), TIP_MS)
+    return () => window.clearInterval(timer)
+  }, [])
 
   return (
     <div className="screen loading-screen" data-status={status}>
@@ -64,6 +82,11 @@ export function LoadingScreen() {
       ) : (
         <p className="loading-note">{ui('loading.percent', { percent })}</p>
       )}
+
+      <p className="loading-tip" key={tip} aria-live="off">
+        <span className="loading-tip-label">{ui('loading.tip')}</span>
+        {ui(TIPS[tip]!)}
+      </p>
     </div>
   )
 }
